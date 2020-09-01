@@ -1,0 +1,27 @@
+{
+  "name": "wasm-vips-benchmark",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Benchmark and performance tests for wasm-vips",
+  "homepage": "https://github.com/kleisauke/wasm-vips/tree/master/test/bench#readme",
+  "bugs": {
+    "url": "https://github.com/kleisauke/wasm-vips/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kleisauke/wasm-vips.git",
+    "directory": "test/bench"
+  },
+  "license": "MIT",
+  "author": "Kleis Auke Wolthuizen",
+  "main": "perf.js",
+  "scripts": {
+    "test": "node --experimental-wasm-threads --experimental-wasm-simd --experimental-wasm-bulk-memory perf"
+  },
+  "devDependencies": {
+    "benchmark": "^2.1.4"
+  },
+  "engines": {
+    "node": "14"
+  }
+}

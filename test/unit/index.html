@@ -1,0 +1,152 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>wasm-vips testsuite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/8.1.3/mocha.min.css" crossorigin="anonymous"/>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        #mocha {
+            font: 13px "Segoe UI", Arial, "HelveticaNeue-Light", sans-serif;
+        }
+
+        #mocha-stats {
+            font-size: initial;
+        }
+
+        #mocha h1 {
+            font-size: 1.8em;
+            font-weight: initial;
+        }
+
+        #mocha .suite .suite h1 {
+            font-size: 1.4em;
+        }
+
+        #mocha h2 {
+            font-size: 1.2em;
+            font-weight: initial;
+            cursor: default;
+        }
+
+        #mocha .test.pass .duration {
+            font-size: 13px;
+        }
+
+        #mocha .test.fail::before {
+            font-size: initial;
+        }
+
+        #mocha .test.pass::before {
+            content: '\2714';
+            font-size: initial;
+            color: forestgreen;
+        }
+
+        #mocha .test.pending::before {
+            content: '\25CF';
+            font-size: initial;
+            color: #0b97c4;
+        }
+
+        #mocha .test.pending:hover h2::after {
+            content: ' (skipped)'
+        }
+
+        #mocha .test pre:not(.error) {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+<div id="mocha"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/8.1.3/mocha.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.2.0/chai.min.js" crossorigin="anonymous"></script>
+<script class="mocha-init">
+    mocha.setup({
+        ui: 'bdd',
+        slow: 5000,
+        timeout: 60000
+    });
+</script>
+<script src="lib/web/vips.js"></script>
+<script src="helpers.js"></script>
+<script src="test_arithmetic.js"></script>
+<script src="test_colour.js"></script>
+<script src="test_connection.js"></script>
+<script src="test_conversion.js"></script>
+<script src="test_convolution.js"></script>
+<script src="test_create.js"></script>
+<script src="test_draw.js"></script>
+<script src="test_foreign.js"></script>
+<script src="test_histogram.js"></script>
+<script src="test_iofuncs.js"></script>
+<script src="test_morphology.js"></script>
+<script src="test_mosaicing.js"></script>
+<script src="test_resample.js"></script>
+<script class="mocha-exec">
+    // Global variables used throughout the unit tests
+    const expect = chai.expect;
+    const assert = chai.assert;
+    let vips;
+    let cleanup;
+
+    const options = {
+        print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
+        preRun: (module) => {
+            module['EMBIND_AUTOMATIC_DELETELATER'] = true;
+            module.setDelayFunction(fn => cleanup = fn);
+
+            // Handy for debugging
+            // module.ENV.G_MESSAGES_DEBUG = 'VIPS';
+
+            module.FS.mkdir('images');
+            for (const file of Helpers.TEST_FILES)
+                module.FS.createPreloadedFile('images', file.split('/').pop(), 'test/unit/' + file, true, false);
+        },
+        postRun: (module) => {
+            const pad = 30;
+            const have = (name) => module.Utils.typeFind('VipsOperation', name) !== 0;
+
+            console.log('vips version:'.padEnd(pad), module.Utils.vipsVersion());
+            //console.log(module.Utils.vipsConfig());
+
+            console.log('Cache max mem:'.padEnd(pad), module.Utils.getCacheMaxMem());
+            console.log('Cache max operations:'.padEnd(pad), module.Utils.getCacheMax());
+            console.log('Cache current operations:'.padEnd(pad), module.Utils.getCacheSize());
+            console.log('Cache max open files:'.padEnd(pad), module.Utils.getCacheMaxFiles());
+
+            console.log('Memory allocations:'.padEnd(pad), module.Utils.getAllocations());
+            console.log('Memory currently allocated:'.padEnd(pad), module.Utils.getMem());
+            console.log('Memory high water:'.padEnd(pad), module.Utils.getMemHighwater());
+
+            console.log('Concurrency:'.padEnd(pad), module.Utils.getConcurrency());
+
+            console.log('JPEG support:'.padEnd(pad), have('jpegload') ? 'yes' : 'no');
+            console.log('PNG support:'.padEnd(pad), have('pngload') ? 'yes' : 'no');
+            console.log('TIFF support:'.padEnd(pad), have('tiffload') ? 'yes' : 'no');
+            console.log('WebP support:'.padEnd(pad), have('webpload') ? 'yes' : 'no');
+
+            console.log('load GIF:'.padEnd(pad), have('gifload') ? 'yes' : 'no');
+            console.log('load SVG:'.padEnd(pad), have('svgload') ? 'yes' : 'no');
+
+            console.log('Text rendering support:'.padEnd(pad), have('text') ? 'yes' : 'no');
+
+            console.log('ICC profile support with lcms:'.padEnd(pad), module.Utils.isIccPresent() ? 'yes' : 'no');
+            console.log('SIMD support with liborc:'.padEnd(pad), module.Utils.isVectorEnabled() ? 'yes' : 'no');
+        }
+    };
+
+    Vips(options).then(instance => {
+        vips = instance;
+        mocha.run();
+    });
+</script>
+</body>
+</html>

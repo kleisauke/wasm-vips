@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Fri, 31 Jul 2020 13:01:10 +0200
+Subject: [PATCH 1/1] Convert arithmetic vectors into JS arrays and vice versa
+
+See: #11070.
+
+Upstream-Status: Pending
+
+diff --git a/system/include/emscripten/wire.h b/system/include/emscripten/wire.h
+index 1111111..2222222 100644
+--- a/system/include/emscripten/wire.h
++++ b/system/include/emscripten/wire.h
+@@ -307,6 +307,26 @@ namespace emscripten {
+             }
+         };
+ 
++        template<typename T>
++        struct BindingType<std::vector<T>, typename std::enable_if<std::is_trivially_copyable<T>::value>::type> {
++                using Vector = std::vector<T>;
++                struct VectorStruct {
++                        size_t length;
++                        T data[]; // Flexible array member
++                };
++                using WireType = VectorStruct *;
++
++                static WireType toWireType(const Vector& v) {
++                        WireType wt = (WireType)malloc(offsetof(struct VectorStruct, data) + v.size() * sizeof(T));
++                        wt->length = v.size();
++                        std::copy(v.begin(), v.end(), wt->data);
++                        return wt;
++                }
++                static Vector fromWireType(WireType v) {
++                        return Vector(v->data, v->data + v->length);
++                }
++        };
++
+         template<typename T>
+         struct BindingType<const T> : public BindingType<T> {
+         };

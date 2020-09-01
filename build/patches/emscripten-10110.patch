@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Andrei Alexeyev <akari@taisei-project.org>
+Date: Fri, 10 Jan 2020 01:18:47 +0200
+Subject: [PATCH 1/2] Make dlmalloc align to max_align_t
+
+Required by C and C++ standards. emmalloc change incoming.
+
+Upstream-Status: Submitted
+
+diff --git a/system/lib/dlmalloc.c b/system/lib/dlmalloc.c
+index 1111111..2222222 100644
+--- a/system/lib/dlmalloc.c
++++ b/system/lib/dlmalloc.c
+@@ -26,6 +26,12 @@
+ #define USE_SPIN_LOCKS 0 // Ensure we use pthread_mutex_t.
+ #endif
+ 
++/* `mallloc`ed pointers must be aligned at least as strictly as max_align_t. */
++#ifndef MALLOC_ALIGNMENT
++#include <stddef.h>
++#define MALLOC_ALIGNMENT (__alignof__(max_align_t))
++#endif
++
+ #endif
+ 
+ 
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Andrei Alexeyev <akari@taisei-project.org>
+Date: Wed, 15 Jan 2020 07:44:18 +0200
+Subject: [PATCH 2/2] Make emmalloc align to max_align_t
+
+Upstream-Status: Submitted
+
+diff --git a/system/lib/emmalloc.cpp b/system/lib/emmalloc.cpp
+index 1111111..2222222 100644
+--- a/system/lib/emmalloc.cpp
++++ b/system/lib/emmalloc.cpp
+@@ -40,6 +40,7 @@
+  *    malloc.
+  */
+ 
++#include <stddef.h>
+ #include <stdint.h>
+ #include <unistd.h>
+ #include <memory.h>
+@@ -61,7 +62,7 @@ extern "C"
+ 
+ // Configuration: specifies the minimum alignment that malloc()ed memory outputs. Allocation requests with smaller alignment
+ // than this will yield an allocation with this much alignment.
+-#define MALLOC_ALIGNMENT 8
++#define MALLOC_ALIGNMENT __alignof__(max_align_t)
+ 
+ // Configuration: If EMMALLOC_USE_64BIT_OPS is specified, emmalloc uses 64 buckets for free memory regions instead of just 32.
+ // When building to target asm.js/wasm2js, 64-bit ops are disabled, but in Wasm builds, 64-bit ops are enabled. (this is

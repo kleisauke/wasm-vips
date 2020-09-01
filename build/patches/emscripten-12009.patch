@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Sun, 23 Aug 2020 13:34:06 +0200
+Subject: [PATCH 1/1]  Remove superfluous debug print for Node. NFC.
+
+Upstream-Status: Accepted [https://github.com/emscripten-core/emscripten/commit/bf94062dd8d612b59a0407eaee39a11919f60965]
+
+diff --git a/src/library_pthread.js b/src/library_pthread.js
+index 1111111..2222222 100644
+--- a/src/library_pthread.js
++++ b/src/library_pthread.js
+@@ -368,7 +368,6 @@ var LibraryPThread = {
+           worker.onerror(data);
+         });
+         worker.on('exit', function(data) {
+-          console.log('worker exited - TODO: update the worker queue?');
+         });
+       }
+ #endif

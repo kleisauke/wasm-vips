@@ -1,0 +1,13 @@
+[binaries]
+c = 'emcc'
+cpp = 'em++'
+ld = 'wasm-ld'
+ar = 'emar'
+ranlib = 'emranlib'
+pkgconfig = ['emconfigure', 'pkg-config']
+
+[host_machine]
+system = 'emscripten'
+cpu_family = 'wasm32'
+cpu = 'wasm32'
+endian = 'little'

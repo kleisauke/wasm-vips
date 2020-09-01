@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Fri, 10 Apr 2020 14:00:00 +0200
+Subject: [PATCH 1/1] Add EMBIND_AUTOMATIC_DELETELATER option that calls deleteLater() on construction
+
+Upstream-Status: Pending
+
+diff --git a/src/embind/embind.js b/src/embind/embind.js
+index 1111111..2222222 100644
+--- a/src/embind/embind.js
++++ b/src/embind/embind.js
+@@ -50,6 +50,9 @@ var LibraryEmbind = {
+     Module['getLiveInheritedInstances'] = getLiveInheritedInstances;
+     Module['flushPendingDeletes'] = flushPendingDeletes;
+     Module['setDelayFunction'] = setDelayFunction;
++#if EMBIND_AUTOMATIC_DELETELATER
++    Module['EMBIND_AUTOMATIC_DELETELATER'] = true;
++#endif
+ #if IN_TEST_HARNESS
+ #if DYNAMIC_EXECUTION
+     // Without dynamic execution, dynamically created functions will have no
+@@ -1662,7 +1665,10 @@ var LibraryEmbind = {
+   $attachFinalizer__deps: ['$finalizationGroup', '$detachFinalizer',
+                            '$releaseClassHandle'],
+   $attachFinalizer: function(handle) {
+-    if ('undefined' === typeof FinalizationGroup) {
++    if (Module['EMBIND_AUTOMATIC_DELETELATER']) {
++        attachFinalizer = function (handle) { return handle['deleteLater'](); };
++        return attachFinalizer(handle);
++    } else if ('undefined' === typeof FinalizationGroup) {
+         attachFinalizer = function (handle) { return handle; };
+         return handle;
+     }
+diff --git a/src/settings.js b/src/settings.js
+index 1111111..2222222 100644
+--- a/src/settings.js
++++ b/src/settings.js
+@@ -1549,6 +1549,14 @@ var TEXTDECODER = 1;
+ // Disable this to support binary data transfer.
+ var EMBIND_STD_STRING_IS_UTF8 = 1;
+ 
++// Embind specific: If enabled, deleteLater() will automatically be called
++// during the construction of handles. You can also set this on runtime within
++// the preRun() function, for example:
++//  var Module = {
++//    preRun: [function(module) { module['EMBIND_AUTOMATIC_DELETELATER'] = true }]
++//  };
++var EMBIND_AUTOMATIC_DELETELATER = 0;
++
+ // If set to 1, enables support for transferring canvases to pthreads and
+ // creating WebGL contexts in them, as well as explicit swap control for GL
+ // contexts. This needs browser support for the OffscreenCanvas specification.

@@ -1,0 +1,33 @@
+{
+  "name": "wasm-vips",
+  "version": "0.0.1",
+  "description": "libvips for the browser and Node.js, compiled to WebAssembly with Emscripten",
+  "homepage": "https://github.com/kleisauke/wasm-vips",
+  "bugs": {
+    "url": "https://github.com/kleisauke/wasm-vips/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kleisauke/wasm-vips.git"
+  },
+  "license": "MIT",
+  "author": "Kleis Auke Wolthuizen",
+  "main": "lib/node/vips.js",
+  "files": [
+    "lib/node/**"
+  ],
+  "scripts": {
+    "build:dockerimage": "docker build -t wasm-vips .",
+    "build:emscripten": "docker run --rm -v $(pwd):/src wasm-vips ./build.sh -e web",
+    "build": "npm run build:dockerimage && npm run build:emscripten",
+    "test:browser": "serve -c test/unit/serve.json",
+    "test": "node --experimental-wasm-threads --experimental-wasm-simd --experimental-wasm-bulk-memory node_modules/mocha/bin/mocha -s 5000 -t 60000 ./test/unit/*.js -r test/unit/node-helper.js",
+    "bench:browser": "serve -c test/bench/serve.json",
+    "bench": "cd test/bench && npm run test"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.1.3",
+    "serve": "^11.3.2"
+  }
+}

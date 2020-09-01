@@ -1,0 +1,369 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Fri, 28 Aug 2020 19:00:00 +0200
+Subject: [PATCH 1/1] Work in progress: wasm32 support for libffi
+
+Implements basic support for void/int/float/double/int64,
+but not yet struct or complex. The closure API is also NYI.
+
+Based on:
+https://github.com/brion/libffi/commits/emscripten-work
+
+Tested with:
+emconfigure ./configure --host=wasm32-unknown-linux \
+  --enable-static --disable-builddir --disable-raw-api \
+  CFLAGS=-DWASM_BIGINT
+emmake make
+EMMAKEN_JUST_CONFIGURE=1 emmake make check \
+  RUNTESTFLAGS="CFLAGS_FOR_TARGET='-s WASM_BIGINT=1'"
+
+Co-authored-by: Brion Vibber <brion@pobox.com>
+
+Upstream-Status: Pending
+
+diff --git a/Makefile.am b/Makefile.am
+index 1111111..2222222 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -72,6 +72,7 @@ noinst_HEADERS = \
+ 	src/sparc/ffitarget.h src/sparc/internal.h			\
+ 	src/tile/ffitarget.h						\
+ 	src/vax/ffitarget.h						\
++	src/wasm32/ffitarget.h						\
+ 	src/x86/ffitarget.h src/x86/internal.h src/x86/internal64.h src/x86/asmnames.h \
+ 	src/xtensa/ffitarget.h						\
+ 	src/dlmalloc.c
+@@ -99,7 +100,8 @@ EXTRA_libffi_la_SOURCES = src/aarch64/ffi.c src/aarch64/sysv.S \
+ 	src/s390/sysv.S src/sh/ffi.c src/sh/sysv.S src/sh64/ffi.c \
+ 	src/sh64/sysv.S src/sparc/ffi.c src/sparc/ffi64.c \
+ 	src/sparc/v8.S src/sparc/v9.S src/tile/ffi.c src/tile/tile.S \
+-	src/vax/ffi.c src/vax/elfbsd.S src/x86/ffi.c src/x86/sysv.S \
++	src/vax/ffi.c src/vax/elfbsd.S src/wasm32/ffi.c \
++	src/x86/ffi.c src/x86/sysv.S \
+ 	src/x86/ffiw64.c src/x86/win64.S src/x86/ffi64.c \
+ 	src/x86/unix64.S src/x86/sysv_intel.S src/x86/win64_intel.S \
+ 	src/xtensa/ffi.c src/xtensa/sysv.S
+diff --git a/configure.host b/configure.host
+index 1111111..2222222 100644
+--- a/configure.host
++++ b/configure.host
+@@ -244,6 +244,11 @@ case "${host}" in
+ 	SOURCES="ffi.c elfbsd.S"
+ 	;;
+ 
++  wasm32-*-*)
++	TARGET=wasm32; TARGETDIR=wasm32
++	SOURCES="ffi.c"
++	;;
++
+   xtensa*-*)
+ 	TARGET=XTENSA; TARGETDIR=xtensa
+ 	SOURCES="ffi.c sysv.S"
+diff --git a/src/wasm32/ffi.c b/src/wasm32/ffi.c
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/src/wasm32/ffi.c
+@@ -0,0 +1,189 @@
++/* -----------------------------------------------------------------------
++   ffi.c - Copyright (c) 2018  Brion Vibber
++
++   wasm32/emscripten Foreign Function Interface
++
++   Permission is hereby granted, free of charge, to any person obtaining
++   a copy of this software and associated documentation files (the
++   ``Software''), to deal in the Software without restriction, including
++   without limitation the rights to use, copy, modify, merge, publish,
++   distribute, sublicense, and/or sell copies of the Software, and to
++   permit persons to whom the Software is furnished to do so, subject to
++   the following conditions:
++
++   The above copyright notice and this permission notice shall be included
++   in all copies or substantial portions of the Software.
++
++   THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND,
++   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++   NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++   HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
++   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++   DEALINGS IN THE SOFTWARE.
++   ----------------------------------------------------------------------- */
++
++#include <ffi.h>
++#include <ffi_common.h>
++#include <stdint.h>
++#include <stdlib.h>
++
++#include <emscripten/emscripten.h>
++
++ffi_status FFI_HIDDEN
++ffi_prep_cif_machdep(ffi_cif *cif)
++{
++  return FFI_OK;
++}
++
++EM_JS(void, ffi_call, (ffi_cif *cif, ffi_fp fn, void *rvalue, void **avalue), {
++  var cif_abi = HEAPU32[cif >> 2];
++  var cif_nargs = HEAPU32[(cif + 4) >> 2];
++  var cif_arg_types = HEAPU32[(cif + 8) >> 2];
++  var cif_rtype = HEAPU32[(cif + 12) >> 2];
++
++  var args = [];
++  var rtype = HEAPU16[(cif_rtype + 6 /* rtype->type*/ ) >> 1];
++
++#if WASM_BIGINT
++  if (rtype === /* FFI_TYPE_STRUCT */ 13) {
++    throw new Error('struct ret marshalling nyi');
++  } else if (rtype === /* FFI_TYPE_COMPLEX */ 15) {
++    throw new Error('complex ret marshalling nyi');
++  } else if (rtype < 0 || rtype > 14) {
++    throw new Error('Unexpected rtype ' + rtype);
++  }
++#else
++  var sig;
++  if (rtype === /* FFI_TYPE_VOID */ 0) {
++    sig = 'v';
++  } else if (rtype === /* FFI_TYPE_INT */ 1 ||
++             rtype === /* FFI_TYPE_UINT8 */ 5 ||
++             rtype === /* FFI_TYPE_SINT8 */ 6 ||
++             rtype === /* FFI_TYPE_UINT16 */ 7 ||
++             rtype === /* FFI_TYPE_SINT16 */ 8 ||
++             rtype === /* FFI_TYPE_UINT32 */ 9 ||
++             rtype === /* FFI_TYPE_SINT32 */ 10 ||
++             rtype === /* FFI_TYPE_POINTER */ 14) {
++    sig = 'i';
++  } else if (rtype === /* FFI_TYPE_FLOAT */ 2) {
++    sig = 'f';
++  } else if (rtype === /* FFI_TYPE_DOUBLE */ 3 ||
++             rtype === /* FFI_TYPE_LONGDOUBLE */ 4) {
++    sig = 'd';
++  } else if (rtype === /* FFI_TYPE_UINT64 */ 11 ||
++             rtype === /* FFI_TYPE_SINT64 */ 12) {
++    // Warning: returns a truncated 32-bit integer directly.
++    // High bits are in $tempRet0
++    sig = 'j';
++  } else if (rtype === /* FFI_TYPE_STRUCT */ 13) {
++    throw new Error('struct ret marshalling nyi');
++  } else if (rtype === /* FFI_TYPE_COMPLEX */ 15) {
++    throw new Error('complex ret marshalling nyi');
++  } else {
++    throw new Error('Unexpected rtype ' + rtype);
++  }
++#endif
++
++  for (var i = 0; i < cif_nargs; i++) {
++    var ptr = HEAPU32[(avalue >> 2) + i];
++
++    var arg_type = HEAPU32[(cif_arg_types >> 2) + i];
++    var typ = HEAPU16[(arg_type + 6) >> 1];
++
++    if (typ === /* FFI_TYPE_INT*/ 1 || typ === /* FFI_TYPE_SINT32 */ 10) {
++      args.push(HEAP32[ptr >> 2]);
++#if !WASM_BIGINT
++      sig += 'i';
++#endif
++    } else if (typ === /* FFI_TYPE_FLOAT */ 2) {
++      args.push(HEAPF32[ptr >> 2]);
++#if !WASM_BIGINT
++      sig += 'f';
++#endif
++    } else if (typ === /* FFI_TYPE_DOUBLE */ 3 || typ === /* FFI_TYPE_LONGDOUBLE */ 4) {
++      args.push(HEAPF64[ptr >> 3]);
++#if !WASM_BIGINT
++      sig += 'd'; 
++#endif
++    } else if (typ === /* FFI_TYPE_UINT8*/ 5) {
++      args.push(HEAPU8[ptr]);
++#if !WASM_BIGINT
++      sig += 'i';
++#endif
++    } else if (typ === /* FFI_TYPE_SINT8 */ 6) {
++      args.push(HEAP8[ptr]);
++#if !WASM_BIGINT
++      sig += 'i';
++#endif
++    } else if (typ === /* FFI_TYPE_UINT16 */ 7) {
++      args.push(HEAPU16[ptr >> 1]);
++#if !WASM_BIGINT
++      sig += 'i';
++#endif
++    } else if (typ === /* FFI_TYPE_SINT16 */ 8) {
++      args.push(HEAP16[ptr >> 1]);
++#if !WASM_BIGINT
++      sig += 'i';
++#endif
++    } else if (typ === /* FFI_TYPE_UINT32 */ 9 || typ === /* FFI_TYPE_POINTER */ 14) {
++      args.push(HEAPU32[ptr >> 2]);
++#if !WASM_BIGINT
++      sig += 'i';
++#endif
++    } else if (typ === /* FFI_TYPE_UINT64 */ 11 || typ === /* FFI_TYPE_SINT64 */ 12) {
++#if WASM_BIGINT
++      args.push(BigInt(HEAPU32[ptr >> 2]) | (BigInt(HEAPU32[(ptr + 4) >> 2]) << BigInt(32)));
++#else
++      // LEGALIZE_JS_FFI mode splits i64 (j) into two i32 args
++      // for compatibility with JavaScript's f64-based numbers.
++      args.push(HEAPU32[ptr >> 2]);
++      args.push(HEAPU32[(ptr + 4) >> 2]);
++      sig += 'j';
++#endif
++    } else if (typ === /* FFI_TYPE_STRUCT */ 13) {
++      throw new Error('struct marshalling nyi');
++    } else if (typ === /* FFI_TYPE_COMPLEX */ 15) {
++      throw new Error('complex marshalling nyi');
++    } else {
++      throw new Error('Unexpected type ' + typ);
++    }
++  }
++
++#if WASM_BIGINT
++  var result = wasmTable.get(fn).apply(null, args);
++#else
++  var result = dynCall(sig, fn, args);
++#endif
++
++  if (rtype === 0) {
++    // void
++  } else if (rtype === 1 || rtype === 9 || rtype === 10 || rtype === 14) {
++    HEAP32[rvalue >> 2] = result;
++  } else if (rtype === 2) {
++    HEAPF32[rvalue >> 2] = result;
++  } else if (rtype === 3 || rtype === 4) {
++    HEAPF64[rvalue >> 3] = result;
++  } else if (rtype === 5 || rtype === 6) {
++    HEAP8[rvalue] = result;
++  } else if (rtype === 7 || rtype === 8) {
++    HEAP16[rvalue >> 1] = result;
++  } else if (rtype === 11 || rtype === 12) {
++#if WASM_BIGINT
++    HEAP32[rvalue >> 2] = Number(result & BigInt(0xffffffff)) | 0;
++    HEAP32[(rvalue + 4) >> 2] = Number(result >> BigInt(32)) | 0;
++#else
++    // Warning: returns a truncated 32-bit integer directly.
++    // High bits are in $tempRet0
++    HEAP32[rvalue >> 2] = result;
++    HEAP32[(rvalue + 4) >> 2] = Module.getTempRet0();
++#endif
++  } else if (rtype === 13) {
++    throw new Error('struct ret marshalling nyi');
++  } else if (rtype === 15) {
++    throw new Error('complex ret marshalling nyi');
++  } else {
++    throw new Error('Unexpected rtype ' + rtype);
++  }
++});
+diff --git a/src/wasm32/ffitarget.h b/src/wasm32/ffitarget.h
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/src/wasm32/ffitarget.h
+@@ -0,0 +1,59 @@
++/* -----------------------------------------------------------------*-C-*-
++   ffitarget.h - Copyright (c) 2018  Brion Vibber
++   Target configuration macros for wasm32.
++
++   Permission is hereby granted, free of charge, to any person obtaining
++   a copy of this software and associated documentation files (the
++   ``Software''), to deal in the Software without restriction, including
++   without limitation the rights to use, copy, modify, merge, publish,
++   distribute, sublicense, and/or sell copies of the Software, and to
++   permit persons to whom the Software is furnished to do so, subject to
++   the following conditions:
++
++   The above copyright notice and this permission notice shall be included
++   in all copies or substantial portions of the Software.
++
++   THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND,
++   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++   NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++   HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
++   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++   DEALINGS IN THE SOFTWARE.
++
++   ----------------------------------------------------------------------- */
++
++#ifndef LIBFFI_TARGET_H
++#define LIBFFI_TARGET_H
++
++#ifndef LIBFFI_H
++#error "Please do not include ffitarget.h directly into your source.  Use ffi.h instead."
++#endif
++
++/* ---- Generic type definitions ----------------------------------------- */
++
++typedef unsigned long ffi_arg;
++typedef signed long ffi_sarg;
++
++// TODO: https://github.com/emscripten-core/emscripten/issues/9868
++typedef void (*ffi_fp)(void);
++
++typedef enum ffi_abi {
++  FFI_FIRST_ABI = 0,
++  FFI_WASM32, // "raw", no structures or varargs
++  FFI_WASM32_EMSCRIPTEN, // structures, varargs, and split 64-bit params
++  FFI_LAST_ABI,
++#ifdef EMSCRIPTEN
++  FFI_DEFAULT_ABI = FFI_WASM32_EMSCRIPTEN
++#else  
++  FFI_DEFAULT_ABI = FFI_WASM32
++#endif  
++} ffi_abi;
++
++#define FFI_CLOSURES 0
++#define FFI_GO_CLOSURES 0
++#define FFI_TRAMPOLINE_SIZE 24
++#define FFI_NATIVE_RAW_API 0
++
++#endif
+diff --git a/testsuite/lib/libffi.exp b/testsuite/lib/libffi.exp
+index 1111111..2222222 100644
+--- a/testsuite/lib/libffi.exp
++++ b/testsuite/lib/libffi.exp
+@@ -216,6 +216,13 @@ proc libffi-dg-test-1 { target_compile prog do_what extra_tool_flags } {
+ 	set output_match [lreplace $output_match 1 1 $x]
+     }
+ 
++    if { [ istarget "wasm32-*-*" ] } {
++        # emscripten will get confused if told to build as .exe
++        set exec_suffix ""
++    } else {
++        set exec_suffix ".exe"
++    }
++
+     # Set up the compiler flags, based on what we're going to do.
+ 
+     set options [list]
+@@ -226,7 +233,7 @@ proc libffi-dg-test-1 { target_compile prog do_what extra_tool_flags } {
+ 	}
+ 	"link" {
+ 	    set compile_type "executable"
+-	    set output_file "[file rootname [file tail $prog]].exe"
++	    set output_file "[file rootname [file tail $prog]]$exec_suffix"
+ 	    # The following line is needed for targets like the i960 where
+ 	    # the default output file is b.out.  Sigh.
+ 	}
+@@ -235,7 +242,7 @@ proc libffi-dg-test-1 { target_compile prog do_what extra_tool_flags } {
+ 	    # FIXME: "./" is to cope with "." not being in $PATH.
+ 	    # Should this be handled elsewhere?
+ 	    # YES.
+-	    set output_file "./[file rootname [file tail $prog]].exe"
++	    set output_file "./[file rootname [file tail $prog]]$exec_suffix"
+ 	    # This is the only place where we care if an executable was
+ 	    # created or not.  If it was, dg.exp will try to run it.
+ 	    remote_file build delete $output_file;
+@@ -405,6 +412,11 @@ proc libffi_target_compile { source dest type options } {
+ 	lappend options "libs= -lpthread"
+     }
+ 
++    if { [string match "wasm32-*" $target_triplet] } {
++	# emscripten sometimes doesn't see the filesystem which breaks the tests using stdout
++	lappend options "additional_flags=-s FORCE_FILESYSTEM=1"
++    }
++
+     verbose "options: $options"
+     return [target_compile $source $dest $type $options]
+ }

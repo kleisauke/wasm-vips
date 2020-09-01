@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Sun, 23 Aug 2020 13:07:39 +0200
+Subject: [PATCH 1/1] Allow Atomics.wait to be called on the main thread for Node
+
+This restriction seems to apply only to browsers.
+
+Upstream-Status: Accepted [https://github.com/emscripten-core/emscripten/commit/334c79c99ab115d1387bb3d635a54b38789408fe]
+
+diff --git a/src/library_pthread.js b/src/library_pthread.js
+index 1111111..2222222 100644
+--- a/src/library_pthread.js
++++ b/src/library_pthread.js
+@@ -1111,7 +1111,7 @@ var LibraryPThread = {
+   emscripten_futex_wait__deps: ['_main_thread_futex_wait_address', 'emscripten_main_thread_process_queued_calls'],
+   emscripten_futex_wait: function(addr, val, timeout) {
+     if (addr <= 0 || addr > HEAP8.length || addr&3 != 0) return -{{{ cDefine('EINVAL') }}};
+-    if (ENVIRONMENT_IS_WORKER) {
++    if (ENVIRONMENT_IS_NODE || ENVIRONMENT_IS_WORKER) {
+ #if PTHREADS_PROFILING
+       PThread.setThreadStatusConditional(_pthread_self(), {{{ cDefine('EM_THREAD_STATUS_RUNNING') }}}, {{{ cDefine('EM_THREAD_STATUS_WAITFUTEX') }}});
+ #endif

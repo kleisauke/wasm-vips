@@ -1,0 +1,741 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Wed, 18 Sep 2019 14:00:00 +0200
+Subject: [PATCH 1/8] Revert "Meson: Extract objects from convenience libraries to
+ link them"
+
+This reverts commit 62af03bda8a1d649b079a0e77d3687695d0ab7d3.
+
+Upstream-Status: Inappropriate [other]
+Upstream may still depend on an older Meson version.
+
+diff --git a/gio/meson.build b/gio/meson.build
+index 1111111..2222222 100644
+--- a/gio/meson.build
++++ b/gio/meson.build
+@@ -337,12 +337,6 @@ local_sources = files(
+ 
+ platform_deps = []
+ internal_deps = []
+-# TODO: internal_objects is a workaround for
+-# <https://github.com/mesonbuild/meson/issues/3934> and
+-# <https://github.com/mesonbuild/meson/issues/3937>. When we can depend
+-# on a meson version where those are fixed, revert the commit that
+-# introduced this workaround.
+-internal_objects = []
+ appinfo_sources = []
+ contenttype_sources = []
+ portal_sources = []
+@@ -413,7 +407,6 @@ if host_system != 'windows'
+ 
+   subdir('xdgmime')
+   internal_deps += [xdgmime_lib]
+-  internal_objects += [xdgmime_lib.extract_all_objects()]
+ 
+   install_headers(gio_unix_include_headers, subdir : 'gio-unix-2.0/gio')
+ 
+@@ -744,20 +737,17 @@ gioenumtypes_dep = declare_dependency(sources : [gioenumtypes_h, glib_enumtypes_
+ if glib_conf.has('HAVE_SYS_INOTIFY_H') and have_func_inotify_init1
+   subdir('inotify')
+   internal_deps += [ inotify_lib ]
+-  internal_objects += [inotify_lib.extract_all_objects()]
+ endif
+ 
+ # kevent
+ if have_func_kqueue and have_func_kevent
+   subdir('kqueue')
+   internal_deps += [ kqueue_lib ]
+-  internal_objects += [kqueue_lib.extract_all_objects()]
+ endif
+ 
+ if host_system == 'windows'
+   subdir('win32')
+   internal_deps += [ giowin32_lib ]
+-  internal_objects += [giowin32_lib.extract_all_objects()]
+ endif
+ 
+ if have_bash
+@@ -782,12 +772,12 @@ endif
+ libgio = library('gio-2.0',
+   gioenumtypes_h, gioenumtypes_c, gnetworking_h, gio_sources,
+   gio_dtrace_hdr, gio_dtrace_obj,
+-  objects : internal_objects,
+   version : library_version,
+   soversion : soversion,
+   darwin_versions : darwin_versions,
+   install : true,
+   include_directories : [configinc, gioinc],
++  link_with : internal_deps,
+   #  '$(gio_win32_res_ldflag)',
+   dependencies : [libz_dep, libdl_dep, libmount_dep, libglib_dep,
+                   libgobject_dep, libgmodule_dep, selinux_dep, xattr_dep,
+diff --git a/glib/gnulib/meson.build b/glib/gnulib/meson.build
+index 1111111..2222222 100644
+--- a/glib/gnulib/meson.build
++++ b/glib/gnulib/meson.build
+@@ -368,4 +368,3 @@ gnulib_lib = static_library('gnulib', gnulib_sources,
+   pic : true,
+   c_args : ['-DGCC_LINT=1', '-DLIBDIR="@0@"'.format(glib_libdir), '-DGLIB_COMPILATION', '-DG_LOG_DOMAIN="GLib"' ] + glib_hidden_visibility_args + extra_gnulib_args)
+ 
+-gnulib_libm_dependency = [libm]
+diff --git a/glib/meson.build b/glib/meson.build
+index 1111111..2222222 100644
+--- a/glib/meson.build
++++ b/glib/meson.build
+@@ -23,15 +23,8 @@ libsysprof_capture_dep = dependency('sysprof-capture-4',
+ )
+ glib_conf.set('HAVE_SYSPROF', libsysprof_capture_dep.found())
+ 
+-# TODO: gnulib_objects, pcre_objects and pcre_deps are a workaround for
+-# <https://github.com/mesonbuild/meson/issues/3934> and
+-# <https://github.com/mesonbuild/meson/issues/3937>. When we can depend
+-# on a meson version where those are fixed, revert the commit that
+-# introduced this workaround.
+ if use_system_printf
+   gnulib_lib = []
+-  gnulib_objects = []
+-  gnulib_libm_dependency = []
+   glib_conf.set ('gl_unused', '')
+   glib_conf.set ('gl_extern_inline', '')
+ else
+@@ -120,7 +113,6 @@ else
+   endif
+ 
+   subdir('gnulib')
+-  gnulib_objects = [gnulib_lib.extract_all_objects()]
+ endif
+ 
+ glib_headers = files(
+@@ -355,19 +347,10 @@ if use_pcre_static_flag
+   pcre_static_args = ['-DPCRE_STATIC']
+ endif
+ 
+-if use_system_pcre
+-  pcre_deps = [pcre]
+-  pcre_objects = []
+-else
+-  pcre_deps = []
+-  pcre_objects = [libpcre.extract_all_objects()]
+-endif
+-
+ glib_c_args = ['-DG_LOG_DOMAIN="GLib"', '-DGLIB_COMPILATION'] + pcre_static_args + glib_hidden_visibility_args
+ libglib = library('glib-2.0',
+   glib_dtrace_obj, glib_dtrace_hdr,
+   sources : [deprecated_sources, glib_sources],
+-  objects : [charset_lib.extract_all_objects()] + gnulib_objects + pcre_objects,
+   version : library_version,
+   soversion : soversion,
+   darwin_versions : darwin_versions,
+@@ -375,7 +358,8 @@ libglib = library('glib-2.0',
+   # intl.lib is not compatible with SAFESEH
+   link_args : [noseh_link_args, glib_link_flags, win32_ldflags],
+   include_directories : configinc,
+-  dependencies : pcre_deps + [thread_dep, librt] + libintl_deps + libiconv + platform_deps + gnulib_libm_dependency + [libsysprof_capture_dep],
++  link_with : [charset_lib, gnulib_lib],
++  dependencies : [pcre, thread_dep, librt] + libintl_deps + libiconv + platform_deps + [libsysprof_capture_dep],
+   c_args : glib_c_args,
+   objc_args : glib_c_args,
+ )
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Wed, 18 Sep 2019 15:00:00 +0200
+Subject: [PATCH 2/8] LLVM doesn't define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
+
+See: https://bugs.llvm.org/show_bug.cgi?id=11174
+
+Upstream-Status: Pending
+
+diff --git a/meson.build b/meson.build
+index 1111111..2222222 100644
+--- a/meson.build
++++ b/meson.build
+@@ -1787,7 +1787,7 @@ atomicdefine = '''
+ # We know that we can always use real ("lock free") atomic operations with MSVC
+ if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
+   have_atomic_lock_free = true
+-  if cc.get_id() == 'gcc' and not cc.compiles(atomicdefine, name : 'atomic ops define')
++  if not cc.compiles(atomicdefine, name : 'atomic ops define')
+     # Old gcc release may provide
+     # __sync_bool_compare_and_swap but doesn't define
+     # __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Wed, 18 Sep 2019 15:20:00 +0200
+Subject: [PATCH 3/8] posix_spawn isn't usable in WASM
+
+Upstream-Status: Pending
+
+diff --git a/meson.build b/meson.build
+index 1111111..2222222 100644
+--- a/meson.build
++++ b/meson.build
+@@ -620,7 +620,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
+ endif
+ 
+ # Check that posix_spawn() is usable; must use header
+-if cc.has_function('posix_spawn', prefix : '#include <spawn.h>')
++if host_system != 'emscripten' and cc.has_function('posix_spawn', prefix : '#include <spawn.h>')
+   glib_conf.set('HAVE_POSIX_SPAWN', 1)
+ endif
+ 
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Wed, 18 Sep 2019 15:40:00 +0200
+Subject: [PATCH 4/8] Network libs are not available in WASM
+
+Upstream-Status: Pending
+
+diff --git a/gio/meson.build b/gio/meson.build
+index 1111111..2222222 100644
+--- a/gio/meson.build
++++ b/gio/meson.build
+@@ -33,7 +33,7 @@ endif
+ 
+ network_libs = [ ]
+ network_args = [ ]
+-if host_system != 'windows'
++if host_system != 'windows' and host_system != 'emscripten'
+   # res_query()
+   res_query_test = '''#include <resolv.h>
+                       int main (int argc, char ** argv) {
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Wed, 22 Apr 2020 12:11:28 +0200
+Subject: [PATCH 5/8] Ensure separate checks are also done for Emscripten
+
+Upstream-Status: Pending
+
+diff --git a/meson.build b/meson.build
+index 1111111..2222222 100644
+--- a/meson.build
++++ b/meson.build
+@@ -407,7 +407,7 @@ foreach m : struct_members
+ endforeach
+ 
+ # Compiler flags
+-if cc.get_id() == 'gcc' or cc.get_id() == 'clang'
++if cc.get_id() == 'gcc' or cc.get_id() == 'clang' or cc.get_id() == 'emscripten'
+   warning_c_args = [
+     '-Wduplicated-branches',
+     '-Wimplicit-fallthrough',
+@@ -1437,13 +1437,13 @@ g_sizet_compatibility = {
+   'long long': sizet_size == long_long_size,
+ }
+ 
+-# Do separate checks for gcc/clang (and ignore other compilers for now), since
+-# we need to explicitly pass -Werror to the compilers.
++# Do separate checks for gcc/clang/emscripten (and ignore other compilers for now),
++# since we need to explicitly pass -Werror to the compilers.
+ # FIXME: https://github.com/mesonbuild/meson/issues/5399
+ # We can’t simplify these checks using a foreach loop because dictionary keys
+ # have to be string literals.
+ # FIXME: https://github.com/mesonbuild/meson/issues/5231
+-if cc.get_id() == 'gcc' or cc.get_id() == 'clang'
++if cc.get_id() == 'gcc' or cc.get_id() == 'clang' or cc.get_id() == 'emscripten'
+   g_sizet_compatibility += {
+     'short': g_sizet_compatibility['short'] and cc.compiles(
+         '''#include <stddef.h>
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Fri, 20 Sep 2019 16:05:00 +0200
+Subject: [PATCH 6/8] Fix function pointer cast issues
+
+It is undefined behavior in C and C++ to cast a function pointer
+to another type and call it that way. This does work in most native
+platforms, however, despite it being UB, but in WASM it can fail.
+
+See:
+https://emscripten.org/docs/porting/guidelines/function_pointer_issues.html
+
+Upstream-Status: Pending
+
+diff --git a/gobject/gobject.c b/gobject/gobject.c
+index 1111111..2222222 100644
+--- a/gobject/gobject.c
++++ b/gobject/gobject.c
+@@ -189,7 +189,8 @@ G_STATIC_ASSERT(G_STRUCT_OFFSET(GObject, qdata) == G_STRUCT_OFFSET(GObjectReal,
+ /* --- prototypes --- */
+ static void	g_object_base_class_init		(GObjectClass	*class);
+ static void	g_object_base_class_finalize		(GObjectClass	*class);
+-static void	g_object_do_class_init			(GObjectClass	*class);
++static void	g_object_do_class_init			(GObjectClass	*class,
++							 gpointer	 dummy);
+ static void	g_object_init				(GObject	*object,
+ 							 GObjectClass	*class);
+ static GObject*	g_object_constructor			(GType                  type,
+@@ -496,7 +497,7 @@ g_object_base_class_finalize (GObjectClass *class)
+ }
+ 
+ static void
+-g_object_do_class_init (GObjectClass *class)
++g_object_do_class_init (GObjectClass *class, gpointer dummy)
+ {
+   /* read the comment about typedef struct CArray; on why not to change this quark */
+   quark_closure_array = g_quark_from_static_string ("GObject-closure-array");
+diff --git a/gobject/gparam.h b/gobject/gparam.h
+index 1111111..2222222 100644
+--- a/gobject/gparam.h
++++ b/gobject/gparam.h
+@@ -378,7 +378,8 @@ struct _GParamSpecTypeInfo
+   /* type system portion */
+   guint16         instance_size;                               /* obligatory */
+   guint16         n_preallocs;                                 /* optional */
+-  void		(*instance_init)	(GParamSpec   *pspec); /* optional */
++  void		(*instance_init)	(GParamSpec   *pspec,  /* optional */
++						 gpointer      data);
+ 
+   /* class portion */
+   GType           value_type;				       /* obligatory */
+diff --git a/gobject/gparamspecs.c b/gobject/gparamspecs.c
+index 1111111..2222222 100644
+--- a/gobject/gparamspecs.c
++++ b/gobject/gparamspecs.c
+@@ -61,7 +61,7 @@
+ 
+ /* --- param spec functions --- */
+ static void
+-param_char_init (GParamSpec *pspec)
++param_char_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecChar *cspec = G_PARAM_SPEC_CHAR (pspec);
+   
+@@ -90,7 +90,7 @@ param_char_validate (GParamSpec *pspec,
+ }
+ 
+ static void
+-param_uchar_init (GParamSpec *pspec)
++param_uchar_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecUChar *uspec = G_PARAM_SPEC_UCHAR (pspec);
+   
+@@ -137,7 +137,7 @@ param_boolean_validate (GParamSpec *pspec,
+ }
+ 
+ static void
+-param_int_init (GParamSpec *pspec)
++param_int_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecInt *ispec = G_PARAM_SPEC_INT (pspec);
+   
+@@ -177,7 +177,7 @@ param_int_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_uint_init (GParamSpec *pspec)
++param_uint_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecUInt *uspec = G_PARAM_SPEC_UINT (pspec);
+   
+@@ -217,7 +217,7 @@ param_uint_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_long_init (GParamSpec *pspec)
++param_long_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecLong *lspec = G_PARAM_SPEC_LONG (pspec);
+   
+@@ -262,7 +262,7 @@ param_long_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_ulong_init (GParamSpec *pspec)
++param_ulong_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecULong *uspec = G_PARAM_SPEC_ULONG (pspec);
+   
+@@ -306,7 +306,7 @@ param_ulong_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_int64_init (GParamSpec *pspec)
++param_int64_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecInt64 *lspec = G_PARAM_SPEC_INT64 (pspec);
+   
+@@ -346,7 +346,7 @@ param_int64_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_uint64_init (GParamSpec *pspec)
++param_uint64_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecUInt64 *uspec = G_PARAM_SPEC_UINT64 (pspec);
+   
+@@ -386,7 +386,7 @@ param_uint64_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_unichar_init (GParamSpec *pspec)
++param_unichar_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecUnichar *uspec = G_PARAM_SPEC_UNICHAR (pspec);
+   
+@@ -428,7 +428,7 @@ param_unichar_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_enum_init (GParamSpec *pspec)
++param_enum_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecEnum *espec = G_PARAM_SPEC_ENUM (pspec);
+   
+@@ -473,7 +473,7 @@ param_enum_validate (GParamSpec *pspec,
+ }
+ 
+ static void
+-param_flags_init (GParamSpec *pspec)
++param_flags_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecFlags *fspec = G_PARAM_SPEC_FLAGS (pspec);
+   
+@@ -519,7 +519,7 @@ param_flags_validate (GParamSpec *pspec,
+ }
+ 
+ static void
+-param_float_init (GParamSpec *pspec)
++param_float_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecFloat *fspec = G_PARAM_SPEC_FLOAT (pspec);
+   
+@@ -562,7 +562,7 @@ param_float_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_double_init (GParamSpec *pspec)
++param_double_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecDouble *dspec = G_PARAM_SPEC_DOUBLE (pspec);
+   
+@@ -605,7 +605,7 @@ param_double_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_string_init (GParamSpec *pspec)
++param_string_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecString *sspec = G_PARAM_SPEC_STRING (pspec);
+   
+@@ -713,7 +713,7 @@ param_string_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_param_init (GParamSpec *pspec)
++param_param_init (GParamSpec *pspec, gpointer dummy)
+ {
+   /* GParamSpecParam *spec = G_PARAM_SPEC_PARAM (pspec); */
+ }
+@@ -744,7 +744,7 @@ param_param_validate (GParamSpec *pspec,
+ }
+ 
+ static void
+-param_boxed_init (GParamSpec *pspec)
++param_boxed_init (GParamSpec *pspec, gpointer dummy)
+ {
+   /* GParamSpecBoxed *bspec = G_PARAM_SPEC_BOXED (pspec); */
+ }
+@@ -782,7 +782,7 @@ param_boxed_values_cmp (GParamSpec    *pspec,
+ }
+ 
+ static void
+-param_pointer_init (GParamSpec *pspec)
++param_pointer_init (GParamSpec *pspec, gpointer dummy)
+ {
+   /* GParamSpecPointer *spec = G_PARAM_SPEC_POINTER (pspec); */
+ }
+@@ -818,7 +818,7 @@ param_pointer_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_value_array_init (GParamSpec *pspec)
++param_value_array_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecValueArray *aspec = G_PARAM_SPEC_VALUE_ARRAY (pspec);
+ 
+@@ -969,7 +969,7 @@ param_value_array_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_object_init (GParamSpec *pspec)
++param_object_init (GParamSpec *pspec, gpointer dummy)
+ {
+   /* GParamSpecObject *ospec = G_PARAM_SPEC_OBJECT (pspec); */
+ }
+@@ -1013,7 +1013,7 @@ param_object_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_override_init (GParamSpec *pspec)
++param_override_init (GParamSpec *pspec, gpointer dummy)
+ {
+   /* GParamSpecOverride *ospec = G_PARAM_SPEC_OVERRIDE (pspec); */
+ }
+@@ -1062,7 +1062,7 @@ param_override_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_gtype_init (GParamSpec *pspec)
++param_gtype_init (GParamSpec *pspec, gpointer dummy)
+ {
+ }
+ 
+@@ -1106,7 +1106,7 @@ param_gtype_values_cmp (GParamSpec   *pspec,
+ }
+ 
+ static void
+-param_variant_init (GParamSpec *pspec)
++param_variant_init (GParamSpec *pspec, gpointer dummy)
+ {
+   GParamSpecVariant *vspec = G_PARAM_SPEC_VARIANT (pspec);
+ 
+diff --git a/gobject/gtype.h b/gobject/gtype.h
+index 1111111..2222222 100644
+--- a/gobject/gtype.h
++++ b/gobject/gtype.h
+@@ -1954,7 +1954,8 @@ guint     g_type_get_type_registration_serial (void);
+  */
+ #if GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_38
+ #define _G_DEFINE_TYPE_EXTENDED_CLASS_INIT(TypeName, type_name) \
+-static void     type_name##_class_intern_init (gpointer klass) \
++static void     type_name##_class_intern_init (gpointer klass, \
++                                               gpointer dummy) \
+ { \
+   type_name##_parent_class = g_type_class_peek_parent (klass); \
+   if (TypeName##_private_offset != 0) \
+@@ -1964,7 +1965,8 @@ static void     type_name##_class_intern_init (gpointer klass) \
+ 
+ #else
+ #define _G_DEFINE_TYPE_EXTENDED_CLASS_INIT(TypeName, type_name) \
+-static void     type_name##_class_intern_init (gpointer klass) \
++static void     type_name##_class_intern_init (gpointer klass, \
++                                               gpointer dummy) \
+ { \
+   type_name##_parent_class = g_type_class_peek_parent (klass); \
+   type_name##_class_init ((TypeName##Class*) klass); \
+@@ -1976,6 +1978,11 @@ static void     type_name##_class_intern_init (gpointer klass) \
+ \
+ static void     type_name##_init              (TypeName        *self); \
+ static void     type_name##_class_init        (TypeName##Class *klass); \
++static void     type_name##_init_adapter      (TypeName        *self, \
++                                               gpointer         dummy) \
++{ \
++  type_name##_init (self); \
++} \
+ static GType    type_name##_get_type_once     (void); \
+ static gpointer type_name##_parent_class = NULL; \
+ static gint     TypeName##_private_offset; \
+@@ -2015,7 +2022,7 @@ type_name##_get_type_once (void) \
+                                        sizeof (TypeName##Class), \
+                                        (GClassInitFunc)(void (*)(void)) type_name##_class_intern_init, \
+                                        sizeof (TypeName), \
+-                                       (GInstanceInitFunc)(void (*)(void)) type_name##_init, \
++                                       (GInstanceInitFunc)(void (*)(void)) type_name##_init_adapter, \
+                                        (GTypeFlags) flags); \
+     { /* custom code follows */
+ #define _G_DEFINE_TYPE_EXTENDED_END()	\
+diff --git a/gobject/gtypemodule.h b/gobject/gtypemodule.h
+index 1111111..2222222 100644
+--- a/gobject/gtypemodule.h
++++ b/gobject/gtypemodule.h
+@@ -209,7 +209,7 @@ type_name##_register_type (GTypeModule *type_module) \
+     NULL,   /* class_data */ \
+     sizeof (TypeName), \
+     0,      /* n_preallocs */ \
+-    (GInstanceInitFunc)(void (*)(void)) type_name##_init, \
++    (GInstanceInitFunc)(void (*)(void)) type_name##_init_adapter, \
+     NULL    /* value_table */ \
+   }; \
+   type_name##_type_id = g_type_module_register_type (type_module, \
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Fri, 15 Nov 2019 11:00:00 +0100
+Subject: [PATCH 7/8] Implement g_get_num_processors for Emscripten
+
+Upstream-Status: Pending
+
+diff --git a/glib/gthread.c b/glib/gthread.c
+index 1111111..2222222 100644
+--- a/glib/gthread.c
++++ b/glib/gthread.c
+@@ -54,6 +54,10 @@
+ #include <windows.h>
+ #endif /* G_OS_WIN32 */
+ 
++#ifdef __EMSCRIPTEN__
++#include <emscripten/threading.h>
++#endif /*__EMSCRIPTEN__*/
++
+ #include "gslice.h"
+ #include "gstrfuncs.h"
+ #include "gtestutils.h"
+@@ -1057,7 +1062,9 @@ g_thread_self (void)
+ guint
+ g_get_num_processors (void)
+ {
+-#ifdef G_OS_WIN32
++#ifdef __EMSCRIPTEN__
++  return emscripten_num_logical_cores();
++#elif defined G_OS_WIN32
+   unsigned int count;
+   SYSTEM_INFO sysinfo;
+   DWORD_PTR process_cpus;
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Tue, 8 Oct 2019 11:30:00 +0200
+Subject: [PATCH 8/8] Do not build executables
+
+We're only interested in the libraries.
+
+Upstream-Status: Inappropriate [disable feature]
+This patch is just for our convenience.
+
+diff --git a/gio/meson.build b/gio/meson.build
+index 1111111..2222222 100644
+--- a/gio/meson.build
++++ b/gio/meson.build
+@@ -890,99 +890,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
+     output : ['gconstructor_as_data.h'],
+     command : [python, '@INPUT0@', '@INPUT1@', 'gconstructor_code', '@OUTPUT@'])
+ 
+-# Several installed executables
+-gio_tool_sources = [
+-  'gio-tool.c',
+-  'gio-tool.h',
+-  'gio-tool-cat.c',
+-  'gio-tool-copy.c',
+-  'gio-tool-info.c',
+-  'gio-tool-list.c',
+-  'gio-tool-mime.c',
+-  'gio-tool-mkdir.c',
+-  'gio-tool-monitor.c',
+-  'gio-tool-mount.c',
+-  'gio-tool-move.c',
+-  'gio-tool-open.c',
+-  'gio-tool-rename.c',
+-  'gio-tool-remove.c',
+-  'gio-tool-save.c',
+-  'gio-tool-set.c',
+-  'gio-tool-trash.c',
+-  'gio-tool-tree.c',
+-]
+-
+-executable('gio', gio_tool_sources,
+-  install : true,
+-  c_args : gio_c_args,
+-  # intl.lib is not compatible with SAFESEH
+-  link_args : noseh_link_args,
+-  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
+-
+-executable('gresource', 'gresource-tool.c',
+-  install : true,
+-  # intl.lib is not compatible with SAFESEH
+-  link_args : noseh_link_args,
+-  dependencies : [libelf, libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
+-
+-gio_querymodules = executable('gio-querymodules', 'gio-querymodules.c', 'giomodule-priv.c',
+-  install : true,
+-  c_args : gio_c_args,
+-  # intl.lib is not compatible with SAFESEH
+-  link_args : noseh_link_args,
+-  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
+-
+-glib_compile_schemas = executable('glib-compile-schemas',
+-  [gconstructor_as_data_h, 'gvdb/gvdb-builder.c', 'glib-compile-schemas.c'],
+-  install : true,
+-  # intl.lib is not compatible with SAFESEH
+-  link_args : noseh_link_args,
+-  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
+-
+-glib_compile_resources = executable('glib-compile-resources',
+-  [gconstructor_as_data_h, 'gvdb/gvdb-builder.c', 'glib-compile-resources.c'],
+-  install : true,
+-  c_args : gio_c_args,
+-  # intl.lib is not compatible with SAFESEH
+-  link_args : noseh_link_args,
+-  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
+-
+-# Cannot override those programs in cross compilation case because they are
+-# native executables that cannot be run on the build machine.
+-# See https://gitlab.gnome.org/GNOME/glib/issues/1859.
+-if not meson.is_cross_build()
+-  meson.override_find_program('glib-compile-schemas', glib_compile_schemas)
+-  meson.override_find_program('glib-compile-resources', glib_compile_resources)
+-endif
+-
+-executable('gsettings', 'gsettings-tool.c',
+-  install : true,
+-  c_args : gio_c_args,
+-  # intl.lib is not compatible with SAFESEH
+-  link_args : noseh_link_args,
+-  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
+-install_data('gschema.dtd',
+-  install_dir : join_paths(get_option('datadir'), schemas_subdir))
+-
+-install_data(['gschema.loc', 'gschema.its'],
+-  install_dir : join_paths(get_option('datadir'), 'gettext/its'))
+-
+-executable('gdbus', 'gdbus-tool.c',
+-  install : true,
+-  c_args : gio_c_args,
+-  # intl.lib is not compatible with SAFESEH
+-  link_args : noseh_link_args,
+-  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
+-
+-if host_system != 'windows' and not glib_have_cocoa
+-  executable('gapplication', 'gapplication-tool.c',
+-    install : true,
+-    c_args : gio_c_args,
+-    # intl.lib is not compatible with SAFESEH
+-    link_args : noseh_link_args,
+-    dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
+-endif
+-
+ if enable_systemtap
+   gio_stp = configure_file(input : 'gio.stp.in',
+     output : '@0@.stp'.format(libgio.full_path().split('/').get(-1)),
+diff --git a/glib/meson.build b/glib/meson.build
+index 1111111..2222222 100644
+--- a/glib/meson.build
++++ b/glib/meson.build
+@@ -415,7 +415,7 @@ if host_system == 'windows'
+       include_directories : configinc,
+       dependencies : [libglib_dep])
+   endif
+-else
++elif host_system != 'emscripten'
+   gtester = executable('gtester', 'gtester.c',
+     install : true,
+     c_args : ['-UG_DISABLE_ASSERT'],
+diff --git a/gobject/meson.build b/gobject/meson.build
+index 1111111..2222222 100644
+--- a/gobject/meson.build
++++ b/gobject/meson.build
+@@ -147,10 +147,6 @@ if meson.version().version_compare('>=0.54.0')
+   meson.override_dependency('gobject-2.0', libgobject_dep)
+ endif
+ 
+-executable('gobject-query', 'gobject-query.c',
+-  install : true,
+-  dependencies : [libglib_dep, libgobject_dep])
+-
+ install_data('gobject_gdb.py', install_dir : join_paths(glib_pkgdatadir, 'gdb'))
+ gdb_conf = configuration_data()
+ gdb_conf.set('datadir', glib_datadir)
+diff --git a/meson.build b/meson.build
+index 1111111..2222222 100644
+--- a/meson.build
++++ b/meson.build
+@@ -2294,7 +2294,6 @@ subdir('gobject')
+ subdir('gthread')
+ subdir('gmodule')
+ subdir('gio')
+-subdir('fuzzing')
+ if build_tests
+   subdir('tests')
+ endif

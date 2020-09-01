@@ -1,0 +1,114 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Arial, "HelveticaNeue-Light", sans-serif;
+    font-size: 13px;
+}
+
+select {
+    width: initial;
+    margin: 0 15px;
+}
+
+.playground-page h1,
+.playground-page footer {
+    margin: 15px;
+    font-family: "Segoe UI Light", "HelveticaNeue-UltraLight", sans-serif;
+    font-weight: 100;
+}
+
+.playground-page h1 {
+    font-size: 1.8em;
+}
+
+.playground-page footer {
+    font-size: 1.2em;
+}
+
+.playground-page #playground,
+.playground-page .typing-container,
+.playground-page .run-container {
+    display: flex;
+}
+
+.playground-page .typing-container, .playground-page .run-container {
+    flex: 1;
+    flex-direction: column;
+    flex-basis: 50%;
+    padding: 15px;
+}
+
+.playground-page .run-container {
+    margin-top: 20px;
+}
+
+.playground-page .tab-area {
+    height: 20px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #999;
+}
+
+.playground-page .tab {
+    height: 20px;
+    line-height: 20px;
+    box-sizing: border-box;
+    color: #999;
+    padding: 0 8px;
+    border: 1px solid #999;
+    border-bottom: 0;
+    cursor: pointer;
+    float: left;
+}
+
+.playground-page .tab.active {
+    color: black;
+    border-bottom: 1px solid white;
+}
+
+.playground-page .action {
+    height: 20px;
+    line-height: 20px;
+    box-sizing: border-box;
+    color: black;
+    border: 1px solid #999;
+    border-bottom: 0;
+    cursor: pointer;
+    float: right;
+    padding: 0 5px 0 16px;
+}
+
+.playground-page .action.run {
+    background: url('../images/run.png') no-repeat left center;
+}
+
+.playground-page .editor-container {
+    border: 1px solid #999;
+    border-top: 0;
+}
+
+/* https://github.com/tholman/github-corners */
+.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out
+}
+
+@keyframes octocat-wave {
+    0%, 100% {
+        transform: rotate(0)
+    }
+    20%, 60% {
+        transform: rotate(-25deg)
+    }
+    40%, 80% {
+        transform: rotate(10deg)
+    }
+}
+
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none
+    }
+
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+    }
+}

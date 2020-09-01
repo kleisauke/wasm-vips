@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Tue, 11 Aug 2020 22:00:00 +0200
+Subject: [PATCH 3/3] Add support for the --threadprofiler flag
+
+Upstream-Status: Inappropriate [Emscripten specific]
+This patch is for debugging purposes.
+
+diff --git a/libvips/iofuncs/threadpool.c b/libvips/iofuncs/threadpool.c
+index 1111111..2222222 100644
+--- a/libvips/iofuncs/threadpool.c
++++ b/libvips/iofuncs/threadpool.c
+@@ -82,6 +82,10 @@
+ #include <windows.h>
+ #endif /*OS_WIN32*/
+ 
++#ifdef __EMSCRIPTEN__
++#include <emscripten/threading.h>
++#endif /*__EMSCRIPTEN__*/
++
+ /**
+  * SECTION: threadpool
+  * @short_description: pools of worker threads 
+@@ -226,6 +231,10 @@ vips_thread_main_loop( gpointer data, gpointer user_data )
+ 	if( vips__thread_profile ) 
+ 		vips__thread_profile_attach( exec->name );
+ 
++#ifdef __EMSCRIPTEN__
++	emscripten_set_thread_name( pthread_self(), exec->name );
++#endif
++
+ 	exec->func( exec->data, user_data );
+ 
+ 	g_free( exec ); 

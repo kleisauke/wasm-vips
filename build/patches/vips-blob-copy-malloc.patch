@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Sat, 22 Aug 2020 14:40:00 +0200
+Subject: [PATCH 1/1] Prefer g_malloc over vips_malloc in vips_blob_copy
+
+The use of vips_malloc is not necessary here and could potentially
+be slower since it uses g_malloc0 (i.e. calloc).
+
+Upstream-Status: Pending
+
+diff --git a/libvips/iofuncs/type.c b/libvips/iofuncs/type.c
+index 1111111..2222222 100644
+--- a/libvips/iofuncs/type.c
++++ b/libvips/iofuncs/type.c
+@@ -651,7 +651,7 @@ vips_blob_new( VipsCallbackFn free_fn, const void *data, size_t length )
+  * @length: number of bytes in @data
+  *
+  * Like vips_blob_new(), but take a copy of the data. Useful for bindings
+- * which strugle with callbacks. 
++ * which struggle with callbacks. 
+  *
+  * See also: vips_blob_new().
+  *
+@@ -663,7 +663,7 @@ vips_blob_copy( const void *data, size_t length )
+ 	void *data_copy; 
+ 	VipsArea *area;
+ 
+-	data_copy = vips_malloc( NULL, length );
++	data_copy = g_malloc( length );
+ 	memcpy( data_copy, data, length );
+ 	area = vips_area_new( (VipsCallbackFn) vips_area_free_cb, data_copy );
+ 	area->length = length;
+

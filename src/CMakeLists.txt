@@ -19,7 +19,7 @@ set(SOURCES
         vips-emscripten.cpp
         )
 
-add_library(${PROJECT_NAME} STATIC ${HEADERS} ${SOURCES})
+add_library(${PROJECT_NAME} OBJECT ${HEADERS} ${SOURCES})
 
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
@@ -30,7 +30,6 @@ set_target_properties(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
         PRIVATE
             ${VIPS_INCLUDE_DIRS}
-            ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
 target_link_libraries(${PROJECT_NAME}
@@ -51,7 +50,7 @@ if("node" IN_LIST ENVIRONMENT)
 
     target_link_libraries(${PROJECT_NAME}-node
             PRIVATE
-                ${PROJECT_NAME}
+                ${VIPS_STATIC_LDFLAGS}
             )
 
     list(APPEND TARGETS ${PROJECT_NAME}-node)
@@ -67,7 +66,7 @@ if("web" IN_LIST ENVIRONMENT)
 
     target_link_libraries(${PROJECT_NAME}-web
             PRIVATE
-                ${PROJECT_NAME}
+                ${VIPS_STATIC_LDFLAGS}
             )
 
     list(APPEND TARGETS ${PROJECT_NAME}-web)
@@ -95,7 +94,6 @@ endif()
 set_target_properties(${TARGETS}
         PROPERTIES
             OUTPUT_NAME "vips"
-            COMPILE_OPTIONS "-DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0"
             LINK_FLAGS "\
 --bind \
 --js-library ${CMAKE_CURRENT_SOURCE_DIR}/vector-types.js \

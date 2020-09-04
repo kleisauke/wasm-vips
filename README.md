@@ -36,7 +36,9 @@ the same directory.
 ```html
 <script src="vips.js"></script>
 <script>
-const vips = await Vips();
+(async () => {
+    const vips = await Vips();
+})();
 </script>
 ```
 

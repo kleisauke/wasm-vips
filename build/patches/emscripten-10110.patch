@@ -11,7 +11,7 @@ diff --git a/system/lib/dlmalloc.c b/system/lib/dlmalloc.c
 index 1111111..2222222 100644
 --- a/system/lib/dlmalloc.c
 +++ b/system/lib/dlmalloc.c
-@@ -26,6 +26,12 @@
+@@ -28,6 +28,12 @@
  #define USE_SPIN_LOCKS 0 // Ensure we use pthread_mutex_t.
  #endif
  

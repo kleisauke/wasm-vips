@@ -573,7 +573,7 @@ index 1111111..2222222 100644
  #include "gslice.h"
  #include "gstrfuncs.h"
  #include "gtestutils.h"
-@@ -1057,7 +1062,9 @@ g_thread_self (void)
+@@ -1059,7 +1063,9 @@ g_thread_self (void)
  guint
  g_get_num_processors (void)
  {

@@ -1599,7 +1599,7 @@ index 1111111..2222222 100644
  
  #if ENABLE_DEPRECATED
  #include <vips/vips7compat.h>
-@@ -551,10 +550,6 @@ vips_init( const char *argv0 )
+@@ -550,10 +549,6 @@ vips_init( const char *argv0 )
  	}
  #endif
  
@@ -1610,7 +1610,7 @@ index 1111111..2222222 100644
  #ifdef HAVE_GSF
  	/* Use this for structured file write.
  	 */
-@@ -864,9 +859,6 @@ static GOptionEntry option_entries[] = {
+@@ -863,9 +858,6 @@ static GOptionEntry option_entries[] = {
  	{ "vips-disc-threshold", 0, 0, 
  		G_OPTION_ARG_STRING, &vips__disc_threshold, 
  		N_( "images larger than N are decompressed to disc" ), "N" },

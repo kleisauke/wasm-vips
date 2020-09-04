@@ -86,9 +86,9 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 # TODO(kleisauke): GIF support is currently missing, giflib abandoned autotools which makes compilation difficult
 # Wait for https://github.com/libvips/libvips/pull/1709 instead.
-VERSION_ZLIBNG=1d2504d # https://github.com/zlib-ng/zlib-ng/commit/1d2504ddc4894786fdf61d41a9bfa435cd8b1935
+VERSION_ZLIBNG=52eb835 # https://github.com/zlib-ng/zlib-ng/commit/52eb835d0b6c049a93bc690e2fc05c34cb7dfae8
 VERSION_FFI=3.3
-VERSION_GLIB=2.65.2
+VERSION_GLIB=2.65.3
 VERSION_EXPAT=2.2.9
 VERSION_EXIF=0.6.22
 VERSION_LCMS2=2.11
@@ -97,8 +97,8 @@ VERSION_PNG16=1.6.37
 VERSION_SPNG=0.6.0
 VERSION_WEBP=1.1.0
 VERSION_TIFF=4.1.0
-#VERSION_VIPS=b40baec # https://github.com/libvips/libvips/commit/b40baec28b1bba85e4abe49794d9cc9e6304f537
-VERSION_VIPS=8.10.0
+#VERSION_VIPS=0009681 # https://github.com/libvips/libvips/commit/00096813da6e8a2f8d4cdc190314a47759dc9693
+VERSION_VIPS=8.10.1
 
 # Remove patch version component
 without_patch() {
@@ -125,15 +125,6 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
 
   # https://github.com/emscripten-core/emscripten/pull/10110
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-10110.patch
-
-  # https://github.com/emscripten-core/emscripten/pull/12007
-  #patch -p1 <$SOURCE_DIR/build/patches/emscripten-12007.patch
-
-  # https://github.com/emscripten-core/emscripten/pull/12008
-  #patch -p1 <$SOURCE_DIR/build/patches/emscripten-12008.patch
-
-  # https://github.com/emscripten-core/emscripten/pull/12009
-  #patch -p1 <$SOURCE_DIR/build/patches/emscripten-12009.patch
 
   # Need to rebuild libpthread, libdlmalloc and libemmalloc, since
   # we modified it with the patches above

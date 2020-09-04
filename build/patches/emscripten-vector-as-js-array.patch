@@ -11,7 +11,7 @@ diff --git a/system/include/emscripten/wire.h b/system/include/emscripten/wire.h
 index 1111111..2222222 100644
 --- a/system/include/emscripten/wire.h
 +++ b/system/include/emscripten/wire.h
-@@ -307,6 +307,26 @@ namespace emscripten {
+@@ -303,6 +303,26 @@ namespace emscripten {
              }
          };
  

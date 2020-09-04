@@ -22,7 +22,7 @@ index 1111111..2222222 100644
  
  void vips__cache_init( void );
  
-@@ -142,6 +141,7 @@ int vips_mapfilerw( VipsImage * );
+@@ -141,6 +140,7 @@ int vips_mapfilerw( VipsImage * );
  int vips_remapfilerw( VipsImage * );
  
  void vips__buffer_init( void );
@@ -59,15 +59,6 @@ index 1111111..2222222 100644
   */
  
  /*
-@@ -86,7 +88,7 @@ typedef struct _VipsThreadState {
- 
- 	/* The client data passed to the enclosing vips_threadpool_run().
- 	 */
--        void *a;
-+	void *a;
- 
- 	/* Set in allocate to stall this thread for a moment. Handy for
- 	 * debugging race conditions.
 @@ -130,6 +132,7 @@ typedef int (*VipsThreadpoolWorkFn)( VipsThreadState *state, void *a );
   */
  typedef int (*VipsThreadpoolProgressFn)( void *a );
@@ -119,7 +110,7 @@ diff --git a/libvips/iofuncs/init.c b/libvips/iofuncs/init.c
 index 1111111..2222222 100644
 --- a/libvips/iofuncs/init.c
 +++ b/libvips/iofuncs/init.c
-@@ -634,10 +634,6 @@ vips_leak( void )
+@@ -633,10 +633,6 @@ vips_leak( void )
  		vips_buf_appendf( &buf, "error buffer: %s", 
  			vips_error_buffer() );
  
@@ -130,7 +121,7 @@ index 1111111..2222222 100644
  	fprintf( stderr, "%s", vips_buf_all( &buf ) );
  
  	vips__print_renders();
-@@ -654,7 +650,7 @@ vips_leak( void )
+@@ -653,7 +649,7 @@ vips_leak( void )
   *
   * This function needs to be called when a thread that has been using vips
   * exits. It is called for you by vips_shutdown() and for any threads created
@@ -139,7 +130,7 @@ index 1111111..2222222 100644
   *
   * You will need to call it from threads created in
   * other ways or there will be memory leaks. If you do not call it, vips 
-@@ -667,6 +663,7 @@ void
+@@ -666,6 +662,7 @@ void
  vips_thread_shutdown( void )
  {
  	vips__thread_profile_detach();
@@ -147,7 +138,7 @@ index 1111111..2222222 100644
  }
  
  /**
-@@ -708,6 +705,8 @@ vips_shutdown( void )
+@@ -707,6 +704,8 @@ vips_shutdown( void )
  
  	vips__thread_profile_stop();
  
@@ -160,15 +151,6 @@ diff --git a/libvips/iofuncs/sink.c b/libvips/iofuncs/sink.c
 index 1111111..2222222 100644
 --- a/libvips/iofuncs/sink.c
 +++ b/libvips/iofuncs/sink.c
-@@ -60,7 +60,7 @@ typedef struct _SinkArea {
- 	struct _Sink *sink;
- 
- 	VipsRect rect;		/* Part of image this area covers */
--        VipsSemaphore n_thread;	/* Number of threads scanning this area */
-+	VipsSemaphore n_thread;	/* Number of threads scanning this area */
- } SinkArea;
- 
- /* Per-call state.
 @@ -73,6 +73,10 @@ typedef struct _Sink {
  	 */
  	VipsImage *t;
@@ -180,24 +162,6 @@ index 1111111..2222222 100644
  	/* Call params.
  	 */
  	VipsStartFn start_fn;
-@@ -96,7 +100,7 @@ typedef struct _SinkThreadState {
- 
- 	/* Sequence value for this thread.
- 	 */
--        void *seq;
-+	void *seq;
- 
- 	/* The region we walk over sink.t copy. We can't use
- 	 * parent_object.reg, it's defined on the outer image.
-@@ -105,7 +109,7 @@ typedef struct _SinkThreadState {
- 
- 	/* The area we were allocated from. 
- 	 */
--        SinkArea *area;
-+	SinkArea *area;
- 
- } SinkThreadState;
- 
 @@ -167,7 +171,7 @@ sink_area_position( SinkArea *area, int top, int height )
  static gboolean
  sink_area_allocate_fn( VipsThreadState *state, void *a, gboolean *stop )
@@ -276,34 +240,23 @@ diff --git a/libvips/iofuncs/sinkdisc.c b/libvips/iofuncs/sinkdisc.c
 index 1111111..2222222 100644
 --- a/libvips/iofuncs/sinkdisc.c
 +++ b/libvips/iofuncs/sinkdisc.c
-@@ -72,11 +72,12 @@ typedef struct _WriteBuffer {
- 
- 	VipsRegion *region;	/* Pixels */
- 	VipsRect area;		/* Part of image this region covers */
--        VipsSemaphore go; 	/* Start bg thread loop */
--        VipsSemaphore nwrite; 	/* Number of threads writing to region */
--        VipsSemaphore done; 	/* Bg thread has done write */
--        int write_errno;	/* Save write errors here */
--	GThread *thread;	/* BG writer thread */
-+	VipsSemaphore go; 	/* Start bg thread loop */
-+	VipsSemaphore nwrite; 	/* Number of threads writing to region */
-+	VipsSemaphore done; 	/* Bg thread has done write */
+@@ -75,8 +75,9 @@ typedef struct _WriteBuffer {
+         VipsSemaphore go; 	/* Start bg thread loop */
+         VipsSemaphore nwrite; 	/* Number of threads writing to region */
+         VipsSemaphore done; 	/* Bg thread has done write */
 +	VipsSemaphore finish; 	/* Bg thread has finished */
-+	int write_errno;	/* Save write errors here */
+         int write_errno;	/* Save write errors here */
+-	GThread *thread;	/* BG writer thread */
 +	gboolean running;	/* Whether the bg writer thread is running */
  	gboolean kill;		/* Set to ask thread to exit */
  } WriteBuffer;
  
-@@ -139,24 +140,24 @@ write_thread_state_new( VipsImage *im, void *a )
- static void
- wbuffer_free( WriteBuffer *wbuffer )
+@@ -141,22 +142,22 @@ wbuffer_free( WriteBuffer *wbuffer )
  {
--        /* Is there a thread running this region? Kill it!
--         */
+         /* Is there a thread running this region? Kill it!
+          */
 -        if( wbuffer->thread ) {
-+	/* Is there a thread running this region? Kill it!
-+	 */
-+	if( wbuffer->running ) {
++        if( wbuffer->running ) {
                  wbuffer->kill = TRUE;
  		vips_semaphore_up( &wbuffer->go );
  
@@ -428,16 +381,42 @@ index 1111111..2222222 100644
  
  	/* Parameters.
  	 */
-@@ -165,7 +169,7 @@ G_DEFINE_TYPE( RenderThreadState, render_thread_state, VIPS_TYPE_THREAD_STATE );
- /* The BG thread which sits waiting to do some calculations, and the semaphore
-  * it waits on holding the number of renders with dirty tiles. 
+@@ -162,22 +166,29 @@ typedef struct _RenderThreadStateClass {
+ 
+ G_DEFINE_TYPE( RenderThreadState, render_thread_state, VIPS_TYPE_THREAD_STATE );
+ 
+-/* The BG thread which sits waiting to do some calculations, and the semaphore
+- * it waits on holding the number of renders with dirty tiles. 
++/* A boolean indicating if the bg render thread is running.
   */
 -static GThread *render_thread = NULL;
 +static gboolean render_running = FALSE;
  
  /* Set this to ask the render thread to quit.
   */
-@@ -221,7 +225,11 @@ render_free( Render *render )
+ static gboolean render_kill = FALSE;
+ 
+-/* All the renders with dirty tiles, and a semaphore that the bg render thread
+- * waits on.
++/* All the renders with dirty tiles.
+  */
+ static GMutex *render_dirty_lock = NULL;
+ static GSList *render_dirty_all = NULL;
++
++/* A semaphore where the bg render thread waits on holding the number of
++ * renders with dirty tiles
++ */
+ static VipsSemaphore n_render_dirty_sem; 
+ 
++/* A semaphore where the main thread waits for when the bg render thread
++ * is shutdown.
++ */
++static VipsSemaphore render_finish;
++
+ /* Set this to make the bg thread stop and reschedule.
+  */
+ static gboolean render_reschedule = FALSE;
+@@ -221,7 +232,11 @@ render_free( Render *render )
  {
  	VIPS_DEBUG_MSG_AMBER( "render_free: %p\n", render );
  
@@ -449,7 +428,7 @@ index 1111111..2222222 100644
  
  	g_mutex_lock( render_dirty_lock );
  	if( g_slist_find( render_dirty_all, render ) ) {
-@@ -234,7 +242,9 @@ render_free( Render *render )
+@@ -234,7 +249,9 @@ render_free( Render *render )
  	}
  	g_mutex_unlock( render_dirty_lock );
  
@@ -459,7 +438,7 @@ index 1111111..2222222 100644
  	vips_g_mutex_free( render->lock );
  
  	vips_slist_map2( render->all, (VipsSListMap2Fn) tile_free, NULL, NULL );
-@@ -259,10 +269,15 @@ render_free( Render *render )
+@@ -259,10 +276,15 @@ render_free( Render *render )
  static int
  render_ref( Render *render )
  {
@@ -475,7 +454,7 @@ index 1111111..2222222 100644
  
  	return( 0 );
  }
-@@ -272,11 +287,16 @@ render_unref( Render *render )
+@@ -272,11 +294,16 @@ render_unref( Render *render )
  {
  	int kill;
  
@@ -492,7 +471,7 @@ index 1111111..2222222 100644
  
  	if( kill )
  		render_free( render );
-@@ -435,25 +455,20 @@ vips__render_shutdown( void )
+@@ -435,10 +462,7 @@ vips__render_shutdown( void )
  	if( render_dirty_lock ) {
  		g_mutex_lock( render_dirty_lock );
  
@@ -504,24 +483,25 @@ index 1111111..2222222 100644
  			render_reschedule = TRUE;
  			render_kill = TRUE;
  
- 			g_mutex_unlock( render_dirty_lock );
+@@ -446,13 +470,16 @@ vips__render_shutdown( void )
  
--			vips_semaphore_up( &n_render_dirty_sem ); 
--
+ 			vips_semaphore_up( &n_render_dirty_sem ); 
+ 
 -			(void) vips_g_thread_join( thread );
-+			vips_semaphore_up( &n_render_dirty_sem );
++			vips_semaphore_down( &render_finish );
++
++			render_running = FALSE;
  		}
  		else
  			g_mutex_unlock( render_dirty_lock );
+ 
+ 		VIPS_FREEF( vips_g_mutex_free, render_dirty_lock );
+ 		vips_semaphore_destroy( &n_render_dirty_sem );
++		vips_semaphore_destroy( &render_finish );
  	}
  }
  
--static int       
-+static int
- render_dirty_sort( Render *a, Render *b, void *user_data )
- {
- 	return( b->priority - a->priority );
-@@ -544,8 +559,12 @@ render_new( VipsImage *in, VipsImage *out, VipsImage *mask,
+@@ -547,8 +574,12 @@ render_new( VipsImage *in, VipsImage *out, VipsImage *mask,
  	 */
  	g_object_ref( in );
  
@@ -534,7 +514,7 @@ index 1111111..2222222 100644
  
  	render->in = in;
  	render->out = out;
-@@ -982,10 +1001,10 @@ render_dirty_get( void )
+@@ -985,10 +1016,10 @@ render_dirty_get( void )
  	return( render );
  }
  
@@ -548,21 +528,22 @@ index 1111111..2222222 100644
  {
  	Render *render;
  
-@@ -1020,23 +1039,28 @@ render_thread_main( void *client )
+@@ -1023,23 +1054,29 @@ render_thread_main( void *client )
  		}
  	}
  
 -	/* We are exiting, so render_thread must now be NULL.
-+	/* We are exiting, so render_running must now be set to FALSE.
- 	 */
+-	 */
 -	render_thread = NULL; 
 -
 -	return( NULL );
-+	render_running = FALSE;
++	/* We are exiting: tell the main thread.
++	  */
++	 vips_semaphore_up( &render_finish );
  }
  
- void
- vips__sink_screen_init( void )
+ static void *
+ vips__sink_screen_init( void *data )
  {
 -	g_assert( !render_thread ); 
 +	g_assert( !render_running ); 
@@ -572,18 +553,19 @@ index 1111111..2222222 100644
  	vips_semaphore_init( &n_render_dirty_sem, 0, "n_render_dirty" );
 -	render_thread = vips_g_thread_new( "sink_screen",
 -		render_thread_main, NULL );
++	vips_semaphore_init( &render_finish, 0, "render_finish" );
 +
 +	if ( vips_threadpool_push( "sink_screen", render_thread_main,
 +		NULL ) ) {
 +		vips_error("vips_sink_screen_init", "%s",
 +			_("unable to init render thread"));
-+		return;
++		return( NULL );
 +	}
 +
 +	render_running = TRUE;
- }
  
- /**
+ 	return( NULL );
+ }
 diff --git a/libvips/iofuncs/threadpool.c b/libvips/iofuncs/threadpool.c
 index 1111111..2222222 100644
 --- a/libvips/iofuncs/threadpool.c
@@ -897,7 +879,7 @@ index 1111111..2222222 100644
  }
  
  G_DEFINE_TYPE( VipsThreadState, vips_thread_state, VIPS_TYPE_OBJECT );
-@@ -522,106 +480,40 @@ vips_thread_state_new( VipsImage *im, void *a )
+@@ -522,41 +480,17 @@ vips_thread_state_new( VipsImage *im, void *a )
  		VIPS_TYPE_THREAD_STATE, vips_thread_state_set, im, a ) ) );
  }
  
@@ -942,33 +924,21 @@ index 1111111..2222222 100644
 +	 * and allocate a unit of work (serial). Plus the mutex we use to 
 +	 * serialize work allocation.
  	 */
--	VipsThreadStartFn start; 
-+	VipsThreadStartFn start;
+ 	VipsThreadStartFn start; 
  	VipsThreadpoolAllocateFn allocate;
- 	VipsThreadpoolWorkFn work;
+@@ -564,10 +498,7 @@ typedef struct _VipsThreadpool {
  	GMutex *allocate_lock;
--        void *a; 		/* User argument to start / allocate / etc. */
--
+         void *a; 		/* User argument to start / allocate / etc. */
+ 
 -	int nthr;		/* Number of threads in pool */
 -	VipsThread **thr;	/* Threads */
-+	void *a;		/* User argument to start / allocate / etc. */
- 
+-
 -	/* The caller blocks here until all threads finish.
 +	/* The caller blocks here until all tasks finish.
  	 */
--	VipsSemaphore finish;	
-+	VipsSemaphore finish;
+ 	VipsSemaphore finish;	
  
- 	/* Workers up this for every loop to make the main thread tick.
- 	 */
--	VipsSemaphore tick;	
-+	VipsSemaphore tick;
- 
- 	/* Set this to abort evaluation early with an error.
- 	 */
--	gboolean error;		
-+	gboolean error;	
- 
+@@ -582,46 +513,7 @@ typedef struct _VipsThreadpool {
  	/* Set by Allocate (via an arg) to indicate normal end of computation.
  	 */
  	gboolean stop;
@@ -1016,7 +986,7 @@ index 1111111..2222222 100644
  
  /* Run this once per main loop. Get some work (single-threaded), then do it
   * (many-threaded).
-@@ -630,219 +522,196 @@ vips_thread_allocate( VipsThread *thr )
+@@ -630,221 +522,207 @@ vips_thread_allocate( VipsThread *thr )
   * loaders a change to seek to the correct spot, see vips_sequential().
   */
  static void
@@ -1139,10 +1109,11 @@ index 1111111..2222222 100644
 -	vips_semaphore_up( &pool->finish );
 -
 -	VIPS_GATE_STOP( "vips_thread_main_loop: thread" ); 
--
++	}
+ 
 -        return( NULL );
 -}
-+	}
++	VIPS_FREEF( g_object_unref, state );
  
 -/* Attach another thread to a threadpool.
 - */
@@ -1150,8 +1121,7 @@ index 1111111..2222222 100644
 -vips_thread_new( VipsThreadpool *pool )
 -{
 -	VipsThread *thr;
-+	VIPS_FREEF( g_object_unref, state );
- 
+-
 -	if( !(thr = VIPS_NEW( NULL, VipsThread )) )
 -		return( NULL );
 -	thr->pool = pool;
@@ -1205,9 +1175,7 @@ index 1111111..2222222 100644
  
 -static void
 -vips_threadpool_free( VipsThreadpool *pool )
-+static VipsTask *
-+vips_task_new( VipsImage *im, int *n_tasks )
- {
+-{
 -	VIPS_DEBUG_MSG( "vips_threadpool_free: \"%s\" (%p)\n", 
 -		pool->im->filename, pool );
 -
@@ -1221,7 +1189,9 @@ index 1111111..2222222 100644
 -
 -static VipsThreadpool *
 -vips_threadpool_new( VipsImage *im )
--{
++static VipsTask *
++vips_task_new( VipsImage *im, int *n_tasks )
+ {
 -	VipsThreadpool *pool;
 +	VipsTask *task;
  	int tile_width;
@@ -1321,6 +1291,11 @@ index 1111111..2222222 100644
 -	int i;
 +	VipsThreadExec *exec;
 +	GError *error = NULL;
++#if GLIB_CHECK_VERSION( 2, 32, 0 )
++	gboolean result;
++#else
++	gboolean result = TRUE;
++#endif
  
 -	g_assert( !pool->thr );
 +	exec = g_new( VipsThreadExec, 1 );
@@ -1331,8 +1306,12 @@ index 1111111..2222222 100644
 -	/* Make thread array.
 -	 */
 -	if( !(pool->thr = VIPS_ARRAY( NULL, pool->nthr, VipsThread * )) )
-+	// TODO: this function returns a success status since GLib 2.32.
++#if GLIB_CHECK_VERSION( 2, 32, 0 )
++	// Returns a success status since GLib 2.32.
++	result = g_thread_pool_push( vips__pool, exec, &error );
++#else
 +	g_thread_pool_push( vips__pool, exec, &error );
++#endif
 +	if( error ) {
 +		vips_g_error( &error );
  		return( -1 );
@@ -1348,9 +1327,12 @@ index 1111111..2222222 100644
 -		}
 +	}
  
- 	return( 0 );
+-	return( 0 );
++	return( result ? 0 : -1 );
  }
-@@ -857,8 +726,8 @@ vips_threadpool_create_threads( VipsThreadpool *pool )
+ 
+ /**
+@@ -857,8 +735,8 @@ vips_threadpool_create_threads( VipsThreadpool *pool )
   * is allocated to it to build the per-thread state. Per-thread state is used
   * by #VipsThreadpoolAllocate and #VipsThreadpoolWork to communicate.
   *
@@ -1361,7 +1343,7 @@ index 1111111..2222222 100644
   *
   * See also: vips_threadpool_run().
   *
-@@ -930,7 +799,8 @@ vips_threadpool_create_threads( VipsThreadpool *pool )
+@@ -930,7 +808,8 @@ vips_threadpool_create_threads( VipsThreadpool *pool )
   * @progress: give progress feedback about a work unit, or %NULL
   * @a: client data
   *
@@ -1371,7 +1353,7 @@ index 1111111..2222222 100644
   * @start to create new per-thread state, then runs
   * @allocate to set up a new work unit (perhaps the next tile in an image, for
   * example), then @work to process that work unit. After each unit is
-@@ -940,9 +810,9 @@ vips_threadpool_create_threads( VipsThreadpool *pool )
+@@ -940,9 +819,9 @@ vips_threadpool_create_threads( VipsThreadpool *pool )
   * The object returned by @start must be an instance of a subclass of
   * #VipsThreadState. Use this to communicate between @allocate and @work. 
   *
@@ -1384,7 +1366,7 @@ index 1111111..2222222 100644
   * the main thread (ie. the thread which called vips_threadpool_run()).
   *
   * See also: vips_concurrency_set().
-@@ -957,60 +827,61 @@ vips_threadpool_run( VipsImage *im,
+@@ -957,60 +836,61 @@ vips_threadpool_run( VipsImage *im,
  	VipsThreadpoolProgressFn progress, 
  	void *a )
  {
@@ -1468,7 +1450,7 @@ index 1111111..2222222 100644
   */
  void
  vips__threadpool_init( void )
-@@ -1028,6 +899,12 @@ vips__threadpool_init( void )
+@@ -1028,6 +908,12 @@ vips__threadpool_init( void )
  
  	if( g_getenv( "VIPS_STALL" ) )
  		vips__stall = TRUE;
@@ -1481,7 +1463,7 @@ index 1111111..2222222 100644
  }
  
  /**
-@@ -1105,4 +982,3 @@ vips_get_tile_size( VipsImage *im,
+@@ -1105,4 +991,3 @@ vips_get_tile_size( VipsImage *im,
  		"groups of %d scanlines\n", 
  		*tile_width, *tile_height, *n_lines );
  }

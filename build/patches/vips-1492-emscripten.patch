@@ -33,15 +33,7 @@ index 1111111..2222222 100644
  	extern GType vips_source_get_type( void ); 
  	extern GType vips_source_custom_get_type( void ); 
  	extern GType vips_target_get_type( void ); 
-@@ -412,7 +411,6 @@ vips_init( const char *argv0 )
- #endif /*HAVE_THREAD_NEW*/
- 
- 	vips__threadpool_init();
--	vips__sink_screen_init();
- 	vips__buffer_init();
- 	vips__meta_init();
- 
-@@ -487,7 +484,6 @@ vips_init( const char *argv0 )
+@@ -486,7 +485,6 @@ vips_init( const char *argv0 )
  	(void) vips_region_get_type();
  	(void) write_thread_state_get_type();
  	(void) sink_memory_thread_state_get_type(); 
@@ -49,7 +41,7 @@ index 1111111..2222222 100644
  	(void) vips_source_get_type(); 
  	(void) vips_source_custom_get_type(); 
  	(void) vips_target_get_type(); 
-@@ -699,8 +696,6 @@ vips_shutdown( void )
+@@ -698,8 +696,6 @@ vips_shutdown( void )
  		vips__thread_gate_stop( "init: main" ); 
  }
  
@@ -83,7 +75,7 @@ index 1111111..2222222 100644
  
  	/* Lock here before reading or modifying the tile structure. 
  	 */
-@@ -135,80 +128,11 @@ typedef struct _Render {
+@@ -135,87 +128,11 @@ typedef struct _Render {
  	int ntiles;		/* Number of tiles */
  	int ticks;		/* Inc. on each access ... used for LRU */
  
@@ -119,8 +111,7 @@ index 1111111..2222222 100644
 -
 -G_DEFINE_TYPE( RenderThreadState, render_thread_state, VIPS_TYPE_THREAD_STATE );
 -
--/* The BG thread which sits waiting to do some calculations, and the semaphore
-- * it waits on holding the number of renders with dirty tiles. 
+-/* A boolean indicating if the bg render thread is running.
 - */
 -static gboolean render_running = FALSE;
 -
@@ -128,12 +119,20 @@ index 1111111..2222222 100644
 - */
 -static gboolean render_kill = FALSE;
 -
--/* All the renders with dirty tiles, and a semaphore that the bg render thread
-- * waits on.
+-/* All the renders with dirty tiles.
 - */
 -static GMutex *render_dirty_lock = NULL;
 -static GSList *render_dirty_all = NULL;
+-
+-/* A semaphore where the bg render thread waits on holding the number of
+- * renders with dirty tiles
+- */
 -static VipsSemaphore n_render_dirty_sem; 
+-
+-/* A semaphore where the main thread waits for when the bg render thread
+- * is shutdown.
+- */
+-static VipsSemaphore render_finish;
 -
 -/* Set this to make the bg thread stop and reschedule.
 - */
@@ -165,7 +164,7 @@ index 1111111..2222222 100644
  static void *
  tile_free( Tile *tile, void *a, void *b )
  {
-@@ -231,17 +155,6 @@ render_free( Render *render )
+@@ -238,17 +155,6 @@ render_free( Render *render )
  	g_assert( render->ref_count == 0 );
  #endif
  
@@ -183,7 +182,7 @@ index 1111111..2222222 100644
  #if !GLIB_CHECK_VERSION( 2, 58, 0 )
  	vips_g_mutex_free( render->ref_count_lock );
  #endif
-@@ -250,7 +163,6 @@ render_free( Render *render )
+@@ -257,7 +163,6 @@ render_free( Render *render )
  	vips_slist_map2( render->all, (VipsSListMap2Fn) tile_free, NULL, NULL );
  	VIPS_FREEF( g_slist_free, render->all );
  	render->ntiles = 0;
@@ -191,7 +190,7 @@ index 1111111..2222222 100644
  	VIPS_FREEF( g_hash_table_destroy, render->tiles );
  
  	VIPS_UNREF( render->in ); 
-@@ -304,200 +216,6 @@ render_unref( Render *render )
+@@ -311,208 +216,6 @@ render_unref( Render *render )
  	return( 0 );
  }
  
@@ -352,14 +351,22 @@ index 1111111..2222222 100644
 -
 -			g_mutex_unlock( render_dirty_lock );
 -
--			vips_semaphore_up( &n_render_dirty_sem );
+-			vips_semaphore_up( &n_render_dirty_sem ); 
+-
+-			vips_semaphore_down( &render_finish );
+-
+-			render_running = FALSE;
 -		}
 -		else
 -			g_mutex_unlock( render_dirty_lock );
+-
+-		VIPS_FREEF( vips_g_mutex_free, render_dirty_lock );
+-		vips_semaphore_destroy( &n_render_dirty_sem );
+-		vips_semaphore_destroy( &render_finish );
 -	}
 -}
 -
--static int
+-static int       
 -render_dirty_sort( Render *a, Render *b, void *user_data )
 -{
 -	return( b->priority - a->priority );
@@ -392,7 +399,7 @@ index 1111111..2222222 100644
  static guint
  tile_hash( gconstpointer key )
  {
-@@ -524,28 +242,14 @@ render_close_cb( VipsImage *image, Render *render )
+@@ -539,28 +242,14 @@ render_close_cb( VipsImage *image, Render *render )
  {
  	VIPS_DEBUG_MSG_AMBER( "render_close_cb\n" );
  
@@ -422,7 +429,7 @@ index 1111111..2222222 100644
  {
  	Render *render;
  
-@@ -573,8 +277,6 @@ render_new( VipsImage *in, VipsImage *out, VipsImage *mask,
+@@ -588,8 +277,6 @@ render_new( VipsImage *in, VipsImage *out, VipsImage *mask,
  	render->tile_height = tile_height;
  	render->max_tiles = max_tiles;
  	render->priority = priority;
@@ -431,7 +438,7 @@ index 1111111..2222222 100644
  
  	render->lock = vips_g_mutex_new();
  
-@@ -582,11 +284,7 @@ render_new( VipsImage *in, VipsImage *out, VipsImage *mask,
+@@ -597,11 +284,7 @@ render_new( VipsImage *in, VipsImage *out, VipsImage *mask,
  	render->ntiles = 0;
  	render->ticks = 0;
  
@@ -444,7 +451,7 @@ index 1111111..2222222 100644
  
  	/* Both out and mask must close before we can free the render.
  	 */
-@@ -630,7 +328,6 @@ tile_new( Render *render )
+@@ -645,7 +328,6 @@ tile_new( Render *render )
  	tile->area.height = render->tile_height;
  	tile->region = NULL;
  	tile->painted = FALSE;
@@ -452,7 +459,7 @@ index 1111111..2222222 100644
  	tile->ticks = render->ticks;
  
  	if( !(tile->region = vips_region_new( render->in )) ) {
-@@ -692,7 +389,7 @@ render_tile_move( Tile *tile, VipsRect *area )
+@@ -707,7 +389,7 @@ render_tile_move( Tile *tile, VipsRect *area )
  	}
  }
  
@@ -461,7 +468,7 @@ index 1111111..2222222 100644
   */
  static void
  tile_touch( Tile *tile )
-@@ -701,7 +398,6 @@ tile_touch( Tile *tile )
+@@ -716,7 +398,6 @@ tile_touch( Tile *tile )
  
  	tile->ticks = render->ticks;
  	render->ticks += 1;
@@ -469,7 +476,7 @@ index 1111111..2222222 100644
  }
  
  /* Queue a tile for calculation. 
-@@ -711,43 +407,32 @@ tile_queue( Tile *tile, VipsRegion *reg )
+@@ -726,43 +407,32 @@ tile_queue( Tile *tile, VipsRegion *reg )
  {
  	Render *render = tile->render;
  
@@ -530,7 +537,7 @@ index 1111111..2222222 100644
  }
  
  static void 
-@@ -810,11 +495,9 @@ render_tile_request( Render *render, VipsRegion *reg, VipsRect *area )
+@@ -825,11 +495,9 @@ render_tile_request( Render *render, VipsRegion *reg, VipsRect *area )
  		tile_queue( tile, reg );
  	}
  	else {
@@ -544,7 +551,7 @@ index 1111111..2222222 100644
  			VIPS_DEBUG_MSG( "render_tile_request: "
  				"no tiles to reuse\n" );
  			return( NULL );
-@@ -969,100 +652,6 @@ mask_fill( VipsRegion *out, void *seq, void *a, void *b, gboolean *stop )
+@@ -984,103 +652,6 @@ mask_fill( VipsRegion *out, void *seq, void *a, void *b, gboolean *stop )
  	return( 0 );
  }
  
@@ -618,34 +625,37 @@ index 1111111..2222222 100644
 -		}
 -	}
 -
--	/* We are exiting, so render_running must now be set to FALSE.
--	 */
--	render_running = FALSE;
+-	/* We are exiting: tell the main thread.
+-	  */
+-	 vips_semaphore_up( &render_finish );
 -}
 -
--void
--vips__sink_screen_init( void )
+-static void *
+-vips__sink_screen_init( void *data )
 -{
 -	g_assert( !render_running ); 
 -	g_assert( !render_dirty_lock ); 
 -
 -	render_dirty_lock = vips_g_mutex_new();
 -	vips_semaphore_init( &n_render_dirty_sem, 0, "n_render_dirty" );
+-	vips_semaphore_init( &render_finish, 0, "render_finish" );
 -
 -	if ( vips_threadpool_push( "sink_screen", render_thread_main,
 -		NULL ) ) {
 -		vips_error("vips_sink_screen_init", "%s",
 -			_("unable to init render thread"));
--		return;
+-		return( NULL );
 -	}
 -
 -	render_running = TRUE;
+-
+-	return( NULL );
 -}
 -
  /**
   * vips_sink_screen: (method)
   * @in: input image
-@@ -1072,12 +661,9 @@ vips__sink_screen_init( void )
+@@ -1090,12 +661,9 @@ vips__sink_screen_init( void *data )
   * @tile_height: tile height
   * @max_tiles: maximum tiles to cache
   * @priority: rendering priority
@@ -659,7 +669,7 @@ index 1111111..2222222 100644
   * tiles sized @tile_width by @tile_height pixels and with at most @max_tiles 
   * tiles.
   * If @max_tiles is -1, the cache is of unlimited size (up to the maximum image
-@@ -1095,18 +681,7 @@ vips__sink_screen_init( void )
+@@ -1113,18 +681,7 @@ vips__sink_screen_init( void *data )
   * whatever is
   * currently in cache for that #VipsRect (check @mask to see which parts of the
   * #VipsRect are valid). Any pixels in the #VipsRect which are not in 
@@ -679,18 +689,17 @@ index 1111111..2222222 100644
   *
   * See also: vips_tilecache(), vips_region_prepare(), 
   * vips_sink_disc(), vips_sink().
-@@ -1122,6 +697,10 @@ vips_sink_screen( VipsImage *in, VipsImage *out, VipsImage *mask,
- {
+@@ -1142,7 +699,8 @@ vips_sink_screen( VipsImage *in, VipsImage *out, VipsImage *mask,
+ 
  	Render *render;
  
-+	// TODO(kleisauke): Seems to be unused in libvips? Perhaps vipsdisp uses this?
+-	VIPS_ONCE( &once, vips__sink_screen_init, NULL );
 +	(void) notify_fn;
 +	(void) a;
-+
+ 
  	if( tile_width <= 0 || tile_height <= 0 || 
  		max_tiles < -1 ) {
- 		vips_error( "vips_sink_screen", "%s", _( "bad parameters" ) );
-@@ -1145,7 +724,7 @@ vips_sink_screen( VipsImage *in, VipsImage *out, VipsImage *mask,
+@@ -1167,7 +725,7 @@ vips_sink_screen( VipsImage *in, VipsImage *out, VipsImage *mask,
  	}
  
  	if( !(render = render_new( in, out, mask, 
@@ -699,7 +708,7 @@ index 1111111..2222222 100644
  		return( -1 );
  
  	VIPS_DEBUG_MSG( "vips_sink_screen: max = %d, %p\n", max_tiles, render );
-@@ -1168,16 +747,4 @@ vips__print_renders( void )
+@@ -1190,16 +748,4 @@ vips__print_renders( void )
  	if( render_num_renders > 0 )
  		printf( "%d active renders\n", render_num_renders );
  #endif /*VIPS_DEBUG_AMBER*/
@@ -755,7 +764,7 @@ index 1111111..2222222 100644
  }
  
  /**
-@@ -900,11 +914,15 @@ vips__threadpool_init( void )
+@@ -909,11 +923,15 @@ vips__threadpool_init( void )
  	if( g_getenv( "VIPS_STALL" ) )
  		vips__stall = TRUE;
  

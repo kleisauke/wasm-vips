@@ -99,7 +99,7 @@ set_target_properties(${TARGETS}
 --js-library ${CMAKE_CURRENT_SOURCE_DIR}/vector-types.js \
 -s MODULARIZE=1 \
 -s EXPORT_NAME='Vips' \
--s EXIT_RUNTIME=0 \
+-s EXIT_RUNTIME=1 \
 -s PTHREAD_POOL_SIZE=\"_emscripten_num_logical_cores() + 3\" \
 -s INITIAL_MEMORY=1GB \
 -s ALLOW_TABLE_GROWTH=1 \

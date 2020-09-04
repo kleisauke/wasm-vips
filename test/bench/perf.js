@@ -39,8 +39,7 @@ const benchmark = async () => {
 
   const runSuites = suites => {
     if (suites.length === 0) {
-      // Our WASM binary is compiled with `-s EXIT_RUNTIME=0`,
-      // so we need to call exit by ourselves.
+      // We need to call exit by ourselves.
       vips._exit(0);
       return;
     }

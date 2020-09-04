@@ -38,8 +38,8 @@ Mocha.prototype.run = function (done) {
             // All tests have been completed with a result code
             done.apply(this, arguments);
 
-            // Our WASM binary is compiled with `-s EXIT_RUNTIME=0`,
-            // so we need to call exit by ourselves.
+            // We need to call exit by ourselves.
+            // TODO(kleisauke): This is very awkward, can we remove this requirement for Node?
             vips._exit(0);
         });
     });

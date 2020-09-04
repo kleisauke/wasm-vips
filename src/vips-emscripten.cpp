@@ -37,6 +37,8 @@ int main() {
     // Handy for debugging.
     // vips_leak_set(1);
 
+    emscripten_exit_with_live_runtime();
+
     return 0;
 }
 

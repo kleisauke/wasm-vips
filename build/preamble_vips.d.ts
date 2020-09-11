@@ -32,6 +32,13 @@ declare namespace vips {
     function concurrency(concurrency?: number): void | number;
 
     /**
+     * Call this to shutdown libvips and the runtime of Emscripten.
+     * This is only needed on Node.js, as the thread pool of
+     * Emscripten prevents the event loop from exiting.
+     */
+    function shutdown(): void;
+
+    /**
      * A sequence container representing an array that can change in size.
      */
     export interface Vector<T> {

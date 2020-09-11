@@ -38,9 +38,8 @@ Mocha.prototype.run = function (done) {
             // All tests have been completed with a result code
             done.apply(this, arguments);
 
-            // We need to call exit by ourselves.
-            // TODO(kleisauke): This is very awkward, can we remove this requirement for Node?
-            vips._exit(0);
+            // We are done, shutdown libvips and the runtime of Emscripten
+            vips.shutdown();
         });
     });
 };

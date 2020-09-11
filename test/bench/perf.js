@@ -39,8 +39,8 @@ const benchmark = async () => {
 
   const runSuites = suites => {
     if (suites.length === 0) {
-      // We need to call exit by ourselves.
-      vips._exit(0);
+      // We are done, shutdown libvips and the runtime of Emscripten
+      vips.shutdown();
       return;
     }
 

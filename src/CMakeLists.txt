@@ -80,6 +80,8 @@ endif()
 # -s NODEJS_CATCH_EXIT=0 \
 # -s ASSERTIONS=2 \
 # -s PTHREADS_DEBUG=1 \
+# -s LIBRARY_DEBUG=1 \
+# -s SYSCALL_DEBUG=1 \
 
 # note 1: `ALLOW_MEMORY_GROWTH` may run non-wasm code slowly. See: https://github.com/WebAssembly/design/issues/1271.
 # note 2: Browsers appear to limit the maximum initial memory size to 1GB, set `INITIAL_MEMORY` accordingly.
@@ -105,7 +107,6 @@ set_target_properties(${TARGETS}
 -s ALLOW_TABLE_GROWTH=1 \
 -s ALLOW_BLOCKING_ON_MAIN_THREAD=1 \
 -s ASSERTIONS=0 \
--s EXPORTED_FUNCTIONS='[\"_main\", \"_exit\", \"_abort\"]' \
 -s EXTRA_EXPORTED_RUNTIME_METHODS='[\"FS\", \"ENV\", \"deletionQueue\", \"addFunction\"]'"
         )
 

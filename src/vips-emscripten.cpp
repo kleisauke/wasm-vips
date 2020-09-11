@@ -42,6 +42,11 @@ int main() {
     return 0;
 }
 
+EM_JS(void, shutdown_js, (), {
+    PThread.terminateAllThreads();
+    exitRuntime();
+});
+
 struct TrimResult {
     int left;
     int top;
@@ -408,6 +413,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
     function("config", optional_override([]() {
                  return vips::replace_all(VIPS_CONFIG, ", ", "\n");
              }));
+
+    // Helper for Node.js to shutdown libvips and the runtime of Emscripten
+    function("shutdown", &shutdown_js);
 
     // Cache class
     class_<Cache>("Cache")

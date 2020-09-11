@@ -7,8 +7,8 @@ EM_JS(void, throw_type_error_js, (const char *str), {
 });
 
 EM_JS(void, throw_vips_error_js, (const char *str), {
-    var e = Module.Utils.errorBuffer();
-    Module.Utils.clearError();
+    var e = Module.Error.buffer();
+    Module.Error.clear();
     throw new Error(UTF8ToString(str) + "\n" + e);
 });
 

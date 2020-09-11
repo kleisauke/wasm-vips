@@ -18,7 +18,7 @@ const benchmark = async () => {
   const vips = await Vips();
 
   // Disable libvips cache to ensure tests are as fair as they can be
-  vips.Utils.setCacheMax(0);
+  vips.Cache.max(0);
 
   const inputJpgBuffer = vips.FS.readFile(images.inputJpg);
   const defaultJpegSaveOptions = {

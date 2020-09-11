@@ -10,10 +10,31 @@ declare namespace vips {
     type ArrayImage = Array<Image> | Vector<Image>;
 
     /**
+     * Get the major, minor or patch version number of the libvips library.
+     * When the flag is omitted, the entire version number is returned as a string.
+     * @param flag 0 to get the major version number, 1 to get minor, 2 to get patch.
+     * @return The version number of libvips.
+     */
+    function version(flag?: number): string | number;
+
+    /**
+     * Get detailed information about the installation of libvips.
+     * @return Information about how libvips is configured.
+     */
+    function config(): string;
+
+    /**
+     * Gets or, when a parameter is provided, sets the number of worker threads libvips' should create to
+     * process each image.
+     * @param concurrency The number of worker threads.
+     * @return The number of worker threads libvips uses for image evaluation.
+     */
+    function concurrency(concurrency?: number): void | number;
+
+    /**
      * A sequence container representing an array that can change in size.
      */
     export interface Vector<T> {
-
         /**
          * Adds a new element at the end of the vector, after its current last element.
          * @param val The value to be appended at the end of the container.
@@ -50,7 +71,89 @@ declare namespace vips {
     }
 
     /**
-     * Utils class.
+     * A class around libvips' operation cache.
+     */
+    export class Cache {
+        /**
+         * Gets or, when a parameter is provided, sets the maximum number of operations libvips keeps in cache.
+         * @param max Maximum number of operations.
+         * @return The maximum number of operations libvips keeps in cache.
+         */
+        static max(max?: number): void | number;
+
+        /**
+         * Gets or, when a parameter is provided, sets the maximum amount of tracked memory allowed.
+         * @param mem Maximum amount of tracked memory.
+         * @return The maximum amount of tracked memory libvips allows.
+         */
+        static maxMem(mem?: number): void | number;
+
+        /**
+         * Gets or, when a parameter is provided, sets the maximum amount of tracked files allowed.
+         * @param maxFiles Maximum amount of tracked files.
+         * @return The maximum amount of tracked files libvips allows.
+         */
+        static maxFiles(maxFiles?: number): void | number;
+
+        /**
+         * Get the current number of operations in cache.
+         * @return The current number of operations in cache.
+         */
+        static size(): number;
+    }
+
+    /**
+     * A class that provides the statistics of memory usage and opened files.
+     * libvips watches the total amount of live tracked memory and
+     * uses this information to decide when to trim caches.
+     */
+    export class Stats {
+        /**
+         * Get the number of active allocations.
+         * @return The number of active allocations.
+         */
+        static allocations(): number;
+
+        /**
+         * Get the number of bytes currently allocated `vips_malloc()` and friends.
+         * libvips uses this figure to decide when to start dropping cache.
+         * @return The number of bytes currently allocated.
+         */
+        static mem(): number;
+
+        /**
+         * Get the largest number of bytes simultaneously allocated via `vips_tracked_malloc()`.
+         * Handy for estimating max memory requirements for a program.
+         * @return The largest number of currently allocated bytes.
+         */
+        static memHighwater(): number;
+
+        /**
+         * Get the number of open files.
+         * @return The number of open files.
+         */
+        static files(): number;
+    }
+
+    /**
+     * A class for error messages and error handling.
+     */
+    export class Error {
+        /**
+         * Get the error buffer as a string.
+         * @return The error buffer as a string.
+         */
+        static buffer(): string;
+
+        /**
+         * Clear and reset the error buffer.
+         * This is typically called after presenting an error to the user.
+         */
+        static clear(): void;
+    }
+
+    /**
+     * Handy utilities.
      */
     export class Utils {
         /**
@@ -61,118 +164,6 @@ declare namespace vips {
          * @return The GType of the class, or `0` if the class is not found.
          */
         static typeFind(basename: string, nickname: string): number;
-
-        /**
-         * Get the error buffer as a string.
-         * @return The error buffer as a string.
-         */
-        static errorBuffer(): string;
-
-        /**
-         * Clear and reset the error buffer.
-         * This is typically called after presenting an error to the user.
-         */
-        static clearError(): void;
-
-        /**
-         * Get the major, minor or patch version number of the vips library.
-         * When the flag is omitted, the entire version number is returned as a string.
-         * @param flag Optional flag; 0 to get the major version number, 1 to get minor, 2 to get patch.
-         * @return The version number of vips.
-         */
-        static vipsVersion(flag?: number): string | number;
-
-        /**
-         * Get detailed information about the installation of vips.
-         * @return Information about how vips is configured.
-         */
-        static vipsConfig(): string;
-
-        /**
-         * Is SIMD support with liborc enabled?
-         * @return A boolean indicating if SIMD is enabled.
-         */
-        static isVectorEnabled(): boolean;
-
-        /**
-         * Is our vips library built with lcms2?
-         * @return A boolean indicating if ICC support is present.
-         */
-        static isIccPresent(): boolean;
-
-        /**
-         * Set the size of the pools of worker threads vips uses for image evaluation.
-         * @param concurrency The size of the pools of worker threads vips uses for image evaluation.
-         */
-        static setConcurrency(concurrency: number): void;
-
-        /**
-         * Get the number of worker threads that vips uses for image evaluation.
-         * @return The number of worker threads.
-         */
-        static getConcurrency(): number;
-
-        /**
-         * Get the current number of operations in cache.
-         * @return The current number of operations in cache.
-         */
-        static getCacheSize(): number;
-
-        /**
-         * Get the number of active allocations.
-         * @return The number of active allocations.
-         */
-        static getAllocations(): number;
-
-        /**
-         * Get the number of bytes currently allocated `vips_malloc()` and friends.
-         * vips uses this figure to decide when to start dropping cache.
-         * @return The number of bytes currently allocated.
-         */
-        static getMem(): number;
-
-        /**
-         * Get the largest number of bytes simultaneously allocated via `vips_tracked_malloc()`.
-         * Handy for estimating max memory requirements for a program.
-         * @return The largest number of currently allocated bytes.
-         */
-        static getMemHighwater(): number;
-
-        /**
-         * Set the maximum number of operations vips will cache.
-         * @param max Maximum number of operations.
-         */
-        static setCacheMax(max: number): void;
-
-        /**
-         * Get the maximum number of operations vips keeps in cache.
-         * @return The maximum number of operations vips keeps in cache.
-         */
-        static getCacheMax(): number;
-
-        /**
-         * Set the maximum amount of tracked memory allowed.
-         * @param mem Maximum amount of tracked memory vips allows.
-         */
-        static setCacheMaxMem(mem: number): void;
-
-        /**
-         * Get the maximum amount of tracked memory allowed.
-         * @return The maximum amount of tracked memory vips allows.
-         */
-        static getCacheMaxMem(): number;
-
-        /**
-         * Set the maximum amount of tracked files allowed.
-         * @param maxFiles Maximum amount of open files vips allows.
-         */
-        static setCacheMaxFiles(maxFiles: number): void;
-
-        /**
-         * Get the maximum number of tracked files allowed.
-         * @return The maximum amount of tracked files vips allows.
-         */
-        static getCacheMaxFiles(): number;
 
         /**
          * Make a temporary file name. The format parameter is something like `"%s.jpg"`
@@ -326,7 +317,7 @@ declare namespace vips {
     }
 
     /**
-     * The VipsImage class.
+     * An image class.
      */
     export class Image extends ImageAutoGen {
         /**
@@ -404,7 +395,7 @@ declare namespace vips {
          * the environment variable `TMPDIR`. If this is not set, vips will
          * default to `/tmp`.
          *
-         * vips uses `g_mkstemp()` to make the temporary filename. They
+         * libvips uses `g_mkstemp()` to make the temporary filename. They
          * generally look something like `"vips-12-EJKJFGH.v"`.
          * @param format The format for the temp file, defaults to a vips
          * format file (`"%s.v"`). The `%s` is substituted by the file path.
@@ -415,7 +406,7 @@ declare namespace vips {
         /**
          * Load an image from a file.
          *
-         * This method can load images in any format supported by vips. The
+         * This method can load images in any format supported by libvips. The
          * filename can include load options, for example:
          * ```js
          * const image = vips.Image.newFromFile('fred.jpg[shrink=2]');
@@ -604,7 +595,7 @@ declare namespace vips {
         /**
          * Write an image to a file.
          *
-         * This method can save images in any format supported by vips. The format
+         * This method can save images in any format supported by libvips. The format
          * is selected from the filename suffix. The filename can include embedded
          * save options, see [[newFromFile]].
          *
@@ -633,7 +624,7 @@ declare namespace vips {
         /**
          * Write an image to a typed array of 8-bit unsigned integer values.
          *
-         * This method can save images in any format supported by vips. The format
+         * This method can save images in any format supported by libvips. The format
          * is selected from the suffix in the format string. This can include
          * embedded save options, see [[newFromFile]].
          *

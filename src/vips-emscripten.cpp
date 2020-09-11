@@ -54,6 +54,9 @@ struct ColumnsRowsResult {
     Image rows;
 };
 
+struct Cache {};
+struct Stats {};
+struct Error {};
 struct Utils {};
 
 /**
@@ -392,6 +395,47 @@ EMSCRIPTEN_BINDINGS(my_module) {
     register_vector<Image>("VectorImage");
     register_vector<std::string>("VectorString");
 
+    function("concurrency", &vips_concurrency_set);
+    function("concurrency", &vips_concurrency_get);
+    function("version", vips_version);
+    function("version", optional_override([]() {
+                 std::string major = std::to_string(vips_version(0));
+                 std::string minor = std::to_string(vips_version(1));
+                 std::string patch = std::to_string(vips_version(2));
+
+                 return major + "." + minor + "." + patch;
+             }));
+    function("config", optional_override([]() {
+                 return vips::replace_all(VIPS_CONFIG, ", ", "\n");
+             }));
+
+    // Cache class
+    class_<Cache>("Cache")
+        .constructor<>()
+        .class_function("max", &vips_cache_set_max)
+        .class_function("max", &vips_cache_get_max)
+        .class_function("maxMem", &vips_cache_set_max_mem)
+        .class_function("maxMem", &vips_cache_get_max_mem)
+        .class_function("maxFiles", &vips_cache_set_max_files)
+        .class_function("maxFiles", &vips_cache_get_max_files)
+        .class_function("size", &vips_cache_get_size);
+
+    // Stats class
+    class_<Stats>("Stats")
+        .constructor<>()
+        .class_function("allocations", &vips_tracked_get_allocs)
+        .class_function("mem", &vips_tracked_get_mem)
+        .class_function("memHighwater", &vips_tracked_get_mem_highwater)
+        .class_function("files", &vips_tracked_get_files);
+
+    // Error class
+    class_<Error>("Error")
+        .constructor<>()
+        .class_function("buffer", optional_override([]() {
+                            return std::string(vips_error_buffer());
+                        }))
+        .class_function("clear", &vips_error_clear);
+
     // Utils class
     class_<Utils>("Utils")
         .constructor<>()
@@ -400,37 +444,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
                                              const std::string &nickname) {
                 return vips_type_find(basename.c_str(), nickname.c_str());
             }))
-        .class_function("vipsVersion", &vips_version)
-        .class_function("vipsVersion", optional_override([]() {
-                            std::string major = std::to_string(vips_version(0));
-                            std::string minor = std::to_string(vips_version(1));
-                            std::string micro = std::to_string(vips_version(2));
-
-                            return major + "." + minor + "." + micro;
-                        }))
-        .class_function("vipsConfig", optional_override([]() {
-                            return vips::replace_all(VIPS_CONFIG, ", ", "\n");
-                        }))
-        .class_function("errorBuffer", optional_override([]() {
-                            return std::string(vips_error_buffer());
-                        }))
-        .class_function("clearError", &vips_error_clear)
-        .class_function("isVectorEnabled", optional_override([]() {
-                            return /*vips_vector_isenabled()*/ false;
-                        }))
-        .class_function("isIccPresent", &vips_icc_present)
-        .class_function("setConcurrency", &vips_concurrency_set)
-        .class_function("getConcurrency", &vips_concurrency_get)
-        .class_function("getCacheSize", &vips_cache_get_size)
-        .class_function("getAllocations", &vips_tracked_get_allocs)
-        .class_function("getMem", &vips_tracked_get_mem)
-        .class_function("getMemHighwater", &vips_tracked_get_mem_highwater)
-        .class_function("setCacheMax", &vips_cache_set_max)
-        .class_function("getCacheMax", &vips_cache_get_max)
-        .class_function("setCacheMaxMem", &vips_cache_set_max_mem)
-        .class_function("getCacheMaxMem", &vips_cache_get_max_mem)
-        .class_function("setCacheMaxFiles", &vips_cache_set_max_files)
-        .class_function("getCacheMaxFiles", &vips_cache_get_max_files)
         .class_function("tempName",
                         optional_override([](const std::string &format) {
                             char *name = vips__temp_name(format.c_str());

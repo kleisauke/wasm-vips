@@ -35,7 +35,7 @@
     });
 
     // Disable libvips cache to ensure tests are as fair as they can be
-    vips.Utils.setCacheMax(0);
+    vips.Cache.max(0);
 
     const inputJpgBuffer = vips.FS.readFile(JPEG_FILE);
     const defaultJpegSaveOptions = {

@@ -63,19 +63,19 @@
             const pad = 30;
             const have = (name) => module.Utils.typeFind('VipsOperation', name) !== 0;
 
-            console.log('vips version:'.padEnd(pad), module.Utils.vipsVersion());
-            //console.log(module.Utils.vipsConfig());
+            console.log('vips version:'.padEnd(pad), module.version());
+            //console.log(module.config());
+            console.log('Concurrency:'.padEnd(pad), module.concurrency());
 
-            console.log('Cache max mem:'.padEnd(pad), module.Utils.getCacheMaxMem());
-            console.log('Cache max operations:'.padEnd(pad), module.Utils.getCacheMax());
-            console.log('Cache current operations:'.padEnd(pad), module.Utils.getCacheSize());
-            console.log('Cache max open files:'.padEnd(pad), module.Utils.getCacheMaxFiles());
+            console.log('Cache max mem:'.padEnd(pad), module.Cache.maxMem());
+            console.log('Cache max operations:'.padEnd(pad), module.Cache.max());
+            console.log('Cache current operations:'.padEnd(pad), module.Cache.size());
+            console.log('Cache max open files:'.padEnd(pad), module.Cache.maxFiles());
 
-            console.log('Memory allocations:'.padEnd(pad), module.Utils.getAllocations());
-            console.log('Memory currently allocated:'.padEnd(pad), module.Utils.getMem());
-            console.log('Memory high water:'.padEnd(pad), module.Utils.getMemHighwater());
-
-            console.log('Concurrency:'.padEnd(pad), module.Utils.getConcurrency());
+            console.log('Memory allocations:'.padEnd(pad), module.Stats.allocations());
+            console.log('Memory currently allocated:'.padEnd(pad), module.Stats.mem());
+            console.log('Memory high water:'.padEnd(pad), module.Stats.memHighwater());
+            console.log('Open files:'.padEnd(pad), module.Stats.files());
 
             console.log('JPEG support:'.padEnd(pad), have('jpegload') ? 'yes' : 'no');
             console.log('PNG support:'.padEnd(pad), have('pngload') ? 'yes' : 'no');
@@ -86,9 +86,6 @@
             console.log('load SVG:'.padEnd(pad), have('svgload') ? 'yes' : 'no');
 
             console.log('Text rendering support:'.padEnd(pad), have('text') ? 'yes' : 'no');
-
-            console.log('ICC profile support with lcms:'.padEnd(pad), module.Utils.isIccPresent() ? 'yes' : 'no');
-            console.log('SIMD support with liborc:'.padEnd(pad), module.Utils.isVectorEnabled() ? 'yes' : 'no');
         }
     };
 

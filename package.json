@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "build:dockerimage": "docker build -t wasm-vips .",
-    "build:emscripten": "docker run --rm -v $(pwd):/src wasm-vips ./build.sh -e web",
+    "build:emscripten": "docker run --rm -v $(pwd):/src wasm-vips ./build.sh",
     "build": "npm run build:dockerimage && npm run build:emscripten",
     "test:browser": "serve -c test/unit/serve.json",
     "test": "node --experimental-wasm-threads --experimental-wasm-simd --experimental-wasm-bulk-memory node_modules/mocha/bin/mocha -s 5000 -t 60000 ./test/unit/*.js -r test/unit/node-helper.js",

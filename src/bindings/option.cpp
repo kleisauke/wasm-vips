@@ -50,32 +50,12 @@ Option::Pair::Pair(std::string name, const std::string &vstring)
     g_value_set_string(&value, vstring.c_str());
 }
 
-// input image
-Option::Pair::Pair(std::string name, const Image &vimage)
+// input vips object (image, source, target, etc.)
+Option::Pair::Pair(std::string name, const Object &vobject)
     : name(std::move(name)), value(G_VALUE_INIT), type(Type::INPUT) {
-    g_value_init(&value, VIPS_TYPE_IMAGE);
-    g_value_set_object(&value, vimage.get_image());
-}
-
-// input interpolate
-Option::Pair::Pair(std::string name, const Interpolate &vinterpolate)
-    : name(std::move(name)), value(G_VALUE_INIT), type(Type::INPUT) {
-    g_value_init(&value, VIPS_TYPE_INTERPOLATE);
-    g_value_set_object(&value, vinterpolate.get_interpolate());
-}
-
-// input source
-Option::Pair::Pair(std::string name, const Source &vsource)
-    : name(std::move(name)), value(G_VALUE_INIT), type(Type::INPUT) {
-    g_value_init(&value, VIPS_TYPE_SOURCE);
-    g_value_set_object(&value, vsource.get_source());
-}
-
-// input target
-Option::Pair::Pair(std::string name, const Target &vtarget)
-    : name(std::move(name)), value(G_VALUE_INIT), type(Type::INPUT) {
-    g_value_init(&value, VIPS_TYPE_TARGET);
-    g_value_set_object(&value, vtarget.get_target());
+    VipsObject *object = vobject.get_object();
+    g_value_init(&value, G_OBJECT_TYPE(object));
+    g_value_set_object(&value, object);
 }
 
 // input double array

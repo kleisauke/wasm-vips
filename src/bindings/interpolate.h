@@ -15,10 +15,6 @@ class Interpolate : public Object {
     Interpolate() : Object(nullptr) {}
 
     static Interpolate new_from_name(const std::string &name);
-
-    VipsInterpolate *get_interpolate() const {
-        return reinterpret_cast<VipsInterpolate *>(get_object());
-    }
 };
 
 }  // namespace vips

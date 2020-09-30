@@ -11,9 +11,7 @@ namespace vips {
 
 // Need forward declarations, unfortunately.
 class Image;
-class Interpolate;
-class Source;
-class Target;
+class Object;
 
 class Option {
  public:
@@ -69,10 +67,7 @@ class Option {
         Pair(std::string name, double vdouble);
         Pair(std::string name, const char *vstring);
         Pair(std::string name, const std::string &vstring);
-        Pair(std::string name, const Image &vimage);
-        Pair(std::string name, const Interpolate &vinterpolate);
-        Pair(std::string name, const Source &vsource);
-        Pair(std::string name, const Target &vtarget);
+        Pair(std::string name, const Object &vobject);
         Pair(std::string name, const std::vector<double> &vvector);
         Pair(std::string name, const std::vector<int> &vvector);
         Pair(std::string name, const std::vector<Image> &vvector);

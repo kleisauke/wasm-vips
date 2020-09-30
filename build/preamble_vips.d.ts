@@ -18,6 +18,12 @@ declare namespace vips {
     function version(flag?: number): string | number;
 
     /**
+     * Returns a string identifying the Emscripten version used for compiling wasm-vips.
+     * @return The version number of Emscripten.
+     */
+    function emscriptenVersion(): string;
+
+    /**
      * Get detailed information about the installation of libvips.
      * @return Information about how libvips is configured.
      */

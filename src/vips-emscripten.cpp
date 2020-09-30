@@ -410,6 +410,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
 
                  return major + "." + minor + "." + patch;
              }));
+    function("emscriptenVersion", optional_override([]() {
+                 return std::string(EMSCRIPTEN_VERSION);
+             }));
     function("config", optional_override([]() {
                  return vips::replace_all(VIPS_CONFIG, ", ", "\n");
              }));

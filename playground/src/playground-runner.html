@@ -64,6 +64,7 @@
             const have = (name) => module.Utils.typeFind('VipsOperation', name) !== 0;
 
             console.log('vips version:'.padEnd(pad), module.version());
+            console.log('Emscripten version:'.padEnd(pad), module.emscriptenVersion());
             //console.log(module.config());
             console.log('Concurrency:'.padEnd(pad), module.concurrency());
 

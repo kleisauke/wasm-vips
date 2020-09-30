@@ -19,7 +19,7 @@ index 1111111..2222222 100644
  #if IN_TEST_HARNESS
  #if DYNAMIC_EXECUTION
      // Without dynamic execution, dynamically created functions will have no
-@@ -1644,7 +1647,10 @@ var LibraryEmbind = {
+@@ -1648,7 +1651,10 @@ var LibraryEmbind = {
    $attachFinalizer__deps: ['$finalizationGroup', '$detachFinalizer',
                             '$releaseClassHandle'],
    $attachFinalizer: function(handle) {
@@ -35,10 +35,10 @@ diff --git a/src/settings.js b/src/settings.js
 index 1111111..2222222 100644
 --- a/src/settings.js
 +++ b/src/settings.js
-@@ -1354,6 +1354,14 @@ var TEXTDECODER = 1;
+@@ -1344,6 +1344,14 @@ var TEXTDECODER = 1;
  // Disable this to support binary data transfer.
  var EMBIND_STD_STRING_IS_UTF8 = 1;
-
+ 
 +// Embind specific: If enabled, deleteLater() will automatically be called
 +// during the construction of handles. You can also set this on runtime within
 +// the preRun() function, for example:

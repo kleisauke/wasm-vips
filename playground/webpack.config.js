@@ -65,7 +65,7 @@ module.exports = {
             chunks: "all",
             cacheGroups: {
                 vendor: {
-                    test: /[\\/](monaco-editor)[\\/]/,
+                    test: /[\\/]node_modules[\\/]/,
                     name: 'monaco-editor'
                 },
             }

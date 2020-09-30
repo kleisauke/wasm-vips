@@ -9,6 +9,15 @@ diff --git a/src/library_noderawfs.js b/src/library_noderawfs.js
 index 1111111..2222222 100644
 --- a/src/library_noderawfs.js
 +++ b/src/library_noderawfs.js
+@@ -5,7 +5,7 @@
+  */
+ 
+ mergeInto(LibraryManager.library, {
+-  $NODERAWFS__deps: ['$ERRNO_CODES', '$FS', '$NODEFS'],
++  $NODERAWFS__deps: ['$ERRNO_CODES', '$FS', '$NODEFS', '$mmapAlloc'],
+   $NODERAWFS__postset: 'if (ENVIRONMENT_IS_NODE) {' +
+     'var _wrapNodeError = function(func) { return function() { try { return func.apply(this, arguments) } catch (e) { if (!e.code) throw e; throw new FS.ErrnoError(ERRNO_CODES[e.code]); } } };' +
+     'var VFS = Object.assign({}, FS);' +
 @@ -116,10 +116,30 @@ mergeInto(LibraryManager.library, {
      allocate: function() {
        throw new FS.ErrnoError(ERRNO_CODES.EOPNOTSUPP);
@@ -24,7 +33,7 @@ index 1111111..2222222 100644
 +      // We don't currently support location hints for the address of the mapping
 +      assert(address === 0);
 +
-+      var ptr = VFS.mmapAlloc(length);
++      var ptr = mmapAlloc(length);
 +      FS.read(stream, HEAP8, ptr, length, position);
 +      return { ptr: ptr, allocated: true };
      },

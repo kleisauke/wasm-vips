@@ -7,7 +7,7 @@ Subject: [PATCH 1/8] Revert "Meson: Extract objects from convenience libraries t
 This reverts commit 62af03bda8a1d649b079a0e77d3687695d0ab7d3.
 
 Upstream-Status: Inappropriate [other]
-Upstream may still depend on an older Meson version.
+Upstream may still depend on Meson < 0.52.0.
 
 diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
@@ -139,8 +139,45 @@ index 1111111..2222222 100644
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Wed, 30 Sep 2020 14:00:00 +0200
+Subject: [PATCH 2/9] Explicitly link gio and gobject against pthread
+
+To ensure that the compiled code uses the "atomics" target feature of WASM.
+
+Upstream-Status: Inappropriate [Emscripten specific]
+Specific for Emscripten and not appropriate for native environments.
+
+diff --git a/gio/meson.build b/gio/meson.build
+index 1111111..2222222 100644
+--- a/gio/meson.build
++++ b/gio/meson.build
+@@ -779,7 +779,7 @@ libgio = library('gio-2.0',
+   include_directories : [configinc, gioinc],
+   link_with : internal_deps,
+   #  '$(gio_win32_res_ldflag)',
+-  dependencies : [libz_dep, libdl_dep, libmount_dep, libglib_dep,
++  dependencies : [libz_dep, libdl_dep, libmount_dep, thread_dep, libglib_dep,
+                   libgobject_dep, libgmodule_dep, selinux_dep, xattr_dep,
+                   platform_deps, network_libs],
+   c_args : gio_c_args,
+diff --git a/gobject/meson.build b/gobject/meson.build
+index 1111111..2222222 100644
+--- a/gobject/meson.build
++++ b/gobject/meson.build
+@@ -125,7 +125,7 @@ libgobject = library('gobject-2.0',
+   darwin_versions : darwin_versions,
+   install : true,
+   include_directories : [configinc],
+-  dependencies : [libffi_dep, libglib_dep],
++  dependencies : [libffi_dep, thread_dep, libglib_dep],
+   c_args : ['-DG_LOG_DOMAIN="GLib-GObject"', '-DGOBJECT_COMPILATION'] + glib_hidden_visibility_args,
+   link_args : glib_link_flags,
+ )
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:00:00 +0200
-Subject: [PATCH 2/8] LLVM doesn't define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
+Subject: [PATCH 3/9] LLVM doesn't define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
 
 See: https://bugs.llvm.org/show_bug.cgi?id=11174
 
@@ -163,7 +200,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:20:00 +0200
-Subject: [PATCH 3/8] posix_spawn isn't usable in WASM
+Subject: [PATCH 4/9] posix_spawn isn't usable in WASM
 
 Upstream-Status: Pending
 
@@ -183,7 +220,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:40:00 +0200
-Subject: [PATCH 4/8] Network libs are not available in WASM
+Subject: [PATCH 5/9] Network libs are not available in WASM
 
 Upstream-Status: Pending
 
@@ -204,7 +241,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 22 Apr 2020 12:11:28 +0200
-Subject: [PATCH 5/8] Ensure separate checks are also done for Emscripten
+Subject: [PATCH 6/9] Ensure separate checks are also done for Emscripten
 
 Upstream-Status: Pending
 
@@ -242,7 +279,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Fri, 20 Sep 2019 16:05:00 +0200
-Subject: [PATCH 6/8] Fix function pointer cast issues
+Subject: [PATCH 7/9] Fix function pointer cast issues
 
 It is undefined behavior in C and C++ to cast a function pointer
 to another type and call it that way. This does work in most native
@@ -554,7 +591,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Fri, 15 Nov 2019 11:00:00 +0100
-Subject: [PATCH 7/8] Implement g_get_num_processors for Emscripten
+Subject: [PATCH 8/9] Implement g_get_num_processors for Emscripten
 
 Upstream-Status: Pending
 
@@ -588,7 +625,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Tue, 8 Oct 2019 11:30:00 +0200
-Subject: [PATCH 8/8] Do not build executables
+Subject: [PATCH 9/9] Do not build executables
 
 We're only interested in the libraries.
 

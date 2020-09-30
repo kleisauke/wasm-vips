@@ -23,7 +23,7 @@ add_library(${PROJECT_NAME} OBJECT ${HEADERS} ${SOURCES})
 
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
-            COMPILE_OPTIONS "-DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0"
+            COMPILE_FLAGS "-pthread -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0"
             LINK_FLAGS "--bind --js-library ${CMAKE_CURRENT_SOURCE_DIR}/vector-types.js"
         )
 
@@ -107,7 +107,7 @@ set_target_properties(${TARGETS}
 -s ALLOW_TABLE_GROWTH=1 \
 -s ALLOW_BLOCKING_ON_MAIN_THREAD=1 \
 -s ASSERTIONS=0 \
--s EXTRA_EXPORTED_RUNTIME_METHODS='[\"FS\", \"ENV\", \"deletionQueue\", \"addFunction\"]'"
+-s EXTRA_EXPORTED_RUNTIME_METHODS='[\"FS\", \"ENV\", \"deletionQueue\", \"addFunction\", \"emscripten_num_logical_cores\"]'"
         )
 
 # TODO(kleisauke): Add -s EXPORT_ES6=1, see:

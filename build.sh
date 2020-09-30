@@ -55,14 +55,14 @@ fi
 #export CFLAGS="-O0 -g4"
 #export CXXFLAGS="$CFLAGS"
 #export LDFLAGS="-L$TARGET/lib -O0"
-#export EMMAKEN_CFLAGS="-s USE_PTHREADS=1 --source-map-base http://localhost:5000/lib/"
+#export EMMAKEN_CFLAGS="--source-map-base http://localhost:5000/lib/"
 #export EMCC_DEBUG="1"
 
 # Handy for catching bugs
 #export CFLAGS="-Os -g4 -fsanitize=address"
 #export CXXFLAGS="$CFLAGS"
 #export LDFLAGS="-L$TARGET/lib -Os -g4 -fsanitize=address"
-#export EMMAKEN_CFLAGS="-s USE_PTHREADS=1 -s INITIAL_MEMORY=64MB --source-map-base http://localhost:5000/lib/"
+#export EMMAKEN_CFLAGS="-s INITIAL_MEMORY=64MB --source-map-base http://localhost:5000/lib/"
 
 # Common compiler flags
 export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint"
@@ -72,8 +72,7 @@ if [ -n "$WASM_BIGINT_FLAG" ] ; then export CFLAGS+=" -DWASM_BIGINT"; fi
 export CXXFLAGS="$CFLAGS"
 export LDFLAGS="-L$TARGET/lib -O3"
 if [ -n "$LTO_FLAG" ]; then export LDFLAGS+=" -flto"; fi
-export EMMAKEN_CFLAGS="-s USE_PTHREADS=1"
-if [ -n "$WASM_BIGINT_FLAG" ] ; then export EMMAKEN_CFLAGS+=" $WASM_BIGINT_FLAG"; fi
+if [ -n "$WASM_BIGINT_FLAG" ] ; then export EMMAKEN_CFLAGS="$WASM_BIGINT_FLAG"; fi
 
 # Build paths
 export CPATH="$TARGET/include"
@@ -86,7 +85,7 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 # TODO(kleisauke): GIF support is currently missing, giflib abandoned autotools which makes compilation difficult
 # Wait for https://github.com/libvips/libvips/pull/1709 instead.
-VERSION_ZLIBNG=52eb835 # https://github.com/zlib-ng/zlib-ng/commit/52eb835d0b6c049a93bc690e2fc05c34cb7dfae8
+VERSION_ZLIBNG=b55680b # https://github.com/zlib-ng/zlib-ng/commit/b55680bab51aacfeb8f9bf3f7f01d5a1122f15a0
 VERSION_FFI=3.3
 VERSION_GLIB=2.66.0
 VERSION_EXPAT=2.2.9
@@ -94,7 +93,7 @@ VERSION_EXIF=0.6.22
 VERSION_LCMS2=2.11
 VERSION_JPEG=2.0.5
 VERSION_PNG16=1.6.37
-VERSION_SPNG=0.6.0
+VERSION_SPNG=0.6.1
 VERSION_WEBP=1.1.0
 VERSION_TIFF=4.1.0
 #VERSION_VIPS=0009681 # https://github.com/libvips/libvips/commit/00096813da6e8a2f8d4cdc190314a47759dc9693
@@ -209,7 +208,6 @@ echo "Compiling lcms2"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/lcms2.pc" || (
   mkdir $DEPS/lcms2
-  #curl -Ls https://sourceforge.mirrorservice.org/l/lc/lcms/lcms/$VERSION_LCMS2/lcms2-$VERSION_LCMS2.tar.gz | tar xzC $DEPS/lcms2 --strip-components=1 # 2.11 not yet synchronized
   curl -Ls https://downloads.sourceforge.net/project/lcms/lcms/$VERSION_LCMS2/lcms2-$VERSION_LCMS2.tar.gz | tar xzC $DEPS/lcms2 --strip-components=1
   cd $DEPS/lcms2
   # Disable threading support, we rely on libvips' thread pool
@@ -238,7 +236,7 @@ echo "Compiling png16"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/libpng16.pc" || (
   mkdir $DEPS/png16
-  curl -Ls https://sourceforge.mirrorservice.org/l/li/libpng/libpng16/$VERSION_PNG16/libpng-$VERSION_PNG16.tar.xz | tar xJC $DEPS/png16 --strip-components=1
+  curl -Ls https://downloads.sourceforge.net/project/libpng/libpng16/$VERSION_PNG16/libpng-$VERSION_PNG16.tar.xz | tar xJC $DEPS/png16 --strip-components=1
   cd $DEPS/png16
   # Switch the default zlib compression strategy to Z_RLE, as this is especially suitable for PNG images
   sed -i 's/Z_FILTERED/Z_RLE/g' scripts/pnglibconf.dfa
@@ -256,9 +254,6 @@ test -f "$TARGET/lib/pkgconfig/spng.pc" || (
   mkdir $DEPS/spng
   curl -Ls https://github.com/randy408/libspng/archive/v$VERSION_SPNG.tar.gz | tar xzC $DEPS/spng --strip-components=1
   cd $DEPS/spng
-  # TODO(kleisauke): Remove these patches once 0.6.1 is released
-  curl -Ls https://github.com/randy408/libspng/commit/b21b214b01ec6d52b8d733e473f1c6910db64d6f.patch | patch -p1
-  curl -Ls https://github.com/randy408/libspng/commit/db86b2c55c9c3cc23515aada578bc24e06a851df.patch | patch -p1
   # TODO(kleisauke): Discuss this patch upstream
   patch -p1 <$SOURCE_DIR/build/patches/libspng-emscripten.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \

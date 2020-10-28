@@ -114,7 +114,7 @@ if("node" IN_LIST ENVIRONMENT)
     set_property(
             TARGET ${PROJECT_NAME}-node
             APPEND_STRING PROPERTY
-            LINK_FLAGS " -s ENVIRONMENT=node,worker -s NODERAWFS=1"
+            LINK_FLAGS " -s ENVIRONMENT=node,worker -s NODERAWFS=1 -s NODEJS_CATCH_EXIT=0 -s NODEJS_CATCH_REJECTION=0"
             )
 endif()
 

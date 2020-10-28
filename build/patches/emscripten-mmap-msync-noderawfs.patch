@@ -18,7 +18,7 @@ index 1111111..2222222 100644
    $NODERAWFS__postset: 'if (ENVIRONMENT_IS_NODE) {' +
      'var _wrapNodeError = function(func) { return function() { try { return func.apply(this, arguments) } catch (e) { if (!e.code) throw e; throw new FS.ErrnoError(ERRNO_CODES[e.code]); } } };' +
      'var VFS = Object.assign({}, FS);' +
-@@ -116,10 +116,30 @@ mergeInto(LibraryManager.library, {
+@@ -122,10 +122,30 @@ mergeInto(LibraryManager.library, {
      allocate: function() {
        throw new FS.ErrnoError(ERRNO_CODES.EOPNOTSUPP);
      },

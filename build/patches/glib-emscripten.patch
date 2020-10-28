@@ -106,7 +106,7 @@ index 1111111..2222222 100644
  endif
  
  glib_headers = files(
-@@ -355,19 +347,10 @@ if use_pcre_static_flag
+@@ -357,19 +349,10 @@ if use_pcre_static_flag
    pcre_static_args = ['-DPCRE_STATIC']
  endif
  
@@ -126,7 +126,7 @@ index 1111111..2222222 100644
    version : library_version,
    soversion : soversion,
    darwin_versions : darwin_versions,
-@@ -375,7 +358,8 @@ libglib = library('glib-2.0',
+@@ -377,7 +360,8 @@ libglib = library('glib-2.0',
    # intl.lib is not compatible with SAFESEH
    link_args : [noseh_link_args, glib_link_flags, win32_ldflags],
    include_directories : configinc,
@@ -187,7 +187,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1787,7 +1787,7 @@ atomicdefine = '''
+@@ -1788,7 +1788,7 @@ atomicdefine = '''
  # We know that we can always use real ("lock free") atomic operations with MSVC
  if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
    have_atomic_lock_free = true
@@ -208,7 +208,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -620,7 +620,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
+@@ -621,7 +621,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
  endif
  
  # Check that posix_spawn() is usable; must use header
@@ -258,7 +258,7 @@ index 1111111..2222222 100644
    warning_c_args = [
      '-Wduplicated-branches',
      '-Wimplicit-fallthrough',
-@@ -1437,13 +1437,13 @@ g_sizet_compatibility = {
+@@ -1438,13 +1438,13 @@ g_sizet_compatibility = {
    'long long': sizet_size == long_long_size,
  }
  
@@ -740,7 +740,7 @@ diff --git a/glib/meson.build b/glib/meson.build
 index 1111111..2222222 100644
 --- a/glib/meson.build
 +++ b/glib/meson.build
-@@ -415,7 +415,7 @@ if host_system == 'windows'
+@@ -417,7 +417,7 @@ if host_system == 'windows'
        include_directories : configinc,
        dependencies : [libglib_dep])
    endif
@@ -768,7 +768,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -2294,7 +2294,6 @@ subdir('gobject')
+@@ -2295,7 +2295,6 @@ subdir('gobject')
  subdir('gthread')
  subdir('gmodule')
  subdir('gio')

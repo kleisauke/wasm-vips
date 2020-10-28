@@ -4,6 +4,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 const ASSET_PATH = 'https://wasm-vips.kleisauke.nl/playground/';
 
@@ -60,6 +61,18 @@ module.exports = {
         ]
     },
     optimization: {
+        minimize: true,
+        minimizer: [
+            new TerserPlugin({
+                terserOptions: {
+                    output: {
+                        comments: false,
+                    },
+                },
+                extractComments: false,
+                exclude: /samples[\\/]/,
+            }),
+        ],
         runtimeChunk: 'single',
         splitChunks: {
             chunks: "all",

@@ -90,10 +90,10 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 # TODO(kleisauke): GIF support is currently missing, giflib abandoned autotools which makes compilation difficult
 # Wait for https://github.com/libvips/libvips/pull/1709 instead.
-VERSION_ZLIBNG=b55680b # https://github.com/zlib-ng/zlib-ng/commit/b55680bab51aacfeb8f9bf3f7f01d5a1122f15a0
+VERSION_ZLIBNG=1.9.9-b1
 VERSION_FFI=3.3
-VERSION_GLIB=2.66.0
-VERSION_EXPAT=2.2.9
+VERSION_GLIB=2.67.0
+VERSION_EXPAT=2.2.10
 VERSION_EXIF=0.6.22
 VERSION_LCMS2=2.11
 VERSION_JPEG=2.0.5
@@ -102,7 +102,7 @@ VERSION_SPNG=0.6.1
 VERSION_WEBP=1.1.0
 VERSION_TIFF=4.1.0
 #VERSION_VIPS=0009681 # https://github.com/libvips/libvips/commit/00096813da6e8a2f8d4cdc190314a47759dc9693
-VERSION_VIPS=8.10.1
+VERSION_VIPS=8.10.2
 
 # Remove patch version component
 without_patch() {
@@ -143,7 +143,7 @@ echo "Compiling zlib-ng"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/zlib.pc" || (
   mkdir $DEPS/zlib-ng
-  curl -Ls https://github.com/zlib-ng/zlib-ng/tarball/$VERSION_ZLIBNG | tar xzC $DEPS/zlib-ng --strip-components=1
+  curl -Ls https://github.com/zlib-ng/zlib-ng/archive/$VERSION_ZLIBNG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
   cd $DEPS/zlib-ng
   # SSE intrinsics needs to be checked for wasm32
   sed -i 's/\(|\s*x86_64\)/\1 | wasm32/g' configure
@@ -261,6 +261,8 @@ test -f "$TARGET/lib/pkgconfig/spng.pc" || (
   cd $DEPS/spng
   # TODO(kleisauke): Discuss this patch upstream
   patch -p1 <$SOURCE_DIR/build/patches/libspng-emscripten.patch
+  # TODO(kleisauke): Remove this patch once 0.62.2 is released
+  curl -Ls https://github.com/randy408/libspng/commit/3439bf5c173421b1af4d0f75c23325e99ac67318.patch | patch -p1
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Dstatic_zlib=true ${DISABLE_SIMD:+-Denable_opt=false}
   emmake ninja -C _build install

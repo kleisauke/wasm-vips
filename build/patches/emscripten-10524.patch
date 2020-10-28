@@ -140,8 +140,8 @@ index 1111111..2222222 100644
 +        threadInfoStruct = 0;
 +    },
 +
-     // Called when we are performing a pthread_exit(), either explicitly called by programmer,
-     // or implicitly when leaving the thread main function.
+     // Called when we are performing a pthread_exit(), either explicitly called
+     // by programmer, or implicitly when leaving the thread main function.
      threadExit: function(exitCode) {
 @@ -211,20 +228,7 @@ var LibraryPThread = {
          Atomics.store(HEAPU32, (threadInfoStruct + {{{ C_STRUCTS.pthread.profilerBlock }}} ) >> 2, 0);

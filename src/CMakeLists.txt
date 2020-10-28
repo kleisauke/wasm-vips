@@ -15,7 +15,6 @@ set(SOURCES
         bindings/interpolate.cpp
         bindings/option.cpp
         bindings/utils.cpp
-        vector-types.cpp
         vips-emscripten.cpp
         )
 
@@ -24,7 +23,7 @@ add_library(${PROJECT_NAME} OBJECT ${HEADERS} ${SOURCES})
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
             COMPILE_FLAGS "-pthread -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0 -DEMSCRIPTEN_VERSION=\\\"${EMSCRIPTEN_VERSION}\\\""
-            LINK_FLAGS "--bind --js-library ${CMAKE_CURRENT_SOURCE_DIR}/vector-types.js"
+            LINK_FLAGS "--bind"
         )
 
 target_include_directories(${PROJECT_NAME}
@@ -98,7 +97,6 @@ set_target_properties(${TARGETS}
             OUTPUT_NAME "vips"
             LINK_FLAGS "\
 --bind \
---js-library ${CMAKE_CURRENT_SOURCE_DIR}/vector-types.js \
 -s MODULARIZE=1 \
 -s EXPORT_NAME='Vips' \
 -s EXIT_RUNTIME=1 \

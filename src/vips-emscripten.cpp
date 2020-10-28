@@ -400,6 +400,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
     register_vector<Image>("VectorImage");
     register_vector<std::string>("VectorString");
 
+    // Register arithmetic vector bindings
+    register_vector<int>("VectorInt");
+    register_vector<double>("VectorDouble");
+
     function("concurrency", &vips_concurrency_set);
     function("concurrency", &vips_concurrency_get);
     function("version", vips_version);

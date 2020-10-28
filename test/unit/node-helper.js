@@ -1,21 +1,14 @@
 'use strict';
 
 const Chai = require('chai');
-const Mocha = require('mocha');
 
 const Helpers = require('./helpers');
 const Vips = require('../../lib/node/vips.js');
 
-global.assert = Chai.assert;
 global.expect = Chai.expect;
 global.Helpers = Helpers;
 
-// Monkey-patch run method
-const run = Mocha.prototype.run;
-
-Mocha.prototype.run = function (done) {
-    const self = this;
-
+exports.mochaGlobalSetup = async function () {
     const options = {
         preRun: (module) => {
             module['EMBIND_AUTOMATIC_DELETELATER'] = true;
@@ -28,18 +21,10 @@ Mocha.prototype.run = function (done) {
             module.ENV.VIPS_WARNING = '0';
         }
     };
+    global.vips = await Vips(options);
+}
 
-    // Create a vips instance before the actual run()
-    Vips(options).then(instance => {
-        global.vips = instance;
-
-        // Call the actual run()
-        run.call(self, function () {
-            // All tests have been completed with a result code
-            done.apply(this, arguments);
-
-            // We are done, shutdown libvips and the runtime of Emscripten
-            vips.shutdown();
-        });
-    });
-};
+exports.mochaGlobalTeardown = function () {
+    // We are done, shutdown libvips and the runtime of Emscripten
+    global.vips.shutdown();
+}

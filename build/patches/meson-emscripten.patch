@@ -1,0 +1,53 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jussi Pakkanen <jpakkane@gmail.com>
+Date: Mon, 9 Nov 2020 19:08:48 +0200
+Subject: [PATCH 1/2] Fix WASM thread count option. Closes #7921.
+
+
+diff --git a/mesonbuild/compilers/mixins/emscripten.py b/mesonbuild/compilers/mixins/emscripten.py
+index 1111111..2222222 100644
+--- a/mesonbuild/compilers/mixins/emscripten.py
++++ b/mesonbuild/compilers/mixins/emscripten.py
+@@ -50,7 +50,7 @@ def thread_flags(self, env: 'Environment') -> T.List[str]:
+ 
+     def thread_link_flags(self, env: 'Environment') -> T.List[str]:
+         args = ['-s', 'USE_PTHREADS=1']
+-        count = env.coredata.compiler_options[self.for_machine]['{}_thread_count'.format(self.language)].value  # type: int
++        count = env.coredata.compiler_options[self.for_machine][self.language]['thread_count'].value  # type: int
+         if count:
+             args.extend(['-s', 'PTHREAD_POOL_SIZE={}'.format(count)])
+         return args
+@@ -58,7 +58,7 @@ def thread_link_flags(self, env: 'Environment') -> T.List[str]:
+     def get_options(self) -> 'coredata.OptionDictType':
+         opts = super().get_options()
+         opts.update({
+-            '{}_thread_count'.format(self.language): coredata.UserIntegerOption(
++            'thread_count': coredata.UserIntegerOption(
+                 'Number of threads to use in web assembly, set to 0 to disable',
+                 (0, None, 4),  # Default was picked at random
+             ),
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Sat, 31 Oct 2020 13:40:00 +0100
+Subject: [PATCH 2/2] Prefer -pthread over -s USE_PTHREADS=1
+
+See https://github.com/emscripten-core/emscripten/issues/12346
+
+diff --git a/mesonbuild/compilers/mixins/emscripten.py b/mesonbuild/compilers/mixins/emscripten.py
+index 1111111..2222222 100644
+--- a/mesonbuild/compilers/mixins/emscripten.py
++++ b/mesonbuild/compilers/mixins/emscripten.py
+@@ -46,10 +46,10 @@ class EmscriptenMixin(Compiler):
+         return os.path.join(dirname, 'output.' + suffix)
+ 
+     def thread_flags(self, env: 'Environment') -> T.List[str]:
+-        return ['-s', 'USE_PTHREADS=1']
++        return ['-pthread']
+ 
+     def thread_link_flags(self, env: 'Environment') -> T.List[str]:
+-        args = ['-s', 'USE_PTHREADS=1']
++        args = ['-pthread']
+         count = env.coredata.compiler_options[self.for_machine][self.language]['thread_count'].value  # type: int
+         if count:
+             args.extend(['-s', 'PTHREAD_POOL_SIZE={}'.format(count)])

@@ -314,6 +314,8 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
+  # TODO(kleisauke): This PKG_CONFIG variable is not necessary after https://github.com/mesonbuild/meson/pull/7930
+  PKG_CONFIG="pkg-config --static" \
   emconfigure ./autogen.sh --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-debug --disable-introspection --disable-deprecated --disable-cpp --with-radiance --with-analyze --with-ppm \
     --with-libexif --with-lcms --with-jpeg --with-png --with-libwebp --with-tiff --without-giflib --without-rsvg --without-gsf \

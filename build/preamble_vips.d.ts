@@ -323,10 +323,10 @@ declare namespace vips {
     export class Interpolate {
         /**
          * Look up an interpolator from a nickname and make one.
-         * @param nickname Nickname for interpolator
+         * @param nickname Nickname for interpolator.
          * @return An interpolator.
          */
-        static newFromName(nickname: string);
+        static newFromName(nickname: string): Interpolate;
     }
 
     /**

@@ -110,7 +110,7 @@ diff --git a/libvips/iofuncs/init.c b/libvips/iofuncs/init.c
 index 1111111..2222222 100644
 --- a/libvips/iofuncs/init.c
 +++ b/libvips/iofuncs/init.c
-@@ -633,10 +633,6 @@ vips_leak( void )
+@@ -657,10 +657,6 @@ vips_leak( void )
  		vips_buf_appendf( &buf, "error buffer: %s", 
  			vips_error_buffer() );
  
@@ -121,7 +121,7 @@ index 1111111..2222222 100644
  	fprintf( stderr, "%s", vips_buf_all( &buf ) );
  
  	vips__print_renders();
-@@ -653,7 +649,7 @@ vips_leak( void )
+@@ -677,7 +673,7 @@ vips_leak( void )
   *
   * This function needs to be called when a thread that has been using vips
   * exits. It is called for you by vips_shutdown() and for any threads created
@@ -130,7 +130,7 @@ index 1111111..2222222 100644
   *
   * You will need to call it from threads created in
   * other ways or there will be memory leaks. If you do not call it, vips 
-@@ -666,6 +662,7 @@ void
+@@ -690,6 +686,7 @@ void
  vips_thread_shutdown( void )
  {
  	vips__thread_profile_detach();
@@ -138,7 +138,7 @@ index 1111111..2222222 100644
  }
  
  /**
-@@ -707,6 +704,8 @@ vips_shutdown( void )
+@@ -731,6 +728,8 @@ vips_shutdown( void )
  
  	vips__thread_profile_stop();
  

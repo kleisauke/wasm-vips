@@ -1,0 +1,171 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Fri, 4 Dec 2020 13:04:29 +0100
+Subject: [PATCH 1/2] Fix failing posix tests on Node
+
+Upstream-Status: Submitted [https://github.com/emscripten-core/emscripten/pull/12963]
+
+diff --git a/src/library_pthread.js b/src/library_pthread.js
+index 1111111..2222222 100644
+--- a/src/library_pthread.js
++++ b/src/library_pthread.js
+@@ -984,11 +984,6 @@ var LibraryPThread = {
+     if (!ENVIRONMENT_IS_PTHREAD) _exit(status);
+     else PThread.threadExit(status);
+     // pthread_exit is marked noReturn, so we must not return from it.
+-    if (ENVIRONMENT_IS_NODE) {
+-      // exit the pthread properly on node, as a normal JS exception will halt
+-      // the entire application.
+-      process.exit(status);
+-    }
+     throw 'unwind';
+   },
+ 
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Fri, 4 Dec 2020 13:58:30 +0100
+Subject: [PATCH 2/2] Fix check for main browser thread on Node
+
+This is similar to PR #12007.
+
+Upstream-Status: Submitted [https://github.com/emscripten-core/emscripten/pull/12963]
+
+diff --git a/src/library_pthread.js b/src/library_pthread.js
+index 1111111..2222222 100644
+--- a/src/library_pthread.js
++++ b/src/library_pthread.js
+@@ -72,7 +72,7 @@ var LibraryPThread = {
+       // Pass the thread address to the native code where they stored in wasm
+       // globals which act as a form of TLS. Global constructors trying
+       // to access this value will read the wrong value, but that is UB anyway.
+-      __emscripten_thread_init(tb, /*isMainBrowserThread=*/!ENVIRONMENT_IS_WORKER, /*isMainRuntimeThread=*/1);
++      __emscripten_thread_init(tb, /*isMainBrowserThread=*/ENVIRONMENT_IS_WEB, /*isMainRuntimeThread=*/1);
+       _emscripten_register_main_browser_thread_id(tb);
+ 
+ #if USE_ASAN || USE_LSAN
+diff --git a/src/library_pthread_stub.js b/src/library_pthread_stub.js
+index 1111111..2222222 100644
+--- a/src/library_pthread_stub.js
++++ b/src/library_pthread_stub.js
+@@ -11,9 +11,9 @@ var LibraryPThreadStub = {
+ 
+   emscripten_is_main_browser_thread: function() {
+ #if MINIMAL_RUNTIME
+-    return typeof importScripts === 'undefined';
++    return typeof window === 'object';
+ #else
+-    return !ENVIRONMENT_IS_WORKER;
++    return ENVIRONMENT_IS_WEB;
+ #endif
+   },
+ 
+diff --git a/system/lib/libc/musl/src/thread/__timedwait.c b/system/lib/libc/musl/src/thread/__timedwait.c
+index 1111111..2222222 100644
+--- a/system/lib/libc/musl/src/thread/__timedwait.c
++++ b/system/lib/libc/musl/src/thread/__timedwait.c
+@@ -41,11 +41,12 @@ int __timedwait_cp(volatile int *addr, int val,
+ 
+ #ifdef __EMSCRIPTEN__
+ 	double msecsToSleep = top ? (top->tv_sec * 1000 + top->tv_nsec / 1000000.0) : INFINITY;
+-	int is_main_thread = emscripten_is_main_browser_thread();
++	// TODO(kleisauke): Somehow we need to check for emscripten_is_main_runtime_thread() instead of emscripten_is_main_browser_thread().
++	int is_main_runtime_thread = emscripten_is_main_runtime_thread();
+ 	// cp suffix in the function name means "cancellation point", so this wait can be cancelled
+ 	// by the users unless current threads cancellability is set to PTHREAD_CANCEL_DISABLE
+ 	// which may be either done by the user of __timedwait() function.
+-	if (is_main_thread || pthread_self()->canceldisable != PTHREAD_CANCEL_DISABLE) {
++	if (is_main_runtime_thread || pthread_self()->canceldisable != PTHREAD_CANCEL_DISABLE) {
+ 		double sleepUntilTime = emscripten_get_now() + msecsToSleep;
+ 		do {
+ 			if (_pthread_isduecanceled(pthread_self())) {
+@@ -55,7 +56,7 @@ int __timedwait_cp(volatile int *addr, int val,
+ 				return ECANCELED;
+ 			}
+ 			// Assist other threads by executing proxied operations that are effectively singlethreaded.
+-			if (is_main_thread) emscripten_main_thread_process_queued_calls();
++			if (is_main_runtime_thread) emscripten_main_thread_process_queued_calls();
+ 			// Must wait in slices in case this thread is cancelled in between.
+ 			double waitMsecs = sleepUntilTime - emscripten_get_now();
+ 			if (waitMsecs <= 0) {
+@@ -63,7 +64,7 @@ int __timedwait_cp(volatile int *addr, int val,
+ 				break;
+ 			}
+ 			if (waitMsecs > 100) waitMsecs = 100; // non-main threads can sleep in longer slices.
+-			if (is_main_thread && waitMsecs > 1) waitMsecs = 1; // main thread may need to run proxied calls, so sleep in very small slices to be responsive.
++			if (is_main_runtime_thread && waitMsecs > 1) waitMsecs = 1; // main thread may need to run proxied calls, so sleep in very small slices to be responsive.
+ 			r = -emscripten_futex_wait((void*)addr, val, waitMsecs);
+ 		} while(r == ETIMEDOUT);
+ 	} else {
+diff --git a/system/lib/libc/musl/src/thread/__wait.c b/system/lib/libc/musl/src/thread/__wait.c
+index 1111111..2222222 100644
+--- a/system/lib/libc/musl/src/thread/__wait.c
++++ b/system/lib/libc/musl/src/thread/__wait.c
+@@ -16,7 +16,7 @@ void __wait(volatile int *addr, volatile int *waiters, int val, int priv)
+ 	}
+ 	if (waiters) a_inc(waiters);
+ #ifdef __EMSCRIPTEN__
+-	int is_main_thread = emscripten_is_main_runtime_thread();
++	int is_main_browser_thread = emscripten_is_main_browser_thread();
+ 	while (*addr==val) {
+ 		if (pthread_self()->cancelasync == PTHREAD_CANCEL_ASYNCHRONOUS) {
+ 			// Must wait in slices in case this thread is cancelled in between.
+@@ -27,10 +27,10 @@ void __wait(volatile int *addr, volatile int *waiters, int val, int priv)
+ 					return;
+ 				}
+ 				// Assist other threads by executing proxied operations that are effectively singlethreaded.
+-				if (is_main_thread) emscripten_main_thread_process_queued_calls();
+-				// Main thread waits in _very_ small slices so that it stays responsive to assist proxied
++				if (is_main_browser_thread) emscripten_main_thread_process_queued_calls();
++				// Main browser thread waits in _very_ small slices so that it stays responsive to assist proxied
+ 				// pthread calls.
+-				e = emscripten_futex_wait((void*)addr, val, is_main_thread ? 1 : 100);
++				e = emscripten_futex_wait((void*)addr, val, is_main_browser_thread ? 1 : 100);
+ 			} while(e == -ETIMEDOUT);
+ 		} else {
+ 			// Can wait in one go.
+diff --git a/system/lib/libc/musl/src/thread/pthread_barrier_wait.c b/system/lib/libc/musl/src/thread/pthread_barrier_wait.c
+index 1111111..2222222 100644
+--- a/system/lib/libc/musl/src/thread/pthread_barrier_wait.c
++++ b/system/lib/libc/musl/src/thread/pthread_barrier_wait.c
+@@ -88,12 +88,12 @@ int pthread_barrier_wait(pthread_barrier_t *b)
+ 			a_spin();
+ 		a_inc(&inst->finished);
+ #ifdef __EMSCRIPTEN__
+-		int is_main_thread = emscripten_is_main_runtime_thread();
++		int is_main_browser_thread = emscripten_is_main_browser_thread();
+ 		while (inst->finished == 1) {
+-			if (is_main_thread) {
++			if (is_main_browser_thread) {
+ 				int e;
+ 				do {
+-					// Main thread waits in _very_ small slices so that it stays responsive to assist proxied
++					// Main browser thread waits in _very_ small slices so that it stays responsive to assist proxied
+ 					// pthread calls.
+ 					e = emscripten_futex_wait(&inst->finished, 1, 1);
+ 					// Assist other threads by executing proxied operations that are effectively singlethreaded.
+diff --git a/system/lib/pthread/emscripten_thread_state.s b/system/lib/pthread/emscripten_thread_state.s
+index 1111111..2222222 100644
+--- a/system/lib/pthread/emscripten_thread_state.s
++++ b/system/lib/pthread/emscripten_thread_state.s
+@@ -31,7 +31,7 @@ emscripten_is_main_runtime_thread:
+   global.get is_runtime_thread
+   end_function
+ 
+-# Semantically the same as testing "!ENVIRONMENT_IS_WORKER" in JS
++# Semantically the same as testing "ENVIRONMENT_IS_WEB" in JS
+ .globl emscripten_is_main_browser_thread
+ emscripten_is_main_browser_thread:
+   .functype emscripten_is_main_browser_thread () -> (i32)
+diff --git a/system/lib/pthread/library_pthread.c b/system/lib/pthread/library_pthread.c
+index 1111111..2222222 100644
+--- a/system/lib/pthread/library_pthread.c
++++ b/system/lib/pthread/library_pthread.c
+@@ -129,7 +129,7 @@ void emscripten_thread_sleep(double msecs) {
+   // If we have less than this many msecs left to wait, busy spin that instead.
+   const double minimumTimeSliceToSleep = 0.1;
+ 
+-  // main thread may need to run proxied calls, so sleep in very small slices to be responsive.
++  // main browser thread may need to run proxied calls, so sleep in very small slices to be responsive.
+   const double maxMsecsSliceToSleep = emscripten_is_main_browser_thread() ? 1 : 100;
+ 
+   emscripten_conditional_set_current_thread_status(

@@ -71,7 +71,7 @@ index 1111111..2222222 100644
  # lcms ... refuse to use lcms1
  AC_ARG_WITH([lcms], 
    AS_HELP_STRING([--without-lcms], [build without lcms (default: test)]))
-@@ -1270,14 +1234,14 @@ if test x"$LIB_FUZZING_ENGINE" = x; then
+@@ -1280,14 +1244,14 @@ if test x"$LIB_FUZZING_ENGINE" = x; then
  fi
  
  # Gather all up for VIPS_CFLAGS, VIPS_INCLUDES, VIPS_LIBS
@@ -89,7 +89,7 @@ index 1111111..2222222 100644
  
  AC_SUBST(VIPS_LIBDIR)
  
-@@ -1357,8 +1321,6 @@ Magick package: 			$with_magickpackage
+@@ -1367,8 +1331,6 @@ Magick package: 			$with_magickpackage
  Magick API version: 			$magick_version
  load with libMagick: 			$enable_magickload
  save with libMagick: 			$enable_magicksave
@@ -1599,7 +1599,7 @@ index 1111111..2222222 100644
  
  #if ENABLE_DEPRECATED
  #include <vips/vips7compat.h>
-@@ -550,10 +549,6 @@ vips_init( const char *argv0 )
+@@ -562,10 +561,6 @@ vips_init( const char *argv0 )
  	}
  #endif
  
@@ -1610,7 +1610,7 @@ index 1111111..2222222 100644
  #ifdef HAVE_GSF
  	/* Use this for structured file write.
  	 */
-@@ -863,9 +858,6 @@ static GOptionEntry option_entries[] = {
+@@ -887,9 +882,6 @@ static GOptionEntry option_entries[] = {
  	{ "vips-disc-threshold", 0, 0, 
  		G_OPTION_ARG_STRING, &vips__disc_threshold, 
  		N_( "images larger than N are decompressed to disc" ), "N" },
@@ -2673,8 +2673,8 @@ index 1111111..2222222 100644
  	}
  }
  
-@@ -285,10 +284,6 @@ reduceh_notab( VipsReduceh *reduceh,
- 		out[z] = reduce_sum<T, double>( in + z, bands, cx, n );
+@@ -289,10 +288,6 @@ reduceh_notab( VipsReduceh *reduceh,
+ 	}
  }
  
 -/* Tried a vector path (see reducev) but it was slower. The vectors for
@@ -2684,7 +2684,17 @@ index 1111111..2222222 100644
  static int
  vips_reduceh_gen( VipsRegion *out_region, void *seq, 
  	void *a, void *b, gboolean *stop )
-@@ -442,7 +437,7 @@ vips_reduceh_build( VipsObject *object )
+@@ -438,7 +433,8 @@ vips_reduceh_build( VipsObject *object )
+ 		vips_object_local_array( object, 2 );
+ 
+ 	VipsImage *in;
+-	double width, extra_pixels;
++	int width;
++	double extra_pixels;
+ 
+ 	if( VIPS_OBJECT_CLASS( vips_reduceh_parent_class )->build( object ) )
+ 		return( -1 );
+@@ -447,7 +443,7 @@ vips_reduceh_build( VipsObject *object )
  
  	if( reduceh->hshrink < 1 ) { 
  		vips_error( object_class->nickname, 
@@ -2697,7 +2707,7 @@ diff --git a/libvips/resample/reducev.cpp b/libvips/resample/reducev.cpp
 index 1111111..2222222 100644
 --- a/libvips/resample/reducev.cpp
 +++ b/libvips/resample/reducev.cpp
-@@ -52,8 +52,6 @@
+@@ -51,8 +51,6 @@
   */
  
  /*
@@ -2706,7 +2716,7 @@ index 1111111..2222222 100644
  #define DEBUG
   */
  
-@@ -69,41 +67,14 @@
+@@ -68,41 +66,14 @@
  #include <vips/vips.h>
  #include <vips/debug.h>
  #include <vips/internal.h>
@@ -2750,12 +2760,12 @@ index 1111111..2222222 100644
  	/* The thing we use to make the kernel.
  	 */
 @@ -123,15 +94,6 @@ typedef struct _VipsReducev {
- 	int *matrixi[VIPS_TRANSFORM_SCALE];
- 	double *matrixf[VIPS_TRANSFORM_SCALE];
+ 	int *matrixi[VIPS_TRANSFORM_SCALE + 1];
+ 	double *matrixf[VIPS_TRANSFORM_SCALE + 1];
  
 -	/* And another set for orc: we want 2.6 precision.
 -	 */
--	int *matrixo[VIPS_TRANSFORM_SCALE];
+-	int *matrixo[VIPS_TRANSFORM_SCALE + 1];
 -
 -	/* The passes we generate for this mask.
 -	 */
@@ -2777,7 +2787,7 @@ index 1111111..2222222 100644
 -	for( int i = 0; i < reducev->n_pass; i++ )
 -		VIPS_FREEF( vips_vector_free, reducev->pass[i].vector );
 -	reducev->n_pass = 0;
--	for( int i = 0; i < VIPS_TRANSFORM_SCALE; i++ ) {
+-	for( int i = 0; i < VIPS_TRANSFORM_SCALE + 1; i++ ) {
 -		VIPS_FREE( reducev->matrixf[i] );
 -		VIPS_FREE( reducev->matrixi[i] );
 -		VIPS_FREE( reducev->matrixo[i] );
@@ -3015,7 +3025,7 @@ index 1111111..2222222 100644
  /* You'd think this would vectorise, but gcc hates mixed types in nested loops
   * :-(
   */
-@@ -516,13 +235,12 @@ reducev_notab( VipsReducev *reducev,
+@@ -520,13 +239,12 @@ reducev_notab( VipsReducev *reducev,
  }
  
  static int
@@ -3031,7 +3041,7 @@ index 1111111..2222222 100644
  	VipsRect *r = &out_region->valid;
  
  	/* Double bands for complex.
-@@ -631,178 +349,14 @@ vips_reducev_gen( VipsRegion *out_region, void *vseq,
+@@ -636,182 +354,18 @@ vips_reducev_gen( VipsRegion *out_region, void *vseq,
  	return( 0 );
  }
  
@@ -3081,8 +3091,9 @@ index 1111111..2222222 100644
 -		VipsPel *q = 
 -			VIPS_REGION_ADDR( out_region, r->left, r->top + y );
 -		const int py = (int) Y;
--		const int sy = Y * VIPS_TRANSFORM_SCALE;
--		const int ty = sy & (VIPS_TRANSFORM_SCALE - 1);
+-		const int sy = Y * VIPS_TRANSFORM_SCALE * 2;
+-		const int siy = sy & (VIPS_TRANSFORM_SCALE * 2 - 1);
+-		const int ty = (siy + 1) >> 1;
 -		const int *cyo = reducev->matrixo[ty];
 -
 -#ifdef DEBUG_PIXELS
@@ -3143,7 +3154,7 @@ index 1111111..2222222 100644
 -	 */
 -	if( in->BandFmt == VIPS_FORMAT_UCHAR &&
 -		vips_vector_isenabled() ) 
--		for( int y = 0; y < VIPS_TRANSFORM_SCALE; y++ ) {
+-		for( int y = 0; y < VIPS_TRANSFORM_SCALE + 1; y++ ) {
 -			reducev->matrixo[y] = 
 -				VIPS_ARRAY( NULL, reducev->n_point, int ); 
 -			if( !reducev->matrixo[y] )
@@ -3211,10 +3222,15 @@ index 1111111..2222222 100644
 +		vips_object_local_array( object, 4 );
  
  	VipsImage *in;
- 	double height, extra_pixels;
-@@ -853,9 +407,9 @@ vips_reducev_build( VipsObject *object )
+-	double height, extra_pixels;
++	int height;
++	double extra_pixels;
+ 
+ 	if( VIPS_OBJECT_CLASS( vips_reducev_parent_class )->build( object ) )
+ 		return( -1 );
+@@ -859,9 +413,9 @@ vips_reducev_build( VipsObject *object )
  	 */
- 	for( int y = 0; y < VIPS_TRANSFORM_SCALE; y++ ) {
+ 	for( int y = 0; y < VIPS_TRANSFORM_SCALE + 1; y++ ) {
  		reducev->matrixf[y] = 
 -			VIPS_ARRAY( NULL, reducev->n_point, double ); 
 +			VIPS_ARRAY( object, reducev->n_point, double ); 
@@ -3224,14 +3240,7 @@ index 1111111..2222222 100644
  		if( !reducev->matrixf[y] ||
  			!reducev->matrixi[y] )
  			return( -1 ); 
-@@ -886,16 +440,46 @@ vips_reducev_build( VipsObject *object )
- 	 */
- 	if( vips_embed( in, &t[1], 
- 		0, reducev->n_point / 2 - 1, 
--		in->Xsize, in->Ysize + reducev->n_point, 
-+		in->Xsize, in->Ysize + reducev->n_point,
- 		"extend", VIPS_EXTEND_COPY,
- 		(void *) NULL ) )
+@@ -898,10 +452,40 @@ vips_reducev_build( VipsObject *object )
  		return( -1 );
  	in = t[1];
  
@@ -3239,7 +3248,7 @@ index 1111111..2222222 100644
 +	t[2] = vips_image_new();
 +	if( vips_image_pipelinev( t[2], 
 +		VIPS_DEMAND_STYLE_THINSTRIP, in, (void *) NULL ) )
-+		return( -1 );
+ 		return( -1 );
 +
 +	/* Size output. We need to always round to nearest, so round(), not
 +	 * rint().
@@ -3264,7 +3273,7 @@ index 1111111..2222222 100644
 +	if( vips_image_generate( t[2],
 +		vips_start_one, vips_reducev_gen, vips_stop_one, 
 +		in, reducev ) )
- 		return( -1 );
++		return( -1 );
 +
  	in = t[2];
  
@@ -3273,7 +3282,7 @@ index 1111111..2222222 100644
  	/* Large reducev will throw off sequential mode. Suppose thread1 is
  	 * generating tile (0, 0), but stalls. thread2 generates tile
  	 * (0, 1), 128 lines further down the output. After it has done,
-@@ -906,7 +490,7 @@ vips_reducev_build( VipsObject *object )
+@@ -912,7 +496,7 @@ vips_reducev_build( VipsObject *object )
  	 * always have the previous XX lines of the shrunk image, and we won't
  	 * fetch out of order. 
  	 */
@@ -3282,7 +3291,7 @@ index 1111111..2222222 100644
  		g_info( "reducev sequential line cache" ); 
  
  		if( vips_sequential( in, &t[3], 
-@@ -933,7 +517,6 @@ vips_reducev_class_init( VipsReducevClass *reducev_class )
+@@ -939,7 +523,6 @@ vips_reducev_class_init( VipsReducevClass *reducev_class )
  
  	VIPS_DEBUG_MSG( "vips_reducev_class_init\n" );
  

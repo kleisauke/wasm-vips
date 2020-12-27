@@ -33,7 +33,6 @@ EXPERIMENTAL_SIMD=false
 LTO_FLAG=
 
 # JS BigInt to Wasm i64 integration, disabled by default
-# TODO(kleisauke): https://github.com/emscripten-core/emscripten/issues/12079
 WASM_BIGINT_FLAG=
 
 # Parse arguments
@@ -73,11 +72,11 @@ export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint"
 if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -msse2"; fi
 if [ "$EXPERIMENTAL_SIMD" = "true" ]; then export CFLAGS+=" -munimplemented-simd128"; fi
 if [ -n "$LTO_FLAG" ]; then export CFLAGS+=" -flto"; fi
-if [ -n "$WASM_BIGINT_FLAG" ] ; then export CFLAGS+=" -DWASM_BIGINT"; fi
+if [ -n "$WASM_BIGINT_FLAG" ]; then export CFLAGS+=" -DWASM_BIGINT"; fi
 export CXXFLAGS="$CFLAGS"
 export LDFLAGS="-L$TARGET/lib -O3"
 if [ -n "$LTO_FLAG" ]; then export LDFLAGS+=" -flto"; fi
-if [ -n "$WASM_BIGINT_FLAG" ] ; then export EMMAKEN_CFLAGS="$WASM_BIGINT_FLAG"; fi
+if [ -n "$WASM_BIGINT_FLAG" ]; then export EMMAKEN_CFLAGS="$WASM_BIGINT_FLAG"; fi
 
 # Build paths
 export CPATH="$TARGET/include"
@@ -92,7 +91,7 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Wait for https://github.com/libvips/libvips/pull/1709 instead.
 VERSION_ZLIBNG=1.9.9-b1
 VERSION_FFI=3.3
-VERSION_GLIB=2.67.0
+VERSION_GLIB=2.67.1
 VERSION_EXPAT=2.2.10
 VERSION_EXIF=0.6.22
 VERSION_LCMS2=2.11
@@ -100,9 +99,9 @@ VERSION_JPEG=2.0.6
 VERSION_PNG16=1.6.37
 VERSION_SPNG=0.6.1
 VERSION_WEBP=1.1.0
-VERSION_TIFF=4.1.0
+VERSION_TIFF=4.2.0
 #VERSION_VIPS=0009681 # https://github.com/libvips/libvips/commit/00096813da6e8a2f8d4cdc190314a47759dc9693
-VERSION_VIPS=8.10.2
+VERSION_VIPS=8.10.5
 
 # Remove patch version component
 without_patch() {
@@ -130,13 +129,18 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   # https://github.com/emscripten-core/emscripten/pull/10110
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-10110.patch
 
-  # Need to rebuild libpthread, libdlmalloc and libemmalloc, since
+  # https://github.com/emscripten-core/emscripten/pull/12963
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-12963.patch
+
+  # Need to rebuild libc, libdlmalloc and libemmalloc, since
   # we modified it with the patches above
-  embuilder.py build libpthread-mt libdlmalloc-mt{,-debug} libemmalloc-mt{,-64bit} --force $LTO_FLAG
+  embuilder.py build libc-mt libdlmalloc-mt{,-debug} libemmalloc-mt{,-64bit} --force $LTO_FLAG
 fi
 
-# The struct_info file must be built without modifications to EMMAKEN_CFLAGS
-EMMAKEN_CFLAGS= embuilder.py build struct_info $LTO_FLAG
+if [ -n "$EMMAKEN_CFLAGS" ]; then
+  # The struct_info file must be built without modifications to EMMAKEN_CFLAGS
+  EMMAKEN_CFLAGS= embuilder.py build struct_info $LTO_FLAG
+fi
 
 echo "============================================="
 echo "Compiling zlib-ng"
@@ -165,7 +169,7 @@ test -f "$TARGET/lib/pkgconfig/libffi.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/libffi-emscripten.patch
   autoreconf -fiv
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-    --disable-builddir --disable-multi-os-directory --disable-raw-api
+    --disable-builddir --disable-multi-os-directory --disable-raw-api --disable-structs
   emmake make install
 )
 
@@ -232,7 +236,7 @@ test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
   # https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250#issuecomment-407615180
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DENABLE_STATIC=TRUE \
     -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE \
-    -DCMAKE_C_FLAGS_RELEASE="" -DCMAKE_EXE_LINKER_FLAGS_RELEASE="" # Reset default (`-DNDEBUG -O2`) toolchain flags
+    -DCMAKE_C_FLAGS_RELEASE="" -DCMAKE_EXE_LINKER_FLAGS_RELEASE="" # Reset default (`-DNDEBUG -O2`) toolchain flags, see https://github.com/emscripten-core/emscripten/pull/13083
   emmake make -C _build install
 )
 
@@ -332,7 +336,7 @@ echo "============================================="
   cd $DEPS/wasm-vips
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" \
     -DENVIRONMENT=${ENVIRONMENT//,/;} \
-    -DCMAKE_CXX_FLAGS_RELEASE="" -DCMAKE_EXE_LINKER_FLAGS_RELEASE="" # Reset default (`-DNDEBUG -O2`) toolchain flags
+    -DCMAKE_CXX_FLAGS_RELEASE="" -DCMAKE_EXE_LINKER_FLAGS_RELEASE="" # Reset default (`-DNDEBUG -O2`) toolchain flags, see https://github.com/emscripten-core/emscripten/pull/13083
   emmake make
   # FinalizationGroup -> FinalizationRegistry, see:
   # https://github.com/tc39/proposal-weakrefs/issues/180

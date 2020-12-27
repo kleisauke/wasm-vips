@@ -34,7 +34,7 @@ index 1111111..2222222 100644
  
    install_headers(gio_unix_include_headers, subdir : 'gio-unix-2.0/gio')
  
-@@ -744,20 +737,17 @@ gioenumtypes_dep = declare_dependency(sources : [gioenumtypes_h, glib_enumtypes_
+@@ -745,20 +738,17 @@ gioenumtypes_dep = declare_dependency(sources : [gioenumtypes_h, glib_enumtypes_
  if glib_conf.has('HAVE_SYS_INOTIFY_H') and have_func_inotify_init1
    subdir('inotify')
    internal_deps += [ inotify_lib ]
@@ -55,7 +55,7 @@ index 1111111..2222222 100644
  endif
  
  if have_bash
-@@ -782,12 +772,12 @@ endif
+@@ -783,12 +773,12 @@ endif
  libgio = library('gio-2.0',
    gioenumtypes_h, gioenumtypes_c, gnetworking_h, gio_sources,
    gio_dtrace_hdr, gio_dtrace_obj,
@@ -82,7 +82,7 @@ diff --git a/glib/meson.build b/glib/meson.build
 index 1111111..2222222 100644
 --- a/glib/meson.build
 +++ b/glib/meson.build
-@@ -23,15 +23,8 @@ libsysprof_capture_dep = dependency('sysprof-capture-4',
+@@ -23,15 +23,8 @@ libsysprof_capture_dep = dependency('sysprof-capture-4', version: '>= 3.38.0',
  )
  glib_conf.set('HAVE_SYSPROF', libsysprof_capture_dep.found())
  
@@ -151,14 +151,14 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -779,7 +779,7 @@ libgio = library('gio-2.0',
+@@ -780,7 +780,7 @@ libgio = library('gio-2.0',
    include_directories : [configinc, gioinc],
    link_with : internal_deps,
    #  '$(gio_win32_res_ldflag)',
 -  dependencies : [libz_dep, libdl_dep, libmount_dep, libglib_dep,
 +  dependencies : [libz_dep, libdl_dep, libmount_dep, thread_dep, libglib_dep,
                    libgobject_dep, libgmodule_dep, selinux_dep, xattr_dep,
-                   platform_deps, network_libs],
+                   platform_deps, network_libs, libsysprof_capture_dep],
    c_args : gio_c_args,
 diff --git a/gobject/meson.build b/gobject/meson.build
 index 1111111..2222222 100644
@@ -533,7 +533,7 @@ diff --git a/gobject/gtype.h b/gobject/gtype.h
 index 1111111..2222222 100644
 --- a/gobject/gtype.h
 +++ b/gobject/gtype.h
-@@ -1954,7 +1954,8 @@ guint     g_type_get_type_registration_serial (void);
+@@ -1957,7 +1957,8 @@ guint     g_type_get_type_registration_serial (void);
   */
  #if GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_38
  #define _G_DEFINE_TYPE_EXTENDED_CLASS_INIT(TypeName, type_name) \
@@ -543,7 +543,7 @@ index 1111111..2222222 100644
  { \
    type_name##_parent_class = g_type_class_peek_parent (klass); \
    if (TypeName##_private_offset != 0) \
-@@ -1964,7 +1965,8 @@ static void     type_name##_class_intern_init (gpointer klass) \
+@@ -1967,7 +1968,8 @@ static void     type_name##_class_intern_init (gpointer klass) \
  
  #else
  #define _G_DEFINE_TYPE_EXTENDED_CLASS_INIT(TypeName, type_name) \
@@ -553,7 +553,7 @@ index 1111111..2222222 100644
  { \
    type_name##_parent_class = g_type_class_peek_parent (klass); \
    type_name##_class_init ((TypeName##Class*) klass); \
-@@ -1976,6 +1978,11 @@ static void     type_name##_class_intern_init (gpointer klass) \
+@@ -1979,6 +1981,11 @@ static void     type_name##_class_intern_init (gpointer klass) \
  \
  static void     type_name##_init              (TypeName        *self); \
  static void     type_name##_class_init        (TypeName##Class *klass); \
@@ -565,7 +565,7 @@ index 1111111..2222222 100644
  static GType    type_name##_get_type_once     (void); \
  static gpointer type_name##_parent_class = NULL; \
  static gint     TypeName##_private_offset; \
-@@ -2015,7 +2022,7 @@ type_name##_get_type_once (void) \
+@@ -2018,7 +2025,7 @@ type_name##_get_type_once (void) \
                                         sizeof (TypeName##Class), \
                                         (GClassInitFunc)(void (*)(void)) type_name##_class_intern_init, \
                                         sizeof (TypeName), \
@@ -610,7 +610,7 @@ index 1111111..2222222 100644
  #include "gslice.h"
  #include "gstrfuncs.h"
  #include "gtestutils.h"
-@@ -1059,7 +1063,9 @@ g_thread_self (void)
+@@ -1065,7 +1069,9 @@ g_thread_self (void)
  guint
  g_get_num_processors (void)
  {
@@ -636,7 +636,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -890,99 +890,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
+@@ -891,99 +891,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
      output : ['gconstructor_as_data.h'],
      command : [python, '@INPUT0@', '@INPUT1@', 'gconstructor_code', '@OUTPUT@'])
  
@@ -768,7 +768,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -2295,7 +2295,6 @@ subdir('gobject')
+@@ -2296,7 +2296,6 @@ subdir('gobject')
  subdir('gthread')
  subdir('gmodule')
  subdir('gio')

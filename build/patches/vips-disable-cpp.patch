@@ -50,7 +50,7 @@ diff --git a/configure.ac b/configure.ac
 index 1111111..2222222 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1255,6 +1255,13 @@ if test x"$with_libexif" != x"no"; then
+@@ -1265,6 +1265,13 @@ if test x"$with_libexif" != x"no"; then
    CPPFLAGS="$save_CPPFLAGS"
  fi
  

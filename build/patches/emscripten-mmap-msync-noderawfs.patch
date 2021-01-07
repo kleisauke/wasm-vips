@@ -3,7 +3,7 @@ From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Sat, 22 Aug 2020 22:30:00 +0200
 Subject: [PATCH 1/1] Implement mmap and msync for NODERAWFS
 
-Upstream-Status: Submitted [https://github.com/emscripten-core/emscripten/pull/12963]
+Upstream-Status: Accepted [https://github.com/emscripten-core/emscripten/commit/0320c041834ed4043d2a29e8cf1d7b08b011aab5]
 
 diff --git a/src/library_memfs.js b/src/library_memfs.js
 index 1111111..2222222 100644
@@ -24,7 +24,7 @@ index 1111111..2222222 100644
            throw new FS.ErrnoError({{{ cDefine('ENODEV') }}});
          }
 diff --git a/src/library_nodefs.js b/src/library_nodefs.js
-index 3474fcf4e..6be580fa0 100644
+index 1111111..2222222 100644
 --- a/src/library_nodefs.js
 +++ b/src/library_nodefs.js
 @@ -296,9 +296,10 @@ mergeInto(LibraryManager.library, {

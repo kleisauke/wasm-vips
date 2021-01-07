@@ -20,7 +20,6 @@ RUN apt-get update \
     python3-pip \
   && pip3 install meson
 
-# See: https://github.com/mesonbuild/meson/pull/7958
 ARG MESON_PATCH=https://github.com/kleisauke/wasm-vips/raw/master/build/patches/meson-emscripten.patch
 RUN cd $(dirname `python3 -c "import mesonbuild as _; print(_.__path__[0])"`) \
   && curl -Ls $MESON_PATCH | patch -p1

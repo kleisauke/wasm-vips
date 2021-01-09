@@ -34,7 +34,7 @@ index 1111111..2222222 100644
  
    install_headers(gio_unix_include_headers, subdir : 'gio-unix-2.0/gio')
  
-@@ -745,20 +738,17 @@ gioenumtypes_dep = declare_dependency(sources : [gioenumtypes_h, glib_enumtypes_
+@@ -749,20 +742,17 @@ gioenumtypes_dep = declare_dependency(sources : [gioenumtypes_h, glib_enumtypes_
  if glib_conf.has('HAVE_SYS_INOTIFY_H') and have_func_inotify_init1
    subdir('inotify')
    internal_deps += [ inotify_lib ]
@@ -55,7 +55,7 @@ index 1111111..2222222 100644
  endif
  
  if have_bash
-@@ -783,12 +773,12 @@ endif
+@@ -787,12 +777,12 @@ endif
  libgio = library('gio-2.0',
    gioenumtypes_h, gioenumtypes_c, gnetworking_h, gio_sources,
    gio_dtrace_hdr, gio_dtrace_obj,
@@ -151,7 +151,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -780,7 +780,7 @@ libgio = library('gio-2.0',
+@@ -784,7 +784,7 @@ libgio = library('gio-2.0',
    include_directories : [configinc, gioinc],
    link_with : internal_deps,
    #  '$(gio_win32_res_ldflag)',
@@ -187,7 +187,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1788,7 +1788,7 @@ atomicdefine = '''
+@@ -1792,7 +1792,7 @@ atomicdefine = '''
  # We know that we can always use real ("lock free") atomic operations with MSVC
  if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
    have_atomic_lock_free = true
@@ -208,7 +208,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -621,7 +621,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
+@@ -625,7 +625,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
  endif
  
  # Check that posix_spawn() is usable; must use header
@@ -249,7 +249,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -407,7 +407,7 @@ foreach m : struct_members
+@@ -408,7 +408,7 @@ foreach m : struct_members
  endforeach
  
  # Compiler flags
@@ -258,7 +258,7 @@ index 1111111..2222222 100644
    warning_c_args = [
      '-Wduplicated-branches',
      '-Wimplicit-fallthrough',
-@@ -1438,13 +1438,13 @@ g_sizet_compatibility = {
+@@ -1442,13 +1442,13 @@ g_sizet_compatibility = {
    'long long': sizet_size == long_long_size,
  }
  
@@ -636,7 +636,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -891,99 +891,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
+@@ -895,100 +895,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
      output : ['gconstructor_as_data.h'],
      command : [python, '@INPUT0@', '@INPUT1@', 'gconstructor_code', '@OUTPUT@'])
  
@@ -647,6 +647,7 @@ index 1111111..2222222 100644
 -  'gio-tool-cat.c',
 -  'gio-tool-copy.c',
 -  'gio-tool-info.c',
+-  'gio-tool-launch.c',
 -  'gio-tool-list.c',
 -  'gio-tool-mime.c',
 -  'gio-tool-mkdir.c',
@@ -768,7 +769,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -2296,7 +2296,6 @@ subdir('gobject')
+@@ -2300,7 +2300,6 @@ subdir('gobject')
  subdir('gthread')
  subdir('gmodule')
  subdir('gio')

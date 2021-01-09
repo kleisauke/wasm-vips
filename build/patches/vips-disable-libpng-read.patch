@@ -7,7 +7,7 @@ Subject: [PATCH 1/1] Conditional exclude the libpng reader when building with
 Similar to ce63fc1, but allowing libpng to be configured with
 -DPNG_NO_READ (i.e reading functionally disabled).
 
-Upstream-Status: Pending
+Upstream-Status: Accepted [https://github.com/libvips/libvips/commit/9b9843f698a1b111a14dcc9a66d2e5c57ae3eacc]
 
 diff --git a/libvips/foreign/vipspng.c b/libvips/foreign/vipspng.c
 index 1111111..2222222 100644

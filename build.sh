@@ -91,7 +91,7 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Wait for https://github.com/libvips/libvips/pull/1709 instead.
 VERSION_ZLIBNG=1.9.9-b1
 VERSION_FFI=3.3
-VERSION_GLIB=2.67.1
+VERSION_GLIB=2.67.2
 VERSION_EXPAT=2.2.10
 VERSION_EXIF=0.6.22
 VERSION_LCMS2=2.11
@@ -100,7 +100,6 @@ VERSION_PNG16=1.6.37
 VERSION_SPNG=0.6.1
 VERSION_WEBP=1.1.0
 VERSION_TIFF=4.2.0
-#VERSION_VIPS=0009681 # https://github.com/libvips/libvips/commit/00096813da6e8a2f8d4cdc190314a47759dc9693
 VERSION_VIPS=8.10.5
 
 # Remove patch version component
@@ -121,7 +120,6 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-auto-deletelater.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-vector-as-js-array.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-allow-block-main-thread.patch
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-mmap-msync-noderawfs.patch
 
   # https://github.com/emscripten-core/emscripten/pull/10524
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-10524.patch
@@ -183,7 +181,7 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Diconv="libc" -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled -Dinternal_pcre=true \
-    -Dglib_assert=false -Dglib_checks=false
+    -Dtests=false -Dglib_assert=false -Dglib_checks=false
   emmake ninja -C _build install
 )
 
@@ -235,8 +233,7 @@ test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
   cd $DEPS/jpeg
   # https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250#issuecomment-407615180
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DENABLE_STATIC=TRUE \
-    -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE \
-    -DCMAKE_C_FLAGS_RELEASE="" -DCMAKE_EXE_LINKER_FLAGS_RELEASE="" # Reset default (`-DNDEBUG -O2`) toolchain flags, see https://github.com/emscripten-core/emscripten/pull/13083
+    -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE
   emmake make -C _build install
 )
 
@@ -313,6 +310,7 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   # TODO(kleisauke): Discuss these patches upstream
   patch -p1 <$SOURCE_DIR/build/patches/vips-speed-up-getpoint.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-blob-copy-malloc.patch
+  # https://github.com/libvips/libvips/pull/1949
   patch -p1 <$SOURCE_DIR/build/patches/vips-disable-libpng-read.patch
   # TODO(kleisauke): https://github.com/libvips/libvips/issues/1492
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492.patch
@@ -333,8 +331,7 @@ echo "============================================="
   mkdir $DEPS/wasm-vips
   cd $DEPS/wasm-vips
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" \
-    -DENVIRONMENT=${ENVIRONMENT//,/;} \
-    -DCMAKE_CXX_FLAGS_RELEASE="" -DCMAKE_EXE_LINKER_FLAGS_RELEASE="" # Reset default (`-DNDEBUG -O2`) toolchain flags, see https://github.com/emscripten-core/emscripten/pull/13083
+    -DENVIRONMENT=${ENVIRONMENT//,/;}
   emmake make
   # FinalizationGroup -> FinalizationRegistry, see:
   # https://github.com/tc39/proposal-weakrefs/issues/180

@@ -5,7 +5,7 @@ Subject: [PATCH 1/2] Make dlmalloc align to max_align_t
 
 Required by C and C++ standards. emmalloc change incoming.
 
-Upstream-Status: Submitted
+Upstream-Status: Submitted [https://github.com/emscripten-core/emscripten/pull/10110]
 
 diff --git a/system/lib/dlmalloc.c b/system/lib/dlmalloc.c
 index 1111111..2222222 100644
@@ -29,7 +29,7 @@ From: Andrei Alexeyev <akari@taisei-project.org>
 Date: Wed, 15 Jan 2020 07:44:18 +0200
 Subject: [PATCH 2/2] Make emmalloc align to max_align_t
 
-Upstream-Status: Submitted
+Upstream-Status: Submitted [https://github.com/emscripten-core/emscripten/pull/10110]
 
 diff --git a/system/lib/emmalloc.cpp b/system/lib/emmalloc.cpp
 index 1111111..2222222 100644

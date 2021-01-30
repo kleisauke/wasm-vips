@@ -37,15 +37,15 @@ WASM_BIGINT_FLAG=
 
 # Parse arguments
 while [ $# -gt 0 ]; do
-    case $1 in
-        --enable-simd) SIMD=true ;;
-        --enable-experimental-simd) SIMD=true EXPERIMENTAL_SIMD=true ;;
-        --enable-lto) LTO_FLAG=--lto ;;
-        --enable-wasm-bigint) WASM_BIGINT_FLAG="-s WASM_BIGINT=1" ;;
-        -e|--environment) ENVIRONMENT="$2"; shift ;;
-        *) echo "Unknown parameter passed: $1"; exit 1 ;;
-    esac
-    shift
+  case $1 in
+    --enable-simd) SIMD=true ;;
+    --enable-experimental-simd) SIMD=true EXPERIMENTAL_SIMD=true ;;
+    --enable-lto) LTO_FLAG=--lto ;;
+    --enable-wasm-bigint) WASM_BIGINT_FLAG="-s WASM_BIGINT" ;;
+    -e|--environment) ENVIRONMENT="$2"; shift ;;
+    *) echo "ERROR: Unknown parameter: $1" >&2; exit 1 ;;
+  esac
+  shift
 done
 
 if [ "$SIMD" = "true" ]; then

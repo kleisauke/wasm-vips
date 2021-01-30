@@ -15,7 +15,7 @@ emconfigure ./configure --host=wasm32-unknown-linux \
   --disable-structs CFLAGS=-DWASM_BIGINT
 emmake make
 EMMAKEN_JUST_CONFIGURE=1 emmake make check \
-  RUNTESTFLAGS="CFLAGS_FOR_TARGET='-s WASM_BIGINT=1'"
+  RUNTESTFLAGS="CFLAGS_FOR_TARGET='-s WASM_BIGINT'"
 
 Co-authored-by: Brion Vibber <brion@pobox.com>
 
@@ -361,7 +361,7 @@ index 1111111..2222222 100644
  
 +    if { [string match "wasm32-*" $target_triplet] } {
 +	# emscripten sometimes doesn't see the filesystem which breaks the tests using stdout
-+	lappend options "additional_flags=-s FORCE_FILESYSTEM=1"
++	lappend options "additional_flags=-s FORCE_FILESYSTEM"
 +    }
 +
      verbose "options: $options"

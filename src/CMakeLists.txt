@@ -73,14 +73,14 @@ endif()
 
 # Handy for debugging
 # --threadprofiler \
-# -s SAFE_HEAP=1 \
+# -s SAFE_HEAP \
 # -s STACK_OVERFLOW_CHECK=2 \
 # -s DISABLE_EXCEPTION_CATCHING=0 \
 # -s NODEJS_CATCH_EXIT=0 \
 # -s ASSERTIONS=2 \
-# -s PTHREADS_DEBUG=1 \
-# -s LIBRARY_DEBUG=1 \
-# -s SYSCALL_DEBUG=1 \
+# -s PTHREADS_DEBUG \
+# -s LIBRARY_DEBUG \
+# -s SYSCALL_DEBUG \
 
 # note 1: `ALLOW_MEMORY_GROWTH` may run non-wasm code slowly. See: https://github.com/WebAssembly/design/issues/1271.
 # note 2: Browsers appear to limit the maximum initial memory size to 1GB, set `INITIAL_MEMORY` accordingly.
@@ -91,30 +91,30 @@ endif()
 #         https://github.com/libvips/libvips/blob/fc9edfe593be15fa241628b4e0fafa87bd544f7c/libvips/iofuncs/threadpool.c#L959-L961
 # note 5: Build with `-s PTHREAD_POOL_SIZE="_emscripten_num_logical_cores() + 3"` since `vips_sink_disc` could run 3
 #         additional background threads in the pool.
-# note 6: Build with `-s ALLOW_TABLE_GROWTH=1` so that we can store the read, seek, write and finish signals.
+# note 6: Build with `-s ALLOW_TABLE_GROWTH` so that we can store the read, seek, write and finish signals.
 set_target_properties(${TARGETS}
         PROPERTIES
             OUTPUT_NAME "vips"
             LINK_FLAGS "\
 --bind \
--s MODULARIZE=1 \
+-s MODULARIZE \
 -s EXPORT_NAME='Vips' \
--s EXIT_RUNTIME=1 \
+-s EXIT_RUNTIME \
 -s PTHREAD_POOL_SIZE=\"_emscripten_num_logical_cores() + 3\" \
 -s INITIAL_MEMORY=1GB \
--s ALLOW_TABLE_GROWTH=1 \
--s ALLOW_BLOCKING_ON_MAIN_THREAD=1 \
+-s ALLOW_TABLE_GROWTH \
+-s ALLOW_BLOCKING_ON_MAIN_THREAD \
 -s ASSERTIONS=0 \
 -s EXTRA_EXPORTED_RUNTIME_METHODS='[\"FS\", \"ENV\", \"deletionQueue\", \"addFunction\", \"emscripten_num_logical_cores\"]'"
         )
 
-# TODO(kleisauke): Add -s EXPORT_ES6=1, see:
+# TODO(kleisauke): Add -s EXPORT_ES6, see:
 # https://github.com/emscripten-core/emscripten/issues/11792.
 if("node" IN_LIST ENVIRONMENT)
     set_property(
             TARGET ${PROJECT_NAME}-node
             APPEND_STRING PROPERTY
-            LINK_FLAGS " -s ENVIRONMENT=node,worker -s NODERAWFS=1 -s NODEJS_CATCH_EXIT=0 -s NODEJS_CATCH_REJECTION=0"
+            LINK_FLAGS " -s ENVIRONMENT=node,worker -s NODERAWFS -s NODEJS_CATCH_EXIT=0 -s NODEJS_CATCH_REJECTION=0"
             )
 endif()
 

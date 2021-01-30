@@ -71,7 +71,7 @@ index 1111111..2222222 100644
  # lcms ... refuse to use lcms1
  AC_ARG_WITH([lcms], 
    AS_HELP_STRING([--without-lcms], [build without lcms (default: test)]))
-@@ -1280,14 +1244,14 @@ if test x"$LIB_FUZZING_ENGINE" = x; then
+@@ -1273,14 +1237,14 @@ if test x"$LIB_FUZZING_ENGINE" = x; then
  fi
  
  # Gather all up for VIPS_CFLAGS, VIPS_INCLUDES, VIPS_LIBS
@@ -89,7 +89,7 @@ index 1111111..2222222 100644
  
  AC_SUBST(VIPS_LIBDIR)
  
-@@ -1367,8 +1331,6 @@ Magick package: 			$with_magickpackage
+@@ -1360,8 +1324,6 @@ Magick package: 			$with_magickpackage
  Magick API version: 			$magick_version
  load with libMagick: 			$enable_magickload
  save with libMagick: 			$enable_magicksave

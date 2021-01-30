@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Adam Bujalski <a.bujalski@samsung.com>
-Date: Mon, 7 Dec 2020 14:30:07 +0100
+Date: Fri, 26 Apr 2019 13:34:26 +0200
 Subject: [PATCH 1/1] Fixing POSIX testsuite pthread test fails
 
 This patch aims for fixing failures in pthread related POSIX test from
@@ -15,18 +15,19 @@ Following problems are addressed:
    In pthread_barrier_wait adding check if lock is held by main thread
    and waiting on futex in small slices of time there, to check if
    there is some work to do on behalf of Worker Threads.
+3. Fixes #12985
 
-Upstream-Status: Submitted [https://github.com/emscripten-core/emscripten/pull/10524]
+Signed-off-by: Adam Bujalski <abujalski@gmail.com>
 
 diff --git a/src/library_pthread.js b/src/library_pthread.js
 index 1111111..2222222 100644
 --- a/src/library_pthread.js
 +++ b/src/library_pthread.js
-@@ -178,6 +178,24 @@ var LibraryPThread = {
+@@ -173,6 +173,24 @@ var LibraryPThread = {
        if (ENVIRONMENT_IS_PTHREAD && _pthread_self()) ___pthread_tsd_run_dtors();
      },
  
-+    onThreadExit: function(tb, exitCode) {
++    runExitHandlersAndDeinitThread: function(tb, exitCode) {
 +      // Disable all cancellation so that executing the cleanup handlers won't trigger another JS
 +      // canceled exception to be thrown.
 +      Atomics.store(HEAPU32, (tb + {{{ C_STRUCTS.pthread.canceldisable }}} ) >> 2, 1/*PTHREAD_CANCEL_DISABLE*/);
@@ -47,7 +48,7 @@ index 1111111..2222222 100644
      // Called when we are performing a pthread_exit(), either explicitly called
      // by programmer, or implicitly when leaving the thread main function.
      threadExit: function(exitCode) {
-@@ -191,19 +209,7 @@ var LibraryPThread = {
+@@ -186,19 +204,8 @@ var LibraryPThread = {
          Atomics.store(HEAPU32, (tb + {{{ C_STRUCTS.pthread.profilerBlock }}} ) >> 2, 0);
          _free(profilerBlock);
  #endif
@@ -61,14 +62,14 @@ index 1111111..2222222 100644
 -        Atomics.store(HEAPU32, (tb + {{{ C_STRUCTS.pthread.canceldisable }}} ) >> 2, 1/*PTHREAD_CANCEL_DISABLE*/);
 -        Atomics.store(HEAPU32, (tb + {{{ C_STRUCTS.pthread.cancelasync }}} ) >> 2, 0/*PTHREAD_CANCEL_DEFERRED*/);
 -        PThread.runExitHandlers();
--
++        PThread.runExitHandlersAndDeinitThread(tb, exitCode);
+ 
 -        _emscripten_futex_wake(tb + {{{ C_STRUCTS.pthread.threadStatus }}}, {{{ cDefine('INT_MAX') }}});
 -        __emscripten_thread_init(0, 0, 0); // Unregister the thread block also inside the asm.js scope.
-+        PThread.onThreadExit(tb, exitCode);
          if (ENVIRONMENT_IS_PTHREAD) {
            // Note: in theory we would like to return any offscreen canvases back to the main thread,
            // but if we ever fetched a rendering context for them that would not be valid, so we don't try.
-@@ -213,13 +219,8 @@ var LibraryPThread = {
+@@ -208,13 +215,8 @@ var LibraryPThread = {
      },
  
      threadCancel: function() {
@@ -79,10 +80,21 @@ index 1111111..2222222 100644
 -      _emscripten_futex_wake(tb + {{{ C_STRUCTS.pthread.threadStatus }}}, {{{ cDefine('INT_MAX') }}}); // wake all threads
 -      // Not hosting a pthread anymore in this worker, reset the info structures to null.
 -      __emscripten_thread_init(0, 0, 0); // Unregister the thread block also inside the asm.js scope.
-+      PThread.onThreadExit(tb, -1/*PTHREAD_CANCELED*/);
++      PThread.runExitHandlersAndDeinitThread(tb, -1/*PTHREAD_CANCELED*/);
        postMessage({ 'cmd': 'cancelDone' });
      },
  
+@@ -491,9 +493,9 @@ var LibraryPThread = {
+   $cleanupThread: function(pthread_ptr) {
+     if (ENVIRONMENT_IS_PTHREAD) throw 'Internal Error! cleanupThread() can only ever be called from main application thread!';
+     if (!pthread_ptr) throw 'Internal Error! Null pthread_ptr in cleanupThread!';
+-    {{{ makeSetValue('pthread_ptr', C_STRUCTS.pthread.self, 0, 'i32') }}};
+     var pthread = PThread.pthreads[pthread_ptr];
+     if (pthread) {
++      {{{ makeSetValue('pthread_ptr', C_STRUCTS.pthread.self, 0, 'i32') }}};
+       var worker = pthread.worker;
+       PThread.returnWorkerToPool(worker);
+     }
 diff --git a/system/lib/libc/musl/src/thread/__timedwait.c b/system/lib/libc/musl/src/thread/__timedwait.c
 index 1111111..2222222 100644
 --- a/system/lib/libc/musl/src/thread/__timedwait.c
@@ -95,7 +107,7 @@ index 1111111..2222222 100644
 +	// cp suffix in the function name means "cancellation point", so this wait can be cancelled
 +	// by the users unless current threads cancellability is set to PTHREAD_CANCEL_DISABLE
 +	// which may be either done by the user of __timedwait() function.
-+	if (is_main_thread || 
++	if (is_main_thread ||
 +			pthread_self()->canceldisable != PTHREAD_CANCEL_DISABLE ||
 +			pthread_self()->cancelasync == PTHREAD_CANCEL_ASYNCHRONOUS) {
  		double sleepUntilTime = emscripten_get_now() + msecsToSleep;

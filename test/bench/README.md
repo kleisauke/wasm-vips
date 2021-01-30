@@ -8,8 +8,8 @@ https://sharp.pixelplumbing.com/performance
 ## Test environment
 
 * Intel Core i5-8600K CPU 3.60GHz (Coffee Lake), 1 CPU, 6 logical and 6 physical cores
-* Fedora 32
-* Node v14.8.0
+* Fedora 33
+* Node v15.7.0
 
 ## Test images
 
@@ -33,25 +33,32 @@ images. For PNG images a zlib compression level of 6 is used.
 | Module             | Format | Input  | Output | Ops/sec | Speed-up |
 | :----------------- | :----- | :----- | :----- | ------: | -------: |
 | jimp               | JPEG   | buffer | buffer |    0.91 |      1.0 |
-| mapnik             | JPEG   | buffer | buffer |    3.86 |      4.2 |
-| wasm-vips          | JPEG   | buffer | buffer |    5.36 |      5.9 |
-| imagemagick        | JPEG   | file   | file   |   13.42 |     14.7 |
-| gm                 | JPEG   | file   | file   |   13.71 |     15.1 |
-| sharp              | JPEG   | stream | stream |   41.65 |     45.8 |
-| sharp              | JPEG   | file   | file   |   43.66 |     48.0 |
-| sharp              | JPEG   | buffer | buffer |   44.35 |     48.7 |
+| mapnik             | JPEG   | buffer | buffer |    4.08 |      4.5 |
+| wasm-vips          | JPEG   | buffer | buffer |    6.23 |      6.8 |
+| imagemagick        | JPEG   | file   | file   |   12.68 |     13.9 |
+| gm                 | JPEG   | file   | file   |   13.00 |     14.3 |
+| sharp (w/o liborc) | JPEG   | stream | stream |   38.84 |     42.7 |
+| sharp (w/o liborc) | JPEG   | file   | file   |   40.48 |     44.5 |
+| sharp (w/o liborc) | JPEG   | buffer | buffer |   41.14 |     45.2 |
+| sharp              | JPEG   | stream | stream |   41.63 |     45.7 |
+| sharp              | JPEG   | file   | file   |   43.36 |     47.6 |
+| sharp              | JPEG   | buffer | buffer |   44.33 |     48.7 |
 |                    |        |        |        |         |          |
-| jimp               | PNG    | buffer | buffer |    5.20 |      1.0 |
-| wasm-vips          | PNG    | buffer | buffer |    5.63 |      1.1 |
-| mapnik             | PNG    | buffer | buffer |    6.44 |      1.2 |
-| gm                 | PNG    | file   | file   |    8.86 |      1.7 |
-| imagemagick        | PNG    | file   | file   |    8.94 |      1.7 |
-| sharp              | PNG    | file   | file   |   20.22 |      3.9 |
-| sharp              | PNG    | buffer | buffer |   20.30 |      3.9 |
+| jimp               | PNG    | buffer | buffer |    3.87 |      1.0 |
+| wasm-vips          | PNG    | buffer | buffer |    5.42 |      1.4 |
+| mapnik             | PNG    | buffer | buffer |    6.56 |      1.7 |
+| gm                 | PNG    | file   | file   |    8.46 |      2.2 |
+| imagemagick        | PNG    | file   | file   |    8.55 |      2.2 |
+| sharp (w/o liborc) | PNG    | buffer | buffer |   17.42 |      4.5 |
+| sharp (w/o liborc) | PNG    | file   | file   |   17.59 |      4.5 |
+| sharp              | PNG    | file   | file   |   17.74 |      4.6 |
+| sharp              | PNG    | buffer | buffer |   17.81 |      4.6 |
 |                    |        |        |        |         |          |
-| wasm-vips          | WebP   | buffer | buffer |    6.20 |      1.0 |
-| sharp              | WebP   | file   | file   |   13.76 |      2.2 |
-| sharp              | WebP   | buffer | buffer |   13.81 |      2.2 |
+| wasm-vips          | WebP   | buffer | buffer |    7.84 |      1.0 |
+| sharp (w/o liborc) | WebP   | file   | file   |   14.46 |      1.8 |
+| sharp              | WebP   | file   | file   |   14.54 |      1.9 |
+| sharp (w/o liborc) | WebP   | buffer | buffer |   14.57 |      1.9 |
+| sharp              | WebP   | buffer | buffer |   14.58 |      1.9 |
 
 ## Running the wasm-vips benchmark
 
@@ -70,5 +77,11 @@ cd sharp
 npm install
 cd test/bench
 npm install
+
+# With liborc
+npm test
+
+# Without liborc
+sed -i '/^sharp.cache(false);/a sharp.simd(false);' perf.js
 npm test
 ```

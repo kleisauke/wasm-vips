@@ -1,0 +1,1020 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Wed, 3 Feb 2021 13:00:00 +0100
+Subject: [PATCH 1/1] Experiment with SIMD intrinsics
+
+Upstream-Status: Pending
+
+diff --git a/configure.ac b/configure.ac
+index 1111111..2222222 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -387,6 +387,58 @@ if test x"$have_vector_arith" = x"yes"; then
+   fi
+ fi
+ 
++# TEST_AND_ADD_CFLAGS(var, flag)
++# Checks whether $CC supports 'flag' and adds it to 'var'
++# on success.
++AC_DEFUN([TEST_AND_ADD_CFLAGS],
++         [SAVED_CFLAGS="$CFLAGS"
++          CFLAGS="-Werror $2"
++          AC_MSG_CHECKING([whether $CC supports $2])
++          # Note: AC_LANG_PROGRAM([]) uses an old-style main definition.
++          AC_COMPILE_IFELSE([AC_LANG_SOURCE([int main(void) { return 0; }])],
++                            [AC_MSG_RESULT([yes])]
++                            # Simply append the variable avoiding a
++                            # compatibility ifdef for AS_VAR_APPEND as this
++                            # variable shouldn't grow all that large.
++                            [$1="${$1} $2"],
++                            [AC_MSG_RESULT([no])])
++          CFLAGS="$SAVED_CFLAGS"])
++
++# Check for machine specific flags
++AC_ARG_ENABLE([sse4.1],
++              AS_HELP_STRING([--disable-sse4.1],
++                             [Disable detection of SSE4.1 support
++                              @<:@default=auto@:>@]))
++
++AS_IF([test "x$enable_sse4_1" != "xno"], [
++  TEST_AND_ADD_CFLAGS([SSE41_FLAGS], [-msse4.1])
++  AS_IF([test -n "$SSE41_FLAGS"], [
++    SAVED_CFLAGS=$CFLAGS
++    CFLAGS="$CFLAGS $SSE41_FLAGS"
++    AC_CHECK_HEADER([smmintrin.h],
++                    [AC_DEFINE(HAVE_SSE41, [1],
++                     [Set to 1 if SSE4.1 is supported])],
++                    [SSE41_FLAGS=""])
++    CFLAGS=$SAVED_CFLAGS])
++  AC_SUBST([SSE41_FLAGS])])
++
++AC_ARG_ENABLE([avx2],
++              AS_HELP_STRING([--disable-avx2],
++                             [Disable detection of AVX2 support
++                              @<:@default=auto@:>@]))
++
++AS_IF([test "x$enable_avx2" != "xno" -a "x$enable_sse4_1" != "xno"], [
++  TEST_AND_ADD_CFLAGS([AVX2_FLAGS], [-mavx2])
++  AS_IF([test -n "$AVX2_FLAGS"], [
++    SAVED_CFLAGS=$CFLAGS
++    CFLAGS="$CFLAGS $AVX2_FLAGS"
++    AC_CHECK_HEADER([immintrin.h],
++                    [AC_DEFINE(HAVE_AVX2, [1],
++                     [Set to 1 if AVX2 is supported])],
++                    [AVX2_FLAGS=""])
++    CFLAGS=$SAVED_CFLAGS])
++  AC_SUBST([AVX2_FLAGS])])
++
+ # Checks for library functions.
+ AC_FUNC_MEMCMP
+ AC_FUNC_MMAP
+diff --git a/libvips/include/vips/memory.h b/libvips/include/vips/memory.h
+index 1111111..2222222 100644
+--- a/libvips/include/vips/memory.h
++++ b/libvips/include/vips/memory.h
+@@ -68,7 +68,9 @@ void *vips_malloc( VipsObject *object, size_t size );
+ char *vips_strdup( VipsObject *object, const char *str );
+ 
+ void vips_tracked_free( void *s );
++void vips_tracked_aligned_free( void *s );
+ void *vips_tracked_malloc( size_t size );
++void *vips_tracked_aligned_alloc( size_t size, size_t align );
+ size_t vips_tracked_get_mem( void );
+ size_t vips_tracked_get_mem_highwater( void );
+ int vips_tracked_get_allocs( void );
+diff --git a/libvips/include/vips/simd.h b/libvips/include/vips/simd.h
+new file mode 100644
+index 00000000..1111111
+--- /dev/null
++++ b/libvips/include/vips/simd.h
+@@ -0,0 +1,52 @@
++/* helper stuff for SIMD
++ *
++ * 16/03/21 kleisauke
++ *	- from vector.h
++ */
++
++/*
++
++    This file is part of VIPS.
++    
++    VIPS is free software; you can redistribute it and/or modify
++    it under the terms of the GNU Lesser General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++    02110-1301  USA
++
++ */
++
++/*
++
++    These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
++
++ */
++
++#ifndef VIPS_SIMD_H
++#define VIPS_SIMD_H
++
++#if defined(_MSC_VER) && _MSC_VER >= 1500 && \
++    (defined(_M_X64) || defined(_M_IX86))
++#define MSVC_SSE41  // Visual C++ SSE4.1 targets
++#endif
++
++#if defined(__SSE4_1__) || defined(MSVC_SSE41) || defined(HAVE_SSE41)
++#define USE_SSE41
++#endif
++
++#if defined(__AVX2__) || defined(HAVE_AVX2)
++#define USE_AVX2
++#endif
++
++// TODO(kleisauke): CPU feature flags
++
++#endif /*VIPS_SIMD_H*/
+diff --git a/libvips/iofuncs/buffer.c b/libvips/iofuncs/buffer.c
+index 1111111..2222222 100644
+--- a/libvips/iofuncs/buffer.c
++++ b/libvips/iofuncs/buffer.c
+@@ -69,6 +69,7 @@
+ #include <stdlib.h>
+ 
+ #include <vips/vips.h>
++#include <vips/simd.h>
+ #include <vips/internal.h>
+ #include <vips/thread.h>
+ 
+@@ -199,7 +200,7 @@ vips_buffer_dump_all( void )
+ static void
+ vips_buffer_free( VipsBuffer *buffer )
+ {
+-	VIPS_FREEF( vips_tracked_free, buffer->buf );
++	VIPS_FREEF( vips_tracked_aligned_free, buffer->buf );
+ 	buffer->bsize = 0;
+ 	g_free( buffer );
+ 
+@@ -467,6 +468,7 @@ buffer_move( VipsBuffer *buffer, VipsRect *area )
+ {
+ 	VipsImage *im = buffer->im;
+ 	size_t new_bsize;
++	size_t align;
+ 
+ 	g_assert( buffer->ref_count == 1 );
+ 
+@@ -477,11 +479,24 @@ buffer_move( VipsBuffer *buffer, VipsRect *area )
+ 
+ 	new_bsize = (size_t) VIPS_IMAGE_SIZEOF_PEL( im ) * 
+ 		area->width * area->height;
++
++	/* Need to pad buffer size to be aligned-up to
++	 * 32 bytes for SIMD reduce.
++	 */
++#if defined(USE_AVX2) || defined(USE_SSE41)
++	if( im->BandFmt == VIPS_FORMAT_UCHAR ) {
++		new_bsize += 32 - 1;
++		align = 32;
++	}
++	else
++#endif
++		align = 16;
++
+ 	if( buffer->bsize < new_bsize ||
+ 		!buffer->buf ) {
+ 		buffer->bsize = new_bsize;
+-		VIPS_FREEF( vips_tracked_free, buffer->buf );
+-		if( !(buffer->buf = vips_tracked_malloc( buffer->bsize )) ) 
++		VIPS_FREEF( vips_tracked_aligned_free, buffer->buf );
++		if( !(buffer->buf = vips_tracked_aligned_alloc( buffer->bsize, align )) ) 
+ 			return( -1 );
+ 	}
+ 
+diff --git a/libvips/iofuncs/memory.c b/libvips/iofuncs/memory.c
+index 1111111..2222222 100644
+--- a/libvips/iofuncs/memory.c
++++ b/libvips/iofuncs/memory.c
+@@ -69,6 +69,9 @@
+ #include <stdlib.h>
+ #include <stdarg.h>
+ #include <string.h>
++#if defined(HAVE__ALIGNED_MALLOC) || defined(HAVE_MEMALIGN)
++#include <malloc.h>
++#endif
+ 
+ #include <vips/vips.h>
+ #include <vips/thread.h>
+@@ -219,9 +222,9 @@ vips_strdup( VipsObject *object, const char *str )
+  * vips_tracked_free:
+  * @s: (transfer full): memory to free
+  *
+- * Only use it to free
+- * memory that was previously allocated with vips_tracked_malloc() with a 
+- * %NULL first argument.
++ * Only use it to free memory that was
++ * previously allocated with vips_tracked_malloc()
++ * with a %NULL first argument.
+  *
+  * See also: vips_tracked_malloc().
+  */
+@@ -255,6 +258,47 @@ vips_tracked_free( void *s )
+ 	VIPS_GATE_FREE( size ); 
+ }
+ 
++/**
++ * vips_tracked_aligned_free:
++ * @s: (transfer full): memory to free
++ *
++ * Only use it to free memory that was
++ * previously allocated with vips_tracked_aligned_alloc() 
++ * with a %NULL first argument.
++ *
++ * See also: vips_tracked_aligned_alloc().
++ */
++void
++vips_tracked_aligned_free( void *s )
++{
++	void *start = (size_t *)s - 1;
++	size_t size = *((size_t *) start);
++
++	g_mutex_lock( vips_tracked_mutex );
++
++#ifdef DEBUG_VERBOSE
++	printf( "vips_tracked_aligned_free: %p, %zd bytes\n", s, size ); 
++#endif /*DEBUG_VERBOSE*/
++
++	if( vips_tracked_allocs <= 0 ) 
++		g_warning( "%s", _( "vips_free: too many frees" ) );
++	if( vips_tracked_mem < size )
++		g_warning( "%s", _( "vips_free: too much free" ) );
++
++	vips_tracked_mem -= size;
++	vips_tracked_allocs -= 1;
++
++	g_mutex_unlock( vips_tracked_mutex );
++
++#ifdef HAVE__ALIGNED_MALLOC
++	_aligned_free( start );
++#else /*defined(HAVE_POSIX_MEMALIGN) || defined(HAVE_MEMALIGN)*/
++	free( start );
++#endif
++
++	VIPS_GATE_FREE( size ); 
++}
++
+ static void *
+ vips_tracked_init_mutex( void *data )
+ {
+@@ -279,7 +323,7 @@ vips_tracked_init( void )
+  * Allocate an area of memory that will be tracked by vips_tracked_get_mem()
+  * and friends. 
+  *
+- * If allocation fails, vips_malloc() returns %NULL and 
++ * If allocation fails, vips_tracked_malloc() returns %NULL and 
+  * sets an error message.
+  *
+  * You must only free the memory returned with vips_tracked_free().
+@@ -336,6 +380,82 @@ vips_tracked_malloc( size_t size )
+         return( buf );
+ }
+ 
++/**
++ * vips_tracked_aligned_alloc:
++ * @size: number of bytes to allocate
++ * @align: specifies the alignment
++ *
++ * Allocate an area of memory aligned on a boundary specified
++ * by @align that will be tracked by vips_tracked_get_mem()
++ * and friends. 
++ *
++ * If allocation fails, vips_tracked_aligned_alloc() returns %NULL
++ * and sets an error message.
++ *
++ * You must only free the memory returned with vips_tracked_aligned_free().
++ *
++ * See also: vips_tracked_malloc(), vips_tracked_aligned_free(), vips_malloc().
++ *
++ * Returns: (transfer full): a pointer to the allocated memory, or %NULL on error.
++ */
++void *
++vips_tracked_aligned_alloc( size_t size, size_t align )
++{
++	void *buf;
++
++	vips_tracked_init(); 
++
++	g_assert( !(align & (align - 1)) );
++
++	/* Need an extra sizeof(size_t) bytes to track 
++	 * size of this block.
++	 */
++	size += sizeof(size_t);
++
++#ifdef HAVE__ALIGNED_MALLOC
++	if( !(buf = _aligned_malloc( size, align )) ) {
++#elif defined(HAVE_POSIX_MEMALIGN)
++	if( posix_memalign( &buf, align, size ) ) {
++#elif defined(HAVE_MEMALIGN)
++	if( !(buf = memalign( align, size )) ) {
++#else
++#error Missing aligned alloc implementation
++#endif
++#ifdef DEBUG
++		g_assert_not_reached();
++#endif /*DEBUG*/
++
++		vips_error( "vips_tracked", 
++			_( "out of memory --- size == %dMB" ), 
++			(int) (size / (1024.0 * 1024.0))  );
++		g_warning( _( "out of memory --- size == %dMB" ), 
++			(int) (size / (1024.0 * 1024.0))  );
++
++		return( NULL );
++	}
++
++	memset( buf, 0, size );
++
++	g_mutex_lock( vips_tracked_mutex );
++
++	*((size_t *)buf) = size;
++
++	vips_tracked_mem += size;
++	if( vips_tracked_mem > vips_tracked_mem_highwater ) 
++		vips_tracked_mem_highwater = vips_tracked_mem;
++	vips_tracked_allocs += 1;
++
++#ifdef DEBUG_VERBOSE
++	printf( "vips_tracked_aligned_alloc: %p, %zd bytes\n", buf, size ); 
++#endif /*DEBUG_VERBOSE*/
++
++	g_mutex_unlock( vips_tracked_mutex );
++
++	VIPS_GATE_MALLOC( size ); 
++
++	return( (void *) ((size_t *)buf + 1) );
++}
++
+ /**
+  * vips_tracked_open:
+  * @pathname: name of file to open
+diff --git a/libvips/resample/Makefile.am b/libvips/resample/Makefile.am
+index 1111111..2222222 100644
+--- a/libvips/resample/Makefile.am
++++ b/libvips/resample/Makefile.am
+@@ -24,6 +24,16 @@ libresample_la_SOURCES = \
+ EXTRA_DIST = \
+ 	dummy2.cc 
+ 
+-noinst_LTLIBRARIES = libresample.la
++noinst_LTLIBRARIES = libresample.la libresample_sse41.la libresample_avx2.la
+ 
+ AM_CPPFLAGS = -I${top_srcdir}/libvips/include @VIPS_CFLAGS@ @VIPS_INCLUDES@ 
++
++libresample_sse41_la_SOURCES = reduce_sse41.c
++libresample_sse41_la_CPPFLAGS = $(AM_CPPFLAGS)
++libresample_sse41_la_CFLAGS = $(AM_CFLAGS) $(SSE41_FLAGS)
++
++libresample_avx2_la_SOURCES = reduce_avx2.c
++libresample_avx2_la_CPPFLAGS = $(AM_CPPFLAGS)
++libresample_avx2_la_CFLAGS = $(AM_CFLAGS) $(AVX2_FLAGS)
++
++libresample_la_LIBADD = libresample_sse41.la libresample_avx2.la
+diff --git a/libvips/resample/presample_simd.h b/libvips/resample/presample_simd.h
+new file mode 100644
+index 00000000..1111111
+--- /dev/null
++++ b/libvips/resample/presample_simd.h
+@@ -0,0 +1,51 @@
++/* base class for all SIMD resample operations
++ *
++ * 16/03/21 kleisauke
++ *	- from presample.h
++ */
++
++/*
++
++    Copyright (C) 1991-2005 The National Gallery
++
++    This library is free software; you can redistribute it and/or
++    modify it under the terms of the GNU Lesser General Public
++    License as published by the Free Software Foundation; either
++    version 2.1 of the License, or (at your option) any later version.
++
++    This library is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
++    Lesser General Public License for more details.
++
++    You should have received a copy of the GNU Lesser General Public
++    License along with this library; if not, write to the Free Software
++    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++    02110-1301  USA
++
++ */
++
++/*
++
++    These files are distributed with VIPS - http://www.vips.ecs.soton.ac.uk
++
++ */
++
++#ifndef VIPS_PRESAMPLE_SIMD_H
++#define VIPS_PRESAMPLE_SIMD_H
++
++#ifdef __cplusplus
++extern "C" {
++#endif /*__cplusplus*/
++
++void vips_reduce_uchar_avx2( VipsPel *pout, const VipsPel *pin,
++	const int n, const int ne, const int lskip, const short *restrict k );
++
++void vips_reduce_uchar_sse41( VipsPel *pout, const VipsPel *pin,
++	const int n, const int ne, const int lskip, const short *restrict k );
++
++#ifdef __cplusplus
++}
++#endif /*__cplusplus*/
++
++#endif /*VIPS_PRESAMPLE_SIMD_H*/
+diff --git a/libvips/resample/reduce_avx2.c b/libvips/resample/reduce_avx2.c
+new file mode 100644
+index 00000000..1111111
+--- /dev/null
++++ b/libvips/resample/reduce_avx2.c
+@@ -0,0 +1,180 @@
++/* From: ResampleSIMDVerticalConv.c (Pillow-SIMD)
++ *
++ * 15/01/21 kleisauke
++ * 	- initial implementation
++ * 01/02/21 kleisauke
++ * 	- uint -> uchar
++ * 16/03/21 kleisauke
++ *	- split to avx2 and sse41 files
++ */
++
++#ifdef HAVE_CONFIG_H
++#include <config.h>
++#endif /*HAVE_CONFIG_H*/
++#include <vips/intl.h>
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <math.h>
++
++#include <vips/vips.h>
++#include <vips/simd.h>
++#include <vips/debug.h>
++#include <vips/internal.h>
++
++#include "presample_simd.h"
++
++#ifdef USE_AVX2
++#include <immintrin.h>
++
++static __m128i inline
++mm_cvtepu8_epi32(const void *ptr) {
++	return _mm_cvtepu8_epi32(_mm_cvtsi32_si128(*(int *) ptr));
++}
++
++void
++vips_reduce_uchar_avx2( VipsPel *pout, const VipsPel *pin,
++	const int n, const int ne, const int lskip, const short *restrict k ) {
++	unsigned char* restrict out = (unsigned char *) pout;
++	const unsigned char* restrict in = (unsigned char *) pin;
++	const int l1 = lskip / sizeof( unsigned char );
++
++	int x;
++	int xx = 0;
++
++	__m128i initial = _mm_set1_epi32(1 << (VIPS_INTERPOLATE_SHIFT - 1));
++	__m256i initial_256 = _mm256_set1_epi32(1 << (VIPS_INTERPOLATE_SHIFT - 1));
++
++	for( ; xx < ne - 7; xx += 8 ) {
++		__m256i sss0 = initial_256;
++		__m256i sss1 = initial_256;
++		__m256i sss2 = initial_256;
++		__m256i sss3 = initial_256;
++		x = 0;
++		for( ; x < n - 1; x += 2 ) {
++			__m256i source, source1, source2;
++			__m256i pix, mmk;
++
++			// Load two coefficients at once
++			mmk = _mm256_set1_epi32(*(int *) &k[x]);
++
++			source1 = _mm256_loadu_si256(  // top line
++				(__m256i *) &in[x * l1 + xx]);
++			source2 = _mm256_loadu_si256(  // bottom line
++				(__m256i *) &in[(x + 1) * l1 + xx]);
++
++			source = _mm256_unpacklo_epi8(source1, source2);
++			pix = _mm256_unpacklo_epi8(source, _mm256_setzero_si256());
++			sss0 = _mm256_add_epi32(sss0, _mm256_madd_epi16(pix, mmk));
++			pix = _mm256_unpackhi_epi8(source, _mm256_setzero_si256());
++			sss1 = _mm256_add_epi32(sss1, _mm256_madd_epi16(pix, mmk));
++
++			source = _mm256_unpackhi_epi8(source1, source2);
++			pix = _mm256_unpacklo_epi8(source, _mm256_setzero_si256());
++			sss2 = _mm256_add_epi32(sss2, _mm256_madd_epi16(pix, mmk));
++			pix = _mm256_unpackhi_epi8(source, _mm256_setzero_si256());
++			sss3 = _mm256_add_epi32(sss3, _mm256_madd_epi16(pix, mmk));
++		}
++		for( ; x < n; x += 1) {
++			__m256i source, source1, pix, mmk;
++			mmk = _mm256_set1_epi32(k[x]);
++
++			source1 = _mm256_loadu_si256(  // top line
++				(__m256i *) &in[x * l1 + xx]);
++
++			source = _mm256_unpacklo_epi8(source1, _mm256_setzero_si256());
++			pix = _mm256_unpacklo_epi8(source, _mm256_setzero_si256());
++			sss0 = _mm256_add_epi32(sss0, _mm256_madd_epi16(pix, mmk));
++			pix = _mm256_unpackhi_epi8(source, _mm256_setzero_si256());
++			sss1 = _mm256_add_epi32(sss1, _mm256_madd_epi16(pix, mmk));
++
++			source = _mm256_unpackhi_epi8(source1, _mm256_setzero_si256());
++			pix = _mm256_unpacklo_epi8(source, _mm256_setzero_si256());
++			sss2 = _mm256_add_epi32(sss2, _mm256_madd_epi16(pix, mmk));
++			pix = _mm256_unpackhi_epi8(source, _mm256_setzero_si256());
++			sss3 = _mm256_add_epi32(sss3, _mm256_madd_epi16(pix, mmk));
++		}
++		sss0 = _mm256_srai_epi32(sss0, VIPS_INTERPOLATE_SHIFT);
++		sss1 = _mm256_srai_epi32(sss1, VIPS_INTERPOLATE_SHIFT);
++		sss2 = _mm256_srai_epi32(sss2, VIPS_INTERPOLATE_SHIFT);
++		sss3 = _mm256_srai_epi32(sss3, VIPS_INTERPOLATE_SHIFT);
++
++		sss0 = _mm256_packs_epi32(sss0, sss1);
++		sss2 = _mm256_packs_epi32(sss2, sss3);
++		sss0 = _mm256_packus_epi16(sss0, sss2);
++		_mm256_storeu_si256((__m256i *) &out[xx], sss0);
++	}
++
++	for( ; xx < ne - 1; xx += 2 ) {
++		__m128i sss0 = initial;  // left row
++		__m128i sss1 = initial;  // right row
++		x = 0;
++		for( ; x < n - 1; x += 2 ) {
++			__m128i source, source1, source2;
++			__m128i pix, mmk;
++
++			// Load two coefficients at once
++			mmk = _mm_set1_epi32(*(int *) &k[x]);
++
++			source1 = _mm_loadl_epi64(  // top line
++				(__m128i *) &in[x * l1 + xx]);
++			source2 = _mm_loadl_epi64(  // bottom line
++				(__m128i *) &in[(x + 1) * l1 + xx]);
++
++			source = _mm_unpacklo_epi8(source1, source2);
++			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
++			sss0 = _mm_add_epi32(sss0, _mm_madd_epi16(pix, mmk));
++			pix = _mm_unpackhi_epi8(source, _mm_setzero_si128());
++			sss1 = _mm_add_epi32(sss1, _mm_madd_epi16(pix, mmk));
++		}
++		for( ; x < n; x += 1 ) {
++			__m128i source, source1, pix, mmk;
++			mmk = _mm_set1_epi32(k[x]);
++
++			source1 = _mm_loadl_epi64(  // top line
++				(__m128i *) &in[x * l1 + xx]);
++
++			source = _mm_unpacklo_epi8(source1, _mm_setzero_si128());
++			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
++			sss0 = _mm_add_epi32(sss0, _mm_madd_epi16(pix, mmk));
++			pix = _mm_unpackhi_epi8(source, _mm_setzero_si128());
++			sss1 = _mm_add_epi32(sss1, _mm_madd_epi16(pix, mmk));
++		}
++		sss0 = _mm_srai_epi32(sss0, VIPS_INTERPOLATE_SHIFT);
++		sss1 = _mm_srai_epi32(sss1, VIPS_INTERPOLATE_SHIFT);
++
++		sss0 = _mm_packs_epi32(sss0, sss1);
++		sss0 = _mm_packus_epi16(sss0, sss0);
++		_mm_storel_epi64((__m128i *) &out[xx], sss0);
++	}
++
++	for( ; xx < ne; xx++ ) {
++		__m128i sss = initial;
++		x = 0;
++		for( ; x < n - 1; x += 2 ) {
++			__m128i source, source1, source2;
++			__m128i pix, mmk;
++	
++			// Load two coefficients at once
++			mmk = _mm_set1_epi32(*(int *) &k[x]);
++
++			source1 = _mm_cvtsi32_si128(  // top line
++				*(int *) &in[x * l1 + xx]);
++			source2 = _mm_cvtsi32_si128(  // bottom line
++				*(int *) &in[(x + 1) * l1 + xx]);
++
++			source = _mm_unpacklo_epi8(source1, source2);
++			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
++			sss = _mm_add_epi32(sss, _mm_madd_epi16(pix, mmk));
++		}
++		for( ; x < n; x++ ) {
++			__m128i pix = mm_cvtepu8_epi32(&in[x * l1 + xx]);
++			__m128i mmk = _mm_set1_epi32(k[x]);
++			sss = _mm_add_epi32(sss, _mm_madd_epi16(pix, mmk));
++		}
++		sss = _mm_srai_epi32(sss, VIPS_INTERPOLATE_SHIFT);
++		sss = _mm_packs_epi32(sss, sss);
++		out[xx] = _mm_cvtsi128_si32(_mm_packus_epi16(sss, sss));
++	}
++}
++#endif /*defined(USE_AVX2)*/
+diff --git a/libvips/resample/reduce_sse41.c b/libvips/resample/reduce_sse41.c
+new file mode 100644
+index 00000000..1111111
+--- /dev/null
++++ b/libvips/resample/reduce_sse41.c
+@@ -0,0 +1,223 @@
++/* From: ResampleSIMDVerticalConv.c (Pillow-SIMD)
++ *
++ * 15/01/21 kleisauke
++ * 	- initial implementation
++ * 01/02/21 kleisauke
++ * 	- uint -> uchar
++ * 16/03/21 kleisauke
++ *	- split to avx2 and sse41 files
++ */
++
++#ifdef HAVE_CONFIG_H
++#include <config.h>
++#endif /*HAVE_CONFIG_H*/
++#include <vips/intl.h>
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <math.h>
++
++#include <vips/vips.h>
++#include <vips/simd.h>
++#include <vips/debug.h>
++#include <vips/internal.h>
++
++#include "presample_simd.h"
++
++#ifdef USE_SSE41
++#include <smmintrin.h>
++
++static __m128i inline
++mm_cvtepu8_epi32(const void *ptr) {
++	return _mm_cvtepu8_epi32(_mm_cvtsi32_si128(*(int *) ptr));
++}
++
++void
++vips_reduce_uchar_sse41( VipsPel *pout, const VipsPel *pin,
++	const int n, const int ne, const int lskip, const short *restrict k ) {
++	unsigned char* restrict out = (unsigned char *) pout;
++	const unsigned char* restrict in = (unsigned char *) pin;
++	const int l1 = lskip / sizeof( unsigned char );
++
++	int x;
++	int xx = 0;
++
++	__m128i initial = _mm_set1_epi32(1 << (VIPS_INTERPOLATE_SHIFT - 1));
++
++	for( ; xx < ne - 7; xx += 8 ) {
++		__m128i sss0 = initial;
++		__m128i sss1 = initial;
++		__m128i sss2 = initial;
++		__m128i sss3 = initial;
++		__m128i sss4 = initial;
++		__m128i sss5 = initial;
++		__m128i sss6 = initial;
++		__m128i sss7 = initial;
++		x = 0;
++		for( ; x < n - 1; x += 2 ) {
++			__m128i source, source1, source2;
++			__m128i pix, mmk;
++
++			// Load two coefficients at once
++			mmk = _mm_set1_epi32(*(int *) &k[x]);
++
++			source1 = _mm_loadu_si128(  // top line
++				(__m128i *) &in[x * l1 + xx]);
++			source2 = _mm_loadu_si128(  // bottom line
++				(__m128i *) &in[(x + 1) * l1 + xx]);
++
++			source = _mm_unpacklo_epi8(source1, source2);
++			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
++			sss0 = _mm_add_epi32(sss0, _mm_madd_epi16(pix, mmk));
++			pix = _mm_unpackhi_epi8(source, _mm_setzero_si128());
++			sss1 = _mm_add_epi32(sss1, _mm_madd_epi16(pix, mmk));
++
++			source = _mm_unpackhi_epi8(source1, source2);
++			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
++			sss2 = _mm_add_epi32(sss2, _mm_madd_epi16(pix, mmk));
++			pix = _mm_unpackhi_epi8(source, _mm_setzero_si128());
++			sss3 = _mm_add_epi32(sss3, _mm_madd_epi16(pix, mmk));
++
++			source1 = _mm_loadu_si128(  // top line
++				(__m128i *) &in[x * l1 + xx + 4]);
++			source2 = _mm_loadu_si128(  // bottom line
++				(__m128i *) &in[(x + 1) * l1 + xx + 4]);
++
++			source = _mm_unpacklo_epi8(source1, source2);
++			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
++			sss4 = _mm_add_epi32(sss4, _mm_madd_epi16(pix, mmk));
++			pix = _mm_unpackhi_epi8(source, _mm_setzero_si128());
++			sss5 = _mm_add_epi32(sss5, _mm_madd_epi16(pix, mmk));
++
++			source = _mm_unpackhi_epi8(source1, source2);
++			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
++			sss6 = _mm_add_epi32(sss6, _mm_madd_epi16(pix, mmk));
++			pix = _mm_unpackhi_epi8(source, _mm_setzero_si128());
++			sss7 = _mm_add_epi32(sss7, _mm_madd_epi16(pix, mmk));
++		}
++		for( ; x < n; x += 1 ) {
++			__m128i source, source1, pix, mmk;
++			mmk = _mm_set1_epi32(k[x]);
++
++			source1 = _mm_loadu_si128(  // top line
++				(__m128i *) &in[x * l1 + xx]);
++	
++			source = _mm_unpacklo_epi8(source1, _mm_setzero_si128());
++			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
++			sss0 = _mm_add_epi32(sss0, _mm_madd_epi16(pix, mmk));
++			pix = _mm_unpackhi_epi8(source, _mm_setzero_si128());
++			sss1 = _mm_add_epi32(sss1, _mm_madd_epi16(pix, mmk));
++
++			source = _mm_unpackhi_epi8(source1, _mm_setzero_si128());
++			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
++			sss2 = _mm_add_epi32(sss2, _mm_madd_epi16(pix, mmk));
++			pix = _mm_unpackhi_epi8(source, _mm_setzero_si128());
++			sss3 = _mm_add_epi32(sss3, _mm_madd_epi16(pix, mmk));
++
++			source1 = _mm_loadu_si128(  // top line
++				(__m128i *) &in[x * l1 + xx + 4]);
++
++			source = _mm_unpacklo_epi8(source1, _mm_setzero_si128());
++			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
++			sss4 = _mm_add_epi32(sss4, _mm_madd_epi16(pix, mmk));
++			pix = _mm_unpackhi_epi8(source, _mm_setzero_si128());
++			sss5 = _mm_add_epi32(sss5, _mm_madd_epi16(pix, mmk));
++
++			source = _mm_unpackhi_epi8(source1, _mm_setzero_si128());
++			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
++			sss6 = _mm_add_epi32(sss6, _mm_madd_epi16(pix, mmk));
++			pix = _mm_unpackhi_epi8(source, _mm_setzero_si128());
++			sss7 = _mm_add_epi32(sss7, _mm_madd_epi16(pix, mmk));
++		}
++		sss0 = _mm_srai_epi32(sss0, VIPS_INTERPOLATE_SHIFT);
++		sss1 = _mm_srai_epi32(sss1, VIPS_INTERPOLATE_SHIFT);
++		sss2 = _mm_srai_epi32(sss2, VIPS_INTERPOLATE_SHIFT);
++		sss3 = _mm_srai_epi32(sss3, VIPS_INTERPOLATE_SHIFT);
++		sss4 = _mm_srai_epi32(sss4, VIPS_INTERPOLATE_SHIFT);
++		sss5 = _mm_srai_epi32(sss5, VIPS_INTERPOLATE_SHIFT);
++		sss6 = _mm_srai_epi32(sss6, VIPS_INTERPOLATE_SHIFT);
++		sss7 = _mm_srai_epi32(sss7, VIPS_INTERPOLATE_SHIFT);
++
++		sss0 = _mm_packs_epi32(sss0, sss1);
++		sss2 = _mm_packs_epi32(sss2, sss3);
++		sss0 = _mm_packus_epi16(sss0, sss2);
++		_mm_storeu_si128((__m128i *) &out[xx], sss0);
++		sss4 = _mm_packs_epi32(sss4, sss5);
++		sss6 = _mm_packs_epi32(sss6, sss7);
++		sss4 = _mm_packus_epi16(sss4, sss6);
++		_mm_storeu_si128((__m128i *) &out[xx + 4], sss4);
++	}
++
++	for( ; xx < ne - 1; xx += 2 ) {
++		__m128i sss0 = initial;  // left row
++		__m128i sss1 = initial;  // right row
++		x = 0;
++		for( ; x < n - 1; x += 2 ) {
++			__m128i source, source1, source2;
++			__m128i pix, mmk;
++
++			// Load two coefficients at once
++			mmk = _mm_set1_epi32(*(int *) &k[x]);
++
++			source1 = _mm_loadl_epi64(  // top line
++				(__m128i *) &in[x * l1 + xx]);
++			source2 = _mm_loadl_epi64(  // bottom line
++				(__m128i *) &in[(x + 1) * l1 + xx]);
++
++			source = _mm_unpacklo_epi8(source1, source2);
++			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
++			sss0 = _mm_add_epi32(sss0, _mm_madd_epi16(pix, mmk));
++			pix = _mm_unpackhi_epi8(source, _mm_setzero_si128());
++			sss1 = _mm_add_epi32(sss1, _mm_madd_epi16(pix, mmk));
++		}
++		for( ; x < n; x += 1 ) {
++			__m128i source, source1, pix, mmk;
++			mmk = _mm_set1_epi32(k[x]);
++
++			source1 = _mm_loadl_epi64(  // top line
++				(__m128i *) &in[x * l1 + xx]);
++
++			source = _mm_unpacklo_epi8(source1, _mm_setzero_si128());
++			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
++			sss0 = _mm_add_epi32(sss0, _mm_madd_epi16(pix, mmk));
++			pix = _mm_unpackhi_epi8(source, _mm_setzero_si128());
++			sss1 = _mm_add_epi32(sss1, _mm_madd_epi16(pix, mmk));
++		}
++		sss0 = _mm_srai_epi32(sss0, VIPS_INTERPOLATE_SHIFT);
++		sss1 = _mm_srai_epi32(sss1, VIPS_INTERPOLATE_SHIFT);
++
++		sss0 = _mm_packs_epi32(sss0, sss1);
++		sss0 = _mm_packus_epi16(sss0, sss0);
++		_mm_storel_epi64((__m128i *) &out[xx], sss0);
++	}
++
++	for( ; xx < ne; xx++ ) {
++		__m128i sss = initial;
++		x = 0;
++		for( ; x < n - 1; x += 2 ) {
++			__m128i source, source1, source2;
++			__m128i pix, mmk;
++	
++			// Load two coefficients at once
++			mmk = _mm_set1_epi32(*(int *) &k[x]);
++
++			source1 = _mm_cvtsi32_si128(  // top line
++				*(int *) &in[x * l1 + xx]);
++			source2 = _mm_cvtsi32_si128(  // bottom line
++				*(int *) &in[(x + 1) * l1 + xx]);
++
++			source = _mm_unpacklo_epi8(source1, source2);
++			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
++			sss = _mm_add_epi32(sss, _mm_madd_epi16(pix, mmk));
++		}
++		for( ; x < n; x++ ) {
++			__m128i pix = mm_cvtepu8_epi32(&in[x * l1 + xx]);
++			__m128i mmk = _mm_set1_epi32(k[x]);
++			sss = _mm_add_epi32(sss, _mm_madd_epi16(pix, mmk));
++		}
++		sss = _mm_srai_epi32(sss, VIPS_INTERPOLATE_SHIFT);
++		sss = _mm_packs_epi32(sss, sss);
++		out[xx] = _mm_cvtsi128_si32(_mm_packus_epi16(sss, sss));
++	}
++}
++#endif /*defined(USE_SSE41)*/
+diff --git a/libvips/resample/reduceh.cpp b/libvips/resample/reduceh.cpp
+index 1111111..2222222 100644
+--- a/libvips/resample/reduceh.cpp
++++ b/libvips/resample/reduceh.cpp
+@@ -54,10 +54,12 @@
+ #include <math.h>
+ 
+ #include <vips/vips.h>
++#include <vips/simd.h>
+ #include <vips/debug.h>
+ #include <vips/internal.h>
+ 
+ #include "presample.h"
++#include "presample_simd.h"
+ #include "templates.h"
+ 
+ typedef struct _VipsReduceh {
+@@ -84,6 +86,10 @@ typedef struct _VipsReduceh {
+ 	int *matrixi[VIPS_TRANSFORM_SCALE + 1];
+ 	double *matrixf[VIPS_TRANSFORM_SCALE + 1];
+ 
++	/* And another set for SIMD.
++	 */
++	short *matrixs[VIPS_TRANSFORM_SCALE + 1];
++	
+ 	/* Deprecated.
+ 	 */
+ 	gboolean centre;
+@@ -348,15 +354,26 @@ vips_reduceh_gen( VipsRegion *out_region, void *seq,
+ 			const int sx = X * VIPS_TRANSFORM_SCALE * 2;
+ 			const int six = sx & (VIPS_TRANSFORM_SCALE * 2 - 1);
+ 			const int tx = (six + 1) >> 1;
++			const short *cxs = reduceh->matrixs[tx];
+ 			const int *cxi = reduceh->matrixi[tx];
+ 			const double *cxf = reduceh->matrixf[tx];
+ 
+ 			switch( in->BandFmt ) {
+ 			case VIPS_FORMAT_UCHAR:
++#ifdef USE_AVX2
++				vips_reduce_uchar_avx2(
++					q, p,
++					reduceh->n_point, bands, ps, cxs );
++#elif defined(USE_SSE41)
++				vips_reduce_uchar_sse41(
++					q, p,
++					reduceh->n_point, bands, ps, cxs );
++#else
+ 				reduceh_unsigned_int_tab
+ 					<unsigned char, UCHAR_MAX>(
+ 					reduceh,
+ 					q, p, bands, cxi );
++#endif
+ 				break;
+ 
+ 			case VIPS_FORMAT_CHAR:
+@@ -485,17 +502,22 @@ vips_reduceh_build( VipsObject *object )
+ 			VIPS_ARRAY( object, reduceh->n_point, double ); 
+ 		reduceh->matrixi[x] = 
+ 			VIPS_ARRAY( object, reduceh->n_point, int ); 
++		reduceh->matrixs[x] =
++			VIPS_ARRAY( object, reduceh->n_point, short );
+ 		if( !reduceh->matrixf[x] ||
+-			!reduceh->matrixi[x] )
++			!reduceh->matrixi[x] ||
++			!reduceh->matrixs[x] )
+ 			return( -1 ); 
+ 
+ 		vips_reduce_make_mask( reduceh->matrixf[x], 
+ 			reduceh->kernel, reduceh->hshrink, 
+ 			(float) x / VIPS_TRANSFORM_SCALE );
+ 
+-		for( int i = 0; i < reduceh->n_point; i++ )
++		for( int i = 0; i < reduceh->n_point; i++ ) {
+ 			reduceh->matrixi[x][i] = reduceh->matrixf[x][i] * 
+ 				VIPS_INTERPOLATE_SCALE;
++			reduceh->matrixs[x][i] = (short) reduceh->matrixi[x][i];
++		}
+ 
+ #ifdef DEBUG
+ 		printf( "vips_reduceh_build: mask %d\n    ", x );
+diff --git a/libvips/resample/reducev.cpp b/libvips/resample/reducev.cpp
+index 1111111..2222222 100644
+--- a/libvips/resample/reducev.cpp
++++ b/libvips/resample/reducev.cpp
+@@ -64,10 +64,12 @@
+ #include <math.h>
+ 
+ #include <vips/vips.h>
++#include <vips/simd.h>
+ #include <vips/debug.h>
+ #include <vips/internal.h>
+ 
+ #include "presample.h"
++#include "presample_simd.h"
+ #include "templates.h"
+ 
+ typedef struct _VipsReducev {
+@@ -94,6 +96,10 @@ typedef struct _VipsReducev {
+ 	int *matrixi[VIPS_TRANSFORM_SCALE + 1];
+ 	double *matrixf[VIPS_TRANSFORM_SCALE + 1];
+ 
++	/* And another set for SIMD.
++	 */
++	short *matrixs[VIPS_TRANSFORM_SCALE + 1];
++
+ 	/* Deprecated.
+ 	 */
+ 	gboolean centre;
+@@ -280,16 +286,27 @@ vips_reducev_gen( VipsRegion *out_region, void *seq,
+ 		const int sy = Y * VIPS_TRANSFORM_SCALE * 2;
+ 		const int siy = sy & (VIPS_TRANSFORM_SCALE * 2 - 1);
+ 		const int ty = (siy + 1) >> 1;
++	  	const short *cys = reducev->matrixs[ty];
+ 		const int *cyi = reducev->matrixi[ty];
+ 		const double *cyf = reducev->matrixf[ty];
+ 		const int lskip = VIPS_REGION_LSKIP( ir );
+ 
+ 		switch( in->BandFmt ) {
+ 		case VIPS_FORMAT_UCHAR:
++#ifdef USE_AVX2
++			vips_reduce_uchar_avx2(
++				q, p,
++				reducev->n_point, ne, lskip, cys );
++#elif defined(USE_SSE41)
++			vips_reduce_uchar_sse41(
++				q, p,
++				reducev->n_point, ne, lskip, cys );
++#else
+ 			reducev_unsigned_int_tab
+ 				<unsigned char, UCHAR_MAX>(
+ 				reducev,
+ 				q, p, ne, lskip, cyi );
++#endif
+ 			break;
+ 
+ 		case VIPS_FORMAT_CHAR:
+@@ -416,17 +433,22 @@ vips_reducev_build( VipsObject *object )
+ 			VIPS_ARRAY( object, reducev->n_point, double ); 
+ 		reducev->matrixi[y] = 
+ 			VIPS_ARRAY( object, reducev->n_point, int ); 
++		reducev->matrixs[y] =
++			VIPS_ARRAY( object, reducev->n_point, short );
+ 		if( !reducev->matrixf[y] ||
+-			!reducev->matrixi[y] )
++			!reducev->matrixi[y] ||
++			!reducev->matrixs[y] )
+ 			return( -1 ); 
+ 
+ 		vips_reduce_make_mask( reducev->matrixf[y],
+ 			reducev->kernel, reducev->vshrink, 
+ 			(float) y / VIPS_TRANSFORM_SCALE ); 
+ 
+-		for( int i = 0; i < reducev->n_point; i++ )
++		for( int i = 0; i < reducev->n_point; i++ ) {
+ 			reducev->matrixi[y][i] = reducev->matrixf[y][i] *
+ 				VIPS_INTERPOLATE_SCALE;
++			reducev->matrixs[y][i] = (short) reducev->matrixi[y][i];
++		}
+ 
+ #ifdef DEBUG
+ 		printf( "vips_reducev_build: mask %d\n    ", y );

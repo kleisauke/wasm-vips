@@ -70,7 +70,7 @@ if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 
 # Common compiler flags
 export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint"
-if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128"; fi
+if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"; fi
 if [ "$WASM_BIGINT" = "true" ]; then
   # libffi needs to detect WASM_BIGINT support at compile time
   export CFLAGS+=" -DWASM_BIGINT"
@@ -261,7 +261,7 @@ test -f "$TARGET/lib/pkgconfig/spng.pc" || (
   # TODO(kleisauke): Discuss this patch upstream
   patch -p1 <$SOURCE_DIR/build/patches/libspng-emscripten.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Dstatic_zlib=true ${DISABLE_SIMD:+-Denable_opt=false} ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse2"}
+    -Dstatic_zlib=true ${DISABLE_SIMD:+-Denable_opt=false} ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse4.1 -DSPNG_SSE=4"}
   ninja -C _build install
 )
 
@@ -308,14 +308,18 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
   # TODO(kleisauke): Discuss these patches upstream
+  patch -p1 <$SOURCE_DIR/build/patches/vips-simd.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-speed-up-getpoint.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-blob-copy-malloc.patch
+  # Prepend `-msimd128` to SSE flags, see: https://github.com/emscripten-core/emscripten/issues/12714
+  sed -i 's/-msse/-msimd128 &/g' configure.ac
   emconfigure ./autogen.sh --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-debug --disable-introspection --disable-deprecated --disable-modules --with-radiance --with-analyze --with-ppm \
     --with-nsgif --with-lcms --with-zlib --with-libexif --with-jpeg --with-libspng --with-png --with-tiff --with-libwebp \
     --without-fftw --without-pangocairo --without-fontconfig --without-imagequant --without-gsf --without-heif --without-pdfium \
     --without-poppler --without-rsvg --without-OpenEXR --without-libjxl --without-libopenjp2 --without-openslide --without-matio \
-    --without-nifti --without-cfitsio --without-magick
+    --without-nifti --without-cfitsio --without-magick --disable-avx2 \
+    ${DISABLE_SIMD:+--disable-sse4.1}
   make -C 'libvips' install
   make install-pkgconfigDATA
 )

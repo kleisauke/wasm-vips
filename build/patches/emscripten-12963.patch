@@ -9,7 +9,7 @@ diff --git a/src/library_pthread.js b/src/library_pthread.js
 index 1111111..2222222 100644
 --- a/src/library_pthread.js
 +++ b/src/library_pthread.js
-@@ -982,11 +982,6 @@ var LibraryPThread = {
+@@ -999,11 +999,6 @@ var LibraryPThread = {
      if (!ENVIRONMENT_IS_PTHREAD) _exit(status);
      else PThread.threadExit(status);
      // pthread_exit is marked noReturn, so we must not return from it.

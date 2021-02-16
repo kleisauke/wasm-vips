@@ -1,8 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 14:00:00 +0200
-Subject: [PATCH 1/8] Revert "Meson: Extract objects from convenience libraries to
- link them"
+Subject: [PATCH 1/9] Revert "Meson: Extract objects from convenience libraries
+ to link them"
 
 This reverts commit 62af03bda8a1d649b079a0e77d3687695d0ab7d3.
 
@@ -13,7 +13,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -337,12 +337,6 @@ local_sources = files(
+@@ -340,12 +340,6 @@ local_sources = files(
  
  platform_deps = []
  internal_deps = []
@@ -26,7 +26,7 @@ index 1111111..2222222 100644
  appinfo_sources = []
  contenttype_sources = []
  portal_sources = []
-@@ -413,7 +407,6 @@ if host_system != 'windows'
+@@ -417,7 +411,6 @@ if host_system != 'windows'
  
    subdir('xdgmime')
    internal_deps += [xdgmime_lib]
@@ -34,7 +34,7 @@ index 1111111..2222222 100644
  
    install_headers(gio_unix_include_headers, subdir : 'gio-unix-2.0/gio')
  
-@@ -749,20 +742,17 @@ gioenumtypes_dep = declare_dependency(sources : [gioenumtypes_h, glib_enumtypes_
+@@ -753,20 +746,17 @@ gioenumtypes_dep = declare_dependency(sources : [gioenumtypes_h, glib_enumtypes_
  if glib_conf.has('HAVE_SYS_INOTIFY_H') and have_func_inotify_init1
    subdir('inotify')
    internal_deps += [ inotify_lib ]
@@ -55,7 +55,7 @@ index 1111111..2222222 100644
  endif
  
  if have_bash
-@@ -787,12 +777,12 @@ endif
+@@ -802,12 +792,12 @@ endif
  libgio = library('gio-2.0',
    gioenumtypes_h, gioenumtypes_c, gnetworking_h, gio_sources,
    gio_dtrace_hdr, gio_dtrace_obj,
@@ -130,9 +130,9 @@ index 1111111..2222222 100644
    # intl.lib is not compatible with SAFESEH
    link_args : [noseh_link_args, glib_link_flags, win32_ldflags],
    include_directories : configinc,
--  dependencies : pcre_deps + [thread_dep, librt] + libintl_deps + libiconv + platform_deps + gnulib_libm_dependency + [libsysprof_capture_dep],
+-  dependencies : pcre_deps + [thread_dep, librt] + libintl_deps + libiconv + platform_deps + [gnulib_libm_dependency, libm] + [libsysprof_capture_dep],
 +  link_with : [charset_lib, gnulib_lib],
-+  dependencies : [pcre, thread_dep, librt] + libintl_deps + libiconv + platform_deps + [libsysprof_capture_dep],
++  dependencies : [pcre, thread_dep, librt] + libintl_deps + libiconv + platform_deps + [libm, libsysprof_capture_dep],
    c_args : glib_c_args,
    objc_args : glib_c_args,
  )
@@ -151,7 +151,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -784,7 +784,7 @@ libgio = library('gio-2.0',
+@@ -799,7 +799,7 @@ libgio = library('gio-2.0',
    include_directories : [configinc, gioinc],
    link_with : internal_deps,
    #  '$(gio_win32_res_ldflag)',
@@ -187,7 +187,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1792,7 +1792,7 @@ atomicdefine = '''
+@@ -1809,7 +1809,7 @@ atomicdefine = '''
  # We know that we can always use real ("lock free") atomic operations with MSVC
  if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
    have_atomic_lock_free = true
@@ -208,7 +208,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -625,7 +625,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
+@@ -631,7 +631,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
  endif
  
  # Check that posix_spawn() is usable; must use header
@@ -249,7 +249,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -408,7 +408,7 @@ foreach m : struct_members
+@@ -413,7 +413,7 @@ foreach m : struct_members
  endforeach
  
  # Compiler flags
@@ -258,7 +258,7 @@ index 1111111..2222222 100644
    warning_c_args = [
      '-Wduplicated-branches',
      '-Wimplicit-fallthrough',
-@@ -1442,13 +1442,13 @@ g_sizet_compatibility = {
+@@ -1452,13 +1452,13 @@ g_sizet_compatibility = {
    'long long': sizet_size == long_long_size,
  }
  
@@ -636,7 +636,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -895,100 +895,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
+@@ -910,101 +910,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
      output : ['gconstructor_as_data.h'],
      command : [python, '@INPUT0@', '@INPUT1@', 'gconstructor_code', '@OUTPUT@'])
  
@@ -704,6 +704,7 @@ index 1111111..2222222 100644
 -if not meson.is_cross_build()
 -  meson.override_find_program('glib-compile-schemas', glib_compile_schemas)
 -  meson.override_find_program('glib-compile-resources', glib_compile_resources)
+-  meson.override_find_program('gio-querymodules', gio_querymodules)
 -endif
 -
 -executable('gsettings', 'gsettings-tool.c',
@@ -769,7 +770,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -2300,7 +2300,6 @@ subdir('gobject')
+@@ -2318,7 +2318,6 @@ subdir('gobject')
  subdir('gthread')
  subdir('gmodule')
  subdir('gio')

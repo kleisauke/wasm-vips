@@ -91,7 +91,7 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Wait for https://github.com/libvips/libvips/pull/1709 instead.
 VERSION_ZLIBNG=2.0.0-RC2
 VERSION_FFI=3.3
-VERSION_GLIB=2.67.2
+VERSION_GLIB=2.67.3
 VERSION_EXPAT=2.2.10
 VERSION_EXIF=0.6.22
 VERSION_LCMS2=2.11
@@ -132,7 +132,7 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
 
   # Need to rebuild libembind, libc, libdlmalloc and libemmalloc,
   # since we modified it with the patches above
-  embuilder.py build libembind libc-mt libdlmalloc-mt{,-debug} libemmalloc-mt{,-64bit} --force $LTO_FLAG
+  embuilder.py build libembind libc-mt libdlmalloc-mt{,-debug} libemmalloc-mt{,-debug} --force $LTO_FLAG
 
   # The system headers require to be reinstalled, as some of
   # them have also been changed with the patches above
@@ -315,6 +315,8 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/vips-blob-copy-malloc.patch
   # https://github.com/libvips/libvips/pull/1949
   patch -p1 <$SOURCE_DIR/build/patches/vips-disable-libpng-read.patch
+  # https://github.com/libvips/libvips/issues/1987
+  patch -p1 <$SOURCE_DIR/build/patches/vips-1987.patch
   # TODO(kleisauke): https://github.com/libvips/libvips/issues/1492
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch

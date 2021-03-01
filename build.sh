@@ -91,7 +91,7 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Wait for https://github.com/libvips/libvips/pull/1709 instead.
 VERSION_ZLIBNG=2.0.0-RC2
 VERSION_FFI=3.3
-VERSION_GLIB=2.67.3
+VERSION_GLIB=2.67.4
 VERSION_EXPAT=2.2.10
 VERSION_EXIF=0.6.22
 VERSION_LCMS2=2.11

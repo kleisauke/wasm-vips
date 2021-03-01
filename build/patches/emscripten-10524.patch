@@ -25,6 +25,8 @@ Following problems are addressed:
 
 Signed-off-by: Adam Bujalski <abujalski@gmail.com>
 
+Upstream-Status: Accepted [https://github.com/emscripten-core/emscripten/commit/30592516833fe9fafa4020f5a8b2e5273c7dc052]
+
 diff --git a/src/library_pthread.js b/src/library_pthread.js
 index 1111111..2222222 100644
 --- a/src/library_pthread.js
@@ -79,10 +81,11 @@ index 1111111..2222222 100644
 -        Atomics.store(HEAPU32, (tb + {{{ C_STRUCTS.pthread.canceldisable }}} ) >> 2, 1/*PTHREAD_CANCEL_DISABLE*/);
 -        Atomics.store(HEAPU32, (tb + {{{ C_STRUCTS.pthread.cancelasync }}} ) >> 2, 0/*PTHREAD_CANCEL_DEFERRED*/);
 -        PThread.runExitHandlers();
-+        PThread.runExitHandlersAndDeinitThread(tb, exitCode);
- 
+-
 -        _emscripten_futex_wake(tb + {{{ C_STRUCTS.pthread.threadStatus }}}, {{{ cDefine('INT_MAX') }}});
 -        __emscripten_thread_init(0, 0, 0); // Unregister the thread block also inside the asm.js scope.
++        PThread.runExitHandlersAndDeinitThread(tb, exitCode);
++
          if (ENVIRONMENT_IS_PTHREAD) {
            // Note: in theory we would like to return any offscreen canvases back to the main thread,
            // but if we ever fetched a rendering context for them that would not be valid, so we don't try.

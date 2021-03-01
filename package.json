@@ -28,8 +28,8 @@
     "bench": "npm run bench:node"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^8.2.1",
+    "chai": "^4.3.0",
+    "mocha": "^8.3.0",
     "serve": "^11.3.2"
   }
 }

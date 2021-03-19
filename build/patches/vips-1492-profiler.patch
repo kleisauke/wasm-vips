@@ -10,7 +10,7 @@ diff --git a/libvips/iofuncs/threadpool.c b/libvips/iofuncs/threadpool.c
 index 1111111..2222222 100644
 --- a/libvips/iofuncs/threadpool.c
 +++ b/libvips/iofuncs/threadpool.c
-@@ -82,6 +82,10 @@
+@@ -81,6 +81,10 @@
  #include <windows.h>
  #endif /*OS_WIN32*/
  
@@ -21,7 +21,7 @@ index 1111111..2222222 100644
  /**
   * SECTION: threadpool
   * @short_description: pools of worker threads 
-@@ -226,6 +231,10 @@ vips_thread_main_loop( gpointer data, gpointer user_data )
+@@ -234,6 +239,10 @@ vips_thread_main_loop( gpointer thread_data, gpointer pool_data )
  	if( vips__thread_profile ) 
  		vips__thread_profile_attach( exec->name );
  
@@ -29,6 +29,6 @@ index 1111111..2222222 100644
 +	emscripten_set_thread_name( pthread_self(), exec->name );
 +#endif
 +
- 	exec->func( exec->data, user_data );
+ 	exec->func( exec->data, pool_data );
  
  	g_free( exec ); 

@@ -13,7 +13,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -340,12 +340,6 @@ local_sources = files(
+@@ -341,12 +341,6 @@ local_sources = files(
  
  platform_deps = []
  internal_deps = []
@@ -26,7 +26,7 @@ index 1111111..2222222 100644
  appinfo_sources = []
  contenttype_sources = []
  portal_sources = []
-@@ -417,7 +411,6 @@ if host_system != 'windows'
+@@ -418,7 +412,6 @@ if host_system != 'windows'
  
    subdir('xdgmime')
    internal_deps += [xdgmime_lib]
@@ -34,7 +34,7 @@ index 1111111..2222222 100644
  
    install_headers(gio_unix_include_headers, subdir : 'gio-unix-2.0/gio')
  
-@@ -753,20 +746,17 @@ gioenumtypes_dep = declare_dependency(sources : [gioenumtypes_h, glib_enumtypes_
+@@ -754,20 +747,17 @@ gioenumtypes_dep = declare_dependency(sources : [gioenumtypes_h, glib_enumtypes_
  if glib_conf.has('HAVE_SYS_INOTIFY_H') and have_func_inotify_init1
    subdir('inotify')
    internal_deps += [ inotify_lib ]
@@ -55,7 +55,7 @@ index 1111111..2222222 100644
  endif
  
  if have_bash
-@@ -802,12 +792,12 @@ endif
+@@ -803,12 +793,12 @@ endif
  libgio = library('gio-2.0',
    gioenumtypes_h, gioenumtypes_c, gnetworking_h, gio_sources,
    gio_dtrace_hdr, gio_dtrace_obj,
@@ -151,7 +151,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -799,7 +799,7 @@ libgio = library('gio-2.0',
+@@ -800,7 +800,7 @@ libgio = library('gio-2.0',
    include_directories : [configinc, gioinc],
    link_with : internal_deps,
    #  '$(gio_win32_res_ldflag)',
@@ -187,7 +187,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1809,7 +1809,7 @@ atomicdefine = '''
+@@ -1815,7 +1815,7 @@ atomicdefine = '''
  # We know that we can always use real ("lock free") atomic operations with MSVC
  if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
    have_atomic_lock_free = true
@@ -208,7 +208,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -631,7 +631,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
+@@ -637,7 +637,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
  endif
  
  # Check that posix_spawn() is usable; must use header
@@ -228,7 +228,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -33,7 +33,7 @@ endif
+@@ -34,7 +34,7 @@ endif
  
  network_libs = [ ]
  network_args = [ ]
@@ -249,7 +249,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -413,7 +413,7 @@ foreach m : struct_members
+@@ -419,7 +419,7 @@ foreach m : struct_members
  endforeach
  
  # Compiler flags
@@ -258,7 +258,7 @@ index 1111111..2222222 100644
    warning_c_args = [
      '-Wduplicated-branches',
      '-Wimplicit-fallthrough',
-@@ -1452,13 +1452,13 @@ g_sizet_compatibility = {
+@@ -1458,13 +1458,13 @@ g_sizet_compatibility = {
    'long long': sizet_size == long_long_size,
  }
  
@@ -636,7 +636,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -910,101 +910,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
+@@ -911,101 +911,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
      output : ['gconstructor_as_data.h'],
      command : [python, '@INPUT0@', '@INPUT1@', 'gconstructor_code', '@OUTPUT@'])
  
@@ -684,7 +684,7 @@ index 1111111..2222222 100644
 -  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
 -
 -glib_compile_schemas = executable('glib-compile-schemas',
--  [gconstructor_as_data_h, 'gvdb/gvdb-builder.c', 'glib-compile-schemas.c'],
+-  ['gvdb/gvdb-builder.c', 'glib-compile-schemas.c'],
 -  install : true,
 -  # intl.lib is not compatible with SAFESEH
 -  link_args : noseh_link_args,
@@ -770,7 +770,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -2318,7 +2318,6 @@ subdir('gobject')
+@@ -2330,7 +2330,6 @@ subdir('gobject')
  subdir('gthread')
  subdir('gmodule')
  subdir('gio')

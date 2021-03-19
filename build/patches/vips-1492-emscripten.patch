@@ -626,8 +626,8 @@ index 1111111..2222222 100644
 -	}
 -
 -	/* We are exiting: tell the main thread.
--	  */
--	 vips_semaphore_up( &render_finish );
+-	 */
+-	vips_semaphore_up( &render_finish );
 -}
 -
 -static void *
@@ -729,7 +729,7 @@ diff --git a/libvips/iofuncs/threadpool.c b/libvips/iofuncs/threadpool.c
 index 1111111..2222222 100644
 --- a/libvips/iofuncs/threadpool.c
 +++ b/libvips/iofuncs/threadpool.c
-@@ -121,6 +121,11 @@ int vips__thinstrip_height = VIPS__THINSTRIP_HEIGHT;
+@@ -120,6 +120,11 @@ int vips__thinstrip_height = VIPS__THINSTRIP_HEIGHT;
   */
  int vips__concurrency = 0;
  
@@ -741,7 +741,7 @@ index 1111111..2222222 100644
  /* Set this GPrivate to indicate that this is a vips worker.
   */
  static GPrivate *is_worker_key = NULL;
-@@ -129,6 +134,11 @@ static GPrivate *is_worker_key = NULL;
+@@ -128,6 +133,11 @@ static GPrivate *is_worker_key = NULL;
   */
  static gboolean vips__stall = FALSE;
  
@@ -753,7 +753,7 @@ index 1111111..2222222 100644
  /* The thread pool we'll use.
   */
  static GThreadPool *vips__pool = NULL;
-@@ -376,6 +386,10 @@ vips_concurrency_set( int concurrency )
+@@ -372,6 +382,10 @@ vips_concurrency_set( int concurrency )
  	}
  
  	vips__concurrency = concurrency;
@@ -764,7 +764,7 @@ index 1111111..2222222 100644
  }
  
  /**
-@@ -909,11 +923,15 @@ vips__threadpool_init( void )
+@@ -896,11 +910,15 @@ vips__threadpool_init( void )
  	if( g_getenv( "VIPS_STALL" ) )
  		vips__stall = TRUE;
  

@@ -17,9 +17,6 @@ cd emsdk
 # Fetch the latest version of the emsdk (not needed the first time you clone)
 git pull
 
-# Update the list of Emscripten tagged releases
-./emsdk update-tags
-
 # Download and install the "tip-of-tree" build (i.e. the very latest binaries)
 ./emsdk install tot
 

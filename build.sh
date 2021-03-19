@@ -89,9 +89,9 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 # TODO(kleisauke): GIF support is currently missing, giflib abandoned autotools which makes compilation difficult
 # Wait for https://github.com/libvips/libvips/pull/1709 instead.
-VERSION_ZLIBNG=2.0.0-RC2
+VERSION_ZLIBNG=2.0.1
 VERSION_FFI=3.3
-VERSION_GLIB=2.67.4
+VERSION_GLIB=2.68.0
 VERSION_EXPAT=2.2.10
 VERSION_EXIF=0.6.22
 VERSION_LCMS2=2.11
@@ -100,7 +100,7 @@ VERSION_PNG16=1.6.37
 VERSION_SPNG=0.6.2
 VERSION_WEBP=1.2.0
 VERSION_TIFF=4.2.0
-VERSION_VIPS=8.10.5
+VERSION_VIPS=8.10.6
 
 # Remove patch version component
 without_patch() {
@@ -120,9 +120,6 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-auto-deletelater.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-vector-as-js-array.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-allow-block-main-thread.patch
-
-  # https://github.com/emscripten-core/emscripten/pull/10524
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-10524.patch
 
   # https://github.com/emscripten-core/emscripten/pull/10110
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-10110.patch
@@ -149,7 +146,7 @@ echo "Compiling zlib-ng"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/zlib.pc" || (
   mkdir $DEPS/zlib-ng
-  curl -Ls https://github.com/zlib-ng/zlib-ng/archive/v$VERSION_ZLIBNG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
+  curl -Ls https://github.com/zlib-ng/zlib-ng/archive/$VERSION_ZLIBNG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
   cd $DEPS/zlib-ng
   # SSE intrinsics needs to be checked for wasm32
   sed -i 's/|\s*x86_64/& | wasm32/g' configure
@@ -305,7 +302,7 @@ echo "Compiling vips"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   mkdir $DEPS/vips
-  curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$VERSION_VIPS.tar.gz | tar xzC $DEPS/vips --strip-components=1
+  curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS-beta2/vips-$VERSION_VIPS.tar.gz | tar xzC $DEPS/vips --strip-components=1
   #curl -Ls https://github.com/libvips/libvips/tarball/$VERSION_VIPS | tar xzC $DEPS/vips --strip-components=1
   cd $DEPS/vips
   # Emscripten specific patches
@@ -313,10 +310,6 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   # TODO(kleisauke): Discuss these patches upstream
   patch -p1 <$SOURCE_DIR/build/patches/vips-speed-up-getpoint.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-blob-copy-malloc.patch
-  # https://github.com/libvips/libvips/pull/1949
-  patch -p1 <$SOURCE_DIR/build/patches/vips-disable-libpng-read.patch
-  # https://github.com/libvips/libvips/issues/1987
-  patch -p1 <$SOURCE_DIR/build/patches/vips-1987.patch
   # TODO(kleisauke): https://github.com/libvips/libvips/issues/1492
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch

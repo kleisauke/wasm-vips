@@ -25,9 +25,6 @@ ENVIRONMENT="web,node"
 # Single Instruction Multiple Data (SIMD), disabled by default
 SIMD=false
 
-# Support for v128.const which was only recently implemented in V8, disabled by default
-EXPERIMENTAL_SIMD=false
-
 # Link-time optimizations (LTO), disabled by default
 # https://github.com/emscripten-core/emscripten/issues/10603
 LTO_FLAG=
@@ -39,7 +36,6 @@ WASM_BIGINT_FLAG=
 while [ $# -gt 0 ]; do
   case $1 in
     --enable-simd) SIMD=true ;;
-    --enable-experimental-simd) SIMD=true EXPERIMENTAL_SIMD=true ;;
     --enable-lto) LTO_FLAG=--lto ;;
     --enable-wasm-bigint) WASM_BIGINT_FLAG="-s WASM_BIGINT" ;;
     -e|--environment) ENVIRONMENT="$2"; shift ;;
@@ -70,7 +66,6 @@ fi
 # Common compiler flags
 export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint"
 if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128"; fi
-if [ "$EXPERIMENTAL_SIMD" = "true" ]; then export CFLAGS+=" -munimplemented-simd128"; fi
 if [ -n "$LTO_FLAG" ]; then export CFLAGS+=" -flto"; fi
 if [ -n "$WASM_BIGINT_FLAG" ]; then export CFLAGS+=" -DWASM_BIGINT"; fi
 export CXXFLAGS="$CFLAGS"

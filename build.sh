@@ -51,17 +51,17 @@ else
 fi
 
 # Handy for debugging
-#export CFLAGS="-O0 -g4"
+#export CFLAGS="-O0 -gsource-map"
 #export CXXFLAGS="$CFLAGS"
-#export LDFLAGS="-L$TARGET/lib -O0"
-#export EMMAKEN_CFLAGS="--source-map-base http://localhost:5000/lib/"
+#export LDFLAGS="-L$TARGET/lib -O0 -gsource-map"
+#export EMMAKEN_CFLAGS="--source-map-base http://localhost:5000/lib/web/"
 #export EMCC_DEBUG="1"
 
 # Handy for catching bugs
-#export CFLAGS="-Os -g4 -fsanitize=address"
+#export CFLAGS="-Os -gsource-map -fsanitize=address"
 #export CXXFLAGS="$CFLAGS"
-#export LDFLAGS="-L$TARGET/lib -Os -g4 -fsanitize=address"
-#export EMMAKEN_CFLAGS="-s INITIAL_MEMORY=64MB --source-map-base http://localhost:5000/lib/"
+#export LDFLAGS="-L$TARGET/lib -Os -gsource-map -fsanitize=address"
+#export EMMAKEN_CFLAGS="-s INITIAL_MEMORY=64MB --source-map-base http://localhost:5000/lib/web/"
 
 # Common compiler flags
 export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint"
@@ -86,15 +86,15 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Wait for https://github.com/libvips/libvips/pull/1709 instead.
 VERSION_ZLIBNG=2.0.2
 VERSION_FFI=3.3
-VERSION_GLIB=2.68.0
+VERSION_GLIB=2.68.1
 VERSION_EXPAT=2.3.0
 VERSION_EXIF=0.6.22
 VERSION_LCMS2=2.11
-VERSION_JPEG=2.0.6
+VERSION_JPEG=2.1.0
 VERSION_PNG16=1.6.37
-VERSION_SPNG=0.6.2
+VERSION_SPNG=0.6.3
 VERSION_WEBP=1.2.0
-VERSION_TIFF=4.2.0
+VERSION_TIFF=4.3.0
 VERSION_VIPS=8.10.6
 
 # Remove patch version component

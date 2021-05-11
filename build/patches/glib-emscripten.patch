@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 14:00:00 +0200
-Subject: [PATCH 1/9] Revert "Meson: Extract objects from convenience libraries
+Subject: [PATCH 1/10] Revert "Meson: Extract objects from convenience libraries
  to link them"
 
 This reverts commit 62af03bda8a1d649b079a0e77d3687695d0ab7d3.
@@ -140,7 +140,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 30 Sep 2020 14:00:00 +0200
-Subject: [PATCH 2/9] Explicitly link gio and gobject against pthread
+Subject: [PATCH 2/10] Explicitly link gio and gobject against pthread
 
 To ensure that the compiled code uses the "atomics" target feature of WASM.
 
@@ -177,7 +177,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:00:00 +0200
-Subject: [PATCH 3/9] LLVM doesn't define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
+Subject: [PATCH 3/10] LLVM doesn't define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
 
 See: https://bugs.llvm.org/show_bug.cgi?id=11174
 
@@ -200,7 +200,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:20:00 +0200
-Subject: [PATCH 4/9] posix_spawn isn't usable in WASM
+Subject: [PATCH 4/10] posix_spawn isn't usable in WASM
 
 Upstream-Status: Pending
 
@@ -220,7 +220,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:40:00 +0200
-Subject: [PATCH 5/9] Network libs are not available in WASM
+Subject: [PATCH 5/10] Network libs are not available in WASM
 
 Upstream-Status: Pending
 
@@ -241,7 +241,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 22 Apr 2020 12:11:28 +0200
-Subject: [PATCH 6/9] Ensure separate checks are also done for Emscripten
+Subject: [PATCH 6/10] Ensure separate checks are also done for Emscripten
 
 Upstream-Status: Pending
 
@@ -279,7 +279,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Fri, 20 Sep 2019 16:05:00 +0200
-Subject: [PATCH 7/9] Fix function pointer cast issues
+Subject: [PATCH 7/10] Fix function pointer cast issues
 
 It is undefined behavior in C and C++ to cast a function pointer
 to another type and call it that way. This does work in most native
@@ -304,12 +304,13 @@ index 1111111..2222222 100644
  static void	g_object_init				(GObject	*object,
  							 GObjectClass	*class);
  static GObject*	g_object_constructor			(GType                  type,
-@@ -496,7 +497,7 @@ g_object_base_class_finalize (GObjectClass *class)
+@@ -496,7 +497,8 @@ g_object_base_class_finalize (GObjectClass *class)
  }
  
  static void
 -g_object_do_class_init (GObjectClass *class)
-+g_object_do_class_init (GObjectClass *class, gpointer dummy)
++g_object_do_class_init (GObjectClass *class,
++                        gpointer      dummy)
  {
    /* read the comment about typedef struct CArray; on why not to change this quark */
    quark_closure_array = g_quark_from_static_string ("GObject-closure-array");
@@ -323,209 +324,231 @@ index 1111111..2222222 100644
    guint16         n_preallocs;                                 /* optional */
 -  void		(*instance_init)	(GParamSpec   *pspec); /* optional */
 +  void		(*instance_init)	(GParamSpec   *pspec,  /* optional */
-+						 gpointer      data);
++                                        gpointer      data);
  
    /* class portion */
-   GType           value_type;				       /* obligatory */
+   GType           value_type;				       /
 diff --git a/gobject/gparamspecs.c b/gobject/gparamspecs.c
 index 1111111..2222222 100644
 --- a/gobject/gparamspecs.c
 +++ b/gobject/gparamspecs.c
-@@ -61,7 +61,7 @@
+@@ -61,7 +61,8 @@
  
  /* --- param spec functions --- */
  static void
 -param_char_init (GParamSpec *pspec)
-+param_char_init (GParamSpec *pspec, gpointer dummy)
++param_char_init (GParamSpec *pspec,
++                 gpointer    dummy)
  {
    GParamSpecChar *cspec = G_PARAM_SPEC_CHAR (pspec);
    
-@@ -90,7 +90,7 @@ param_char_validate (GParamSpec *pspec,
+@@ -90,7 +91,8 @@ param_char_validate (GParamSpec *pspec,
  }
  
  static void
 -param_uchar_init (GParamSpec *pspec)
-+param_uchar_init (GParamSpec *pspec, gpointer dummy)
++param_uchar_init (GParamSpec *pspec,
++                  gpointer    dummy)
  {
    GParamSpecUChar *uspec = G_PARAM_SPEC_UCHAR (pspec);
    
-@@ -137,7 +137,7 @@ param_boolean_validate (GParamSpec *pspec,
+@@ -137,7 +139,8 @@ param_boolean_validate (GParamSpec *pspec,
  }
  
  static void
 -param_int_init (GParamSpec *pspec)
-+param_int_init (GParamSpec *pspec, gpointer dummy)
++param_int_init (GParamSpec *pspec,
++                gpointer    dummy)
  {
    GParamSpecInt *ispec = G_PARAM_SPEC_INT (pspec);
    
-@@ -177,7 +177,7 @@ param_int_values_cmp (GParamSpec   *pspec,
+@@ -177,7 +180,8 @@ param_int_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_uint_init (GParamSpec *pspec)
-+param_uint_init (GParamSpec *pspec, gpointer dummy)
++param_uint_init (GParamSpec *pspec,
++                 gpointer    dummy)
  {
    GParamSpecUInt *uspec = G_PARAM_SPEC_UINT (pspec);
    
-@@ -217,7 +217,7 @@ param_uint_values_cmp (GParamSpec   *pspec,
+@@ -217,7 +221,8 @@ param_uint_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_long_init (GParamSpec *pspec)
-+param_long_init (GParamSpec *pspec, gpointer dummy)
++param_long_init (GParamSpec *pspec,
++                 gpointer    dummy)
  {
    GParamSpecLong *lspec = G_PARAM_SPEC_LONG (pspec);
    
-@@ -262,7 +262,7 @@ param_long_values_cmp (GParamSpec   *pspec,
+@@ -262,7 +267,8 @@ param_long_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_ulong_init (GParamSpec *pspec)
-+param_ulong_init (GParamSpec *pspec, gpointer dummy)
++param_ulong_init (GParamSpec *pspec,
++                  gpointer    dummy)
  {
    GParamSpecULong *uspec = G_PARAM_SPEC_ULONG (pspec);
    
-@@ -306,7 +306,7 @@ param_ulong_values_cmp (GParamSpec   *pspec,
+@@ -306,7 +312,8 @@ param_ulong_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_int64_init (GParamSpec *pspec)
-+param_int64_init (GParamSpec *pspec, gpointer dummy)
++param_int64_init (GParamSpec *pspec,
++                  gpointer    dummy)
  {
    GParamSpecInt64 *lspec = G_PARAM_SPEC_INT64 (pspec);
    
-@@ -346,7 +346,7 @@ param_int64_values_cmp (GParamSpec   *pspec,
+@@ -346,7 +353,8 @@ param_int64_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_uint64_init (GParamSpec *pspec)
-+param_uint64_init (GParamSpec *pspec, gpointer dummy)
++param_uint64_init (GParamSpec *pspec,
++                   gpointer    dummy)
  {
    GParamSpecUInt64 *uspec = G_PARAM_SPEC_UINT64 (pspec);
    
-@@ -386,7 +386,7 @@ param_uint64_values_cmp (GParamSpec   *pspec,
+@@ -386,7 +394,8 @@ param_uint64_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_unichar_init (GParamSpec *pspec)
-+param_unichar_init (GParamSpec *pspec, gpointer dummy)
++param_unichar_init (GParamSpec *pspec,
++                    gpointer    dummy)
  {
    GParamSpecUnichar *uspec = G_PARAM_SPEC_UNICHAR (pspec);
    
-@@ -428,7 +428,7 @@ param_unichar_values_cmp (GParamSpec   *pspec,
+@@ -428,7 +437,8 @@ param_unichar_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_enum_init (GParamSpec *pspec)
-+param_enum_init (GParamSpec *pspec, gpointer dummy)
++param_enum_init (GParamSpec *pspec,
++                 gpointer    dummy)
  {
    GParamSpecEnum *espec = G_PARAM_SPEC_ENUM (pspec);
    
-@@ -473,7 +473,7 @@ param_enum_validate (GParamSpec *pspec,
+@@ -473,7 +483,8 @@ param_enum_validate (GParamSpec *pspec,
  }
  
  static void
 -param_flags_init (GParamSpec *pspec)
-+param_flags_init (GParamSpec *pspec, gpointer dummy)
++param_flags_init (GParamSpec *pspec,
++                  gpointer    dummy)
  {
    GParamSpecFlags *fspec = G_PARAM_SPEC_FLAGS (pspec);
    
-@@ -519,7 +519,7 @@ param_flags_validate (GParamSpec *pspec,
+@@ -519,7 +530,8 @@ param_flags_validate (GParamSpec *pspec,
  }
  
  static void
 -param_float_init (GParamSpec *pspec)
-+param_float_init (GParamSpec *pspec, gpointer dummy)
++param_float_init (GParamSpec *pspec,
++                  gpointer    dummy)
  {
    GParamSpecFloat *fspec = G_PARAM_SPEC_FLOAT (pspec);
    
-@@ -562,7 +562,7 @@ param_float_values_cmp (GParamSpec   *pspec,
+@@ -562,7 +574,8 @@ param_float_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_double_init (GParamSpec *pspec)
-+param_double_init (GParamSpec *pspec, gpointer dummy)
++param_double_init (GParamSpec *pspec,
++                   gpointer    dummy)
  {
    GParamSpecDouble *dspec = G_PARAM_SPEC_DOUBLE (pspec);
    
-@@ -605,7 +605,7 @@ param_double_values_cmp (GParamSpec   *pspec,
+@@ -605,7 +618,8 @@ param_double_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_string_init (GParamSpec *pspec)
-+param_string_init (GParamSpec *pspec, gpointer dummy)
++param_string_init (GParamSpec *pspec,
++                   gpointer    dummy)
  {
    GParamSpecString *sspec = G_PARAM_SPEC_STRING (pspec);
    
-@@ -713,7 +713,7 @@ param_string_values_cmp (GParamSpec   *pspec,
+@@ -713,7 +727,8 @@ param_string_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_param_init (GParamSpec *pspec)
-+param_param_init (GParamSpec *pspec, gpointer dummy)
++param_param_init (GParamSpec *pspec,
++                  gpointer    dummy)
  {
    /* GParamSpecParam *spec = G_PARAM_SPEC_PARAM (pspec); */
  }
-@@ -744,7 +744,7 @@ param_param_validate (GParamSpec *pspec,
+@@ -744,7 +759,8 @@ param_param_validate (GParamSpec *pspec,
  }
  
  static void
 -param_boxed_init (GParamSpec *pspec)
-+param_boxed_init (GParamSpec *pspec, gpointer dummy)
++param_boxed_init (GParamSpec *pspec,
++                  gpointer    dummy)
  {
    /* GParamSpecBoxed *bspec = G_PARAM_SPEC_BOXED (pspec); */
  }
-@@ -782,7 +782,7 @@ param_boxed_values_cmp (GParamSpec    *pspec,
+@@ -782,7 +798,8 @@ param_boxed_values_cmp (GParamSpec    *pspec,
  }
  
  static void
 -param_pointer_init (GParamSpec *pspec)
-+param_pointer_init (GParamSpec *pspec, gpointer dummy)
++param_pointer_init (GParamSpec *pspec,
++                    gpointer    dummy)
  {
    /* GParamSpecPointer *spec = G_PARAM_SPEC_POINTER (pspec); */
  }
-@@ -818,7 +818,7 @@ param_pointer_values_cmp (GParamSpec   *pspec,
+@@ -818,7 +835,8 @@ param_pointer_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_value_array_init (GParamSpec *pspec)
-+param_value_array_init (GParamSpec *pspec, gpointer dummy)
++param_value_array_init (GParamSpec *pspec,
++                        gpointer    dummy)
  {
    GParamSpecValueArray *aspec = G_PARAM_SPEC_VALUE_ARRAY (pspec);
  
-@@ -969,7 +969,7 @@ param_value_array_values_cmp (GParamSpec   *pspec,
+@@ -969,7 +987,8 @@ param_value_array_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_object_init (GParamSpec *pspec)
-+param_object_init (GParamSpec *pspec, gpointer dummy)
++param_object_init (GParamSpec *pspec,
++                   gpointer    dummy)
  {
    /* GParamSpecObject *ospec = G_PARAM_SPEC_OBJECT (pspec); */
  }
-@@ -1013,7 +1013,7 @@ param_object_values_cmp (GParamSpec   *pspec,
+@@ -1013,7 +1032,8 @@ param_object_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_override_init (GParamSpec *pspec)
-+param_override_init (GParamSpec *pspec, gpointer dummy)
++param_override_init (GParamSpec *pspec,
++                     gpointer    dummy)
  {
    /* GParamSpecOverride *ospec = G_PARAM_SPEC_OVERRIDE (pspec); */
  }
-@@ -1062,7 +1062,7 @@ param_override_values_cmp (GParamSpec   *pspec,
+@@ -1062,7 +1082,8 @@ param_override_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_gtype_init (GParamSpec *pspec)
-+param_gtype_init (GParamSpec *pspec, gpointer dummy)
++param_gtype_init (GParamSpec *pspec,
++                  gpointer    dummy)
  {
  }
  
-@@ -1106,7 +1106,7 @@ param_gtype_values_cmp (GParamSpec   *pspec,
+@@ -1106,7 +1127,8 @@ param_gtype_values_cmp (GParamSpec   *pspec,
  }
  
  static void
 -param_variant_init (GParamSpec *pspec)
-+param_variant_init (GParamSpec *pspec, gpointer dummy)
++param_variant_init (GParamSpec *pspec,
++                    gpointer    dummy)
  {
    GParamSpecVariant *vspec = G_PARAM_SPEC_VARIANT (pspec);
  
@@ -565,33 +588,93 @@ index 1111111..2222222 100644
  static GType    type_name##_get_type_once     (void); \
  static gpointer type_name##_parent_class = NULL; \
  static gint     TypeName##_private_offset; \
-@@ -2018,7 +2025,7 @@ type_name##_get_type_once (void) \
+@@ -2016,9 +2023,9 @@ type_name##_get_type_once (void) \
+         g_type_register_static_simple (TYPE_PARENT, \
+                                        g_intern_static_string (#TypeName), \
                                         sizeof (TypeName##Class), \
-                                        (GClassInitFunc)(void (*)(void)) type_name##_class_intern_init, \
+-                                       (GClassInitFunc)(void (*)(void)) type_name##_class_intern_init, \
++                                       (GClassInitFunc) type_name##_class_intern_init, \
                                         sizeof (TypeName), \
 -                                       (GInstanceInitFunc)(void (*)(void)) type_name##_init, \
-+                                       (GInstanceInitFunc)(void (*)(void)) type_name##_init_adapter, \
++                                       (GInstanceInitFunc) type_name##_init_adapter, \
                                         (GTypeFlags) flags); \
      { /* custom code follows */
  #define _G_DEFINE_TYPE_EXTENDED_END()	\
+@@ -2036,7 +2043,12 @@ type_name##_get_type_once (void) \
+ 
+ #define _G_DEFINE_INTERFACE_EXTENDED_BEGIN(TypeName, type_name, TYPE_PREREQ) \
+ \
+-static void     type_name##_default_init        (TypeName##Interface *klass); \
++static void     type_name##_default_init         (TypeName##Interface *klass); \
++static void     type_name##_default_init_adapter (TypeName##Interface *klass, \
++                                                  gpointer dummy) \
++{ \
++  type_name##_default_init (klass); \
++} \
+ \
+ GType \
+ type_name##_get_type (void) \
+@@ -2048,7 +2060,7 @@ type_name##_get_type (void) \
+         g_type_register_static_simple (G_TYPE_INTERFACE, \
+                                        g_intern_static_string (#TypeName), \
+                                        sizeof (TypeName##Interface), \
+-                                       (GClassInitFunc)(void (*)(void)) type_name##_default_init, \
++                                       (GClassInitFunc) type_name##_default_init_adapter, \
+                                        0, \
+                                        (GInstanceInitFunc)NULL, \
+                                        (GTypeFlags) 0); \
 diff --git a/gobject/gtypemodule.h b/gobject/gtypemodule.h
 index 1111111..2222222 100644
 --- a/gobject/gtypemodule.h
 +++ b/gobject/gtypemodule.h
-@@ -209,7 +209,7 @@ type_name##_register_type (GTypeModule *type_module) \
+@@ -204,12 +204,12 @@ type_name##_register_type (GTypeModule *type_module) \
+     sizeof (TypeName##Class), \
+     (GBaseInitFunc) NULL, \
+     (GBaseFinalizeFunc) NULL, \
+-    (GClassInitFunc)(void (*)(void)) type_name##_class_intern_init, \
+-    (GClassFinalizeFunc)(void (*)(void)) type_name##_class_finalize, \
++    (GClassInitFunc) type_name##_class_intern_init, \
++    (GClassFinalizeFunc) type_name##_class_finalize, \
      NULL,   /* class_data */ \
      sizeof (TypeName), \
      0,      /* n_preallocs */ \
 -    (GInstanceInitFunc)(void (*)(void)) type_name##_init, \
-+    (GInstanceInitFunc)(void (*)(void)) type_name##_init_adapter, \
++    (GInstanceInitFunc) type_name##_init_adapter, \
      NULL    /* value_table */ \
    }; \
    type_name##_type_id = g_type_module_register_type (type_module, \
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Tue, 13 Apr 2021 15:30:00 +0200
+Subject: [PATCH 8/10] Use vsnpintf/snprintf/printf from musl libc
+
+The C99 semantics of these functions is well supported in musl libc.
+
+Upstream-Status: Pending
+
+diff --git a/meson.build b/meson.build
+index 1111111..2222222 100644
+--- a/meson.build
++++ b/meson.build
+@@ -944,9 +944,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
+   glib_conf.set('HAVE_C99_SNPRINTF', false)
+   glib_conf.set('HAVE_C99_VSNPRINTF', false)
+   glib_conf.set('HAVE_UNIX98_PRINTF', false)
+-elif not cc_can_run and host_system in ['ios', 'darwin']
+-  # All these are true when compiling natively on macOS, so we should use good
+-  # defaults when building for iOS and tvOS.
++elif not cc_can_run and host_system in ['ios', 'darwin', 'emscripten']
++  # All these are true when compiling natively on macOS, or when compiling with
++  # Emscripten (which uses musl libc internally).
+   glib_conf.set('HAVE_C99_SNPRINTF', true)
+   glib_conf.set('HAVE_C99_VSNPRINTF', true)
+   glib_conf.set('HAVE_UNIX98_PRINTF', true)
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Fri, 15 Nov 2019 11:00:00 +0100
-Subject: [PATCH 8/9] Implement g_get_num_processors for Emscripten
+Subject: [PATCH 9/10] Implement g_get_num_processors for Emscripten
 
 Upstream-Status: Pending
 
@@ -625,7 +708,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Tue, 8 Oct 2019 11:30:00 +0200
-Subject: [PATCH 9/9] Do not build executables
+Subject: [PATCH 10/10] Do not build executables
 
 We're only interested in the libraries.
 

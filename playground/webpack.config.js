@@ -6,8 +6,6 @@ const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
-const ASSET_PATH = 'https://wasm-vips.kleisauke.nl/playground/';
-
 module.exports = {
     mode: 'production',
     entry: {
@@ -18,7 +16,6 @@ module.exports = {
         path: path.join(__dirname, 'dist'),
         filename: 'assets/js/[name].js',
         chunkFilename: 'assets/js/[name].js',
-        publicPath: ASSET_PATH
     },
     module: {
         rules: [
@@ -91,7 +88,14 @@ module.exports = {
         }),
         new HtmlWebpackPlugin({
             title: 'wasm-vips playground',
-            template: './src/index.html'
+            template: './src/index.html',
+            hash: true,
+        }),
+        new HtmlWebpackPlugin({
+            filename: 'playground-runner.html',
+            template: './src/playground-runner.html',
+            excludeChunks: ['playground', 'samples'],
+            minify: false,
         }),
         new MonacoWebpackPlugin({
             filename: 'assets/js/monaco-[name].worker.js',
@@ -104,8 +108,8 @@ module.exports = {
                     to: path.join(__dirname, 'dist', 'samples'),
                 },
                 {
-                    from: path.join(__dirname, 'src', 'playground-runner.html'),
-                    to: path.join(__dirname, 'dist'),
+                    from: path.join(__dirname, '..', 'lib', 'web'),
+                    to: path.join(__dirname, 'dist', 'lib'),
                 }
             ],
         })

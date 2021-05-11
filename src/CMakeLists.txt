@@ -105,7 +105,7 @@ set_target_properties(${TARGETS}
 -s ALLOW_TABLE_GROWTH \
 -s ALLOW_BLOCKING_ON_MAIN_THREAD \
 -s ASSERTIONS=0 \
--s EXTRA_EXPORTED_RUNTIME_METHODS='[\"FS\", \"ENV\", \"deletionQueue\", \"addFunction\", \"emscripten_num_logical_cores\"]'"
+-s EXPORTED_RUNTIME_METHODS='[\"FS\", \"ENV\", \"deletionQueue\", \"addFunction\", \"emscripten_num_logical_cores\"]'"
         )
 
 # TODO(kleisauke): Add -s EXPORT_ES6, see:

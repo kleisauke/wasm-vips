@@ -23,4 +23,4 @@ index 1111111..2222222 100644
 +        args = ['-pthread']
          count: int = env.coredata.options[OptionKey('thread_count', lang=self.language, machine=self.for_machine)].value
          if count:
-             args.extend(['-s', 'PTHREAD_POOL_SIZE={}'.format(count)])
+             args.extend(['-s', f'PTHREAD_POOL_SIZE={count}'])

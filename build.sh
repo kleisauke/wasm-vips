@@ -66,7 +66,7 @@ fi
 
 # Common compiler flags
 export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint"
-if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128"; fi
+if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"; fi
 if [ -n "$LTO_FLAG" ]; then export CFLAGS+=" -flto"; fi
 if [ -n "$WASM_BIGINT_FLAG" ]; then export CFLAGS+=" $WASM_BIGINT_FLAG -DWASM_BIGINT"; fi
 export CXXFLAGS="$CFLAGS"
@@ -114,6 +114,7 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-auto-deletelater.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-vector-as-js-array.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-allow-block-main-thread.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-update-arm-neon.patch
 
   # https://github.com/emscripten-core/emscripten/pull/10110
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-10110.patch
@@ -224,9 +225,11 @@ test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
   mkdir $DEPS/jpeg
   curl -Ls https://github.com/libjpeg-turbo/libjpeg-turbo/archive/$VERSION_JPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
   cd $DEPS/jpeg
-  # https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250#issuecomment-407615180
+  # TODO(kleisauke): Discuss this patch upstream
+  patch -p1 <$SOURCE_DIR/build/patches/libjpeg-turbo-emscripten.patch
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DENABLE_STATIC=TRUE \
-    -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE
+    -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_TURBOJPEG=FALSE \
+    ${DISABLE_SIMD:+-DWITH_SIMD=FALSE} ${ENABLE_SIMD:+-DWITH_SIMD=TRUE}
   make -C _build install
 )
 

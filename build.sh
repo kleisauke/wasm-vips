@@ -150,7 +150,7 @@ test -f "$TARGET/lib/pkgconfig/zlib.pc" || (
   sed -i 's/\sx86.l*o//g' configure
   emconfigure ./configure --prefix=$TARGET --static --zlib-compat ${DISABLE_SIMD:+--without-optimizations} \
     ${ENABLE_SIMD:+--force-sse2} --without-acle --without-neon
-  emmake make install
+  make install
 )
 
 echo "============================================="
@@ -164,7 +164,7 @@ test -f "$TARGET/lib/pkgconfig/libffi.pc" || (
   autoreconf -fiv
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-builddir --disable-multi-os-directory --disable-raw-api --disable-structs --disable-docs
-  emmake make install
+  make install
 )
 
 echo "============================================="
@@ -178,7 +178,7 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Diconv="libc" -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled -Dinternal_pcre=true \
     -Dtests=false -Dglib_assert=false -Dglib_checks=false
-  emmake ninja -C _build install
+  ninja -C _build install
 )
 
 echo "============================================="
@@ -191,7 +191,7 @@ test -f "$TARGET/lib/pkgconfig/expat.pc" || (
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --without-xmlwf --without-docbook --without-getrandom --without-sys-getrandom --without-examples --without-tests \
     expatcfg_cv_compiler_supports_visibility=no
-  emmake make install
+  make install
 )
 
 echo "============================================="
@@ -204,7 +204,7 @@ test -f "$TARGET/lib/pkgconfig/libexif.pc" || (
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix \
     CPPFLAGS="-DNO_VERBOSE_TAG_STRINGS -DNO_VERBOSE_TAG_DATA"
-  emmake make install
+  make install
 )
 
 echo "============================================="
@@ -218,7 +218,7 @@ test -f "$TARGET/lib/pkgconfig/lcms2.pc" || (
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
    --without-threads --without-jpeg --without-tiff --without-zlib \
    ax_cv_have_func_attribute_visibility=0
-  emmake make install
+  make install
 )
 
 echo "============================================="
@@ -231,7 +231,7 @@ test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
   # https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250#issuecomment-407615180
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DENABLE_STATIC=TRUE \
     -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE
-  emmake make -C _build install
+  make -C _build install
 )
 
 echo "============================================="
@@ -247,7 +247,7 @@ test -f "$TARGET/lib/pkgconfig/libpng16.pc" || (
   # for that we can safely pass --disable-hardware-optimizations and compile with -DPNG_NO_READ
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-hardware-optimizations CPPFLAGS="-DPNG_NO_READ"
-  emmake make install
+  make install
 )
 
 echo "============================================="
@@ -261,7 +261,7 @@ test -f "$TARGET/lib/pkgconfig/spng.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/libspng-emscripten.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Dstatic_zlib=true ${DISABLE_SIMD:+-Denable_opt=false} ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse2"}
-  emmake ninja -C _build install
+  ninja -C _build install
 )
 
 echo "============================================="
@@ -278,7 +278,7 @@ test -f "$TARGET/lib/pkgconfig/libwebp.pc" || (
     ${DISABLE_SIMD:+--disable-sse2 --disable-sse4.1} ${ENABLE_SIMD:+--enable-sse2 --enable-sse4.1} --disable-neon \
     --disable-gl --disable-sdl --disable-png --disable-jpeg --disable-tiff --disable-gif --disable-threading \
     --enable-libwebpmux --enable-libwebpdemux CPPFLAGS="-DWEBP_EXTERN=extern -DWEBP_DISABLE_STATS"
-  emmake make install
+  make install
 )
 
 echo "============================================="
@@ -290,7 +290,7 @@ test -f "$TARGET/lib/pkgconfig/libtiff-4.pc" || (
   cd $DEPS/tiff
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-mdi --disable-pixarlog --disable-old-jpeg --disable-cxx
-  emmake make install
+  make install
 )
 
 echo "============================================="
@@ -315,8 +315,8 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
     --with-lcms --with-jpeg --with-png --with-libwebp --with-tiff --without-giflib --without-rsvg --without-gsf --without-zlib \
     --without-fftw --without-magick --without-OpenEXR --without-nifti --without-heif --without-pdfium --without-poppler \
     --without-openslide --without-matio --without-cfitsio --without-pangoft2 --without-imagequant
-  emmake make -C 'libvips' install
-  emmake make install-pkgconfigDATA
+  make -C 'libvips' install
+  make install-pkgconfigDATA
 )
 
 echo "============================================="
@@ -327,7 +327,7 @@ echo "============================================="
   cd $DEPS/wasm-vips
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" \
     -DENVIRONMENT=${ENVIRONMENT//,/;}
-  emmake make
+  make
   # FinalizationGroup -> FinalizationRegistry, see:
   # https://github.com/tc39/proposal-weakrefs/issues/180
   # https://github.com/emscripten-core/emscripten/issues/11436#issuecomment-645870155

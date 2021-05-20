@@ -84,9 +84,9 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 # TODO(kleisauke): GIF support is currently missing, giflib abandoned autotools which makes compilation difficult
 # Wait for https://github.com/libvips/libvips/pull/1709 instead.
-VERSION_ZLIBNG=2.0.2
+VERSION_ZLIBNG=2.0.3
 VERSION_FFI=3.3
-VERSION_GLIB=2.68.1
+VERSION_GLIB=2.68.2
 VERSION_EXPAT=2.3.0
 VERSION_EXIF=0.6.22
 VERSION_LCMS2=2.11

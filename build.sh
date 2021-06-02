@@ -164,7 +164,7 @@ test -f "$TARGET/lib/pkgconfig/libffi.pc" || (
   autoreconf -fiv
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-builddir --disable-multi-os-directory --disable-raw-api --disable-structs --disable-docs
-  make install
+  make install SUBDIRS='include'
 )
 
 echo "============================================="
@@ -204,7 +204,8 @@ test -f "$TARGET/lib/pkgconfig/libexif.pc" || (
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix \
     CPPFLAGS="-DNO_VERBOSE_TAG_STRINGS -DNO_VERBOSE_TAG_DATA"
-  make install
+  make -C 'libexif' install doc_DATA=
+  make install-pkgconfigDATA
 )
 
 echo "============================================="
@@ -218,7 +219,7 @@ test -f "$TARGET/lib/pkgconfig/lcms2.pc" || (
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
    --without-threads --without-jpeg --without-tiff --without-zlib \
    ax_cv_have_func_attribute_visibility=0
-  make install
+  make install SUBDIRS='src include'
 )
 
 echo "============================================="
@@ -246,8 +247,8 @@ test -f "$TARGET/lib/pkgconfig/libpng16.pc" || (
   # The hardware optimizations in libpng are only used for reading PNG images, since we use libspng
   # for that we can safely pass --disable-hardware-optimizations and compile with -DPNG_NO_READ
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-    --disable-hardware-optimizations CPPFLAGS="-DPNG_NO_READ"
-  make install
+    --disable-hardware-optimizations --disable-unversioned-libpng-config --without-binconfigs CPPFLAGS="-DPNG_NO_READ"
+  make install dist_man_MANS= bin_PROGRAMS=
 )
 
 echo "============================================="
@@ -278,7 +279,7 @@ test -f "$TARGET/lib/pkgconfig/libwebp.pc" || (
     ${DISABLE_SIMD:+--disable-sse2 --disable-sse4.1} ${ENABLE_SIMD:+--enable-sse2 --enable-sse4.1} --disable-neon \
     --disable-gl --disable-sdl --disable-png --disable-jpeg --disable-tiff --disable-gif --disable-threading \
     --enable-libwebpmux --enable-libwebpdemux CPPFLAGS="-DWEBP_EXTERN=extern -DWEBP_DISABLE_STATS"
-  make install
+  make -C 'src' install
 )
 
 echo "============================================="
@@ -290,7 +291,8 @@ test -f "$TARGET/lib/pkgconfig/libtiff-4.pc" || (
   cd $DEPS/tiff
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-mdi --disable-pixarlog --disable-old-jpeg --disable-cxx
-  make install
+  make -C 'libtiff' install noinst_PROGRAMS=
+  make install-pkgconfigDATA
 )
 
 echo "============================================="

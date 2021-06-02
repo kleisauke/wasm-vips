@@ -87,9 +87,9 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 VERSION_ZLIBNG=2.0.3
 VERSION_FFI=3.3
 VERSION_GLIB=2.68.2
-VERSION_EXPAT=2.3.0
+VERSION_EXPAT=2.4.1
 VERSION_EXIF=0.6.22
-VERSION_LCMS2=2.11
+VERSION_LCMS2=2.12
 VERSION_JPEG=2.1.0
 VERSION_PNG16=1.6.37
 VERSION_SPNG=0.6.3
@@ -212,7 +212,7 @@ echo "Compiling lcms2"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/lcms2.pc" || (
   mkdir $DEPS/lcms2
-  curl -Ls https://downloads.sourceforge.net/project/lcms/lcms/$VERSION_LCMS2/lcms2-$VERSION_LCMS2.tar.gz | tar xzC $DEPS/lcms2 --strip-components=1
+  curl -Ls https://github.com/mm2/Little-CMS/releases/download/lcms$VERSION_LCMS2/lcms2-$VERSION_LCMS2.tar.gz | tar xzC $DEPS/lcms2 --strip-components=1
   cd $DEPS/lcms2
   # Disable threading support, we rely on libvips' thread pool
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \

@@ -89,9 +89,15 @@ class Image : public Object {
         vips_image_set_int(get_image(), field.c_str(), value);
     }
 
-    void set(const std::string &field, const std::vector<int> &value) const {
-        vips_image_set_array_int(get_image(), field.c_str(), value.data(),
-                                 static_cast<int>(value.size()));
+    void set(const std::string &field, const std::vector<int> &values) const {
+        vips_image_set_array_int(get_image(), field.c_str(), values.data(),
+                                 static_cast<int>(values.size()));
+    }
+
+    void set(const std::string &field,
+             const std::vector<double> &values) const {
+        vips_image_set_array_double(get_image(), field.c_str(), values.data(),
+                                    static_cast<int>(values.size()));
     }
 
     void set(const std::string &field, double value) const {
@@ -140,6 +146,17 @@ class Image : public Object {
             throw_vips_error("unable to get " + field);
 
         return std::vector<int>(array, array + length);
+    }
+
+    std::vector<double> get_array_double(const std::string &field) const {
+        int length;
+        double *array;
+
+        if (vips_image_get_array_double(get_image(), field.c_str(), &array,
+                                        &length) != 0)
+            throw_vips_error("unable to get " + field);
+
+        return std::vector<double>(array, array + length);
     }
 
     double get_double(const std::string &field) const {

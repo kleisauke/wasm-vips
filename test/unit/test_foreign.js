@@ -15,7 +15,6 @@ describe('foreign', () => {
         'webpload': file => vips.Image.webpload(file),
         'tiffload': file => vips.Image.tiffload(file),
         'analyzeload': file => vips.Image.analyzeload(file),
-        // TODO(kleisauke): gifload is currently unsupported.
         'gifload': file => vips.Image.gifload(file),
     };
 
@@ -46,9 +45,8 @@ describe('foreign', () => {
         cmyk = cmyk.copy({interpretation: vips.Interpretation.cmyk});
         cmyk.remove('icc-profile-data');
 
-        // TODO(kleisauke): Redo this when we support GIF images.
-        const im = vips.Image.newFromFile(/*Helpers.GIF_FILE*/Helpers.JPEG_FILE).colourspace(vips.Interpretation.b_w);
-        onebit = im.more(128);
+        const im = vips.Image.newFromFile(Helpers.GIF_FILE);
+        onebit = im.extractBand(1).more(128);
 
         globalDeletionQueue = vips.deletionQueue.splice(0);
     });
@@ -630,13 +628,20 @@ describe('foreign', () => {
         // try converting an animated gif to webp ... can't do back to gif
         // again without IM support
         if (Helpers.have('gifload')) {
-            const x1 = vips.Image.newFromFile(Helpers.GIF_ANIM_FILE, {n: 1});
+            const x1 = vips.Image.newFromFile(Helpers.GIF_ANIM_FILE, {n: -1});
             const w1 = x1.webpsaveBuffer({Q: 10});
+
+            // our test gif has delay 0 for the first frame set in error,
+            // when converting to WebP this should result in a 100ms delay.
+            const expectedDelay = x1.getArrayInt("delay");
+            for (let i = 0; i < expectedDelay.length; i++) {
+                expectedDelay[i] = expectedDelay[i] <= 10 ? 100 : expectedDelay[i];
+            }
 
             const x2 = vips.Image.newFromBuffer(w1, '', {n: -1});
             expect(x1.width).to.equal(x2.width);
             expect(x1.height).to.equal(x2.height);
-            expect(x1.getArrayInt('delay')).to.deep.equal(x2.getArrayInt('delay'));
+            expect(expectedDelay).to.deep.equal(x2.getArrayInt('delay'));
             expect(x1.getInt('page-height')).to.equal(x2.getInt('page-height'));
             expect(x1.getInt('gif-loop')).to.equal(x2.getInt('gif-loop'));
         }
@@ -650,17 +655,27 @@ describe('foreign', () => {
 
         const gif_valid = (im) => {
             const a = im.getpoint(10, 10);
-            Helpers.assert_almost_equal_objects(a, [33]);
+            Helpers.assert_almost_equal_objects(a, [33, 33, 33]);
             expect(im.width).to.equal(159);
             expect(im.height).to.equal(203);
-            expect(im.bands).to.equal(1);
+            expect(im.bands).to.equal(3);
         };
 
         file_loader('gifload', Helpers.GIF_FILE, gif_valid);
         buffer_loader('gifload_buffer', Helpers.GIF_FILE, gif_valid);
 
-        // 'n' param added in 8.5
-        let x1 = vips.Image.newFromFile(Helpers.GIF_ANIM_FILE);
+        // test metadata
+        let x1 = vips.Image.newFromFile(Helpers.GIF_ANIM_FILE, {n: -1})
+        // our test gif has delay 0 for the first frame set in error
+        expect(x1.getArrayInt('delay')).to.deep.equal([0, 50, 50, 50, 50]);
+        expect(x1.getInt('loop')).to.equal(32760);
+        expect(x1.getArrayDouble('background')).to.deep.equal([255.0, 255.0, 255.0]);
+        // test deprecated fields too
+        expect(x1.getInt('gif-loop')).to.equal(32759);
+        expect(x1.getInt('gif-delay')).to.equal(0);
+
+        // test page handling
+        x1 = vips.Image.newFromFile(Helpers.GIF_ANIM_FILE)
         let x2 = vips.Image.newFromFile(Helpers.GIF_ANIM_FILE, {n: 2});
         expect(x2.height).to.equal(2 * x1.height);
         let page_height = x2.getInt('page-height');
@@ -668,8 +683,6 @@ describe('foreign', () => {
 
         x2 = vips.Image.newFromFile(Helpers.GIF_ANIM_FILE, {n: -1});
         expect(x2.height).to.equal(5 * x1.height);
-        // our test gif has delay 0 for the first frame set in error
-        expect(x2.getArrayInt('delay')).to.deep.equal([0, 50, 50, 50, 50]);
 
         x2 = vips.Image.newFromFile(Helpers.GIF_ANIM_FILE, {page: 1, n: -1});
         expect(x2.height).to.equal(4 * x1.height);

@@ -259,6 +259,11 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("float", VIPS_PRECISION_FLOAT)
         .value("approximate", VIPS_PRECISION_APPROXIMATE);
 
+    enum_<VipsForeignSubsample>("ForeignSubsample")
+        .value("auto", VIPS_FOREIGN_SUBSAMPLE_AUTO)
+        .value("on", VIPS_FOREIGN_SUBSAMPLE_ON)
+        .value("off", VIPS_FOREIGN_SUBSAMPLE_OFF);
+
     enum_<VipsForeignDzLayout>("ForeignDzLayout")
         .value("dz", VIPS_FOREIGN_DZ_LAYOUT_DZ)
         .value("zoomify", VIPS_FOREIGN_DZ_LAYOUT_ZOOMIFY)
@@ -282,11 +287,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("max", VIPS_REGION_SHRINK_MAX)
         .value("min", VIPS_REGION_SHRINK_MIN)
         .value("nearest", VIPS_REGION_SHRINK_NEAREST);
-
-    enum_<VipsForeignJpegSubsample>("ForeignJpegSubsample")
-        .value("auto", VIPS_FOREIGN_JPEG_SUBSAMPLE_AUTO)
-        .value("on", VIPS_FOREIGN_JPEG_SUBSAMPLE_ON)
-        .value("off", VIPS_FOREIGN_JPEG_SUBSAMPLE_OFF);
 
     enum_<VipsForeignWebpPreset>("ForeignWebpPreset")
         .value("default", VIPS_FOREIGN_WEBP_PRESET_DEFAULT)
@@ -614,6 +614,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
             "setArrayInt",
             select_overload<void(const std::string &, const std::vector<int> &)
                                 const>(&Image::set))
+        .function("setArrayDouble",
+                  select_overload<void(const std::string &,
+                                       const std::vector<double> &) const>(
+                      &Image::set))
         .function("setDouble",
                   select_overload<void(const std::string &, double) const>(
                       &Image::set))
@@ -630,6 +634,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("getTypeof", &Image::get_typeof)
         .function("getInt", &Image::get_int)
         .function("getArrayInt", &Image::get_array_int)
+        .function("getArrayDouble", &Image::get_array_double)
         .function("getDouble", &Image::get_double)
         .function("getString", &Image::get_string)
         .function("getBlob", &Image::get_blob)
@@ -1075,6 +1080,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("fitsload", optional_override([](const std::string &filename) {
                             return Image::fitsload(filename);
                         }))
+        .class_function("fitsloadSource", &Image::fitsload_source)
+        .class_function("fitsloadSource", optional_override([](const Source &source) {
+                            return Image::fitsload_source(source);
+                        }))
         .class_function("fractsurf", &Image::fractsurf)
         .class_function("gaussmat", &Image::gaussmat)
         .class_function("gaussmat", optional_override([](double sigma, double min_ampl) {
@@ -1116,6 +1125,18 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("identity", optional_override([]() {
                             return Image::identity();
                         }))
+        .class_function("jp2kload", &Image::jp2kload)
+        .class_function("jp2kload", optional_override([](const std::string &filename) {
+                            return Image::jp2kload(filename);
+                        }))
+        .class_function("jp2kloadBuffer", &Image::jp2kload_buffer)
+        .class_function("jp2kloadBuffer", optional_override([](const std::string &buffer) {
+                            return Image::jp2kload_buffer(buffer);
+                        }))
+        .class_function("jp2kloadSource", &Image::jp2kload_source)
+        .class_function("jp2kloadSource", optional_override([](const Source &source) {
+                            return Image::jp2kload_source(source);
+                        }))
         .class_function("jpegload", &Image::jpegload)
         .class_function("jpegload", optional_override([](const std::string &filename) {
                             return Image::jpegload(filename);
@@ -1127,6 +1148,18 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("jpegloadSource", &Image::jpegload_source)
         .class_function("jpegloadSource", optional_override([](const Source &source) {
                             return Image::jpegload_source(source);
+                        }))
+        .class_function("jxlload", &Image::jxlload)
+        .class_function("jxlload", optional_override([](const std::string &filename) {
+                            return Image::jxlload(filename);
+                        }))
+        .class_function("jxlloadBuffer", &Image::jxlload_buffer)
+        .class_function("jxlloadBuffer", optional_override([](const std::string &buffer) {
+                            return Image::jxlload_buffer(buffer);
+                        }))
+        .class_function("jxlloadSource", &Image::jxlload_source)
+        .class_function("jxlloadSource", optional_override([](const Source &source) {
+                            return Image::jxlload_source(source);
                         }))
         .class_function("logmat", &Image::logmat)
         .class_function("logmat", optional_override([](double sigma, double min_ampl) {
@@ -1196,6 +1229,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("niftiload", optional_override([](const std::string &filename) {
                             return Image::niftiload(filename);
                         }))
+        .class_function("niftiloadSource", &Image::niftiload_source)
+        .class_function("niftiloadSource", optional_override([](const Source &source) {
+                            return Image::niftiload_source(source);
+                        }))
         .class_function("openexrload", &Image::openexrload)
         .class_function("openexrload", optional_override([](const std::string &filename) {
                             return Image::openexrload(filename);
@@ -1203,6 +1240,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("openslideload", &Image::openslideload)
         .class_function("openslideload", optional_override([](const std::string &filename) {
                             return Image::openslideload(filename);
+                        }))
+        .class_function("openslideloadSource", &Image::openslideload_source)
+        .class_function("openslideloadSource", optional_override([](const Source &source) {
+                            return Image::openslideload_source(source);
                         }))
         .class_function("pdfload", &Image::pdfload)
         .class_function("pdfload", optional_override([](const std::string &filename) {
@@ -1314,6 +1355,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("vipsload", &Image::vipsload)
         .class_function("vipsload", optional_override([](const std::string &filename) {
                             return Image::vipsload(filename);
+                        }))
+        .class_function("vipsloadSource", &Image::vipsload_source)
+        .class_function("vipsloadSource", optional_override([](const Source &source) {
+                            return Image::vipsload_source(source);
                         }))
         .class_function("webpload", &Image::webpload)
         .class_function("webpload", optional_override([](const std::string &filename) {
@@ -1598,6 +1643,18 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("join", optional_override([](const Image &image, emscripten::val in2, emscripten::val direction) {
                       return image.join(in2, direction);
                   }))
+        .function("jp2ksave", &Image::jp2ksave)
+        .function("jp2ksave", optional_override([](const Image &image, const std::string &filename) {
+                      image.jp2ksave(filename);
+                  }))
+        .function("jp2ksaveBuffer", &Image::jp2ksave_buffer)
+        .function("jp2ksaveBuffer", optional_override([](const Image &image) {
+                      return image.jp2ksave_buffer();
+                  }))
+        .function("jp2ksaveTarget", &Image::jp2ksave_target)
+        .function("jp2ksaveTarget", optional_override([](const Image &image, const Target &target) {
+                      image.jp2ksave_target(target);
+                  }))
         .function("jpegsave", &Image::jpegsave)
         .function("jpegsave", optional_override([](const Image &image, const std::string &filename) {
                       image.jpegsave(filename);
@@ -1613,6 +1670,18 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("jpegsaveTarget", &Image::jpegsave_target)
         .function("jpegsaveTarget", optional_override([](const Image &image, const Target &target) {
                       image.jpegsave_target(target);
+                  }))
+        .function("jxlsave", &Image::jxlsave)
+        .function("jxlsave", optional_override([](const Image &image, const std::string &filename) {
+                      image.jxlsave(filename);
+                  }))
+        .function("jxlsaveBuffer", &Image::jxlsave_buffer)
+        .function("jxlsaveBuffer", optional_override([](const Image &image) {
+                      return image.jxlsave_buffer();
+                  }))
+        .function("jxlsaveTarget", &Image::jxlsave_target)
+        .function("jxlsaveTarget", optional_override([](const Image &image, const Target &target) {
+                      image.jxlsave_target(target);
                   }))
         .function("labelregions", &Image::labelregions)
         .function("labelregions", optional_override([](const Image &image) {
@@ -1839,6 +1908,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("vipssave", &Image::vipssave)
         .function("vipssave", optional_override([](const Image &image, const std::string &filename) {
                       image.vipssave(filename);
+                  }))
+        .function("vipssaveTarget", &Image::vipssave_target)
+        .function("vipssaveTarget", optional_override([](const Image &image, const Target &target) {
+                      image.vipssave_target(target);
                   }))
         .function("webpsave", &Image::webpsave)
         .function("webpsave", optional_override([](const Image &image, const std::string &filename) {

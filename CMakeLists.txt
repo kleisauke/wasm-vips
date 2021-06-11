@@ -24,6 +24,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find libvips (required)
 find_package(PkgConfig)
-pkg_check_modules(VIPS vips>=8.10 REQUIRED)
+pkg_check_modules(VIPS vips>=8.11 REQUIRED)
 
 add_subdirectory(src)

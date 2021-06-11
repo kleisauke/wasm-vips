@@ -12,7 +12,7 @@ diff --git a/libvips/iofuncs/type.c b/libvips/iofuncs/type.c
 index 1111111..2222222 100644
 --- a/libvips/iofuncs/type.c
 +++ b/libvips/iofuncs/type.c
-@@ -651,7 +651,7 @@ vips_blob_new( VipsCallbackFn free_fn, const void *data, size_t length )
+@@ -659,7 +659,7 @@ vips_blob_new( VipsCallbackFn free_fn, const void *data, size_t length )
   * @length: number of bytes in @data
   *
   * Like vips_blob_new(), but take a copy of the data. Useful for bindings
@@ -21,7 +21,7 @@ index 1111111..2222222 100644
   *
   * See also: vips_blob_new().
   *
-@@ -663,7 +663,7 @@ vips_blob_copy( const void *data, size_t length )
+@@ -671,7 +671,7 @@ vips_blob_copy( const void *data, size_t length )
  	void *data_copy; 
  	VipsArea *area;
  

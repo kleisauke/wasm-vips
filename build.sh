@@ -83,8 +83,6 @@ export CHOST="wasm32-unknown-linux" # wasm32-unknown-emscripten
 export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 
 # Dependency version numbers
-# TODO(kleisauke): GIF support is currently missing, giflib abandoned autotools which makes compilation difficult
-# Wait for https://github.com/libvips/libvips/pull/1709 instead.
 VERSION_ZLIBNG=2.0.3
 VERSION_FFI=3.3
 VERSION_GLIB=2.68.3
@@ -96,7 +94,7 @@ VERSION_PNG16=1.6.37
 VERSION_SPNG=0.6.3
 VERSION_WEBP=1.2.0
 VERSION_TIFF=4.3.0
-VERSION_VIPS=8.10.6
+VERSION_VIPS=8.11.0
 
 # Remove patch version component
 without_patch() {
@@ -171,6 +169,7 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   curl -Lks https://download.gnome.org/sources/glib/$(without_patch $VERSION_GLIB)/glib-$VERSION_GLIB.tar.xz | tar xJC $DEPS/glib --strip-components=1
   cd $DEPS/glib
   patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-function-pointers.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Diconv="libc" -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled -Dinternal_pcre=true \
     -Dtests=false -Dglib_assert=false -Dglib_checks=false
@@ -199,7 +198,7 @@ test -f "$TARGET/lib/pkgconfig/libexif.pc" || (
   cd $DEPS/exif
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix \
-    CPPFLAGS="-DNO_VERBOSE_TAG_STRINGS -DNO_VERBOSE_TAG_DATA"
+    CPPFLAGS="-DNO_VERBOSE_TAG_DATA"
   make -C 'libexif' install doc_DATA=
   make install-pkgconfigDATA
 )
@@ -301,18 +300,17 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   cd $DEPS/vips
   # Emscripten specific patches
   patch -p1 <$SOURCE_DIR/build/patches/vips-remove-orc.patch
+  patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
+  #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
   # TODO(kleisauke): Discuss these patches upstream
   patch -p1 <$SOURCE_DIR/build/patches/vips-speed-up-getpoint.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-blob-copy-malloc.patch
-  # TODO(kleisauke): https://github.com/libvips/libvips/issues/1492
-  patch -p1 <$SOURCE_DIR/build/patches/vips-1492.patch
-  patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
-  #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
   emconfigure ./autogen.sh --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-    --disable-debug --disable-introspection --disable-deprecated --with-radiance --with-analyze --with-ppm --with-libexif \
-    --with-lcms --with-jpeg --with-png --with-libwebp --with-tiff --without-giflib --without-rsvg --without-gsf --without-zlib \
-    --without-fftw --without-magick --without-OpenEXR --without-nifti --without-heif --without-pdfium --without-poppler \
-    --without-openslide --without-matio --without-cfitsio --without-pangoft2 --without-imagequant
+    --disable-debug --disable-introspection --disable-deprecated --disable-modules --with-radiance --with-analyze --with-ppm \
+    --with-nsgif --with-lcms --with-zlib --with-libexif --with-jpeg --with-libspng --with-png --with-tiff --with-libwebp \
+    --without-fftw --without-pangocairo --without-fontconfig --without-imagequant --without-gsf --without-heif --without-pdfium \
+    --without-poppler --without-rsvg --without-OpenEXR --without-libjxl --without-libopenjp2 --without-openslide --without-matio \
+    --without-nifti --without-cfitsio --without-magick
   make -C 'libvips' install
   make install-pkgconfigDATA
 )

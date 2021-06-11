@@ -14,7 +14,8 @@
   "author": "Kleis Auke Wolthuizen",
   "main": "lib/node/vips.js",
   "files": [
-    "lib/node/**"
+    "lib/node/**",
+    "lib/web/**"
   ],
   "scripts": {
     "build:web": "docker build -t wasm-vips . && docker run --rm -v $(pwd):/src wasm-vips ./build.sh -e web",

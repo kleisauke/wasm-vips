@@ -77,6 +77,14 @@ static Image eye(int width, int height, emscripten::val js_options = emscripten:
 static Image fitsload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
 
 /**
+ * Load fits from a source.
+ * @param source Source to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image fitsload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
+
+/**
  * Make a fractal surface.
  * @param width Image width in pixels.
  * @param height Image height in pixels.
@@ -104,7 +112,7 @@ static Image gaussmat(double sigma, double min_ampl, emscripten::val js_options 
 static Image gaussnoise(int width, int height, emscripten::val js_options = emscripten::val::null());
 
 /**
- * Load gif with giflib.
+ * Load gif with libnsgif.
  * @param filename Filename to load from.
  * @param js_options Optional options.
  * @return Output image.
@@ -112,7 +120,7 @@ static Image gaussnoise(int width, int height, emscripten::val js_options = emsc
 static Image gifload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
 
 /**
- * Load gif with giflib.
+ * Load gif with libnsgif.
  * @param buffer Buffer to load from.
  * @param js_options Optional options.
  * @return Output image.
@@ -120,7 +128,7 @@ static Image gifload(const std::string &filename, emscripten::val js_options = e
 static Image gifload_buffer(const std::string &buffer, emscripten::val js_options = emscripten::val::null());
 
 /**
- * Load gif with giflib.
+ * Load gif from source.
  * @param source Source to load from.
  * @param js_options Optional options.
  * @return Output image.
@@ -168,6 +176,30 @@ static Image heifload_source(const Source &source, emscripten::val js_options = 
 static Image identity(emscripten::val js_options = emscripten::val::null());
 
 /**
+ * Load jpeg2000 image.
+ * @param filename Filename to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image jp2kload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load jpeg2000 image.
+ * @param buffer Buffer to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image jp2kload_buffer(const std::string &buffer, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load jpeg2000 image.
+ * @param source Source to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image jp2kload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
+
+/**
  * Load jpeg from file.
  * @param filename Filename to load from.
  * @param js_options Optional options.
@@ -190,6 +222,30 @@ static Image jpegload_buffer(const std::string &buffer, emscripten::val js_optio
  * @return Output image.
  */
 static Image jpegload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load jpeg-xl image.
+ * @param filename Filename to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image jxlload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load jpeg-xl image.
+ * @param buffer Buffer to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image jxlload_buffer(const std::string &buffer, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load jpeg-xl image.
+ * @param source Source to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image jxlload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
 
 /**
  * Make a laplacian of gaussian image.
@@ -359,12 +415,20 @@ static Image matrixload(const std::string &filename, emscripten::val js_options 
 static Image matrixload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
 
 /**
- * Load a nifti image.
+ * Load nifti volume.
  * @param filename Filename to load from.
  * @param js_options Optional options.
  * @return Output image.
  */
 static Image niftiload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load nifti volumes.
+ * @param source Source to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image niftiload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
 
 /**
  * Load an openexr image.
@@ -381,6 +445,14 @@ static Image openexrload(const std::string &filename, emscripten::val js_options
  * @return Output image.
  */
 static Image openslideload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load source with openslide.
+ * @param source Source to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image openslideload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
 
 /**
  * Load pdf from file.
@@ -624,6 +696,14 @@ static Image tonelut(emscripten::val js_options = emscripten::val::null());
  * @return Output image.
  */
 static Image vipsload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load vips from source.
+ * @param source Source to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image vipsload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
 
 /**
  * Load webp from file.
@@ -1291,7 +1371,7 @@ Image grid(int tile_height, int across, int down) const;
 
 /**
  * Save image in heif format.
- * @param filename Filename to load from.
+ * @param filename Filename to save to.
  * @param js_options Optional options.
  */
 void heifsave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
@@ -1461,6 +1541,27 @@ Image invfft(emscripten::val js_options = emscripten::val::null()) const;
 Image join(emscripten::val in2, emscripten::val direction, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
+ * Save image in jpeg2000 format.
+ * @param filename Filename to load from.
+ * @param js_options Optional options.
+ */
+void jp2ksave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image in jpeg2000 format.
+ * @param js_options Optional options.
+ * @return Buffer to save to.
+ */
+emscripten::val jp2ksave_buffer(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image in jpeg2000 format.
+ * @param target Target to save to.
+ * @param js_options Optional options.
+ */
+void jp2ksave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
+
+/**
  * Save image to jpeg file.
  * @param filename Filename to save to.
  * @param js_options Optional options.
@@ -1486,6 +1587,27 @@ void jpegsave_mime(emscripten::val js_options = emscripten::val::null()) const;
  * @param js_options Optional options.
  */
 void jpegsave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image in jpeg-xl format.
+ * @param filename Filename to load from.
+ * @param js_options Optional options.
+ */
+void jxlsave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image in jpeg-xl format.
+ * @param js_options Optional options.
+ * @return Buffer to save to.
+ */
+emscripten::val jxlsave_buffer(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image in jpeg-xl format.
+ * @param target Target to save to.
+ * @param js_options Optional options.
+ */
+void jxlsave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Label regions in an image.
@@ -2087,11 +2209,18 @@ Image transpose3d(emscripten::val js_options = emscripten::val::null()) const;
 Image unpremultiply(emscripten::val js_options = emscripten::val::null()) const;
 
 /**
- * Save image to vips file.
+ * Save image to file in vips format.
  * @param filename Filename to save to.
  * @param js_options Optional options.
  */
 void vipssave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image to target in vips format.
+ * @param target Target to save to.
+ * @param js_options Optional options.
+ */
+void vipssave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Save image to webp file.

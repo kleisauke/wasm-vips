@@ -243,7 +243,7 @@ const benchmark = async () => {
       });
       const buffer = im.jpegsaveBuffer({
         ...defaultJpegSaveOptions,
-        subsample_mode: vips.ForeignJpegSubsample.off
+        subsample_mode: vips.ForeignSubsample.off
       });
       assert.notStrictEqual(null, buffer);
       im.delete();

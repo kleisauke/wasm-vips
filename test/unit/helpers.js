@@ -18,6 +18,8 @@ const Helpers = (function () {
     const TIF4_FILE = getPath('4bit.tif');
     const OME_FILE = getPath('multi-channel-z-series.ome.tif');
     const ANALYZE_FILES = [getPath('t00740_tr1_segm.hdr'), getPath('t00740_tr1_segm.img')];
+    const GIF_FILE = getPath('cramps.gif');
+    const GIF_ANIM_FILE = getPath('cogs.gif');
     const WEBP_FILE = getPath('1.webp');
     const SRGB_FILE = getPath('sRGB.icm');
     const MOSAIC_FILES = [
@@ -35,6 +37,8 @@ const Helpers = (function () {
         TIF2_FILE,
         TIF4_FILE,
         OME_FILE,
+        GIF_FILE,
+        GIF_ANIM_FILE,
         WEBP_FILE,
         SRGB_FILE
     ].concat(ANALYZE_FILES).concat(MOSAIC_FILES);
@@ -223,6 +227,8 @@ const Helpers = (function () {
         TIF4_FILE,
         OME_FILE,
         ANALYZE_FILES,
+        GIF_FILE,
+        GIF_ANIM_FILE,
         WEBP_FILE,
         SRGB_FILE,
         MOSAIC_FILES,

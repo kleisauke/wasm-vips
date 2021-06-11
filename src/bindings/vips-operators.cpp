@@ -121,6 +121,19 @@ Image Image::fitsload(const std::string &filename, emscripten::val js_options)
     return out;
 }
 
+Image Image::fitsload_source(const Source &source, emscripten::val js_options)
+{
+    Image out;
+
+    Image::call("fitsload_source", nullptr,
+                (new Option)
+                    ->set("out", &out)
+                    ->set("source", source),
+                js_options);
+
+    return out;
+}
+
 Image Image::fractsurf(int width, int height, double fractal_dimension)
 {
     Image out;
@@ -271,6 +284,47 @@ Image Image::identity(emscripten::val js_options)
     return out;
 }
 
+Image Image::jp2kload(const std::string &filename, emscripten::val js_options)
+{
+    Image out;
+
+    Image::call("jp2kload", nullptr,
+                (new Option)
+                    ->set("out", &out)
+                    ->set("filename", filename),
+                js_options);
+
+    return out;
+}
+
+Image Image::jp2kload_buffer(const std::string &buffer, emscripten::val js_options)
+{
+    Image out;
+
+    VipsBlob *blob = vips_blob_copy(buffer.c_str(), buffer.size());
+    Option *options = (new Option)
+                          ->set("out", &out)
+                          ->set("buffer", blob);
+    vips_area_unref(VIPS_AREA(blob));
+
+    Image::call("jp2kload_buffer", nullptr, options, js_options);
+
+    return out;
+}
+
+Image Image::jp2kload_source(const Source &source, emscripten::val js_options)
+{
+    Image out;
+
+    Image::call("jp2kload_source", nullptr,
+                (new Option)
+                    ->set("out", &out)
+                    ->set("source", source),
+                js_options);
+
+    return out;
+}
+
 Image Image::jpegload(const std::string &filename, emscripten::val js_options)
 {
     Image out;
@@ -304,6 +358,47 @@ Image Image::jpegload_source(const Source &source, emscripten::val js_options)
     Image out;
 
     Image::call("jpegload_source", nullptr,
+                (new Option)
+                    ->set("out", &out)
+                    ->set("source", source),
+                js_options);
+
+    return out;
+}
+
+Image Image::jxlload(const std::string &filename, emscripten::val js_options)
+{
+    Image out;
+
+    Image::call("jxlload", nullptr,
+                (new Option)
+                    ->set("out", &out)
+                    ->set("filename", filename),
+                js_options);
+
+    return out;
+}
+
+Image Image::jxlload_buffer(const std::string &buffer, emscripten::val js_options)
+{
+    Image out;
+
+    VipsBlob *blob = vips_blob_copy(buffer.c_str(), buffer.size());
+    Option *options = (new Option)
+                          ->set("out", &out)
+                          ->set("buffer", blob);
+    vips_area_unref(VIPS_AREA(blob));
+
+    Image::call("jxlload_buffer", nullptr, options, js_options);
+
+    return out;
+}
+
+Image Image::jxlload_source(const Source &source, emscripten::val js_options)
+{
+    Image out;
+
+    Image::call("jxlload_source", nullptr,
                 (new Option)
                     ->set("out", &out)
                     ->set("source", source),
@@ -574,6 +669,19 @@ Image Image::niftiload(const std::string &filename, emscripten::val js_options)
     return out;
 }
 
+Image Image::niftiload_source(const Source &source, emscripten::val js_options)
+{
+    Image out;
+
+    Image::call("niftiload_source", nullptr,
+                (new Option)
+                    ->set("out", &out)
+                    ->set("source", source),
+                js_options);
+
+    return out;
+}
+
 Image Image::openexrload(const std::string &filename, emscripten::val js_options)
 {
     Image out;
@@ -595,6 +703,19 @@ Image Image::openslideload(const std::string &filename, emscripten::val js_optio
                 (new Option)
                     ->set("out", &out)
                     ->set("filename", filename),
+                js_options);
+
+    return out;
+}
+
+Image Image::openslideload_source(const Source &source, emscripten::val js_options)
+{
+    Image out;
+
+    Image::call("openslideload_source", nullptr,
+                (new Option)
+                    ->set("out", &out)
+                    ->set("source", source),
                 js_options);
 
     return out;
@@ -1002,6 +1123,19 @@ Image Image::vipsload(const std::string &filename, emscripten::val js_options)
                 (new Option)
                     ->set("out", &out)
                     ->set("filename", filename),
+                js_options);
+
+    return out;
+}
+
+Image Image::vipsload_source(const Source &source, emscripten::val js_options)
+{
+    Image out;
+
+    Image::call("vipsload_source", nullptr,
+                (new Option)
+                    ->set("out", &out)
+                    ->set("source", source),
                 js_options);
 
     return out;
@@ -2482,6 +2616,43 @@ Image Image::join(emscripten::val in2, emscripten::val direction, emscripten::va
     return out;
 }
 
+void Image::jp2ksave(const std::string &filename, emscripten::val js_options) const
+{
+    this->call("jp2ksave",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("filename", filename),
+               js_options);
+}
+
+emscripten::val Image::jp2ksave_buffer(emscripten::val js_options) const
+{
+    VipsBlob *buffer;
+
+    this->call("jp2ksave_buffer",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("buffer", &buffer),
+               js_options);
+
+    emscripten::val result = emscripten::val(emscripten::typed_memory_view(
+        VIPS_AREA(buffer)->length,
+        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+    VIPS_AREA(buffer)->free_fn = nullptr;
+    vips_area_unref(VIPS_AREA(buffer));
+
+    return result;
+}
+
+void Image::jp2ksave_target(const Target &target, emscripten::val js_options) const
+{
+    this->call("jp2ksave_target",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("target", target),
+               js_options);
+}
+
 void Image::jpegsave(const std::string &filename, emscripten::val js_options) const
 {
     this->call("jpegsave",
@@ -2521,6 +2692,43 @@ void Image::jpegsave_mime(emscripten::val js_options) const
 void Image::jpegsave_target(const Target &target, emscripten::val js_options) const
 {
     this->call("jpegsave_target",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("target", target),
+               js_options);
+}
+
+void Image::jxlsave(const std::string &filename, emscripten::val js_options) const
+{
+    this->call("jxlsave",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("filename", filename),
+               js_options);
+}
+
+emscripten::val Image::jxlsave_buffer(emscripten::val js_options) const
+{
+    VipsBlob *buffer;
+
+    this->call("jxlsave_buffer",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("buffer", &buffer),
+               js_options);
+
+    emscripten::val result = emscripten::val(emscripten::typed_memory_view(
+        VIPS_AREA(buffer)->length,
+        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+    VIPS_AREA(buffer)->free_fn = nullptr;
+    vips_area_unref(VIPS_AREA(buffer));
+
+    return result;
+}
+
+void Image::jxlsave_target(const Target &target, emscripten::val js_options) const
+{
+    this->call("jxlsave_target",
                (new Option)
                    ->set("in", *this)
                    ->set("target", target),
@@ -3574,6 +3782,15 @@ void Image::vipssave(const std::string &filename, emscripten::val js_options) co
                (new Option)
                    ->set("in", *this)
                    ->set("filename", filename),
+               js_options);
+}
+
+void Image::vipssave_target(const Target &target, emscripten::val js_options) const
+{
+    this->call("vipssave_target",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("target", target),
                js_options);
 }
 

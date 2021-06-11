@@ -710,6 +710,13 @@ declare namespace vips {
         setArrayInt(name: string, value: ArrayConstant): void;
 
         /**
+         * Set an double array on an image as metadata.
+         * @param name The name of the piece of metadata to set the value of.
+         * @param value The metadata value.
+         */
+        setArrayDouble(name: string, value: ArrayConstant): void;
+
+        /**
          * Set an double on an image as metadata.
          * @param name The name of the piece of metadata to set the value of.
          * @param value The metadata value.
@@ -760,6 +767,13 @@ declare namespace vips {
          * @return The metadata item as an integer array.
          */
         getArrayInt(name: string): number[];
+
+        /**
+         * Get an double array from an image.
+         * @param name The name of the piece of metadata to get.
+         * @return The metadata item as an double array.
+         */
+        getArrayDouble(name: string): number[];
 
         /**
          * Get an double from an image.

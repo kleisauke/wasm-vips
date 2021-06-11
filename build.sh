@@ -54,28 +54,29 @@ fi
 #export CFLAGS="-O0 -gsource-map"
 #export CXXFLAGS="$CFLAGS"
 #export LDFLAGS="-L$TARGET/lib -O0 -gsource-map"
-#export EMMAKEN_CFLAGS="--source-map-base http://localhost:5000/lib/web/"
 #export EMCC_DEBUG="1"
 
 # Handy for catching bugs
-#export CFLAGS="-Os -gsource-map -fsanitize=address"
+#export CFLAGS="-Os -gsource-map -fsanitize=address -s INITIAL_MEMORY=64MB"
 #export CXXFLAGS="$CFLAGS"
 #export LDFLAGS="-L$TARGET/lib -Os -gsource-map -fsanitize=address"
-#export EMMAKEN_CFLAGS="-s INITIAL_MEMORY=64MB --source-map-base http://localhost:5000/lib/web/"
+
+# Specify location where source maps are published (browser specific)
+#export CFLAGS+=" --source-map-base http://localhost:5000/lib/web/"
 
 # Common compiler flags
 export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint"
 if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128"; fi
 if [ -n "$LTO_FLAG" ]; then export CFLAGS+=" -flto"; fi
-if [ -n "$WASM_BIGINT_FLAG" ]; then export CFLAGS+=" -DWASM_BIGINT"; fi
+if [ -n "$WASM_BIGINT_FLAG" ]; then export CFLAGS+=" $WASM_BIGINT_FLAG -DWASM_BIGINT"; fi
 export CXXFLAGS="$CFLAGS"
 export LDFLAGS="-L$TARGET/lib -O3"
 if [ -n "$LTO_FLAG" ]; then export LDFLAGS+=" -flto"; fi
-if [ -n "$WASM_BIGINT_FLAG" ]; then export EMMAKEN_CFLAGS="$WASM_BIGINT_FLAG"; fi
 
 # Build paths
 export CPATH="$TARGET/include"
-export EM_PKG_CONFIG_PATH="$TARGET/lib/pkgconfig"
+export PKG_CONFIG_PATH="$TARGET/lib/pkgconfig"
+export EM_PKG_CONFIG_PATH="$PKG_CONFIG_PATH"
 
 # Specific variables for cross-compilation
 export CHOST="wasm32-unknown-linux" # wasm32-unknown-emscripten
@@ -129,11 +130,6 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   # The system headers require to be reinstalled, as some of
   # them have also been changed with the patches above
   embuilder.py build sysroot --force
-fi
-
-if [ -n "$EMMAKEN_CFLAGS" ]; then
-  # The struct_info file must be built without modifications to EMMAKEN_CFLAGS
-  EMMAKEN_CFLAGS= embuilder.py build struct_info $LTO_FLAG
 fi
 
 echo "============================================="

@@ -65,12 +65,12 @@ fi
 #export CFLAGS+=" --source-map-base http://localhost:5000/lib/web/"
 
 # Common compiler flags
-export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint"
-if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"; fi
+export CFLAGS="-O0 -gsource-map -fno-rtti -fno-exceptions -mnontrapping-fptoint"
+if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW -DSIMDE_NO_INLINE"; fi
 if [ -n "$LTO_FLAG" ]; then export CFLAGS+=" -flto"; fi
 if [ -n "$WASM_BIGINT_FLAG" ]; then export CFLAGS+=" $WASM_BIGINT_FLAG -DWASM_BIGINT"; fi
 export CXXFLAGS="$CFLAGS"
-export LDFLAGS="-L$TARGET/lib -O3"
+export LDFLAGS="-L$TARGET/lib -O0 -gsource-map"
 if [ -n "$LTO_FLAG" ]; then export LDFLAGS+=" -flto"; fi
 
 # Build paths

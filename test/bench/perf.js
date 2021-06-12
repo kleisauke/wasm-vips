@@ -15,7 +15,12 @@ const benchmark = async () => {
   const PNG_OUT = images.path('output.png');
   const WEBP_OUT = images.path('output.webp');
 
-  const vips = await Vips();
+  const vips = await Vips({
+    preRun: (module) => {
+      // Enable SIMD usage in libjpeg-turbo
+      module.ENV.JSIMD_FORCENEON = '1';
+    }
+  });
 
   // Disable libvips cache to ensure tests are as fair as they can be
   vips.Cache.max(0);

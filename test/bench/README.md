@@ -19,7 +19,7 @@ https://sharp.pixelplumbing.com/performance
 | [`alpha-premultiply-2048x1536-paper.png`](images/alpha-premultiply-2048x1536-paper.png) | 2048×1536  |
 | [`4.webp`](images/4.webp)                                                               |  1024×772  |
 
-# The task
+## The task
 
 Decompress the image, resize to 720x588 using Lanczos 3 resampling
 (where available), then save the image to the output format that

@@ -1,12 +1,10 @@
 'use strict';
 
-const Chai = require('chai');
-
-const Helpers = require('./helpers');
 const Vips = require('../../lib/node/vips.js');
 
-global.expect = Chai.expect;
-global.Helpers = Helpers;
+global.expect = require('chai').expect;
+global.path = require('path');
+global.url = require('url');
 
 exports.mochaGlobalSetup = async function () {
     const options = {

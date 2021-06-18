@@ -122,6 +122,6 @@ if("web" IN_LIST ENVIRONMENT)
     set_property(
             TARGET ${PROJECT_NAME}-web
             APPEND_STRING PROPERTY
-            LINK_FLAGS " -s ENVIRONMENT=web,worker -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE='[\"$Browser\"]'"
+            LINK_FLAGS " -s ENVIRONMENT=web,worker -s EXPORT_ES6 -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE='[\"$Browser\"]'"
             )
 endif()

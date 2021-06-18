@@ -1,5 +1,7 @@
 'use strict';
 
+import * as Helpers from './helpers.mjs';
+
 describe('colour', () => {
     afterEach(function () {
         cleanup();

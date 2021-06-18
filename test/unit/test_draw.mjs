@@ -1,5 +1,7 @@
 'use strict';
 
+import * as Helpers from './helpers.mjs';
+
 describe('draw', () => {
     afterEach(function () {
         cleanup();

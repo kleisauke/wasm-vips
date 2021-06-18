@@ -2,6 +2,7 @@ import './images/owl.webp';
 import './images/owl.tif';
 import './images/owl.jpg';
 import './images/banana.webp';
+import './images/banana.gif';
 import './images/transparency_demo.png';
 
 export var PLAY_SAMPLES = [

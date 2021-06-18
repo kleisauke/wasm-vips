@@ -14,7 +14,7 @@ and because it doesn't need to keep entire images in memory, it's light.
 
 ## Browser support
 
-A browser that [supports the SharedArrayBuffer API](https://caniuse.com/#feat=sharedarraybuffer).
+A browser that [supports the SharedArrayBuffer API](https://caniuse.com/sharedarraybuffer).
 
 | ![Chrome](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome_24x24.png)<br/>Chrome | ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png)<br/>Firefox | ![Edge](https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_24x24.png)<br/>Edge |
 | ----------- | ----------- | ----------- | 
@@ -34,11 +34,9 @@ Requires `vips.js`, `vips.wasm` and `vips.worker.js` to be served from
 the same directory.
 
 ```html
-<script src="vips.js"></script>
-<script>
-(async () => {
+<script type="module">
+    import Vips from './vips.js';
     const vips = await Vips();
-})();
 </script>
 ```
 

@@ -83,7 +83,7 @@ export CHOST="wasm32-unknown-linux" # wasm32-unknown-emscripten
 export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 
 # Dependency version numbers
-VERSION_ZLIBNG=2.0.3
+VERSION_ZLIBNG=2.0.4
 VERSION_FFI=3.3
 VERSION_GLIB=2.68.3
 VERSION_EXPAT=2.4.1

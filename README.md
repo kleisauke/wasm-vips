@@ -46,7 +46,7 @@ Since `wasm-vips` uses the latest experimental features of WebAssembly,
 you need to add these extra flags to run in Node.js.
 
 ```bash
-node --experimental-wasm-threads --experimental-wasm-simd --wasm-simd-post-mvp demo.js
+node --experimental-wasm-threads --experimental-wasm-simd demo.js
 ```
 
 ## Example

@@ -22,7 +22,7 @@
     "build:node": "docker build -t wasm-vips . && docker run --rm -v $(pwd):/src wasm-vips ./build.sh -e node --enable-simd",
     "build": "npm run build:node",
     "test:web": "serve -c test/unit/serve.json",
-    "test:node": "node --experimental-wasm-threads --experimental-wasm-simd --wasm-simd-post-mvp node_modules/mocha/bin/mocha -s 5000 -t 60000 test/unit/*.mjs -r test/unit/node-helper.js",
+    "test:node": "node --experimental-wasm-threads --experimental-wasm-simd node_modules/mocha/bin/mocha -s 5000 -t 60000 test/unit/*.mjs -r test/unit/node-helper.js",
     "test": "npm run test:node",
     "bench:web": "serve -c test/bench/serve.json",
     "bench:node": "cd test/bench && npm run test",

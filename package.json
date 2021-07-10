@@ -20,15 +20,13 @@
   "scripts": {
     "build": "docker build -t wasm-vips . && docker run --rm -v $(pwd):/src wasm-vips ./build.sh",
     "test:web": "serve -c test/unit/serve.json",
-    "test:node": "mocha -s 5000 -t 60000 test/unit/*.mjs -r test/unit/node-helper.js",
+    "test:node": "cd test/unit && npm run test",
     "test": "npm run test:node",
     "bench:web": "serve -c test/bench/serve.json",
     "bench:node": "cd test/bench && npm run test",
     "bench": "npm run bench:node"
   },
   "devDependencies": {
-    "chai": "^4.3.4",
-    "mocha": "^9.0.2",
     "serve": "^12.0.0"
   },
   "engines": {

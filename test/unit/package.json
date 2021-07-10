@@ -1,0 +1,27 @@
+{
+  "name": "wasm-vips-test",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Unit tests for wasm-vips",
+  "homepage": "https://github.com/kleisauke/wasm-vips/tree/master/test/unit",
+  "bugs": {
+    "url": "https://github.com/kleisauke/wasm-vips/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kleisauke/wasm-vips.git",
+    "directory": "test/unit"
+  },
+  "license": "MIT",
+  "author": "Kleis Auke Wolthuizen",
+  "scripts": {
+    "test": "mocha -s 5000 -t 60000 *.js -r node-helper.js"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^9.0.2"
+  },
+  "engines": {
+    "node": ">=16.4.0"
+  }
+}

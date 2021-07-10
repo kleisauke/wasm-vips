@@ -5,10 +5,6 @@
       "destination": "/test/unit/index.html"
     },
     {
-      "source": "/:path*.js",
-      "destination": "/test/unit/:path*.mjs"
-    },
-    {
       "source": "/:path",
       "destination": "/test/unit/:path"
     }

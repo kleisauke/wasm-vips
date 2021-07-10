@@ -64,13 +64,22 @@ syntax:
 
 ### Node.js
 
-On Node.js, wasm-vips is exposed as a CommonJS module. It can be required and
-initialized like this:
+On Node.js, wasm-vips is published as [a dual-package](
+https://nodejs.org/api/packages.html#packages_conditional_exports), so it
+can be imported as both CommonJS and ES6 module:
 
 ```js
-const Vips = require('wasm-vips');
+// ES6 module
+import Vips from 'wasm-vips';
 
-// Usage with async/await
+// CommonJS module
+const Vips = require('wasm-vips');
+```
+
+Then, wasm-vips can be initialized like this:
+
+```js
+// Usage with top-level await
 const vips = await Vips();
 
 // Usage with .then

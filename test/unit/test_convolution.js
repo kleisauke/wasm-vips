@@ -1,6 +1,6 @@
 'use strict';
 
-import * as Helpers from './helpers.mjs';
+import * as Helpers from './helpers.js';
 
 describe('convolution', () => {
     let globalDeletionQueue;

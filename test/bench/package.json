@@ -14,6 +14,7 @@
   },
   "license": "MIT",
   "author": "Kleis Auke Wolthuizen",
+  "type": "module",
   "main": "perf.js",
   "scripts": {
     "test": "node perf"

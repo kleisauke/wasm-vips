@@ -329,8 +329,45 @@ echo "============================================="
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" \
     -DENVIRONMENT=${ENVIRONMENT//,/;}
   make
+)
+
+echo "============================================="
+echo "Prepare NPM package"
+echo "============================================="
+[ "$ENVIRONMENT" = "web,node" ] && (
+  # Building for both Node.js and web, prepare NPM package
+  # FIXME(kleisauke): Workaround for https://github.com/emscripten-core/emscripten/issues/11792
+  sed -i '1iimport { dirname } from "path";' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i '2iimport { fileURLToPath } from "url";' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i '3iimport { createRequire } from "module";' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i '4iconst require = createRequire(import.meta.url);' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i 's/__dirname/dirname(fileURLToPath(import.meta.url))/g' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i 's/\(new URL([^)]\+)\).toString()/fileURLToPath(\1)/g' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i 's/vips.worker.js/vips.worker.mjs/g' $SOURCE_DIR/lib/node-es6/vips.mjs
+  mv $SOURCE_DIR/lib/node-es6/vips.worker.js $SOURCE_DIR/lib/node-es6/vips.worker.mjs
+  sed -i 's/var Module/import { fileURLToPath } from "url";&/' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
+  sed -i 's/var Module/import { createRequire } from "module";&/' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
+  sed -i 's/var Module/const require = createRequire(import.meta.url);&/' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
+  sed -i 's/__filename/fileURLToPath(import.meta.url)/g' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
+
+  # The produced vips.wasm file should be the same across the different variants (sanity check)
+  sha256=$(sha256sum "$SOURCE_DIR/lib/web/vips.wasm" | awk '{ print $1 }')
+  echo "$sha256 $SOURCE_DIR/lib/node-es6/vips.wasm" | sha256sum --check
+  echo "$sha256 $SOURCE_DIR/lib/node-commonjs/vips.wasm" | sha256sum --check
+
+  # Deduplicate produced vips.wasm file for Node.js
+  mv $SOURCE_DIR/lib/node-es6/vips.wasm $SOURCE_DIR/lib/vips.wasm
+  rm $SOURCE_DIR/lib/node-commonjs/vips.wasm
+
+  # Adjust vips.wasm path for Node.js
+  # Note: this is intentionally skipped for the web variant
+  for file in node-commonjs/vips.js node-es6/vips.mjs; do
+    sed -i 's/vips.wasm/..\/&/g' $SOURCE_DIR/lib/$file
+  done
   # FinalizationGroup -> FinalizationRegistry, see:
   # https://github.com/tc39/proposal-weakrefs/issues/180
   # https://github.com/emscripten-core/emscripten/issues/11436#issuecomment-645870155
-  # sed -i 's/FinalizationGroup/FinalizationRegistry/g' $SOURCE_DIR/lib/vips.js
+  # for file in node-commonjs/vips.js node-es6/vips.mjs web/vips.js; do
+  #   sed -i 's/FinalizationGroup/FinalizationRegistry/g' $SOURCE_DIR/lib/$file
+  # done
 )

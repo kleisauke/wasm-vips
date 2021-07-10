@@ -12,10 +12,22 @@
   },
   "license": "MIT",
   "author": "Kleis Auke Wolthuizen",
-  "main": "lib/node/vips.js",
+  "type": "commonjs",
+  "exports": {
+    "node": {
+      "import": "./lib/node-es6/vips.mjs",
+      "require": "./lib/node-commonjs/vips.js"
+    },
+    "default": "./lib/web/vips.js"
+  },
+  "main": "lib/node-commonjs/vips.js",
+  "types": "lib/vips.d.ts",
   "files": [
-    "lib/node/**",
-    "lib/web/**"
+    "lib/node-commonjs/*.js",
+    "lib/node-es6/*.mjs",
+    "lib/web/*.js",
+    "lib/vips.d.ts",
+    "lib/vips.wasm"
   ],
   "scripts": {
     "build": "docker build -t wasm-vips . && docker run --rm -v $(pwd):/src wasm-vips ./build.sh",

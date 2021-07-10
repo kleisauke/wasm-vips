@@ -82,11 +82,11 @@ diff --git a/glib/meson.build b/glib/meson.build
 index 1111111..2222222 100644
 --- a/glib/meson.build
 +++ b/glib/meson.build
-@@ -23,15 +23,8 @@ libsysprof_capture_dep = dependency('sysprof-capture-4', version: '>= 3.38.0',
+@@ -20,15 +20,8 @@ libsysprof_capture_dep = dependency('sysprof-capture-4', version: '>= 3.38.0',
  )
  glib_conf.set('HAVE_SYSPROF', libsysprof_capture_dep.found())
  
--# TODO: gnulib_objects, pcre_objects and pcre_deps are a workaround for
+-# TODO: gnulib_objects is a workaround for
 -# <https://github.com/mesonbuild/meson/issues/3934> and
 -# <https://github.com/mesonbuild/meson/issues/3937>. When we can depend
 -# on a meson version where those are fixed, revert the commit that
@@ -98,7 +98,7 @@ index 1111111..2222222 100644
    glib_conf.set ('gl_unused', '')
    glib_conf.set ('gl_extern_inline', '')
  else
-@@ -120,7 +113,6 @@ else
+@@ -117,7 +110,6 @@ else
    endif
  
    subdir('gnulib')
@@ -106,31 +106,19 @@ index 1111111..2222222 100644
  endif
  
  glib_headers = files(
-@@ -357,19 +349,10 @@ if use_pcre_static_flag
-   pcre_static_args = ['-DPCRE_STATIC']
- endif
- 
--if use_system_pcre
--  pcre_deps = [pcre]
--  pcre_objects = []
--else
--  pcre_deps = []
--  pcre_objects = [libpcre.extract_all_objects()]
--endif
--
- glib_c_args = ['-DG_LOG_DOMAIN="GLib"', '-DGLIB_COMPILATION'] + pcre_static_args + glib_hidden_visibility_args
+@@ -359,7 +351,6 @@ glib_c_args = ['-DG_LOG_DOMAIN="GLib"', '-DGLIB_COMPILATION'] + pcre_static_args
  libglib = library('glib-2.0',
    glib_dtrace_obj, glib_dtrace_hdr,
    sources : [deprecated_sources, glib_sources],
--  objects : [charset_lib.extract_all_objects()] + gnulib_objects + pcre_objects,
+-  objects : [charset_lib.extract_all_objects()] + gnulib_objects,
    version : library_version,
    soversion : soversion,
    darwin_versions : darwin_versions,
-@@ -377,7 +360,8 @@ libglib = library('glib-2.0',
+@@ -367,7 +358,8 @@ libglib = library('glib-2.0',
    # intl.lib is not compatible with SAFESEH
    link_args : [noseh_link_args, glib_link_flags, win32_ldflags],
    include_directories : configinc,
--  dependencies : pcre_deps + [thread_dep, librt] + libintl_deps + libiconv + platform_deps + [gnulib_libm_dependency, libm] + [libsysprof_capture_dep],
+-  dependencies : [pcre, thread_dep, librt] + libintl_deps + libiconv + platform_deps + [gnulib_libm_dependency, libm] + [libsysprof_capture_dep],
 +  link_with : [charset_lib, gnulib_lib],
 +  dependencies : [pcre, thread_dep, librt] + libintl_deps + libiconv + platform_deps + [libm, libsysprof_capture_dep],
    c_args : glib_c_args,
@@ -187,7 +175,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1815,7 +1815,7 @@ atomicdefine = '''
+@@ -1829,7 +1829,7 @@ atomicdefine = '''
  # We know that we can always use real ("lock free") atomic operations with MSVC
  if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
    have_atomic_lock_free = true
@@ -208,7 +196,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -637,7 +637,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
+@@ -642,7 +642,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
  endif
  
  # Check that posix_spawn() is usable; must use header
@@ -249,7 +237,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -419,7 +419,7 @@ foreach m : struct_members
+@@ -424,7 +424,7 @@ foreach m : struct_members
  endforeach
  
  # Compiler flags
@@ -258,7 +246,7 @@ index 1111111..2222222 100644
    warning_c_args = [
      '-Wduplicated-branches',
      '-Wimplicit-fallthrough',
-@@ -1458,13 +1458,13 @@ g_sizet_compatibility = {
+@@ -1472,13 +1472,13 @@ g_sizet_compatibility = {
    'long long': sizet_size == long_long_size,
  }
  
@@ -289,7 +277,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -944,9 +944,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
+@@ -949,9 +949,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
    glib_conf.set('HAVE_C99_SNPRINTF', false)
    glib_conf.set('HAVE_C99_VSNPRINTF', false)
    glib_conf.set('HAVE_UNIX98_PRINTF', false)
@@ -478,7 +466,7 @@ diff --git a/glib/meson.build b/glib/meson.build
 index 1111111..2222222 100644
 --- a/glib/meson.build
 +++ b/glib/meson.build
-@@ -417,7 +417,7 @@ if host_system == 'windows'
+@@ -415,7 +415,7 @@ if host_system == 'windows'
        include_directories : configinc,
        dependencies : [libglib_dep])
    endif
@@ -506,7 +494,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -2330,7 +2330,6 @@ subdir('gobject')
+@@ -2335,7 +2335,6 @@ subdir('gobject')
  subdir('gthread')
  subdir('gmodule')
  subdir('gio')

@@ -83,9 +83,9 @@ export CHOST="wasm32-unknown-linux" # wasm32-unknown-emscripten
 export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 
 # Dependency version numbers
-VERSION_ZLIBNG=2.0.4
-VERSION_FFI=3.3
-VERSION_GLIB=2.68.3
+VERSION_ZLIBNG=2.0.5
+VERSION_FFI=3.4.2
+VERSION_GLIB=2.69.0
 VERSION_EXPAT=2.4.1
 VERSION_EXIF=0.6.22
 VERSION_LCMS2=2.12
@@ -94,7 +94,7 @@ VERSION_PNG16=1.6.37
 VERSION_SPNG=0.6.3
 VERSION_WEBP=1.2.0
 VERSION_TIFF=4.3.0
-VERSION_VIPS=8.11.0
+VERSION_VIPS=8.11.2
 
 # Remove patch version component
 without_patch() {
@@ -117,9 +117,6 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
 
   # https://github.com/emscripten-core/emscripten/pull/10110
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-10110.patch
-
-  # https://github.com/emscripten-core/emscripten/pull/12963
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-12963.patch
 
   # Need to rebuild libembind, libc, libdlmalloc and libemmalloc,
   # since we modified it with the patches above
@@ -152,7 +149,7 @@ echo "Compiling ffi"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/libffi.pc" || (
   mkdir $DEPS/ffi
-  curl -Ls https://sourceware.org/pub/libffi/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
+  curl -Ls https://github.com/libffi/libffi/releases/download/v$VERSION_FFI/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
   cd $DEPS/ffi
   patch -p1 <$SOURCE_DIR/build/patches/libffi-emscripten.patch
   autoreconf -fiv
@@ -171,7 +168,7 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-function-pointers.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Diconv="libc" -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled -Dinternal_pcre=true \
+    --force-fallback-for=libpcre -Diconv="libc" -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
     -Dtests=false -Dglib_assert=false -Dglib_checks=false
   ninja -C _build install
 )

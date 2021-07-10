@@ -40,19 +40,29 @@ target_link_libraries(${PROJECT_NAME}
 set(TARGETS "")
 
 if("node" IN_LIST ENVIRONMENT)
-    add_executable(${PROJECT_NAME}-node $<TARGET_OBJECTS:${PROJECT_NAME}>)
+    add_executable(${PROJECT_NAME}-node-es6 $<TARGET_OBJECTS:${PROJECT_NAME}>)
+    add_executable(${PROJECT_NAME}-node-commonjs $<TARGET_OBJECTS:${PROJECT_NAME}>)
 
-    set_target_properties(${PROJECT_NAME}-node
+    set_target_properties(${PROJECT_NAME}-node-es6
             PROPERTIES
-                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/node"
+                SUFFIX ".mjs"
+                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/node-es6"
+            )
+    set_target_properties(${PROJECT_NAME}-node-commonjs
+            PROPERTIES
+                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/node-commonjs"
             )
 
-    target_link_libraries(${PROJECT_NAME}-node
+    target_link_libraries(${PROJECT_NAME}-node-es6
+            PRIVATE
+                ${VIPS_STATIC_LDFLAGS}
+            )
+    target_link_libraries(${PROJECT_NAME}-node-commonjs
             PRIVATE
                 ${VIPS_STATIC_LDFLAGS}
             )
 
-    list(APPEND TARGETS ${PROJECT_NAME}-node)
+    list(APPEND TARGETS ${PROJECT_NAME}-node-es6 ${PROJECT_NAME}-node-commonjs)
 endif()
 
 if("web" IN_LIST ENVIRONMENT)
@@ -108,13 +118,17 @@ set_target_properties(${TARGETS}
 -s EXPORTED_RUNTIME_METHODS='[\"FS\", \"ENV\", \"deletionQueue\", \"addFunction\", \"emscripten_num_logical_cores\"]'"
         )
 
-# TODO(kleisauke): Add -s EXPORT_ES6, see:
-# https://github.com/emscripten-core/emscripten/issues/11792.
 if("node" IN_LIST ENVIRONMENT)
+    set(NODE_LINK_FLAGS " -s ENVIRONMENT=node,worker -s NODERAWFS -s NODEJS_CATCH_EXIT=0 -s NODEJS_CATCH_REJECTION=0")
     set_property(
-            TARGET ${PROJECT_NAME}-node
+            TARGET ${PROJECT_NAME}-node-es6
             APPEND_STRING PROPERTY
-            LINK_FLAGS " -s ENVIRONMENT=node,worker -s NODERAWFS -s NODEJS_CATCH_EXIT=0 -s NODEJS_CATCH_REJECTION=0"
+            LINK_FLAGS "${NODE_LINK_FLAGS} -s EXPORT_ES6"
+    )
+    set_property(
+            TARGET ${PROJECT_NAME}-node-commonjs
+            APPEND_STRING PROPERTY
+            LINK_FLAGS "${NODE_LINK_FLAGS}"
             )
 endif()
 
@@ -122,6 +136,6 @@ if("web" IN_LIST ENVIRONMENT)
     set_property(
             TARGET ${PROJECT_NAME}-web
             APPEND_STRING PROPERTY
-            LINK_FLAGS " -s ENVIRONMENT=web,worker -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE='[\"$Browser\"]'"
+            LINK_FLAGS " -s ENVIRONMENT=web,worker -s EXPORT_ES6 -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE='[\"$Browser\"]'"
             )
 endif()

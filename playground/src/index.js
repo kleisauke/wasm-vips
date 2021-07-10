@@ -319,11 +319,19 @@ function doRun(runContainer) {
         window.addEventListener('message', function (e) {
             if (e.source === runIframe.contentWindow) {
                 vipsInitialized = true;
-                runIframe.contentWindow.load(getLang('js'), getLang('html'), getLang('css'));
+                runIframe.contentWindow.postMessage({
+                    js: getLang('js'),
+                    html: getLang('html'),
+                    css: getLang('css')
+                });
             }
         });
     } else if (vipsInitialized) {
-        runIframe.contentWindow.load(getLang('js'), getLang('html'), getLang('css'));
+        runIframe.contentWindow.postMessage({
+            js: getLang('js'),
+            html: getLang('html'),
+            css: getLang('css')
+        });
     }
 }
 

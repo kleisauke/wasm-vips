@@ -1,5 +1,7 @@
 'use strict';
 
+import * as Helpers from './helpers.js';
+
 describe('morphology', () => {
     afterEach(function () {
         cleanup();

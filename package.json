@@ -12,25 +12,36 @@
   },
   "license": "MIT",
   "author": "Kleis Auke Wolthuizen",
-  "main": "lib/node/vips.js",
+  "type": "commonjs",
+  "exports": {
+    "node": {
+      "import": "./lib/node-es6/vips.mjs",
+      "require": "./lib/node-commonjs/vips.js"
+    },
+    "default": "./lib/web/vips.js"
+  },
+  "main": "lib/node-commonjs/vips.js",
+  "types": "lib/vips.d.ts",
   "files": [
-    "lib/node/**",
-    "lib/web/**"
+    "lib/node-commonjs/*.js",
+    "lib/node-es6/*.mjs",
+    "lib/web/*.js",
+    "lib/vips.d.ts",
+    "lib/vips.wasm"
   ],
   "scripts": {
-    "build:web": "docker build -t wasm-vips . && docker run --rm -v $(pwd):/src wasm-vips ./build.sh -e web",
-    "build:node": "docker build -t wasm-vips . && docker run --rm -v $(pwd):/src wasm-vips ./build.sh -e node --enable-simd",
-    "build": "npm run build:node",
+    "build": "docker build -t wasm-vips . && docker run --rm -v $(pwd):/src wasm-vips ./build.sh",
     "test:web": "serve -c test/unit/serve.json",
-    "test:node": "node --experimental-wasm-threads --experimental-wasm-simd node_modules/mocha/bin/mocha -s 5000 -t 60000 test/unit/*.js -r test/unit/node-helper.js",
+    "test:node": "cd test/unit && npm run test",
     "test": "npm run test:node",
     "bench:web": "serve -c test/bench/serve.json",
     "bench:node": "cd test/bench && npm run test",
     "bench": "npm run bench:node"
   },
   "devDependencies": {
-    "chai": "^4.3.4",
-    "mocha": "^9.0.0",
     "serve": "^12.0.0"
+  },
+  "engines": {
+    "node": ">=16.4.0"
   }
 }

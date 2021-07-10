@@ -24,3 +24,8 @@ https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstrati
 ```
 https://storage.googleapis.com/downloads.webmproject.org/webp/images/dancing_banana2.lossless.webp
 ```
+
+[`banana.gif`](banana.gif):
+```
+https://storage.googleapis.com/downloads.webmproject.org/webp/images/dancing-banana.gif
+```

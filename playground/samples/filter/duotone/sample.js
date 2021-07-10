@@ -22,6 +22,7 @@ let im = vips.Image.newFromFile('owl.jpg');
 //let im = vips.Image.newFromFile('owl.tif');
 //let im = vips.Image.newFromFile('transparency_demo.png');
 //let im = vips.Image.newFromFile('banana.webp', {n: -1});
+//let im = vips.Image.newFromFile('banana.gif', {n: -1});
 
 // Or to load a formatted image from buffer
 // const buffer = await fetch('assets/images/owl.webp').then(resp => resp.arrayBuffer());

@@ -49,7 +49,7 @@ index 1111111..2222222 100644
  {
    iface->activate_action_full = g_application_exported_actions_activate_action_full;
    iface->change_action_state_full = g_application_exported_actions_change_action_state_full;
-@@ -2713,7 +2717,8 @@ g_application_remove_action (GActionMap  *action_map,
+@@ -2729,7 +2733,8 @@ g_application_remove_action (GActionMap  *action_map,
  }
  
  static void
@@ -59,7 +59,7 @@ index 1111111..2222222 100644
  {
    iface->list_actions = g_application_list_actions;
    iface->query_action = g_application_query_action;
-@@ -2722,7 +2727,8 @@ g_application_action_group_iface_init (GActionGroupInterface *iface)
+@@ -2738,7 +2743,8 @@ g_application_action_group_iface_init (GActionGroupInterface *iface)
  }
  
  static void
@@ -317,7 +317,7 @@ index 1111111..2222222 100644
  
  G_DEFINE_TYPE_WITH_CODE (GDBusConnection, g_dbus_connection, G_TYPE_OBJECT,
                           G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, initable_iface_init)
-@@ -2661,7 +2663,8 @@ initable_init (GInitable     *initable,
+@@ -2673,7 +2675,8 @@ initable_init (GInitable     *initable,
  }
  
  static void
@@ -327,7 +327,7 @@ index 1111111..2222222 100644
  {
    initable_iface->init = initable_init;
  }
-@@ -2669,7 +2672,8 @@ initable_iface_init (GInitableIface *initable_iface)
+@@ -2681,7 +2684,8 @@ initable_iface_init (GInitableIface *initable_iface)
  /* ---------------------------------------------------------------------------------------------------- */
  
  static void
@@ -365,20 +365,23 @@ diff --git a/gio/gdbusobjectmanagerclient.c b/gio/gdbusobjectmanagerclient.c
 index 1111111..2222222 100644
 --- a/gio/gdbusobjectmanagerclient.c
 +++ b/gio/gdbusobjectmanagerclient.c
-@@ -169,8 +169,10 @@ enum
+@@ -172,9 +172,12 @@ enum
  
  static guint signals[LAST_SIGNAL] = { 0 };
  
 -static void initable_iface_init       (GInitableIface *initable_iface);
 -static void async_initable_iface_init (GAsyncInitableIface *async_initable_iface);
+-static void dbus_object_manager_interface_init (GDBusObjectManagerIface *iface);
 +static void initable_iface_init       (GInitableIface *initable_iface,
 +                                       gpointer        iface_data);
 +static void async_initable_iface_init (GAsyncInitableIface *async_initable_iface,
 +                                       gpointer             iface_data);
- static void dbus_object_manager_interface_init (GDBusObjectManagerIface *iface);
++static void dbus_object_manager_interface_init (GDBusObjectManagerIface *iface,
++                                                gpointer                 iface_data);
  
  G_DEFINE_TYPE_WITH_CODE (GDBusObjectManagerClient, g_dbus_object_manager_client, G_TYPE_OBJECT,
-@@ -1467,13 +1469,15 @@ initable_init (GInitable     *initable,
+                          G_ADD_PRIVATE (GDBusObjectManagerClient)
+@@ -1514,13 +1517,15 @@ initable_init (GInitable     *initable,
  }
  
  static void
@@ -396,11 +399,21 @@ index 1111111..2222222 100644
  {
    /* for now, just use default: run GInitable code in thread */
  }
+@@ -1863,7 +1868,8 @@ g_dbus_object_manager_client_get_objects (GDBusObjectManager *_manager)
+ 
+ 
+ static void
+-dbus_object_manager_interface_init (GDBusObjectManagerIface *iface)
++dbus_object_manager_interface_init (GDBusObjectManagerIface *iface,
++                                    gpointer                 iface_data)
+ {
+   iface->get_object_path = g_dbus_object_manager_client_get_object_path;
+   iface->get_objects     = g_dbus_object_manager_client_get_objects;
 diff --git a/gio/gdbusproxy.c b/gio/gdbusproxy.c
 index 1111111..2222222 100644
 --- a/gio/gdbusproxy.c
 +++ b/gio/gdbusproxy.c
-@@ -168,9 +168,12 @@ enum
+@@ -175,9 +175,12 @@ enum
  
  static guint signals[LAST_SIGNAL] = {0};
  
@@ -416,7 +429,7 @@ index 1111111..2222222 100644
  
  G_DEFINE_TYPE_WITH_CODE (GDBusProxy, g_dbus_proxy, G_TYPE_OBJECT,
                           G_ADD_PRIVATE (GDBusProxy)
-@@ -1832,7 +1835,8 @@ async_initable_init_finish (GAsyncInitable  *initable,
+@@ -1839,7 +1842,8 @@ async_initable_init_finish (GAsyncInitable  *initable,
  }
  
  static void
@@ -426,7 +439,7 @@ index 1111111..2222222 100644
  {
    async_initable_iface->init_async = async_initable_init_async;
    async_initable_iface->init_finish = async_initable_init_finish;
-@@ -1919,7 +1923,8 @@ initable_init (GInitable     *initable,
+@@ -1926,7 +1930,8 @@ initable_init (GInitable     *initable,
  }
  
  static void
@@ -436,7 +449,7 @@ index 1111111..2222222 100644
  {
    initable_iface->init = initable_init;
  }
-@@ -3170,7 +3175,8 @@ _g_dbus_proxy_set_object (GDBusInterface *interface,
+@@ -3181,7 +3186,8 @@ _g_dbus_proxy_set_object (GDBusInterface *interface,
  }
  
  static void
@@ -460,7 +473,7 @@ index 1111111..2222222 100644
  
  G_DEFINE_TYPE_WITH_CODE (GDBusServer, g_dbus_server, G_TYPE_OBJECT,
                           G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, initable_iface_init))
-@@ -1190,7 +1191,8 @@ initable_init (GInitable     *initable,
+@@ -1194,7 +1195,8 @@ initable_init (GInitable     *initable,
  
  
  static void
@@ -926,7 +939,7 @@ index 1111111..2222222 100644
  
  static GFileAttributeInfoList *local_writable_attributes = NULL;
  static /* GFileAttributeInfoList * */ gsize local_writable_namespaces = 0;
-@@ -2957,7 +2958,8 @@ g_local_file_measure_disk_usage (GFile                         *file,
+@@ -2959,7 +2960,8 @@ g_local_file_measure_disk_usage (GFile                         *file,
  }
  
  static void
@@ -1430,7 +1443,7 @@ diff --git a/gio/gsettings.c b/gio/gsettings.c
 index 1111111..2222222 100644
 --- a/gio/gsettings.c
 +++ b/gio/gsettings.c
-@@ -3163,7 +3163,8 @@ typedef struct
+@@ -3159,7 +3159,8 @@ typedef struct
  typedef GObjectClass GSettingsActionClass;
  
  static GType g_settings_action_get_type (void);
@@ -1440,7 +1453,7 @@ index 1111111..2222222 100644
  G_DEFINE_TYPE_WITH_CODE (GSettingsAction, g_settings_action, G_TYPE_OBJECT,
                           G_IMPLEMENT_INTERFACE (G_TYPE_ACTION, g_settings_action_iface_init))
  
-@@ -3323,7 +3324,8 @@ g_settings_action_init (GSettingsAction *gsa)
+@@ -3319,7 +3320,8 @@ g_settings_action_init (GSettingsAction *gsa)
  }
  
  static void
@@ -1928,7 +1941,7 @@ index 1111111..2222222 100644
  static gchar *g_unix_socket_address_connectable_to_string  (GSocketConnectable      *connectable);
  
  G_DEFINE_TYPE_WITH_CODE (GUnixSocketAddress, g_unix_socket_address, G_TYPE_SOCKET_ADDRESS,
-@@ -311,7 +312,8 @@ g_unix_socket_address_class_init (GUnixSocketAddressClass *klass)
+@@ -312,7 +313,8 @@ g_unix_socket_address_class_init (GUnixSocketAddressClass *klass)
  }
  
  static void
@@ -1990,7 +2003,7 @@ diff --git a/gio/gwin32mount.c b/gio/gwin32mount.c
 index 1111111..2222222 100644
 --- a/gio/gwin32mount.c
 +++ b/gio/gwin32mount.c
-@@ -55,7 +55,8 @@ struct _GWin32Mount {
+@@ -95,7 +95,8 @@ struct _GWin32Mount {
    gboolean can_eject;
  };
  
@@ -2000,7 +2013,7 @@ index 1111111..2222222 100644
  
  #define g_win32_mount_get_type _g_win32_mount_get_type
  G_DEFINE_TYPE_WITH_CODE (GWin32Mount, g_win32_mount, G_TYPE_OBJECT,
-@@ -352,7 +353,8 @@ g_win32_mount_eject_finish (GMount        *mount,
+@@ -521,7 +522,8 @@ g_win32_mount_eject_finish (GMount        *mount,
  }
  
  static void

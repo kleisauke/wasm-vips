@@ -22,33 +22,37 @@ mkdir -p $TARGET
 # Specifies the environment(s) to target
 ENVIRONMENT="web,node"
 
-# Single Instruction Multiple Data (SIMD), disabled by default
-SIMD=false
+# Fixed-width SIMD, enabled by default
+SIMD=true
+
+# JS BigInt to Wasm i64 integration, enabled by default
+WASM_BIGINT=true
 
 # Link-time optimizations (LTO), disabled by default
 # https://github.com/emscripten-core/emscripten/issues/10603
-LTO_FLAG=
-
-# JS BigInt to Wasm i64 integration, disabled by default
-WASM_BIGINT_FLAG=
+LTO=false
 
 # Parse arguments
 while [ $# -gt 0 ]; do
   case $1 in
-    --enable-simd) SIMD=true ;;
-    --enable-lto) LTO_FLAG=--lto ;;
-    --enable-wasm-bigint) WASM_BIGINT_FLAG="-s WASM_BIGINT" ;;
+    --enable-lto) LTO=true ;;
+    --disable-simd) SIMD=false ;;
+    --disable-wasm-bigint) WASM_BIGINT=false ;;
     -e|--environment) ENVIRONMENT="$2"; shift ;;
     *) echo "ERROR: Unknown parameter: $1" >&2; exit 1 ;;
   esac
   shift
 done
 
+# SIMD configure flags helpers
 if [ "$SIMD" = "true" ]; then
   ENABLE_SIMD=true
 else
   DISABLE_SIMD=true
 fi
+
+# LTO embuilder flag
+if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 
 # Handy for debugging
 #export CFLAGS="-O0 -gsource-map"
@@ -67,11 +71,15 @@ fi
 # Common compiler flags
 export CFLAGS="-O0 -gsource-map -fno-rtti -fno-exceptions -mnontrapping-fptoint"
 if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW -DSIMDE_NO_INLINE"; fi
-if [ -n "$LTO_FLAG" ]; then export CFLAGS+=" -flto"; fi
-if [ -n "$WASM_BIGINT_FLAG" ]; then export CFLAGS+=" $WASM_BIGINT_FLAG -DWASM_BIGINT"; fi
+if [ "$WASM_BIGINT" = "true" ]; then
+  # libffi needs to detect WASM_BIGINT support at compile time
+  export CFLAGS+=" -DWASM_BIGINT"
+fi
+if [ "$LTO" = "true" ]; then export CFLAGS+=" -flto"; fi
 export CXXFLAGS="$CFLAGS"
 export LDFLAGS="-L$TARGET/lib -O0 -gsource-map"
-if [ -n "$LTO_FLAG" ]; then export LDFLAGS+=" -flto"; fi
+if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -s WASM_BIGINT"; fi
+if [ "$LTO" = "true" ]; then export LDFLAGS+=" -flto"; fi
 
 # Build paths
 export CPATH="$TARGET/include"
@@ -83,9 +91,9 @@ export CHOST="wasm32-unknown-linux" # wasm32-unknown-emscripten
 export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 
 # Dependency version numbers
-VERSION_ZLIBNG=2.0.3
-VERSION_FFI=3.3
-VERSION_GLIB=2.68.3
+VERSION_ZLIBNG=2.0.5
+VERSION_FFI=3.4.2
+VERSION_GLIB=2.69.0
 VERSION_EXPAT=2.4.1
 VERSION_EXIF=0.6.22
 VERSION_LCMS2=2.12
@@ -94,7 +102,7 @@ VERSION_PNG16=1.6.37
 VERSION_SPNG=0.6.3
 VERSION_WEBP=1.2.0
 VERSION_TIFF=4.3.0
-VERSION_VIPS=8.11.0
+VERSION_VIPS=8.11.2
 
 # Remove patch version component
 without_patch() {
@@ -118,9 +126,6 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
 
   # https://github.com/emscripten-core/emscripten/pull/10110
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-10110.patch
-
-  # https://github.com/emscripten-core/emscripten/pull/12963
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-12963.patch
 
   # Need to rebuild libembind, libc, libdlmalloc and libemmalloc,
   # since we modified it with the patches above
@@ -153,7 +158,7 @@ echo "Compiling ffi"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/libffi.pc" || (
   mkdir $DEPS/ffi
-  curl -Ls https://sourceware.org/pub/libffi/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
+  curl -Ls https://github.com/libffi/libffi/releases/download/v$VERSION_FFI/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
   cd $DEPS/ffi
   patch -p1 <$SOURCE_DIR/build/patches/libffi-emscripten.patch
   autoreconf -fiv
@@ -172,7 +177,7 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-function-pointers.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Diconv="libc" -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled -Dinternal_pcre=true \
+    --force-fallback-for=libpcre -Diconv="libc" -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
     -Dtests=false -Dglib_assert=false -Dglib_checks=false
   ninja -C _build install
 )
@@ -327,8 +332,45 @@ echo "============================================="
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" \
     -DENVIRONMENT=${ENVIRONMENT//,/;}
   make
+)
+
+echo "============================================="
+echo "Prepare NPM package"
+echo "============================================="
+[ "$ENVIRONMENT" = "web,node" ] && (
+  # Building for both Node.js and web, prepare NPM package
+  # FIXME(kleisauke): Workaround for https://github.com/emscripten-core/emscripten/issues/11792
+  sed -i '1iimport { dirname } from "path";' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i '2iimport { fileURLToPath } from "url";' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i '3iimport { createRequire } from "module";' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i '4iconst require = createRequire(import.meta.url);' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i 's/__dirname/dirname(fileURLToPath(import.meta.url))/g' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i 's/\(new URL([^)]\+)\).toString()/fileURLToPath(\1)/g' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i 's/vips.worker.js/vips.worker.mjs/g' $SOURCE_DIR/lib/node-es6/vips.mjs
+  mv $SOURCE_DIR/lib/node-es6/vips.worker.js $SOURCE_DIR/lib/node-es6/vips.worker.mjs
+  sed -i 's/var Module/import { fileURLToPath } from "url";&/' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
+  sed -i 's/var Module/import { createRequire } from "module";&/' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
+  sed -i 's/var Module/const require = createRequire(import.meta.url);&/' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
+  sed -i 's/__filename/fileURLToPath(import.meta.url)/g' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
+
+  # The produced vips.wasm file should be the same across the different variants (sanity check)
+  sha256=$(sha256sum "$SOURCE_DIR/lib/web/vips.wasm" | awk '{ print $1 }')
+  echo "$sha256 $SOURCE_DIR/lib/node-es6/vips.wasm" | sha256sum --check
+  echo "$sha256 $SOURCE_DIR/lib/node-commonjs/vips.wasm" | sha256sum --check
+
+  # Deduplicate produced vips.wasm file for Node.js
+  mv $SOURCE_DIR/lib/node-es6/vips.wasm $SOURCE_DIR/lib/vips.wasm
+  rm $SOURCE_DIR/lib/node-commonjs/vips.wasm
+
+  # Adjust vips.wasm path for Node.js
+  # Note: this is intentionally skipped for the web variant
+  for file in node-commonjs/vips.js node-es6/vips.mjs; do
+    sed -i 's/vips.wasm/..\/&/g' $SOURCE_DIR/lib/$file
+  done
   # FinalizationGroup -> FinalizationRegistry, see:
   # https://github.com/tc39/proposal-weakrefs/issues/180
   # https://github.com/emscripten-core/emscripten/issues/11436#issuecomment-645870155
-  # sed -i 's/FinalizationGroup/FinalizationRegistry/g' $SOURCE_DIR/lib/vips.js
+  # for file in node-commonjs/vips.js node-es6/vips.mjs web/vips.js; do
+  #   sed -i 's/FinalizationGroup/FinalizationRegistry/g' $SOURCE_DIR/lib/$file
+  # done
 )

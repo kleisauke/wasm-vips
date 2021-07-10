@@ -1,26 +1,26 @@
 {
-  "name": "wasm-vips-benchmark",
+  "name": "wasm-vips-test",
   "version": "0.0.1",
   "private": true,
-  "description": "Benchmark and performance tests for wasm-vips",
-  "homepage": "https://github.com/kleisauke/wasm-vips/tree/master/test/bench#readme",
+  "description": "Unit tests for wasm-vips",
+  "homepage": "https://github.com/kleisauke/wasm-vips/tree/master/test/unit",
   "bugs": {
     "url": "https://github.com/kleisauke/wasm-vips/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kleisauke/wasm-vips.git",
-    "directory": "test/bench"
+    "directory": "test/unit"
   },
   "license": "MIT",
   "author": "Kleis Auke Wolthuizen",
   "type": "module",
-  "main": "perf.js",
   "scripts": {
-    "test": "node perf"
+    "test": "mocha -s 5000 -t 60000 *.js -r node-helper.js"
   },
   "devDependencies": {
-    "benchmark": "^2.1.4"
+    "chai": "^4.3.4",
+    "mocha": "^9.0.2"
   },
   "engines": {
     "node": ">=16.4.0"

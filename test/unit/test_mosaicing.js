@@ -1,5 +1,7 @@
 'use strict';
 
+import * as Helpers from './helpers.js';
+
 describe('mosaicing', () => {
     afterEach(function () {
         cleanup();

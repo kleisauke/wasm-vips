@@ -3,7 +3,7 @@
     <meta charset="utf-8">
     <title>wasm-vips testsuite</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/9.0.0/mocha.min.css" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/9.0.2/mocha.min.css" crossorigin="anonymous"/>
     <style>
         html,
         body {
@@ -66,7 +66,7 @@
 </head>
 <body>
 <div id="mocha"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/9.0.0/mocha.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/9.0.2/mocha.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.3.4/chai.min.js" crossorigin="anonymous"></script>
 <script class="mocha-init">
     mocha.setup({
@@ -75,32 +75,31 @@
         timeout: 60000
     });
 </script>
-<script src="lib/web/vips.js"></script>
-<script src="helpers.js"></script>
-<script src="test_arithmetic.js"></script>
-<script src="test_colour.js"></script>
-<script src="test_connection.js"></script>
-<script src="test_conversion.js"></script>
-<script src="test_convolution.js"></script>
-<script src="test_create.js"></script>
-<script src="test_draw.js"></script>
-<script src="test_foreign.js"></script>
-<script src="test_histogram.js"></script>
-<script src="test_iofuncs.js"></script>
-<script src="test_morphology.js"></script>
-<script src="test_mosaicing.js"></script>
-<script src="test_resample.js"></script>
-<script class="mocha-exec">
+<script type="module" src="test_arithmetic.js"></script>
+<script type="module" src="test_colour.js"></script>
+<script type="module" src="test_connection.js"></script>
+<script type="module" src="test_conversion.js"></script>
+<script type="module" src="test_convolution.js"></script>
+<script type="module" src="test_create.js"></script>
+<script type="module" src="test_draw.js"></script>
+<script type="module" src="test_foreign.js"></script>
+<script type="module" src="test_histogram.js"></script>
+<script type="module" src="test_iofuncs.js"></script>
+<script type="module" src="test_morphology.js"></script>
+<script type="module" src="test_mosaicing.js"></script>
+<script type="module" src="test_resample.js"></script>
+<script type="module" class="mocha-exec">
     // Global variables used throughout the unit tests
-    const expect = chai.expect;
-    let vips;
-    let cleanup;
+    globalThis.expect = chai.expect;
+
+    import * as Helpers from './helpers.js';
+    import Vips from './lib/web/vips.js';
 
     const options = {
         print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
         preRun: (module) => {
             module['EMBIND_AUTOMATIC_DELETELATER'] = true;
-            module.setDelayFunction(fn => cleanup = fn);
+            module.setDelayFunction(fn => globalThis.cleanup = fn);
 
             // Handy for debugging
             // module.ENV.G_MESSAGES_DEBUG = 'VIPS';
@@ -140,10 +139,8 @@
         }
     };
 
-    Vips(options).then(instance => {
-        vips = instance;
-        mocha.run();
-    });
+    globalThis.vips = await Vips(options);
+    mocha.run();
 </script>
 </body>
 </html>

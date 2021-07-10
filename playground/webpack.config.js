@@ -110,6 +110,10 @@ module.exports = {
                 {
                     from: path.join(__dirname, '..', 'lib', 'web'),
                     to: path.join(__dirname, 'dist', 'lib'),
+                },
+                {
+                    from: path.join(__dirname, '..', 'lib', 'vips.d.ts'),
+                    to: path.join(__dirname, 'dist', 'lib'),
                 }
             ],
         })

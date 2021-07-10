@@ -10,36 +10,39 @@
     </style>
 </head>
 <body style="height:100%">
-<script src="../lib/vips.js?<%= __webpack_hash__ %>"></script>
-<script type="text/javascript">
+<script type="module">
     let loadedElements = [];
-    let vips;
-    let cleanup;
 
-    function load(js, html, css) {
+    import Vips from '../lib/vips.js?<%= __webpack_hash__ %>';
+
+    window.addEventListener('message', load);
+
+    function load(event) {
         loadedElements = loadedElements.filter(el => el.remove());
-        if (typeof cleanup === "function")
+        if (typeof cleanup === 'function')
             cleanup();
 
-        if (css) {
-            const style = document.createElement("style");
-            style.type = "text/css";
-            style.innerHTML = css;
+        const data = event.data;
+
+        if (data.css) {
+            const style = document.createElement('style');
+            style.type = 'text/css';
+            style.innerHTML = data.css;
             document.head.appendChild(style);
             loadedElements.push(style);
         }
-        if (html) {
-            const content = document.createElement("div");
+        if (data.html) {
+            const content = document.createElement('div');
             content.style.height = '100%';
-            content.innerHTML = html;
+            content.innerHTML = data.html;
             document.body.insertBefore(content, document.body.firstChild);
             loadedElements.push(content);
         }
-        if (js) {
+        if (data.js) {
             try {
-                eval("(async () => {\n" + js + "\n})()");
+                eval("(async () => {\n" + data.js + "\n})()");
             } catch (err) {
-                const pre = document.createElement("pre");
+                const pre = document.createElement('pre');
                 pre.appendChild(document.createTextNode(err));
                 document.body.insertBefore(pre, document.body.firstChild);
                 loadedElements.push(pre)
@@ -51,13 +54,13 @@
         print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
         preRun: (module) => {
             module['EMBIND_AUTOMATIC_DELETELATER'] = true;
-            module.setDelayFunction(fn => cleanup = fn);
+            module.setDelayFunction(fn => globalThis.cleanup = fn);
 
             // Handy for debugging
-            module.ENV.G_MESSAGES_DEBUG = 'VIPS';
+            // module.ENV.G_MESSAGES_DEBUG = 'VIPS';
 
-            for (const image of ['owl.jpg', 'owl.tif', 'owl.webp', 'banana.webp', 'transparency_demo.png'])
-                module.FS.createPreloadedFile('/', image, "assets/images/" + image, true, false);
+            for (const image of ['owl.jpg', 'owl.tif', 'owl.webp', 'banana.webp', 'banana.gif', 'transparency_demo.png'])
+                module.FS.createPreloadedFile('/', image, 'assets/images/' + image, true, false);
         },
         postRun: (module) => {
             const pad = 30;
@@ -90,10 +93,8 @@
         }
     };
 
-    Vips(options).then(instance => {
-        vips = instance;
-        window.parent.postMessage('vipsInitialized', '*');
-    });
+    globalThis.vips = await Vips(options);
+    window.parent.postMessage('vipsInitialized', '*');
 </script>
 </body>
 </html>

@@ -16,12 +16,12 @@
   "author": "Kleis Auke Wolthuizen",
   "main": "perf.js",
   "scripts": {
-    "test": "node --experimental-wasm-threads --experimental-wasm-simd perf"
+    "test": "node perf"
   },
   "devDependencies": {
     "benchmark": "^2.1.4"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=16.4.0"
   }
 }

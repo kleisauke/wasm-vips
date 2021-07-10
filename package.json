@@ -18,11 +18,9 @@
     "lib/web/**"
   ],
   "scripts": {
-    "build:web": "docker build -t wasm-vips . && docker run --rm -v $(pwd):/src wasm-vips ./build.sh -e web",
-    "build:node": "docker build -t wasm-vips . && docker run --rm -v $(pwd):/src wasm-vips ./build.sh -e node --enable-simd",
-    "build": "npm run build:node",
+    "build": "docker build -t wasm-vips . && docker run --rm -v $(pwd):/src wasm-vips ./build.sh",
     "test:web": "serve -c test/unit/serve.json",
-    "test:node": "node --experimental-wasm-threads --experimental-wasm-simd node_modules/mocha/bin/mocha -s 5000 -t 60000 test/unit/*.mjs -r test/unit/node-helper.js",
+    "test:node": "mocha -s 5000 -t 60000 test/unit/*.mjs -r test/unit/node-helper.js",
     "test": "npm run test:node",
     "bench:web": "serve -c test/bench/serve.json",
     "bench:node": "cd test/bench && npm run test",
@@ -32,5 +30,8 @@
     "chai": "^4.3.4",
     "mocha": "^9.0.2",
     "serve": "^12.0.0"
+  },
+  "engines": {
+    "node": ">=16.4.0"
   }
 }

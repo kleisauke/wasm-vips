@@ -22,33 +22,37 @@ mkdir -p $TARGET
 # Specifies the environment(s) to target
 ENVIRONMENT="web,node"
 
-# Single Instruction Multiple Data (SIMD), disabled by default
-SIMD=false
+# Fixed-width SIMD, enabled by default
+SIMD=true
+
+# JS BigInt to Wasm i64 integration, enabled by default
+WASM_BIGINT=true
 
 # Link-time optimizations (LTO), disabled by default
 # https://github.com/emscripten-core/emscripten/issues/10603
-LTO_FLAG=
-
-# JS BigInt to Wasm i64 integration, disabled by default
-WASM_BIGINT_FLAG=
+LTO=false
 
 # Parse arguments
 while [ $# -gt 0 ]; do
   case $1 in
-    --enable-simd) SIMD=true ;;
-    --enable-lto) LTO_FLAG=--lto ;;
-    --enable-wasm-bigint) WASM_BIGINT_FLAG="-s WASM_BIGINT" ;;
+    --enable-lto) LTO=true ;;
+    --disable-simd) SIMD=false ;;
+    --disable-wasm-bigint) WASM_BIGINT=false ;;
     -e|--environment) ENVIRONMENT="$2"; shift ;;
     *) echo "ERROR: Unknown parameter: $1" >&2; exit 1 ;;
   esac
   shift
 done
 
+# SIMD configure flags helpers
 if [ "$SIMD" = "true" ]; then
   ENABLE_SIMD=true
 else
   DISABLE_SIMD=true
 fi
+
+# LTO embuilder flag
+if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 
 # Handy for debugging
 #export CFLAGS="-O0 -gsource-map"
@@ -67,11 +71,15 @@ fi
 # Common compiler flags
 export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint"
 if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128"; fi
-if [ -n "$LTO_FLAG" ]; then export CFLAGS+=" -flto"; fi
-if [ -n "$WASM_BIGINT_FLAG" ]; then export CFLAGS+=" $WASM_BIGINT_FLAG -DWASM_BIGINT"; fi
+if [ "$WASM_BIGINT" = "true" ]; then
+  # libffi needs to detect WASM_BIGINT support at compile time
+  export CFLAGS+=" -DWASM_BIGINT"
+fi
+if [ "$LTO" = "true" ]; then export CFLAGS+=" -flto"; fi
 export CXXFLAGS="$CFLAGS"
 export LDFLAGS="-L$TARGET/lib -O3"
-if [ -n "$LTO_FLAG" ]; then export LDFLAGS+=" -flto"; fi
+if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -s WASM_BIGINT"; fi
+if [ "$LTO" = "true" ]; then export LDFLAGS+=" -flto"; fi
 
 # Build paths
 export CPATH="$TARGET/include"

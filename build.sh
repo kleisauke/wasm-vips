@@ -93,16 +93,16 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.5
 VERSION_FFI=3.4.2
-VERSION_GLIB=2.69.0
+VERSION_GLIB=2.69.1
 VERSION_EXPAT=2.4.1
 VERSION_EXIF=0.6.22
 VERSION_LCMS2=2.12
-VERSION_JPEG=2.1.0
+VERSION_JPEG=2.1.1
 VERSION_PNG16=1.6.37
 VERSION_SPNG=0.6.3
-VERSION_WEBP=1.2.0
+VERSION_WEBP=1.2.1
 VERSION_TIFF=4.3.0
-VERSION_VIPS=8.11.2
+VERSION_VIPS=8.11.3
 
 # Remove patch version component
 without_patch() {
@@ -122,14 +122,12 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-auto-deletelater.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-vector-as-js-array.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-allow-block-main-thread.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-closure-ftruncatesync.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-update-arm-neon.patch
 
-  # https://github.com/emscripten-core/emscripten/pull/10110
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-10110.patch
-
-  # Need to rebuild libembind, libc, libdlmalloc and libemmalloc,
-  # since we modified it with the patches above
-  embuilder.py build libembind libc-mt libdlmalloc-mt{,-debug} libemmalloc-mt{,-debug} --force $LTO_FLAG
+  # Need to rebuild libembind and libc, since we modified it
+  # with the patches above
+  embuilder.py build libembind libc-mt --force $LTO_FLAG
 
   # The system headers require to be reinstalled, as some of
   # them have also been changed with the patches above
@@ -331,7 +329,7 @@ echo "============================================="
   cd $DEPS/wasm-vips
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" \
     -DENVIRONMENT=${ENVIRONMENT//,/;}
-  make
+  EMCC_CLOSURE_ARGS="--externs $SOURCE_DIR/src/closure-externs/wasm-vips.js" make
 )
 
 echo "============================================="
@@ -345,7 +343,7 @@ echo "============================================="
   sed -i '3iimport { createRequire } from "module";' $SOURCE_DIR/lib/node-es6/vips.mjs
   sed -i '4iconst require = createRequire(import.meta.url);' $SOURCE_DIR/lib/node-es6/vips.mjs
   sed -i 's/__dirname/dirname(fileURLToPath(import.meta.url))/g' $SOURCE_DIR/lib/node-es6/vips.mjs
-  sed -i 's/\(new URL([^)]\+)\).toString()/fileURLToPath(\1)/g' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i 's/\(new URL([^)]\+)\+\).toString()/fileURLToPath(\1)/g' $SOURCE_DIR/lib/node-es6/vips.mjs
   sed -i 's/vips.worker.js/vips.worker.mjs/g' $SOURCE_DIR/lib/node-es6/vips.mjs
   mv $SOURCE_DIR/lib/node-es6/vips.worker.js $SOURCE_DIR/lib/node-es6/vips.worker.mjs
   sed -i 's/var Module/import { fileURLToPath } from "url";&/' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
@@ -355,18 +353,20 @@ echo "============================================="
 
   # The produced vips.wasm file should be the same across the different variants (sanity check)
   sha256=$(sha256sum "$SOURCE_DIR/lib/web/vips.wasm" | awk '{ print $1 }')
-  echo "$sha256 $SOURCE_DIR/lib/node-es6/vips.wasm" | sha256sum --check
-  echo "$sha256 $SOURCE_DIR/lib/node-commonjs/vips.wasm" | sha256sum --check
-
-  # Deduplicate produced vips.wasm file for Node.js
-  mv $SOURCE_DIR/lib/node-es6/vips.wasm $SOURCE_DIR/lib/vips.wasm
-  rm $SOURCE_DIR/lib/node-commonjs/vips.wasm
+  for file in node-commonjs/vips.wasm node-es6/vips.wasm; do
+    echo "$sha256 $SOURCE_DIR/lib/$file" | sha256sum --check
+    rm $SOURCE_DIR/lib/$file
+  done
 
   # Adjust vips.wasm path for Node.js
   # Note: this is intentionally skipped for the web variant
   for file in node-commonjs/vips.js node-es6/vips.mjs; do
     sed -i 's/vips.wasm/..\/&/g' $SOURCE_DIR/lib/$file
   done
+
+  # Copy produced vips.wasm file up one directory
+  cp $SOURCE_DIR/lib/web/vips.wasm $SOURCE_DIR/lib/
+
   # FinalizationGroup -> FinalizationRegistry, see:
   # https://github.com/tc39/proposal-weakrefs/issues/180
   # https://github.com/emscripten-core/emscripten/issues/11436#issuecomment-645870155

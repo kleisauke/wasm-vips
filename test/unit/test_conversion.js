@@ -28,11 +28,8 @@ describe('conversion', () => {
     });
 
     after(function () {
-        while (globalDeletionQueue.length) {
-            const obj = globalDeletionQueue.pop();
-            obj.$$.deleteScheduled = false;
-            obj.delete();
-        }
+        vips.deletionQueue.push(...globalDeletionQueue);
+        cleanup();
     });
 
     afterEach(function () {

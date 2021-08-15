@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Thu, 19 Nov 2020 21:30:00 +0100
-Subject: [PATCH 1/1] Reuse Arm intrinsics for WebAssembly
+Subject: [PATCH 1/2] Reuse Arm intrinsics for WebAssembly
 
 Upstream-Status: Pending
 
@@ -9,7 +9,7 @@ diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 1111111..2222222 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -48,7 +48,13 @@ foreach(ARCH ${CMAKE_OSX_ARCHITECTURES})
+@@ -57,7 +57,13 @@ foreach(ARCH ${CMAKE_OSX_ARCHITECTURES})
    endif()
    math(EXPR COUNT "${COUNT}+1")
  endforeach()
@@ -28,7 +28,7 @@ diff --git a/simd/CMakeLists.txt b/simd/CMakeLists.txt
 index 1111111..2222222 100644
 --- a/simd/CMakeLists.txt
 +++ b/simd/CMakeLists.txt
-@@ -211,16 +211,17 @@ endif()
+@@ -211,7 +211,8 @@ endif()
  # Arm (Intrinsics or GAS)
  ###############################################################################
  
@@ -36,10 +36,15 @@ index 1111111..2222222 100644
 +elseif(CPU_TYPE STREQUAL "arm64" OR CPU_TYPE STREQUAL "arm" OR
 +  CPU_TYPE STREQUAL "wasm64" OR CPU_TYPE STREQUAL "wasm32")
  
+ # If Neon instructions are not explicitly enabled at compile time (e.g. using
+ # -mfpu=neon) with an AArch32 Linux or Android build, then the AArch32 SIMD
+@@ -242,13 +243,13 @@ if(BITS EQUAL 32)
+ endif()
+ 
  include(CheckSymbolExists)
 -if(BITS EQUAL 32)
 +if(BITS EQUAL 32 OR EMSCRIPTEN)
-   set(CMAKE_REQUIRED_FLAGS -mfpu=neon)
+   set(CMAKE_REQUIRED_FLAGS "-mfpu=neon ${SOFTFP_FLAG}")
  endif()
  check_symbol_exists(vld1_s16_x3 arm_neon.h HAVE_VLD1_S16_X3)
  check_symbol_exists(vld1_u16_x2 arm_neon.h HAVE_VLD1_U16_X2)
@@ -49,7 +54,7 @@ index 1111111..2222222 100644
    unset(CMAKE_REQUIRED_FLAGS)
  endif()
  configure_file(arm/neon-compat.h.in arm/neon-compat.h @ONLY)
-@@ -231,9 +232,9 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/arm)
+@@ -259,9 +260,9 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/arm)
  # those compilers, we default to using the older GAS implementation of the Neon
  # SIMD extensions for certain algorithms.  The presence or absence of the three
  # intrinsics we tested above is a reasonable proxy for this.  We always default
@@ -62,12 +67,75 @@ index 1111111..2222222 100644
    set(DEFAULT_NEON_INTRINSICS 1)
  else()
    set(DEFAULT_NEON_INTRINSICS 0)
-@@ -262,7 +263,7 @@ if(NEON_INTRINSICS OR BITS EQUAL 32)
+@@ -290,7 +291,7 @@ if(NEON_INTRINSICS OR BITS EQUAL 32)
    set(SIMD_SOURCES ${SIMD_SOURCES} arm/aarch${BITS}/jchuff-neon.c
      arm/jdcolor-neon.c arm/jfdctint-neon.c)
  endif()
 -if(BITS EQUAL 32)
 +if(BITS EQUAL 32 OR EMSCRIPTEN)
-   set_source_files_properties(${SIMD_SOURCES} COMPILE_FLAGS -mfpu=neon)
+   set_source_files_properties(${SIMD_SOURCES} COMPILE_FLAGS "-mfpu=neon ${SOFTFP_FLAG}")
  endif()
  if(NOT NEON_INTRINSICS)
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Sun, 15 Aug 2021 11:50:00 +0200
+Subject: [PATCH 2/2] Revert "Neon/AArch32: Work around Clang T32 miscompilation"
+
+This reverts commit 2a2970a as inline asm won't work for Emscripten.
+
+Upstream-Status: Inappropriate [Emscripten specific]
+
+diff --git a/simd/arm/jchuff.h b/simd/arm/jchuff.h
+index 1111111..2222222 100644
+--- a/simd/arm/jchuff.h
++++ b/simd/arm/jchuff.h
+@@ -74,21 +74,6 @@ typedef struct {
+ 
+ #else
+ 
+-#if defined(_MSC_VER) && !defined(__clang__)
+-#define SPLAT() { \
+-  buffer[0] = (JOCTET)(put_buffer >> 24); \
+-  buffer[1] = (JOCTET)(put_buffer >> 16); \
+-  buffer[2] = (JOCTET)(put_buffer >>  8); \
+-  buffer[3] = (JOCTET)(put_buffer      ); \
+-  buffer += 4; \
+-}
+-#else
+-#define SPLAT() { \
+-  put_buffer = __builtin_bswap32(put_buffer); \
+-  __asm__("str %1, [%0], #4" : "+r" (buffer) : "r" (put_buffer)); \
+-}
+-#endif
+-
+ #define FLUSH() { \
+   if (put_buffer & 0x80808080 & ~(put_buffer + 0x01010101)) { \
+     EMIT_BYTE(put_buffer >> 24) \
+@@ -96,7 +81,8 @@ typedef struct {
+     EMIT_BYTE(put_buffer >>  8) \
+     EMIT_BYTE(put_buffer      ) \
+   } else { \
+-    SPLAT(); \
++    *((uint32_t *)buffer) = BUILTIN_BSWAP32(put_buffer); \
++    buffer += 4; \
+   } \
+ }
+ 
+diff --git a/simd/arm/neon-compat.h.in b/simd/arm/neon-compat.h.in
+index 1111111..2222222 100644
+--- a/simd/arm/neon-compat.h.in
++++ b/simd/arm/neon-compat.h.in
+@@ -27,10 +27,12 @@
+ #if defined(_MSC_VER) && !defined(__clang__)
+ #define BUILTIN_CLZ(x)  _CountLeadingZeros(x)
+ #define BUILTIN_CLZLL(x)  _CountLeadingZeros64(x)
++#define BUILTIN_BSWAP32(x)  _byteswap_ulong(x)
+ #define BUILTIN_BSWAP64(x)  _byteswap_uint64(x)
+ #elif defined(__clang__) || defined(__GNUC__)
+ #define BUILTIN_CLZ(x)  __builtin_clz(x)
+ #define BUILTIN_CLZLL(x)  __builtin_clzll(x)
++#define BUILTIN_BSWAP32(x)  __builtin_bswap32(x)
+ #define BUILTIN_BSWAP64(x)  __builtin_bswap64(x)
+ #else
+ #error "Unknown compiler"

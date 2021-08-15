@@ -6,10 +6,9 @@ Context: [simd-everywhere/simde#646](https://github.com/simd-everywhere/simde/is
 
 * Intel Core i5-8600K CPU 3.60GHz (Coffee Lake), 1 CPU, 6 logical and 6 physical cores
 * Fedora 34
-* Node v17.0.0-nightly20210612889ad35d3d<sup>1</sup>
+* Node v16.6.2<sup>1</sup>
 
-<sup>1</sup> It's necessary to use a Node.js that was built against
-V8 >= 9.1 to match the renumbered/finalized WASM SIMD opcodes.
+<sup>1</sup> Node.js >= 16.4.0 is required to match the final SIMD opcodes.
 
 ## Test image
 
@@ -26,8 +25,8 @@ A "quality" setting of 80 is used during saving.
 
 ```bash
 $ cd test/bench
-$ node --experimental-wasm-threads --experimental-wasm-simd perf-jpeg-buffer-passthrough.js
-Processing time: 691.1917049996555 milliseconds.
+$ node perf-jpeg-buffer-passthrough.js
+Processing time: 685.8319929996505 milliseconds.
 ```
 
 ### libjpeg-turbo without SIMD
@@ -48,16 +47,8 @@ Processing time: 691.1917049996555 milliseconds.
 
 ```bash
 $ cd test/bench
-$ node --experimental-wasm-threads --experimental-wasm-simd perf-jpeg-buffer-passthrough.js
-Processing time: 197.02477500028908 milliseconds.
-```
-
-## Install notes
-
-The latest nightly version of Node.js can be installed with:
-```bash
-$ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-$ NVM_NODEJS_ORG_MIRROR=https://nodejs.org/download/nightly/ nvm i node
+$ node perf-jpeg-buffer-passthrough.js
+Processing time: 193.604350999929 milliseconds.
 ```
 
 ## Build notes
@@ -84,7 +75,7 @@ file can be post-processed using V8's tick processor bundled with the
 Node.js binary.
 
 ```bash
-$ node --experimental-wasm-threads --experimental-wasm-simd --prof perf-jpeg-buffer-passthrough.js
+$ node --prof perf-jpeg-buffer-passthrough.js
 $ find . -name 'isolate-0x*-v8.log' -exec node --prof-process {} \; > v8-processed.log
 ```
 

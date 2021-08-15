@@ -93,16 +93,16 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.5
 VERSION_FFI=3.4.2
-VERSION_GLIB=2.69.0
+VERSION_GLIB=2.69.1
 VERSION_EXPAT=2.4.1
 VERSION_EXIF=0.6.22
 VERSION_LCMS2=2.12
-VERSION_JPEG=2.1.0
+VERSION_JPEG=2.1.1
 VERSION_PNG16=1.6.37
 VERSION_SPNG=0.6.3
-VERSION_WEBP=1.2.0
+VERSION_WEBP=1.2.1
 VERSION_TIFF=4.3.0
-VERSION_VIPS=8.11.2
+VERSION_VIPS=8.11.3
 
 # Remove patch version component
 without_patch() {
@@ -123,12 +123,9 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-vector-as-js-array.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-allow-block-main-thread.patch
 
-  # https://github.com/emscripten-core/emscripten/pull/10110
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-10110.patch
-
-  # Need to rebuild libembind, libc, libdlmalloc and libemmalloc,
-  # since we modified it with the patches above
-  embuilder.py build libembind libc-mt libdlmalloc-mt{,-debug} libemmalloc-mt{,-debug} --force $LTO_FLAG
+  # Need to rebuild libembind and libc, since we modified it
+  # with the patches above
+  embuilder.py build libembind libc-mt --force $LTO_FLAG
 
   # The system headers require to be reinstalled, as some of
   # them have also been changed with the patches above

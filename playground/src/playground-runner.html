@@ -58,6 +58,7 @@
 
             // Handy for debugging
             // module.ENV.G_MESSAGES_DEBUG = 'VIPS';
+            // module.ENV.VIPS_LEAK = '1';
 
             for (const image of ['owl.jpg', 'owl.tif', 'owl.webp', 'banana.webp', 'banana.gif', 'transparency_demo.png'])
                 module.FS.createPreloadedFile('/', image, 'assets/images/' + image, true, false);

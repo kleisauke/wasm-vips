@@ -135,7 +135,12 @@ index 1111111..2222222 100644
  	if( unary->in &&
  		vips_band_format_isuint( unary->in->BandFmt ) ) 
  		return( vips_unary_copy( unary ) ); 
-@@ -200,31 +172,17 @@ vips_abs_buffer( VipsArithmetic *arithmetic,
+@@ -195,36 +167,21 @@ static void
+ vips_abs_buffer( VipsArithmetic *arithmetic, 
+ 	VipsPel *out, VipsPel **in, int width )
+ {
+-	VipsArithmeticClass *class = VIPS_ARITHMETIC_GET_CLASS( arithmetic );
+ 	VipsImage *im = arithmetic->ready[0];
  	const int bands = vips_image_get_bands( im );
  	int sz = width * bands;
  

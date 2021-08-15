@@ -106,6 +106,7 @@ set_target_properties(${TARGETS}
         PROPERTIES
             OUTPUT_NAME "vips"
             LINK_FLAGS "\
+--closure 1 \
 --bind \
 -s MODULARIZE \
 -s EXPORT_NAME='Vips' \
@@ -115,7 +116,8 @@ set_target_properties(${TARGETS}
 -s ALLOW_TABLE_GROWTH \
 -s ALLOW_BLOCKING_ON_MAIN_THREAD \
 -s ASSERTIONS=0 \
--s EXPORTED_RUNTIME_METHODS='[\"FS\", \"ENV\", \"deletionQueue\", \"addFunction\", \"emscripten_num_logical_cores\"]'"
+-s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=emscripten_num_logical_cores \
+-s EXPORTED_RUNTIME_METHODS='[\"FS\", \"ENV\", \"deletionQueue\", \"addFunction\"]'"
         )
 
 if("node" IN_LIST ENVIRONMENT)
@@ -136,6 +138,6 @@ if("web" IN_LIST ENVIRONMENT)
     set_property(
             TARGET ${PROJECT_NAME}-web
             APPEND_STRING PROPERTY
-            LINK_FLAGS " -s ENVIRONMENT=web,worker -s EXPORT_ES6 -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE='[\"$Browser\"]'"
+            LINK_FLAGS " -s ENVIRONMENT=web,worker -s EXPORT_ES6 -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$Browser"
             )
 endif()

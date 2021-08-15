@@ -122,6 +122,7 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-auto-deletelater.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-vector-as-js-array.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-allow-block-main-thread.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-closure-ftruncatesync.patch
 
   # Need to rebuild libembind and libc, since we modified it
   # with the patches above
@@ -325,7 +326,7 @@ echo "============================================="
   cd $DEPS/wasm-vips
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" \
     -DENVIRONMENT=${ENVIRONMENT//,/;}
-  make
+  EMCC_CLOSURE_ARGS="--externs $SOURCE_DIR/src/closure-externs/wasm-vips.js" make
 )
 
 echo "============================================="
@@ -339,7 +340,7 @@ echo "============================================="
   sed -i '3iimport { createRequire } from "module";' $SOURCE_DIR/lib/node-es6/vips.mjs
   sed -i '4iconst require = createRequire(import.meta.url);' $SOURCE_DIR/lib/node-es6/vips.mjs
   sed -i 's/__dirname/dirname(fileURLToPath(import.meta.url))/g' $SOURCE_DIR/lib/node-es6/vips.mjs
-  sed -i 's/\(new URL([^)]\+)\).toString()/fileURLToPath(\1)/g' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i 's/\(new URL([^)]\+)\+\).toString()/fileURLToPath(\1)/g' $SOURCE_DIR/lib/node-es6/vips.mjs
   sed -i 's/vips.worker.js/vips.worker.mjs/g' $SOURCE_DIR/lib/node-es6/vips.mjs
   mv $SOURCE_DIR/lib/node-es6/vips.worker.js $SOURCE_DIR/lib/node-es6/vips.worker.mjs
   sed -i 's/var Module/import { fileURLToPath } from "url";&/' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
@@ -349,18 +350,20 @@ echo "============================================="
 
   # The produced vips.wasm file should be the same across the different variants (sanity check)
   sha256=$(sha256sum "$SOURCE_DIR/lib/web/vips.wasm" | awk '{ print $1 }')
-  echo "$sha256 $SOURCE_DIR/lib/node-es6/vips.wasm" | sha256sum --check
-  echo "$sha256 $SOURCE_DIR/lib/node-commonjs/vips.wasm" | sha256sum --check
-
-  # Deduplicate produced vips.wasm file for Node.js
-  mv $SOURCE_DIR/lib/node-es6/vips.wasm $SOURCE_DIR/lib/vips.wasm
-  rm $SOURCE_DIR/lib/node-commonjs/vips.wasm
+  for file in node-commonjs/vips.wasm node-es6/vips.wasm; do
+    echo "$sha256 $SOURCE_DIR/lib/$file" | sha256sum --check
+    rm $SOURCE_DIR/lib/$file
+  done
 
   # Adjust vips.wasm path for Node.js
   # Note: this is intentionally skipped for the web variant
   for file in node-commonjs/vips.js node-es6/vips.mjs; do
     sed -i 's/vips.wasm/..\/&/g' $SOURCE_DIR/lib/$file
   done
+
+  # Copy produced vips.wasm file up one directory
+  cp $SOURCE_DIR/lib/web/vips.wasm $SOURCE_DIR/lib/
+
   # FinalizationGroup -> FinalizationRegistry, see:
   # https://github.com/tc39/proposal-weakrefs/issues/180
   # https://github.com/emscripten-core/emscripten/issues/11436#issuecomment-645870155

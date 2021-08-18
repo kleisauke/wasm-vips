@@ -306,7 +306,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("ccittfax4", VIPS_FOREIGN_TIFF_COMPRESSION_CCITTFAX4)
         .value("lzw", VIPS_FOREIGN_TIFF_COMPRESSION_LZW)
         .value("webp", VIPS_FOREIGN_TIFF_COMPRESSION_WEBP)
-        .value("zstd", VIPS_FOREIGN_TIFF_COMPRESSION_ZSTD);
+        .value("zstd", VIPS_FOREIGN_TIFF_COMPRESSION_ZSTD)
+        .value("jp2k", VIPS_FOREIGN_TIFF_COMPRESSION_JP2K);
 
     enum_<VipsForeignTiffPredictor>("ForeignTiffPredictor")
         .value("none", VIPS_FOREIGN_TIFF_PREDICTOR_NONE)

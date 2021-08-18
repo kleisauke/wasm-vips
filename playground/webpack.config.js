@@ -33,27 +33,17 @@ module.exports = {
             },
             {
                 test: /\.(jpe?g|png|gif|tiff?|webp|svg)$/,
-                use: [
-                    {
-                        loader: "file-loader",
-                        options: {
-                            name: "[name].[ext]",
-                            outputPath: "assets/images/"
-                        }
-                    }
-                ]
+                type: 'asset/resource', 
+                generator: {
+                   filename: 'assets/images/[name][ext][query]'
+                }
             },
             {
                 test: /\.(woff|woff2|eot|ttf|otf)$/,
-                use: [
-                    {
-                        loader: "file-loader",
-                        options: {
-                            name: "[name].[ext]",
-                            outputPath: "assets/fonts/"
-                        }
-                    }
-                ]
+                type: 'asset/resource',
+                generator: {
+                    filename: 'assets/fonts/[name][ext][query]'
+                }
             }
         ]
     },
@@ -72,7 +62,7 @@ module.exports = {
         ],
         runtimeChunk: 'single',
         splitChunks: {
-            chunks: "all",
+            chunks: 'all',
             cacheGroups: {
                 vendor: {
                     test: /[\\/]node_modules[\\/]/,
@@ -84,7 +74,7 @@ module.exports = {
     plugins: [
         new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({
-            filename: "assets/css/[name].css",
+            filename: 'assets/css/[name].css',
         }),
         new HtmlWebpackPlugin({
             title: 'wasm-vips playground',

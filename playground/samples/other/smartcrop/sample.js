@@ -1,22 +1,15 @@
-// Load an image from a preloaded file
+// Smart crop to 500x500 using the attention strategy
+// (searches the image for features which might catch a human eye)
 // Image source: https://www.flickr.com/photos/jasonidzerda/3987784466
-let im = vips.Image.newFromFile('owl.jpg');
-
-// Optionally, convert to greyscale
-// im = im.colourspace(vips.Interpretation.b_w/*'b-w'*/);
-
-// Canny edge detector
-im = im.canny({
-    sigma: 1.4,
-    precision: vips.Precision.integer /*'integer'*/
+const thumbnail = vips.Image.thumbnail('owl.jpg', 500, {
+    height: 500,
+    no_rotate: true,
+    crop: vips.Interesting.attention /*'attention'*/
 });
-
-// Canny makes a float image, scale the output up to make it visible
-im = im.multiply(64);
 
 // Finally, write the result to a blob
 const t0 = performance.now();
-const outBuffer = new Uint8Array(im.writeToBuffer('.jpg'));
+const outBuffer = new Uint8Array(thumbnail.writeToBuffer('.jpg'));
 const t1 = performance.now();
 
 console.log(`Call to writeToBuffer took ${t1 - t0} milliseconds.`);

@@ -2,17 +2,10 @@
 // Image source: https://www.flickr.com/photos/jasonidzerda/3987784466
 let im = vips.Image.newFromFile('owl.jpg');
 
-// Optionally, convert to greyscale
-// im = im.colourspace(vips.Interpretation.b_w/*'b-w'*/);
-
-// Canny edge detector
-im = im.canny({
-    sigma: 1.4,
-    precision: vips.Precision.integer /*'integer'*/
+// Sharpen of the L channel in the LAB colour space
+im = im.sharpen({
+    sigma: 5.0
 });
-
-// Canny makes a float image, scale the output up to make it visible
-im = im.multiply(64);
 
 // Finally, write the result to a blob
 const t0 = performance.now();

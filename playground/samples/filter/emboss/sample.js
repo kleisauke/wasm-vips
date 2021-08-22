@@ -35,7 +35,9 @@ const images = [
 
 // Join the embossed images
 im = vips.Image.arrayjoin(images, {
-    across: 2
+    across: 2, // number of images per row
+    shim: 10, // space between images, in pixels
+    background: [255, 255, 255] // background colour
 });
 
 // Finally, write the result to a blob

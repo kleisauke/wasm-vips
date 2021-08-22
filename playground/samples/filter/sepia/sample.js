@@ -2,17 +2,15 @@
 // Image source: https://www.flickr.com/photos/jasonidzerda/3987784466
 let im = vips.Image.newFromFile('owl.jpg');
 
-// Optionally, convert to greyscale
-// im = im.colourspace(vips.Interpretation.b_w/*'b-w'*/);
+// A matrix for a sepia-like effect
+const matrix = [
+    [0.3588, 0.7044, 0.1368],
+    [0.2990, 0.5870, 0.1140],
+    [0.2392, 0.4696, 0.0912]
+];
 
-// Canny edge detector
-im = im.canny({
-    sigma: 1.4,
-    precision: vips.Precision.integer /*'integer'*/
-});
-
-// Canny makes a float image, scale the output up to make it visible
-im = im.multiply(64);
+// Recomb the image with the specified matrix
+im = im.recomb(matrix).cast(vips.BandFormat.uchar/*'uchar'*/);
 
 // Finally, write the result to a blob
 const t0 = performance.now();

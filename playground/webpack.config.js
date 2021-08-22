@@ -13,9 +13,9 @@ module.exports = {
         samples: './src/samples.js'
     },
     output: {
-        path: path.join(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'dist'),
         filename: 'assets/js/[name].js',
-        chunkFilename: 'assets/js/[name].js',
+        chunkFilename: 'assets/js/[name].js'
     },
     module: {
         rules: [
@@ -29,31 +29,21 @@ module.exports = {
                         }
                     },
                     'css-loader'
-                ],
+                ]
             },
             {
                 test: /\.(jpe?g|png|gif|tiff?|webp|svg)$/,
-                use: [
-                    {
-                        loader: "file-loader",
-                        options: {
-                            name: "[name].[ext]",
-                            outputPath: "assets/images/"
-                        }
-                    }
-                ]
+                type: 'asset/resource',
+                generator: {
+                   filename: 'assets/images/[name][ext][query]'
+                }
             },
             {
                 test: /\.(woff|woff2|eot|ttf|otf)$/,
-                use: [
-                    {
-                        loader: "file-loader",
-                        options: {
-                            name: "[name].[ext]",
-                            outputPath: "assets/fonts/"
-                        }
-                    }
-                ]
+                type: 'asset/resource',
+                generator: {
+                    filename: 'assets/fonts/[name][ext][query]'
+                }
             }
         ]
     },
@@ -63,39 +53,39 @@ module.exports = {
             new TerserPlugin({
                 terserOptions: {
                     output: {
-                        comments: false,
-                    },
+                        comments: false
+                    }
                 },
                 extractComments: false,
-                exclude: /samples[\\/]/,
-            }),
+                exclude: /samples[\\/]/
+            })
         ],
         runtimeChunk: 'single',
         splitChunks: {
-            chunks: "all",
+            chunks: 'all',
             cacheGroups: {
                 vendor: {
                     test: /[\\/]node_modules[\\/]/,
                     name: 'monaco-editor'
-                },
+                }
             }
         }
     },
     plugins: [
         new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({
-            filename: "assets/css/[name].css",
+            filename: 'assets/css/[name].css'
         }),
         new HtmlWebpackPlugin({
             title: 'wasm-vips playground',
             template: './src/index.html',
-            hash: true,
+            hash: true
         }),
         new HtmlWebpackPlugin({
             filename: 'playground-runner.html',
             template: './src/playground-runner.html',
             excludeChunks: ['playground', 'samples'],
-            minify: false,
+            minify: false
         }),
         new MonacoWebpackPlugin({
             filename: 'assets/js/monaco-[name].worker.js',
@@ -104,27 +94,34 @@ module.exports = {
         new CopyPlugin({
             patterns: [
                 {
-                    from: path.join(__dirname, 'samples'),
-                    to: path.join(__dirname, 'dist', 'samples'),
+                    from: path.resolve(__dirname, 'samples'),
+                    to: path.resolve(__dirname, 'dist', 'samples')
                 },
                 {
-                    from: path.join(__dirname, '..', 'lib', 'web'),
-                    to: path.join(__dirname, 'dist', 'lib'),
+                    from: path.resolve(__dirname, '..', 'lib', 'web'),
+                    to: path.resolve(__dirname, 'dist', 'lib')
                 },
                 {
-                    from: path.join(__dirname, '..', 'lib', 'vips.d.ts'),
-                    to: path.join(__dirname, 'dist', 'lib'),
+                    from: path.resolve(__dirname, '..', 'lib', 'vips.d.ts'),
+                    to: path.resolve(__dirname, 'dist', 'lib')
                 }
-            ],
+            ]
         })
     ],
     devServer: {
-        writeToDisk: true,
-        contentBase: path.join(__dirname, 'dist'),
+        client: {
+            overlay: false
+        },
+        devMiddleware: {
+            writeToDisk: true
+        },
+        static: {
+            directory: path.resolve(__dirname, 'dist')
+        },
         headers: {
             'Cross-Origin-Opener-Policy': 'same-origin',
             'Cross-Origin-Embedder-Policy': 'require-corp',
             'Cross-Origin-Resource-Policy': 'cross-origin'
-        },
+        }
     }
 };

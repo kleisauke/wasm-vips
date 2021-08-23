@@ -75,6 +75,7 @@
         timeout: 60000
     });
 </script>
+<script src="lib/web/vips.js"></script>
 <script type="module" src="test_arithmetic.js"></script>
 <script type="module" src="test_colour.js"></script>
 <script type="module" src="test_connection.js"></script>
@@ -93,7 +94,6 @@
     globalThis.expect = chai.expect;
 
     import * as Helpers from './helpers.js';
-    import Vips from './lib/web/vips.js';
 
     const options = {
         print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),

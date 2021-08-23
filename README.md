@@ -52,12 +52,11 @@ Cross-Origin-Opener-Policy: same-origin
 ```
 <sup>See [here](https://web.dev/coop-coep/) for more information.</sup>
 
-After that, wasm-vips can be imported and initialized using an ES6 module
-syntax:
+After that, wasm-vips can be imported and initialized like this:
 
 ```html
+<script src="vips.js"></script>
 <script type="module">
-    import Vips from './vips.js';
     const vips = await Vips();
 </script>
 ```

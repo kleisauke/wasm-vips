@@ -12,10 +12,9 @@
     </style>
 </head>
 <body>
+<script src="../lib/vips.js?<%= __webpack_hash__ %>"></script>
 <script type="module">
     let loadedElements = [];
-
-    import Vips from '../lib/vips.js?<%= __webpack_hash__ %>';
 
     window.addEventListener('message', load);
 

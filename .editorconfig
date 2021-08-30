@@ -27,5 +27,9 @@ indent_size = 2
 indent_size = 2
 insert_final_newline = false
 
+# JS/HTML files
+[*.{js,html}]
+indent_size = 2
+
 [Makefile]
 indent_style = tab

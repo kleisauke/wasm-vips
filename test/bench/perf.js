@@ -9,9 +9,9 @@ import { inputJpg, inputPng, inputWebP, getPath } from './images.js';
 const width = 720;
 const height = 588;
 
-const JPEG_OUT = getPath('output.jpg');
-const PNG_OUT = getPath('output.png');
-const WEBP_OUT = getPath('output.webp');
+const jpegOut = getPath('output.jpg');
+const pngOut = getPath('output.png');
+const webpOut = getPath('output.webp');
 
 const vips = await Vips();
 
@@ -58,7 +58,7 @@ const jpegSuite = new Benchmark.Suite('jpeg').add('wasm-vips-buffer-file', {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height: height
     });
-    im.jpegsave(JPEG_OUT, defaultJpegSaveOptions);
+    im.jpegsave(jpegOut, defaultJpegSaveOptions);
     im.delete();
     deferred.resolve();
   }
@@ -79,7 +79,7 @@ const jpegSuite = new Benchmark.Suite('jpeg').add('wasm-vips-buffer-file', {
     const im = vips.Image.thumbnail(inputJpg, width, {
       height: height
     });
-    im.jpegsave(JPEG_OUT, defaultJpegSaveOptions);
+    im.jpegsave(jpegOut, defaultJpegSaveOptions);
     im.delete();
     deferred.resolve();
   }
@@ -87,7 +87,7 @@ const jpegSuite = new Benchmark.Suite('jpeg').add('wasm-vips-buffer-file', {
   defer: true,
   fn: function (deferred) {
     const source = vips.Source.newFromFile(inputJpg);
-    const target = vips.Target.newToFile(JPEG_OUT);
+    const target = vips.Target.newToFile(jpegOut);
     const im = vips.Image.thumbnailSource(source, width, {
       height: height
     })
@@ -298,7 +298,7 @@ const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
     const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
       height: height
     });
-    im.pngsave(PNG_OUT, defaultPngSaveOptions);
+    im.pngsave(pngOut, defaultPngSaveOptions);
     im.delete();
     deferred.resolve();
   }
@@ -319,7 +319,7 @@ const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
     const im = vips.Image.thumbnail(inputPng, width, {
       height: height
     });
-    im.pngsave(PNG_OUT, defaultPngSaveOptions);
+    im.pngsave(pngOut, defaultPngSaveOptions);
     im.delete();
     deferred.resolve();
   }
@@ -378,7 +378,7 @@ const webpSuite = new Benchmark.Suite('webp').add('wasm-vips-file', {
     const im = vips.Image.thumbnailBuffer(inputWebPBuffer, width, {
       height: height
     });
-    im.webpsave(WEBP_OUT, defaultWebPSaveOptions);
+    im.webpsave(webpOut, defaultWebPSaveOptions);
     im.delete();
     deferred.resolve();
   }
@@ -399,7 +399,7 @@ const webpSuite = new Benchmark.Suite('webp').add('wasm-vips-file', {
     const im = vips.Image.thumbnail(inputWebP, width, {
       height: height
     });
-    im.webpsave(WEBP_OUT, defaultWebPSaveOptions);
+    im.webpsave(webpOut, defaultWebPSaveOptions);
     im.delete();
     deferred.resolve();
   }

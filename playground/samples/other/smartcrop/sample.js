@@ -2,9 +2,9 @@
 // (searches the image for features which might catch a human eye)
 // Image source: https://www.flickr.com/photos/jasonidzerda/3987784466
 const thumbnail = vips.Image.thumbnail('owl.jpg', 500, {
-    height: 500,
-    no_rotate: true,
-    crop: vips.Interesting.attention /*'attention'*/
+  height: 500,
+  no_rotate: true,
+  crop: vips.Interesting.attention // 'attention'
 });
 
 // Finally, write the result to a blob
@@ -14,7 +14,7 @@ const t1 = performance.now();
 
 console.log(`Call to writeToBuffer took ${t1 - t0} milliseconds.`);
 
-const blob = new Blob([outBuffer], {type: 'image/jpeg'});
+const blob = new Blob([outBuffer], { type: 'image/jpeg' });
 const blobURL = URL.createObjectURL(blob);
 const img = document.createElement('img');
 img.src = blobURL;

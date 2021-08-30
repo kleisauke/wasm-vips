@@ -1,11 +1,11 @@
 // Load an image from a preloaded file
 // Image source: https://www.flickr.com/photos/jasonidzerda/3987784466
-let im = vips.Image.newFromFile('owl.jpg');
+const im = vips.Image.newFromFile('owl.jpg');
 
 // Find image minimum
 let minPos = {
-    x: undefined, // Output horizontal position of minimum here
-    y: undefined // Output vertical position of minimum here
+  x: undefined, // Output horizontal position of minimum here
+  y: undefined // Output vertical position of minimum here
 };
 const min = im.min(minPos);
 
@@ -14,8 +14,8 @@ document.getElementById('min').innerText =
 
 // Find image maximum
 let maxPos = {
-    x: undefined, // Output horizontal position of maximum here
-    y: undefined // Output vertical position of maximum here
+  x: undefined, // Output horizontal position of maximum here
+  y: undefined // Output vertical position of maximum here
 };
 const max = im.max(maxPos);
 
@@ -28,6 +28,6 @@ minPos = im.minPos();
 maxPos = im.maxPos();
 
 console.log(JSON.stringify({
-    min: minPos,
-    max: maxPos
+  min: minPos,
+  max: maxPos
 }));

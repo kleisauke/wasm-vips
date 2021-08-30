@@ -10,7 +10,7 @@ let hue = 180;
 // Normalize hue rotation to [0, 360]
 hue %= 360;
 if (hue < 0) {
-    hue = 360 + hue;
+  hue = 360 + hue;
 }
 
 // Load an image from a preloaded file
@@ -22,17 +22,17 @@ const typeBeforeModulate = im.interpretation;
 
 // Modulate brightness, saturation and hue
 if (im.hasAlpha()) {
-    // Separate alpha channel
-    const withoutAlpha = im.extractBand(0, {n: im.bands - 1});
-    const alpha = im.extractBand(im.bands - 1);
-    im = withoutAlpha.colourspace(vips.Interpretation.lch/*'lch'*/)
-        .linear([brightness, saturation, 1], [0.0, 0.0, hue])
-        .colourspace(typeBeforeModulate)
-        .bandjoin(alpha);
+  // Separate alpha channel
+  const withoutAlpha = im.extractBand(0, { n: im.bands - 1 });
+  const alpha = im.extractBand(im.bands - 1);
+  im = withoutAlpha.colourspace(vips.Interpretation.lch/* 'lch' */)
+    .linear([brightness, saturation, 1], [0.0, 0.0, hue])
+    .colourspace(typeBeforeModulate)
+    .bandjoin(alpha);
 } else {
-    im = im.colourspace(vips.Interpretation.lch/*'lch'*/)
-        .linear([brightness, saturation, 1], [0.0, 0.0, hue])
-        .colourspace(typeBeforeModulate);
+  im = im.colourspace(vips.Interpretation.lch/* 'lch' */)
+    .linear([brightness, saturation, 1], [0.0, 0.0, hue])
+    .colourspace(typeBeforeModulate);
 }
 
 // Finally, write the result to a blob
@@ -42,7 +42,7 @@ const t1 = performance.now();
 
 console.log(`Call to writeToBuffer took ${t1 - t0} milliseconds.`);
 
-const blob = new Blob([outBuffer], {type: 'image/jpeg'});
+const blob = new Blob([outBuffer], { type: 'image/jpeg' });
 const blobURL = URL.createObjectURL(blob);
 const img = document.createElement('img');
 img.src = blobURL;

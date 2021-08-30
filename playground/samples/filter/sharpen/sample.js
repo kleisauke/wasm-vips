@@ -4,7 +4,7 @@ let im = vips.Image.newFromFile('owl.jpg');
 
 // Sharpen of the L channel in the LAB colour space
 im = im.sharpen({
-    sigma: 5.0
+  sigma: 5.0
 });
 
 // Finally, write the result to a blob
@@ -14,7 +14,7 @@ const t1 = performance.now();
 
 console.log(`Call to writeToBuffer took ${t1 - t0} milliseconds.`);
 
-const blob = new Blob([outBuffer], {type: 'image/jpeg'});
+const blob = new Blob([outBuffer], { type: 'image/jpeg' });
 const blobURL = URL.createObjectURL(blob);
 const img = document.createElement('img');
 img.src = blobURL;

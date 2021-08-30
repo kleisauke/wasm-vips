@@ -43,7 +43,7 @@ index 1111111..2222222 100644
 +// during the construction of handles. You can also set this on runtime within
 +// the preRun() function, for example:
 +//  var Module = {
-+//    preRun: [function(module) { module['EMBIND_AUTOMATIC_DELETELATER'] = true }]
++//    preRun: [function(module) { module.EMBIND_AUTOMATIC_DELETELATER = true }]
 +//  };
 +// [link]
 +var EMBIND_AUTOMATIC_DELETELATER = 0;

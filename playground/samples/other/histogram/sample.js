@@ -1,6 +1,6 @@
-function bandStats(hist, val) {
-    const mask = vips.Image.identity().more(val).divide(255);
-    return hist.multiply(mask).avg() * 256;
+function bandStats (hist, val) {
+  const mask = vips.Image.identity().more(val).divide(255);
+  return hist.multiply(mask).avg() * 256;
 }
 
 // Load an image from a preloaded file
@@ -15,9 +15,9 @@ const alpha1 = bandStats(hist, 254);
 // Metrics on how many pixels are opaque (no alpha),
 // translucent (some alpha), and transparent (100% alpha)
 document.getElementById('stats').innerText = JSON.stringify({
-    opaque: alpha1,
-    translucent: alpha0 - alpha1,
-    transparent: total - alpha0
+  opaque: alpha1,
+  translucent: alpha0 - alpha1,
+  transparent: total - alpha0
 });
 
 // Finally, write the result to a blob
@@ -27,7 +27,7 @@ const t1 = performance.now();
 
 console.log(`Call to writeToBuffer took ${t1 - t0} milliseconds.`);
 
-const blob = new Blob([outBuffer], {type: 'image/png'});
+const blob = new Blob([outBuffer], { type: 'image/png' });
 const blobURL = URL.createObjectURL(blob);
 const img = document.createElement('img');
 img.src = blobURL;

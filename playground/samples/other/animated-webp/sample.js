@@ -1,7 +1,7 @@
 // [n=-1] means render until the end of the document
 // Image source: https://storage.googleapis.com/downloads.webmproject.org/webp/images/dancing_banana2.lossless.webp
 let thumbnail = vips.Image.thumbnail('banana.webp[n=-1]', 500, {
-    height: 500
+  height: 500
 });
 
 const delays = thumbnail.getArrayInt('delay');
@@ -18,7 +18,7 @@ const t1 = performance.now();
 
 console.log(`Call to writeToBuffer took ${t1 - t0} milliseconds.`);
 
-const blob = new Blob([outBuffer], {type: 'image/webp'});
+const blob = new Blob([outBuffer], { type: 'image/webp' });
 const blobURL = URL.createObjectURL(blob);
 const img = document.createElement('img');
 img.src = blobURL;

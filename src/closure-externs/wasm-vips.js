@@ -15,165 +15,165 @@ var NODEFS;
  * @param {number} ma
  * @param {number} mi
  */
-FS.makedev = function(ma, mi) {};
+FS.makedev = function (ma, mi) {};
 
 /**
  * @param {number} dev
  * @param {Object} ops
  */
-FS.registerDevice = function(dev, ops) {};
+FS.registerDevice = function (dev, ops) {};
 
 /**
  * @param {function()=} input
  * @param {function(string)=} output
  * @param {function(string)=} error
  */
-FS.init = function(input, output, error) {};
+FS.init = function (input, output, error) {};
 
 /**
  * @param {*} type
  * @param {Object} opts
  * @param {string} mountpoint
  */
-FS.mount = function(type, opts, mountpoint) {};
+FS.mount = function (type, opts, mountpoint) {};
 
 /**
  * @param {string} mountpoint
  */
-FS.unmount = function(mountpoint) {};
+FS.unmount = function (mountpoint) {};
 
 /**
  * @param {boolean} populate
  * @param {function(Error)} callback
  */
-FS.syncfs = function(populate, callback) {};
+FS.syncfs = function (populate, callback) {};
 
 /**
  * @param {string} path
  * @param {number=} mode
  */
-FS.mkdir = function(path, mode) {};
+FS.mkdir = function (path, mode) {};
 
 /**
  * @param {string} path
  * @param {number=} mode
  * @param {number=} dev
  */
-FS.mkdev = function(path, mode, dev) {};
+FS.mkdev = function (path, mode, dev) {};
 
 /**
  * @param {string} oldpath
  * @param {string} newpath
  */
-FS.symlink = function(oldpath, newpath) {};
+FS.symlink = function (oldpath, newpath) {};
 
 /**
  * @param {string} oldpath
  * @param {string} newpath
  */
-FS.rename = function(oldpath, newpath) {};
+FS.rename = function (oldpath, newpath) {};
 
 /**
  * @param {string} path
  */
-FS.rmdir = function(path) {};
+FS.rmdir = function (path) {};
 
 /**
  * @param {string} path
  */
-FS.unlink = function(path) {};
+FS.unlink = function (path) {};
 
 /**
  * @param {string} path
  */
-FS.readlink = function(path) {};
+FS.readlink = function (path) {};
 
 /**
  * @param {string} path
  */
-FS.stat = function(path) {};
+FS.stat = function (path) {};
 
 /**
  * @param {string} path
  */
-FS.lstat = function(path) {};
-
-/**
- * @param {string} path
- * @param {number} mode
- */
-FS.chmod = function(path, mode) {};
+FS.lstat = function (path) {};
 
 /**
  * @param {string} path
  * @param {number} mode
  */
-FS.lchmod = function(path, mode) {};
+FS.chmod = function (path, mode) {};
+
+/**
+ * @param {string} path
+ * @param {number} mode
+ */
+FS.lchmod = function (path, mode) {};
 
 /**
  * @param {number} fd
  * @param {number} mode
  */
-FS.fchmod = function(fd, mode) {};
+FS.fchmod = function (fd, mode) {};
 
 /**
  * @param {string} path
  * @param {number} uid
  * @param {number} gid
  */
-FS.chown = function(path, uid, gid) {};
+FS.chown = function (path, uid, gid) {};
 
 /**
  * @param {string} path
  * @param {number} uid
  * @param {number} gid
  */
-FS.lchown = function(path, uid, gid) {};
+FS.lchown = function (path, uid, gid) {};
 
 /**
  * @param {number} fd
  * @param {number} uid
  * @param {number} gid
  */
-FS.fchown = function(fd, uid, gid) {};
+FS.fchown = function (fd, uid, gid) {};
 
 /**
  * @param {string} path
  * @param {number} len
  */
-FS.truncate = function(path, len) {};
+FS.truncate = function (path, len) {};
 
 /**
  * @param {number} fd
  * @param {number} len
  */
-FS.ftruncate = function(fd, len) {};
+FS.ftruncate = function (fd, len) {};
 
 /**
  * @param {string} path
  * @param {number} atime
  * @param {number} mtime
  */
-FS.utime = function(path, atime, mtime) {};
+FS.utime = function (path, atime, mtime) {};
 
 /**
  * @param {string} path
  * @param {string} flags
  * @param {number=} mode
  */
-FS.open = function(path, flags, mode) {};
+FS.open = function (path, flags, mode) {};
 
 /**
  * @param {object} stream
  */
-FS.close = function(stream) {};
+FS.close = function (stream) {};
 
 /**
  * @param {object} stream
  * @param {number} offset
  * @param {number} whence
  */
-FS.llseek = function(stream, offset, whence) {};
+FS.llseek = function (stream, offset, whence) {};
 
 /**
  * @param {object} stream
@@ -182,7 +182,7 @@ FS.llseek = function(stream, offset, whence) {};
  * @param {number} length
  * @param {number=} position
  */
-FS.read = function(stream, buffer, offset, length, position) {};
+FS.read = function (stream, buffer, offset, length, position) {};
 
 /**
  * @param {object} stream
@@ -191,20 +191,20 @@ FS.read = function(stream, buffer, offset, length, position) {};
  * @param {number} length
  * @param {number=} position
  */
-FS.write = function(stream, buffer, offset, length, position) {};
+FS.write = function (stream, buffer, offset, length, position) {};
 
 /**
  * @param {string} path
  * @param {{encoding:(string|undefined),flags:(string|undefined)}} opts
  */
-FS.readFile = function(path, opts) {};
+FS.readFile = function (path, opts) {};
 
 /**
  * @param {string} path
  * @param {string|ArrayBufferView} data
  * @param {{mode:(number|undefined),flags:(string|undefined)}} opts
  */
-FS.writeFile = function(path, data, opts) {};
+FS.writeFile = function (path, data, opts) {};
 
 /**
  * @param {Object|string} parent
@@ -213,7 +213,7 @@ FS.writeFile = function(path, data, opts) {};
  * @param {boolean} canRead
  * @param {boolean} canWrite
  */
-FS.createLazyFile = function(parent, name, url, canRead, canWrite) {};
+FS.createLazyFile = function (parent, name, url, canRead, canWrite) {};
 
 /**
  * @param {Object|string} parent
@@ -222,58 +222,58 @@ FS.createLazyFile = function(parent, name, url, canRead, canWrite) {};
  * @param {boolean} canRead
  * @param {boolean} canWrite
  */
-FS.createPreloadedFile = function(parent, name, url, canRead, canWrite) {};
+FS.createPreloadedFile = function (parent, name, url, canRead, canWrite) {};
 
 /**
  * @param {number} mode
  */
-FS.isFile = function(mode) {};
+FS.isFile = function (mode) {};
 
 /**
  * @param {number} mode
  */
-FS.isDir = function(mode) {};
+FS.isDir = function (mode) {};
 
 /**
  * @param {number} mode
  */
-FS.isLink = function(mode) {};
+FS.isLink = function (mode) {};
 
 /**
  * @param {number} mode
  */
-FS.isChrdev = function(mode) {};
+FS.isChrdev = function (mode) {};
 
 /**
  * @param {number} mode
  */
-FS.isBlkdev = function(mode) {};
+FS.isBlkdev = function (mode) {};
 
 /**
  * @param {number} mode
  */
-FS.isSocket = function(mode) {};
+FS.isSocket = function (mode) {};
 
-FS.cwd = function() {};
+FS.cwd = function () {};
 
 /**
  * @param {string} path
  */
-FS.chdir = function(path) {};
+FS.chdir = function (path) {};
 
 /**
  * @param {string} path
  * @param {{parent:(boolean),follow:(boolean)}} opts
  */
-FS.lookupPath = function(path, opts) {};
+FS.lookupPath = function (path, opts) {};
 
 /**
  * @param {string} path
  * @param {boolean} dontResolveLastLink
  */
-FS.analyzePath = function(path, dontResolveLastLink) {};
+FS.analyzePath = function (path, dontResolveLastLink) {};
 
 /**
  * @param {*} node
  */
-FS.getPath = function(node) {};
+FS.getPath = function (node) {};

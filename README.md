@@ -57,7 +57,7 @@ After that, wasm-vips can be imported and initialized like this:
 ```html
 <script src="vips.js"></script>
 <script type="module">
-    const vips = await Vips();
+  const vips = await Vips();
 </script>
 ```
 
@@ -83,7 +83,7 @@ const vips = await Vips();
 
 // Usage with .then
 Vips().then(vips => {
-    // Code here
+  // Code here
 });
 ```
 
@@ -98,7 +98,7 @@ let im = vips.Image.newFromFile('owl.jpg');
 // left / right, see
 // https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-embed
 im = im.embed(100, 100, 3000, 3000, {
-    extend: 'mirror'
+  extend: 'mirror'
 });
 
 // Multiply the green (middle) band by 2, leave the other two alone
@@ -106,13 +106,13 @@ im = im.multiply([1, 2, 1]);
 
 // Make an image from an array constant, convolve with it
 const mask = vips.Image.newFromArray([
-    [-1, -1, -1],
-    [-1, 16, -1],
-    [-1, -1, -1]
+  [-1, -1, -1],
+  [-1, 16, -1],
+  [-1, -1, -1]
 ], 8.0);
 
 im = im.conv(mask, {
-    precision: 'integer'
+  precision: 'integer'
 });
 
 // Finally, write the result to a buffer

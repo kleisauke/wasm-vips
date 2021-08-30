@@ -177,12 +177,16 @@ index 1111111..2222222 100644
  
      // maxRange comes through as -1 for uint64_t (see issue 13902). Work around that temporarily
      if (isUnsignedType) {
-@@ -766,21 +784,19 @@ var LibraryEmbind = {
+@@ -766,6 +784,7 @@ var LibraryEmbind = {
  
    _embind_register_std_wstring__deps: [
-     '$readLatin1String', '$registerType',
--    '$simpleReadValueFromPointer'],
-+    '$getIntegerHeap', '$simpleReadValueFromPointer'],
+     '$readLatin1String', '$registerType', '$simpleReadValueFromPointer',
++    '$getIntegerHeap',
+ #if MINIMAL_RUNTIME
+     '$UTF16ToString', '$stringToUTF16', '$lengthBytesUTF16',
+     '$UTF32ToString', '$stringToUTF32', '$lengthBytesUTF32',
+@@ -773,18 +792,16 @@ var LibraryEmbind = {
+     ],
    _embind_register_std_wstring: function(rawType, charSize, name) {
      name = readLatin1String(name);
 -    var decodeString, encodeString, getHeap, lengthBytesUTF, shift;
@@ -201,7 +205,7 @@ index 1111111..2222222 100644
          shift = 2;
      }
      registerType(rawType, {
-@@ -788,7 +804,7 @@ var LibraryEmbind = {
+@@ -792,7 +809,7 @@ var LibraryEmbind = {
          'fromWireType': function(value) {
              // Code mostly taken from _embind_register_std_string fromWireType
              var length = HEAPU32[value >> 2];
@@ -210,7 +214,7 @@ index 1111111..2222222 100644
              var str;
  
              var decodeStartPtr = value + 4;
-@@ -862,6 +878,71 @@ var LibraryEmbind = {
+@@ -866,6 +883,71 @@ var LibraryEmbind = {
      });
    },
  

@@ -31,17 +31,35 @@
   ],
   "scripts": {
     "build": "docker build -t wasm-vips . && docker run --rm -v $(pwd):/src wasm-vips ./build.sh",
-    "test:web": "serve -c test/unit/serve.json",
+    "test": "npm run test:lint && npm run test:node",
+    "test:lint": "semistandard",
     "test:node": "cd test/unit && npm run test",
-    "test": "npm run test:node",
-    "bench:web": "serve -c test/bench/serve.json",
+    "test:web": "serve -c test/unit/serve.json",
+    "bench": "npm run bench:node",
     "bench:node": "cd test/bench && npm run test",
-    "bench": "npm run bench:node"
+    "bench:web": "serve -c test/bench/serve.json"
   },
   "devDependencies": {
+    "semistandard": "^16.0.1",
     "serve": "^12.0.0"
   },
   "engines": {
     "node": ">=16.4.0"
+  },
+  "semistandard": {
+    "globals": [
+      "vips",
+      "expect",
+      "cleanup"
+    ],
+    "ignore": [
+      "src/closure-externs/wasm-vips.js",
+      "test/bench/perf.js"
+    ],
+    "env": [
+      "browser",
+      "node",
+      "mocha"
+    ]
   }
 }

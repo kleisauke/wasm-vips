@@ -19,7 +19,7 @@ index 1111111..2222222 100644
  #if IN_TEST_HARNESS
  #if DYNAMIC_EXECUTION
      // Without dynamic execution, dynamically created functions will have no
-@@ -1721,7 +1724,10 @@ var LibraryEmbind = {
+@@ -1725,7 +1728,10 @@ var LibraryEmbind = {
    $attachFinalizer__deps: ['$finalizationGroup', '$detachFinalizer',
                             '$releaseClassHandle'],
    $attachFinalizer: function(handle) {
@@ -43,7 +43,7 @@ index 1111111..2222222 100644
 +// during the construction of handles. You can also set this on runtime within
 +// the preRun() function, for example:
 +//  var Module = {
-+//    preRun: [function(module) { module['EMBIND_AUTOMATIC_DELETELATER'] = true }]
++//    preRun: [function(module) { module.EMBIND_AUTOMATIC_DELETELATER = true }]
 +//  };
 +// [link]
 +var EMBIND_AUTOMATIC_DELETELATER = 0;

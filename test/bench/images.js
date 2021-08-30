@@ -4,7 +4,7 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 // Helpers
-export function getPath(filename) {
+export function getPath (filename) {
   return join(dirname(fileURLToPath(import.meta.url)), 'images', filename);
 }
 

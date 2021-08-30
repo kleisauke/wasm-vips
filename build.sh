@@ -122,8 +122,6 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-auto-deletelater.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-vector-as-js-array.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-allow-block-main-thread.patch
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-closure-ftruncatesync.patch
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-update-arm-neon.patch
 
   # Need to rebuild libembind and libc, since we modified it
   # with the patches above
@@ -143,9 +141,12 @@ test -f "$TARGET/lib/pkgconfig/zlib.pc" || (
   cd $DEPS/zlib-ng
   # SSE intrinsics needs to be checked for wasm32
   sed -i 's/|\s*x86_64/& | wasm32/g' configure
+  # Correct SSSE3 intrinsics header
+  sed -i 's/x86intrin.h/immintrin.h/g' configure
   # Avoid CPU checks at runtime
   sed -i 's/\s-DX86_FEATURES//g' configure
   sed -i 's/\sx86.l*o//g' configure
+  sed -i '/x86_cpu_has_ssse3/d' functable.c
   emconfigure ./configure --prefix=$TARGET --static --zlib-compat ${DISABLE_SIMD:+--without-optimizations} \
     ${ENABLE_SIMD:+--force-sse2} --without-acle --without-neon
   make install

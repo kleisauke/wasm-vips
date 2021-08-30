@@ -1,103 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-        html { height: 100%; }
-        body {
-            margin: 0;
-            padding: 0;
-            border: 0;
-            height: 100%;
-        }
-    </style>
-</head>
-<body>
-<script type="module">
-    let loadedElements = [];
-
-    import Vips from '../lib/vips.js?<%= __webpack_hash__ %>';
-
-    window.addEventListener('message', load);
-
-    function load(event) {
-        loadedElements = loadedElements.filter(el => el.remove());
-        if (typeof cleanup === 'function')
-            cleanup();
-
-        const data = event.data;
-
-        if (data.css) {
-            const style = document.createElement('style');
-            style.type = 'text/css';
-            style.innerHTML = data.css;
-            document.head.appendChild(style);
-            loadedElements.push(style);
-        }
-        if (data.html) {
-            const content = document.createElement('div');
-            content.style.height = '100%';
-            content.innerHTML = data.html;
-            document.body.insertBefore(content, document.body.firstChild);
-            loadedElements.push(content);
-        }
-        if (data.js) {
-            try {
-                eval("(async () => {\n" + data.js + "\n})()");
-            } catch (err) {
-                const pre = document.createElement('pre');
-                pre.appendChild(document.createTextNode(err));
-                document.body.insertBefore(pre, document.body.firstChild);
-                loadedElements.push(pre)
-            }
-        }
+  <style>
+    html {
+      height: 100%;
     }
 
-    const options = {
-        print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
-        preRun: (module) => {
-            module['EMBIND_AUTOMATIC_DELETELATER'] = true;
-            module.setDelayFunction(fn => globalThis.cleanup = fn);
+    body {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+<script src="../lib/vips.js?<%= __webpack_hash__ %>"></script>
+<script type="module">
+  let loadedElements = [];
 
-            // Handy for debugging
-            // module.ENV.G_MESSAGES_DEBUG = 'VIPS';
-            // module.ENV.VIPS_LEAK = '1';
+  window.addEventListener('message', load);
 
-            for (const image of ['owl.jpg', 'owl.tif', 'owl.webp', 'banana.webp', 'banana.gif', 'transparency_demo.png'])
-                module.FS.createPreloadedFile('/', image, 'assets/images/' + image, true, false);
-        },
-        postRun: (module) => {
-            const pad = 30;
-            const have = (name) => module.Utils.typeFind('VipsOperation', name) !== 0;
+  function load(event) {
+    loadedElements = loadedElements.filter(el => el.remove());
+    if (typeof cleanup === 'function')
+      cleanup();
 
-            console.log('vips version:'.padEnd(pad), module.version());
-            console.log('Emscripten version:'.padEnd(pad), module.emscriptenVersion());
-            //console.log(module.config());
-            console.log('Concurrency:'.padEnd(pad), module.concurrency());
+    const data = event.data;
 
-            console.log('Cache max mem:'.padEnd(pad), module.Cache.maxMem());
-            console.log('Cache max operations:'.padEnd(pad), module.Cache.max());
-            console.log('Cache current operations:'.padEnd(pad), module.Cache.size());
-            console.log('Cache max open files:'.padEnd(pad), module.Cache.maxFiles());
+    if (data.css) {
+      const style = document.createElement('style');
+      style.type = 'text/css';
+      style.innerHTML = data.css;
+      document.head.appendChild(style);
+      loadedElements.push(style);
+    }
+    if (data.html) {
+      const content = document.createElement('div');
+      content.style.height = '100%';
+      content.innerHTML = data.html;
+      document.body.insertBefore(content, document.body.firstChild);
+      loadedElements.push(content);
+    }
+    if (data.js) {
+      try {
+        eval("(async () => {\n" + data.js + "\n})()");
+      } catch (err) {
+        const pre = document.createElement('pre');
+        pre.appendChild(document.createTextNode(err));
+        document.body.insertBefore(pre, document.body.firstChild);
+        loadedElements.push(pre)
+      }
+    }
+  }
 
-            console.log('Memory allocations:'.padEnd(pad), module.Stats.allocations());
-            console.log('Memory currently allocated:'.padEnd(pad), module.Stats.mem());
-            console.log('Memory high water:'.padEnd(pad), module.Stats.memHighwater());
-            console.log('Open files:'.padEnd(pad), module.Stats.files());
+  const options = {
+    print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
+    preRun: (module) => {
+      module.EMBIND_AUTOMATIC_DELETELATER = true;
+      module.setDelayFunction(fn => {
+        globalThis.cleanup = fn;
+      });
 
-            console.log('JPEG support:'.padEnd(pad), have('jpegload') ? 'yes' : 'no');
-            console.log('PNG support:'.padEnd(pad), have('pngload') ? 'yes' : 'no');
-            console.log('TIFF support:'.padEnd(pad), have('tiffload') ? 'yes' : 'no');
-            console.log('WebP support:'.padEnd(pad), have('webpload') ? 'yes' : 'no');
+      // Handy for debugging
+      // module.ENV.G_MESSAGES_DEBUG = 'VIPS';
+      // module.ENV.VIPS_LEAK = '1';
 
-            console.log('GIF load:'.padEnd(pad), have('gifload') ? 'yes' : 'no');
-            console.log('SVG load:'.padEnd(pad), have('svgload') ? 'yes' : 'no');
+      for (const image of ['owl.jpg', 'owl.tif', 'owl.webp', 'banana.webp', 'banana.gif', 'transparency_demo.png'])
+        module.FS.createPreloadedFile('/', image, 'assets/images/' + image, true, false);
+    },
+    postRun: (module) => {
+      const pad = 30;
+      const have = (name) => module.Utils.typeFind('VipsOperation', name) !== 0;
 
-            console.log('Text rendering support:'.padEnd(pad), have('text') ? 'yes' : 'no');
-        }
-    };
+      console.log('vips version:'.padEnd(pad), module.version());
+      console.log('Emscripten version:'.padEnd(pad), module.emscriptenVersion());
+      //console.log(module.config());
+      console.log('Concurrency:'.padEnd(pad), module.concurrency());
 
-    globalThis.vips = await Vips(options);
-    window.parent.postMessage('vipsInitialized', '*');
+      console.log('Cache max mem:'.padEnd(pad), module.Cache.maxMem());
+      console.log('Cache max operations:'.padEnd(pad), module.Cache.max());
+      console.log('Cache current operations:'.padEnd(pad), module.Cache.size());
+      console.log('Cache max open files:'.padEnd(pad), module.Cache.maxFiles());
+
+      console.log('Memory allocations:'.padEnd(pad), module.Stats.allocations());
+      console.log('Memory currently allocated:'.padEnd(pad), module.Stats.mem());
+      console.log('Memory high water:'.padEnd(pad), module.Stats.memHighwater());
+      console.log('Open files:'.padEnd(pad), module.Stats.files());
+
+      console.log('JPEG support:'.padEnd(pad), have('jpegload') ? 'yes' : 'no');
+      console.log('PNG support:'.padEnd(pad), have('pngload') ? 'yes' : 'no');
+      console.log('TIFF support:'.padEnd(pad), have('tiffload') ? 'yes' : 'no');
+      console.log('WebP support:'.padEnd(pad), have('webpload') ? 'yes' : 'no');
+
+      console.log('GIF load:'.padEnd(pad), have('gifload') ? 'yes' : 'no');
+      console.log('SVG load:'.padEnd(pad), have('svgload') ? 'yes' : 'no');
+
+      console.log('Text rendering support:'.padEnd(pad), have('text') ? 'yes' : 'no');
+    }
+  };
+
+  globalThis.vips = await Vips(options);
+  window.parent.postMessage('vipsInitialized', '*');
 </script>
 </body>
 </html>

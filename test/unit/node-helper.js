@@ -10,24 +10,26 @@ globalThis.url = url;
 globalThis.path = path;
 globalThis.expect = expect;
 
-export async function mochaGlobalSetup() {
-    const options = {
-        preRun: (module) => {
-            module['EMBIND_AUTOMATIC_DELETELATER'] = true;
-            module.setDelayFunction(fn => globalThis.cleanup = fn);
+export async function mochaGlobalSetup () {
+  const options = {
+    preRun: (module) => {
+      module.EMBIND_AUTOMATIC_DELETELATER = true;
+      module.setDelayFunction(fn => {
+        globalThis.cleanup = fn;
+      });
 
-            // Handy for debugging
-            // module.ENV.G_MESSAGES_DEBUG = 'VIPS';
-            // module.ENV.VIPS_LEAK = '1';
+      // Handy for debugging
+      // module.ENV.G_MESSAGES_DEBUG = 'VIPS';
+      // module.ENV.VIPS_LEAK = '1';
 
-            // Hide warning messages
-            module.ENV.VIPS_WARNING = '0';
-        }
-    };
-    globalThis.vips = await Vips(options);
+      // Hide warning messages
+      module.ENV.VIPS_WARNING = '0';
+    }
+  };
+  globalThis.vips = await Vips(options);
 }
 
-export function mochaGlobalTeardown() {
-    // We are done, shutdown libvips and the runtime of Emscripten
-    globalThis.vips.shutdown();
+export function mochaGlobalTeardown () {
+  // We are done, shutdown libvips and the runtime of Emscripten
+  globalThis.vips.shutdown();
 }

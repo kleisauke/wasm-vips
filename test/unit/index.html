@@ -1,80 +1,81 @@
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>wasm-vips testsuite</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/9.1.0/mocha.min.css" crossorigin="anonymous"/>
-    <style>
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-        }
+  <meta charset="utf-8">
+  <title>wasm-vips testsuite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/9.1.1/mocha.min.css" crossorigin="anonymous"/>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
 
-        #mocha {
-            font: 13px "Segoe UI", Arial, "HelveticaNeue-Light", sans-serif;
-        }
+    #mocha {
+      font: 13px "Segoe UI", Arial, "HelveticaNeue-Light", sans-serif;
+    }
 
-        #mocha-stats {
-            font-size: initial;
-        }
+    #mocha-stats {
+      font-size: initial;
+    }
 
-        #mocha h1 {
-            font-size: 1.8em;
-            font-weight: initial;
-        }
+    #mocha h1 {
+      font-size: 1.8em;
+      font-weight: initial;
+    }
 
-        #mocha .suite .suite h1 {
-            font-size: 1.4em;
-        }
+    #mocha .suite .suite h1 {
+      font-size: 1.4em;
+    }
 
-        #mocha h2 {
-            font-size: 1.2em;
-            font-weight: initial;
-            cursor: default;
-        }
+    #mocha h2 {
+      font-size: 1.2em;
+      font-weight: initial;
+      cursor: default;
+    }
 
-        #mocha .test.pass .duration {
-            font-size: 13px;
-        }
+    #mocha .test.pass .duration {
+      font-size: 13px;
+    }
 
-        #mocha .test.fail::before {
-            font-size: initial;
-        }
+    #mocha .test.fail::before {
+      font-size: initial;
+    }
 
-        #mocha .test.pass::before {
-            content: '\2714';
-            font-size: initial;
-            color: forestgreen;
-        }
+    #mocha .test.pass::before {
+      content: '\2714';
+      font-size: initial;
+      color: forestgreen;
+    }
 
-        #mocha .test.pending::before {
-            content: '\25CF';
-            font-size: initial;
-            color: #0b97c4;
-        }
+    #mocha .test.pending::before {
+      content: '\25CF';
+      font-size: initial;
+      color: #0b97c4;
+    }
 
-        #mocha .test.pending:hover h2::after {
-            content: ' (skipped)'
-        }
+    #mocha .test.pending:hover h2::after {
+      content: ' (skipped)'
+    }
 
-        #mocha .test pre:not(.error) {
-            display: none !important;
-        }
-    </style>
+    #mocha .test pre:not(.error) {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
 <div id="mocha"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/9.1.0/mocha.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/9.1.1/mocha.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.3.4/chai.min.js" crossorigin="anonymous"></script>
 <script class="mocha-init">
-    mocha.setup({
-        ui: 'bdd',
-        slow: 5000,
-        timeout: 60000
-    });
+  mocha.setup({
+    ui: 'bdd',
+    slow: 5000,
+    timeout: 60000
+  });
 </script>
+<script src="lib/web/vips.js"></script>
 <script type="module" src="test_arithmetic.js"></script>
 <script type="module" src="test_colour.js"></script>
 <script type="module" src="test_connection.js"></script>
@@ -89,59 +90,60 @@
 <script type="module" src="test_mosaicing.js"></script>
 <script type="module" src="test_resample.js"></script>
 <script type="module" class="mocha-exec">
-    // Global variables used throughout the unit tests
-    globalThis.expect = chai.expect;
+  // Global variables used throughout the unit tests
+  globalThis.expect = chai.expect;
 
-    import * as Helpers from './helpers.js';
-    import Vips from './lib/web/vips.js';
+  import * as Helpers from './helpers.js';
 
-    const options = {
-        print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
-        preRun: (module) => {
-            module['EMBIND_AUTOMATIC_DELETELATER'] = true;
-            module.setDelayFunction(fn => globalThis.cleanup = fn);
+  const options = {
+    print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
+    preRun: (module) => {
+      module.EMBIND_AUTOMATIC_DELETELATER = true;
+      module.setDelayFunction(fn => {
+        globalThis.cleanup = fn;
+      });
 
-            // Handy for debugging
-            // module.ENV.G_MESSAGES_DEBUG = 'VIPS';
-            // module.ENV.VIPS_LEAK = '1';
+      // Handy for debugging
+      // module.ENV.G_MESSAGES_DEBUG = 'VIPS';
+      // module.ENV.VIPS_LEAK = '1';
 
-            module.FS.mkdir('images');
-            for (const file of Helpers.TEST_FILES)
-                module.FS.createPreloadedFile('images', file.split('/').pop(), 'test/unit/' + file, true, false);
-        },
-        postRun: (module) => {
-            const pad = 30;
-            const have = (name) => module.Utils.typeFind('VipsOperation', name) !== 0;
+      module.FS.mkdir('images');
+      for (const file of Helpers.testFiles)
+        module.FS.createPreloadedFile('images', file.split('/').pop(), 'test/unit/' + file, true, false);
+    },
+    postRun: (module) => {
+      const pad = 30;
+      const have = (name) => module.Utils.typeFind('VipsOperation', name) !== 0;
 
-            console.log('vips version:'.padEnd(pad), module.version());
-            console.log('Emscripten version:'.padEnd(pad), module.emscriptenVersion());
-            //console.log(module.config());
-            console.log('Concurrency:'.padEnd(pad), module.concurrency());
+      console.log('vips version:'.padEnd(pad), module.version());
+      console.log('Emscripten version:'.padEnd(pad), module.emscriptenVersion());
+      //console.log(module.config());
+      console.log('Concurrency:'.padEnd(pad), module.concurrency());
 
-            console.log('Cache max mem:'.padEnd(pad), module.Cache.maxMem());
-            console.log('Cache max operations:'.padEnd(pad), module.Cache.max());
-            console.log('Cache current operations:'.padEnd(pad), module.Cache.size());
-            console.log('Cache max open files:'.padEnd(pad), module.Cache.maxFiles());
+      console.log('Cache max mem:'.padEnd(pad), module.Cache.maxMem());
+      console.log('Cache max operations:'.padEnd(pad), module.Cache.max());
+      console.log('Cache current operations:'.padEnd(pad), module.Cache.size());
+      console.log('Cache max open files:'.padEnd(pad), module.Cache.maxFiles());
 
-            console.log('Memory allocations:'.padEnd(pad), module.Stats.allocations());
-            console.log('Memory currently allocated:'.padEnd(pad), module.Stats.mem());
-            console.log('Memory high water:'.padEnd(pad), module.Stats.memHighwater());
-            console.log('Open files:'.padEnd(pad), module.Stats.files());
+      console.log('Memory allocations:'.padEnd(pad), module.Stats.allocations());
+      console.log('Memory currently allocated:'.padEnd(pad), module.Stats.mem());
+      console.log('Memory high water:'.padEnd(pad), module.Stats.memHighwater());
+      console.log('Open files:'.padEnd(pad), module.Stats.files());
 
-            console.log('JPEG support:'.padEnd(pad), have('jpegload') ? 'yes' : 'no');
-            console.log('PNG support:'.padEnd(pad), have('pngload') ? 'yes' : 'no');
-            console.log('TIFF support:'.padEnd(pad), have('tiffload') ? 'yes' : 'no');
-            console.log('WebP support:'.padEnd(pad), have('webpload') ? 'yes' : 'no');
+      console.log('JPEG support:'.padEnd(pad), have('jpegload') ? 'yes' : 'no');
+      console.log('PNG support:'.padEnd(pad), have('pngload') ? 'yes' : 'no');
+      console.log('TIFF support:'.padEnd(pad), have('tiffload') ? 'yes' : 'no');
+      console.log('WebP support:'.padEnd(pad), have('webpload') ? 'yes' : 'no');
 
-            console.log('GIF load:'.padEnd(pad), have('gifload') ? 'yes' : 'no');
-            console.log('SVG load:'.padEnd(pad), have('svgload') ? 'yes' : 'no');
+      console.log('GIF load:'.padEnd(pad), have('gifload') ? 'yes' : 'no');
+      console.log('SVG load:'.padEnd(pad), have('svgload') ? 'yes' : 'no');
 
-            console.log('Text rendering support:'.padEnd(pad), have('text') ? 'yes' : 'no');
-        }
-    };
+      console.log('Text rendering support:'.padEnd(pad), have('text') ? 'yes' : 'no');
+    }
+  };
 
-    globalThis.vips = await Vips(options);
-    mocha.run();
+  globalThis.vips = await Vips(options);
+  mocha.run();
 </script>
 </body>
 </html>

@@ -74,11 +74,23 @@ select {
     border-bottom: 0;
     cursor: pointer;
     float: right;
-    padding: 0 5px 0 16px;
+    padding: 0 5px 0 5px;
+    background: transparent;
 }
 
-.playground-page .action.run {
-    background: url('../images/run.png') no-repeat left center;
+.playground-page .action.run::before,
+.playground-page .action.share::before {
+    font-size: 10px;
+    margin-right: 5px;
+    vertical-align: top;
+}
+
+.playground-page .action.run::before {
+    content: '\25B6';
+}
+
+.playground-page .action.share::before {
+    content: '\1F30D️';
 }
 
 .playground-page .editor-container {

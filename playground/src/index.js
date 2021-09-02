@@ -3,7 +3,7 @@ import 'monaco-editor/esm/vs/basic-languages/typescript/typescript';
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript';
 import 'monaco-editor/esm/vs/basic-languages/html/html';
 import 'monaco-editor/esm/vs/basic-languages/css/css';
-import { compressSync, decompressSync, strToU8, strFromU8 } from 'fflate';
+import { deflateSync, inflateSync, strToU8, strFromU8 } from 'fflate';
 
 import { playSamples } from './samples';
 import './css/playground.css';
@@ -235,7 +235,7 @@ function load () {
     window.location.hash = sampleSwitcher.options[sampleSwitcher.selectedIndex].value;
     const u = new URL(location);
     const p = new URLSearchParams(u.search);
-    p.delete('gcode');
+    p.delete('deflate');
     u.search = '?' + p.toString();
     history.replaceState({}, '', u);
   };
@@ -294,16 +294,13 @@ function load () {
   window.onhashchange = parseHash;
 
   const p = new URLSearchParams(location.search);
-  if (p.has('gcode')) {
+  if (p.has('deflate')) {
     // restore - and _ to + and /
-    const b64 = p.get('gcode').replaceAll('-', '+')
+    const b64 = p.get('deflate').replaceAll('-', '+')
       .replaceAll('_', '/');
     const compressed = strToU8(atob(b64), true);
-    const timestamp = (compressed[4] | (compressed[5] << 8) | (compressed[6] << 16) | (compressed[7] << 24)) >>> 0;
-    const date = new Date(timestamp * 1000);
-    const decompressed = decompressSync(compressed);
+    const decompressed = inflateSync(compressed);
     const code = JSON.parse(strFromU8(decompressed));
-    console.log('Loading code shared on ' + date);
     loadCode({
       js: code[0],
       html: code[1],
@@ -325,17 +322,14 @@ function load () {
       data.html.model.getValue(),
       data.css.model.getValue()
     ]);
-    const compressed = compressSync(strToU8(jsonData), {
-      // mtime: 0, // Obfuscate mtime by default
-      level: 9
-    });
+    const compressed = deflateSync(strToU8(jsonData), { level: 9 });
     const payload = btoa(strFromU8(compressed, true));
     // change letters around so payload can be put in a url
     // padding is not needed
     const safePayload = payload.replaceAll('+', '-')
       .replaceAll('/', '_')
       .replaceAll('=', '');
-    p.set('gcode', safePayload);
+    p.set('deflate', safePayload);
     u.search = '?' + p.toString();
     u.hash = '';
     history.replaceState({}, '', u);

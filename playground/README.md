@@ -3,12 +3,12 @@
 A playground for experimenting with wasm-vips. View it online here:  
 https://kleisauke.github.io/wasm-vips/playground/
 
-## `{en,de}code-gcode.sh` usage
+## `{en,de}code-deflate.sh` usage
 
 ```bash
-$ ./encode-gcode.sh '["console.log(\"wasm-vips is awesome!\");","",""]'
-H4sIAAAAAAACA4tWSs7PK87PSdXLyU_XiFEqTyzO1S3LLChWyCxWSCxPLc7PTVWMUdK0VtJRAqFYLgDf5n3-MgAAAA
-$ ./decode-gcode.sh H4sIAAAAAAACA4tWSs7PK87PSdXLyU_XiFEqTyzO1S3LLChWyCxWSCxPLc7PTVWMUdK0VtJRAqFYLgDf5n3-MgAAAA
+$ ./encode-deflate.sh '["console.log(\"wasm-vips is awesome!\");","",""]'
+i1ZKzs8rzs9J1cvJT9eIUSpPLM7VLcssKFbILFZILE8tzs9NVYxR0rRW0lECoVgA
+$ ./decode-deflate.sh i1ZKzs8rzs9J1cvJT9eIUSpPLM7VLcssKFbILFZILE8tzs9NVYxR0rRW0lECoVgA
 ["console.log(\"wasm-vips is awesome!\");","",""]
-# Visit https://kleisauke.github.io/wasm-vips/playground/?gcode=H4sIAAAAAAACA4tWSs7PK87PSdXLyU_XiFEqTyzO1S3LLChWyCxWSCxPLc7PTVWMUdK0VtJRAqFYLgDf5n3-MgAAAA
+# Visit https://kleisauke.github.io/wasm-vips/playground/?deflate=i1ZKzs8rzs9J1cvJT9eIUSpPLM7VLcssKFbILFZILE8tzs9NVYxR0rRW0lECoVgA
 ```

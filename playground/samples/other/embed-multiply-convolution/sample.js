@@ -20,7 +20,7 @@ const mask = vips.Image.newFromArray([
 ], 8.0);
 
 im = im.conv(mask, {
-  precision: vips.Precision.integer /* 'integer' */
+  precision: vips.Precision.integer // 'integer'
 });
 
 // Finally, write the result to a blob

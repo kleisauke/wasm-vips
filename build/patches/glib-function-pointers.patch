@@ -1384,7 +1384,7 @@ index 1111111..2222222 100644
  
  struct _GPowerProfileMonitorDBus
  {
-@@ -229,12 +231,14 @@ g_power_profile_monitor_dbus_class_init (GPowerProfileMonitorDBusClass *nl_class
+@@ -231,12 +233,14 @@ g_power_profile_monitor_dbus_class_init (GPowerProfileMonitorDBusClass *nl_class
  }
  
  static void
@@ -1418,7 +1418,7 @@ index 1111111..2222222 100644
  
  typedef enum
  {
-@@ -171,12 +173,14 @@ g_power_profile_monitor_portal_class_init (GPowerProfileMonitorPortalClass *nl_c
+@@ -178,12 +180,14 @@ g_power_profile_monitor_portal_class_init (GPowerProfileMonitorPortalClass *nl_c
  }
  
  static void

@@ -8,7 +8,7 @@ let im = vips.Image.newFromFile('owl.jpg');
 // Canny edge detector
 im = im.canny({
   sigma: 1.4,
-  precision: vips.Precision.integer /* 'integer' */
+  precision: vips.Precision.integer // 'integer'
 });
 
 // Canny makes a float image, scale the output up to make it visible

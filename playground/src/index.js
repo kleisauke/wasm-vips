@@ -3,6 +3,7 @@ import 'monaco-editor/esm/vs/basic-languages/typescript/typescript';
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript';
 import 'monaco-editor/esm/vs/basic-languages/html/html';
 import 'monaco-editor/esm/vs/basic-languages/css/css';
+import { deflateSync, inflateSync, strToU8, strFromU8 } from 'fflate';
 
 import { playSamples } from './samples';
 import './css/playground.css';
@@ -127,6 +128,17 @@ function load () {
   };
   tabArea.appendChild(runBtn);
 
+  const shareLabel = 'Share the code.';
+  const shareBtn = document.createElement('button');
+  shareBtn.className = 'action share';
+  shareBtn.setAttribute('role', 'button');
+  shareBtn.setAttribute('aria-label', shareLabel);
+  shareBtn.appendChild(document.createTextNode('Share'));
+  shareBtn.onclick = function () {
+    share();
+  };
+  tabArea.appendChild(shareBtn);
+
   const editorContainer = document.createElement('div');
   editorContainer.className = 'editor-container';
 
@@ -211,8 +223,21 @@ function load () {
     });
   }
 
+  function loadCode (code, dorun = false) {
+    data.js.model.setValue(code.js);
+    data.html.model.setValue(code.html);
+    data.css.model.setValue(code.css);
+    editor.setScrollTop(0);
+    if (dorun) run();
+  }
+
   sampleSwitcher.onchange = function () {
     window.location.hash = sampleSwitcher.options[sampleSwitcher.selectedIndex].value;
+    const u = new URL(location);
+    const p = new URLSearchParams(u.search);
+    p.delete('deflate');
+    u.search = '?' + p.toString();
+    history.replaceState({}, '', u);
   };
 
   const playgroundContainer = document.getElementById('playground');
@@ -223,9 +248,9 @@ function load () {
   playgroundContainer.appendChild(typingContainer);
   playgroundContainer.appendChild(runContainer);
 
-  data.js.model = monaco.editor.createModel('console.log("wasm-vips is awesome!")', 'javascript');
-  data.css.model = monaco.editor.createModel('css', 'css');
-  data.html.model = monaco.editor.createModel('html', 'html');
+  data.js.model = monaco.editor.createModel('console.log("wasm-vips is awesome!");', 'javascript');
+  data.css.model = monaco.editor.createModel('', 'css');
+  data.html.model = monaco.editor.createModel('', 'html');
 
   editor = monaco.editor.create(editorContainer, {
     model: data.js.model,
@@ -239,6 +264,7 @@ function load () {
   function parseHash (firstTime) {
     let sampleId = window.location.hash.replace(/^#/, '');
     if (!sampleId) {
+      if (!firstTime) return;
       sampleId = playSamples[0].id;
     }
 
@@ -261,19 +287,53 @@ function load () {
       if (myToken !== currentToken) {
         return;
       }
-      data.js.model.setValue(sample.js);
-      data.html.model.setValue(sample.html);
-      data.css.model.setValue(sample.css);
-      editor.setScrollTop(0);
-      run();
+      loadCode(sample, true);
     });
   }
 
   window.onhashchange = parseHash;
-  parseHash(true);
+
+  const p = new URLSearchParams(location.search);
+  if (p.has('deflate')) {
+    // restore - and _ to + and /
+    const b64 = p.get('deflate').replaceAll('-', '+')
+      .replaceAll('_', '/');
+    const compressed = strToU8(atob(b64), true);
+    const decompressed = inflateSync(compressed);
+    const code = JSON.parse(strFromU8(decompressed));
+    loadCode({
+      js: code[0],
+      html: code[1],
+      css: code[2]
+    });
+  } else {
+    parseHash(true);
+  }
 
   function run () {
     doRun(runContainer);
+  }
+
+  function share () {
+    const u = new URL(location);
+    const p = new URLSearchParams(u.search);
+    const jsonData = JSON.stringify([
+      data.js.model.getValue(),
+      data.html.model.getValue(),
+      data.css.model.getValue()
+    ]);
+    const compressed = deflateSync(strToU8(jsonData), { level: 9 });
+    const payload = btoa(strFromU8(compressed, true));
+    // change letters around so payload can be put in a url
+    // padding is not needed
+    const safePayload = payload.replaceAll('+', '-')
+      .replaceAll('/', '_')
+      .replaceAll('=', '');
+    p.set('deflate', safePayload);
+    u.search = '?' + p.toString();
+    u.hash = '';
+    history.replaceState({}, '', u);
+    navigator.clipboard.writeText(u.toString()).then(_ => console.log('URL copied to clipboard.'));
   }
 
   editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, run);
@@ -297,7 +357,7 @@ function doRun (runContainer) {
   };
 
   if (!runIframe) {
-    // Load new iframe
+    // load new iframe
     runIframe = document.createElement('iframe');
     runIframe.id = 'runner';
     runIframe.src = 'playground-runner.html';

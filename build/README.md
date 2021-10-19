@@ -20,11 +20,11 @@ git pull
 # Download and install the "tip-of-tree" build (i.e. the very latest binaries)
 ./emsdk install tot
 
-# Prefer the default system-installed version of Node.js
-./emsdk uninstall $(./emsdk list | grep INSTALLED | tr -d \(\*\) | grep node | awk '{print $1}')
-
 # Make the "tip-of-tree" build active for the current user (writes .emscripten file)
 ./emsdk activate tot
+
+# Prefer the default system-installed version of Node.js
+sed -i'.old' "/^NODE_JS/s/= .*/= '\/usr\/bin\/node'/" .emscripten
 
 # Activate PATH and other environment variables in the current terminal
 source ./emsdk_env.sh

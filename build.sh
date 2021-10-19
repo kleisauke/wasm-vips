@@ -93,16 +93,16 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.5
 VERSION_FFI=3.4.2
-VERSION_GLIB=2.69.2
+VERSION_GLIB=2.70.0
 VERSION_EXPAT=2.4.1
-VERSION_EXIF=0.6.22
+VERSION_EXIF=0.6.23
 VERSION_LCMS2=2.12
 VERSION_JPEG=2.1.1
 VERSION_PNG16=1.6.37
-VERSION_SPNG=0.6.3
+VERSION_SPNG=0.7.0
 VERSION_WEBP=1.2.1
 VERSION_TIFF=4.3.0
-VERSION_VIPS=8.11.3
+VERSION_VIPS=8.11.4
 
 # Remove patch version component
 without_patch() {
@@ -199,7 +199,7 @@ echo "Compiling exif"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/libexif.pc" || (
   mkdir $DEPS/exif
-  curl -Ls https://github.com/libexif/libexif/releases/download/libexif-${VERSION_EXIF//./_}-release/libexif-$VERSION_EXIF.tar.xz | tar xJC $DEPS/exif --strip-components=1
+  curl -Ls https://github.com/libexif/libexif/releases/download/v$VERSION_EXIF/libexif-$VERSION_EXIF.tar.xz | tar xJC $DEPS/exif --strip-components=1
   cd $DEPS/exif
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix \
@@ -261,7 +261,7 @@ test -f "$TARGET/lib/pkgconfig/spng.pc" || (
   # TODO(kleisauke): Discuss this patch upstream
   patch -p1 <$SOURCE_DIR/build/patches/libspng-emscripten.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Dstatic_zlib=true ${DISABLE_SIMD:+-Denable_opt=false} ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse2"}
+    -Dbuild_examples=false -Dstatic_zlib=true ${DISABLE_SIMD:+-Denable_opt=false} ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse2"}
   ninja -C _build install
 )
 
@@ -301,7 +301,7 @@ echo "============================================="
 test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   mkdir $DEPS/vips
   curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$VERSION_VIPS.tar.gz | tar xzC $DEPS/vips --strip-components=1
-  #curl -Ls https://github.com/libvips/libvips/tarball/$VERSION_VIPS | tar xzC $DEPS/vips --strip-components=1
+  #curl -Ls https://github.com/libvips/libvips/archive/$VERSION_VIPS.tar.gz | tar xzC $DEPS/vips --strip-components=1
   cd $DEPS/vips
   # Emscripten specific patches
   patch -p1 <$SOURCE_DIR/build/patches/vips-remove-orc.patch

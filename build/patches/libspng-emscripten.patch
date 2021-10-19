@@ -9,7 +9,7 @@ diff --git a/spng/spng.c b/spng/spng.c
 index 1111111..2222222 100644
 --- a/spng/spng.c
 +++ b/spng/spng.c
-@@ -32,7 +32,7 @@
+@@ -35,7 +35,7 @@
  
  #ifndef SPNG_DISABLE_OPT
  

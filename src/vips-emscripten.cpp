@@ -43,9 +43,6 @@ int main() {
 }
 
 EM_JS(void, shutdown_js, (), {
-    // TODO(kleisauke): Remove this call once
-    // https://github.com/emscripten-core/emscripten/pull/14481 lands
-    PThread.terminateAllThreads();
     exitRuntime();
 });
 

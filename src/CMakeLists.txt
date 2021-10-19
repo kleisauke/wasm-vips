@@ -114,6 +114,7 @@ set_target_properties(${TARGETS}
 -sINITIAL_MEMORY=1GB \
 -sALLOW_TABLE_GROWTH \
 -sALLOW_BLOCKING_ON_MAIN_THREAD \
+-sTEXTDECODER=2 \
 -sASSERTIONS=0 \
 -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=emscripten_num_logical_cores \
 -sEXPORTED_RUNTIME_METHODS='[\"FS\", \"ENV\", \"deletionQueue\", \"addFunction\"]'"

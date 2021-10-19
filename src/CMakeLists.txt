@@ -106,6 +106,7 @@ set_target_properties(${TARGETS}
             OUTPUT_NAME "vips"
             LINK_FLAGS "\
 --closure 1 \
+--closure-args \"--externs ${CMAKE_CURRENT_SOURCE_DIR}/closure-externs/wasm-vips.js\" \
 --bind \
 -sMODULARIZE \
 -sEXPORT_NAME='Vips' \

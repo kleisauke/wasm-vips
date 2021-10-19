@@ -328,7 +328,7 @@ echo "============================================="
   cd $DEPS/wasm-vips
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" \
     -DENVIRONMENT=${ENVIRONMENT//,/;}
-  EMCC_CLOSURE_ARGS="--externs $SOURCE_DIR/src/closure-externs/wasm-vips.js" make
+  make
 )
 
 echo "============================================="

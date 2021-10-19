@@ -135,9 +135,10 @@ if("node" IN_LIST ENVIRONMENT)
 endif()
 
 if("web" IN_LIST ENVIRONMENT)
+    set(WEB_MIN_TARGETS "-s MIN_FIREFOX_VERSION=89 -s MIN_EDGE_VERSION=91 -s MIN_CHROME_VERSION=91")
     set_property(
             TARGET ${PROJECT_NAME}-web
             APPEND_STRING PROPERTY
-            LINK_FLAGS " -sENVIRONMENT=web,worker -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$Browser"
+            LINK_FLAGS " -sENVIRONMENT=web,worker -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$Browser ${WEB_MIN_TARGETS}"
             )
 endif()

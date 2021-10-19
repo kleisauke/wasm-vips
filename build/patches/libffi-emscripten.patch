@@ -16,7 +16,7 @@ emconfigure ./configure --host=wasm32-unknown-linux --enable-static \
   CFLAGS="-DWASM_BIGINT"
 make
 EMMAKEN_JUST_CONFIGURE=1 emmake make check \
-  RUNTESTFLAGS="LDFLAGS_FOR_TARGET='-s WASM_BIGINT'"
+  RUNTESTFLAGS="LDFLAGS_FOR_TARGET='-sWASM_BIGINT'"
 
 Co-authored-by: Brion Vibber <brion@pobox.com>
 Co-authored-by: Hood Chatham <hood@mit.edu>

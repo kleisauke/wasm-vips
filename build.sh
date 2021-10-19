@@ -61,7 +61,7 @@ if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 #export EMCC_DEBUG="1"
 
 # Handy for catching bugs
-#export CFLAGS="-Os -gsource-map -fsanitize=address -s INITIAL_MEMORY=64MB"
+#export CFLAGS="-Os -gsource-map -fsanitize=address -sINITIAL_MEMORY=64MB"
 #export CXXFLAGS="$CFLAGS"
 #export LDFLAGS="-L$TARGET/lib -Os -gsource-map -fsanitize=address"
 
@@ -78,7 +78,7 @@ fi
 if [ "$LTO" = "true" ]; then export CFLAGS+=" -flto"; fi
 export CXXFLAGS="$CFLAGS"
 export LDFLAGS="-L$TARGET/lib -O3"
-if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -s WASM_BIGINT"; fi
+if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
 if [ "$LTO" = "true" ]; then export LDFLAGS+=" -flto"; fi
 
 # Build paths

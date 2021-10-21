@@ -105,8 +105,8 @@ set_target_properties(${TARGETS}
         PROPERTIES
             OUTPUT_NAME "vips"
             LINK_FLAGS "\
---closure 1 \
---closure-args \"--externs ${CMAKE_CURRENT_SOURCE_DIR}/closure-externs/wasm-vips.js\" \
+--closure=1 \
+--closure-args=\"--externs ${CMAKE_CURRENT_SOURCE_DIR}/closure-externs/wasm-vips.js\" \
 --bind \
 -sMODULARIZE \
 -sEXPORT_NAME='Vips' \
@@ -136,7 +136,7 @@ if("node" IN_LIST ENVIRONMENT)
 endif()
 
 if("web" IN_LIST ENVIRONMENT)
-    set(WEB_MIN_TARGETS "-s MIN_FIREFOX_VERSION=89 -s MIN_EDGE_VERSION=91 -s MIN_CHROME_VERSION=91")
+    set(WEB_MIN_TARGETS "-sMIN_FIREFOX_VERSION=89 -sMIN_EDGE_VERSION=91 -sMIN_CHROME_VERSION=91")
     set_property(
             TARGET ${PROJECT_NAME}-web
             APPEND_STRING PROPERTY

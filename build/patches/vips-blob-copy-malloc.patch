@@ -6,7 +6,7 @@ Subject: [PATCH 1/1] Prefer g_malloc over vips_malloc in vips_blob_copy
 The use of vips_malloc is not necessary here and could potentially
 be slower since it uses g_malloc0 (i.e. calloc).
 
-Upstream-Status: Pending
+Upstream-Status: Accepted [https://github.com/libvips/libvips/commit/8a1e1eda346dac39f0aed5e2c789e02d9d9df6c5]
 
 diff --git a/libvips/iofuncs/type.c b/libvips/iofuncs/type.c
 index 1111111..2222222 100644

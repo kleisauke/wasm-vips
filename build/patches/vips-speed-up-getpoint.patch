@@ -3,7 +3,7 @@ From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Thu, 13 Aug 2020 16:39:34 +0200
 Subject: [PATCH 1/1] Speed-up vips_getpoint()
 
-Upstream-Status: Pending
+Upstream-Status: Accepted [https://github.com/libvips/libvips/commit/1044dd46eb1bee6dce7dc648efad291ccf4e6e11]
 
 diff --git a/libvips/arithmetic/getpoint.c b/libvips/arithmetic/getpoint.c
 index 1111111..2222222 100644

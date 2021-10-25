@@ -112,9 +112,13 @@ def generate_operation(operation_name, indent='        '):
 
     required_output = [name for name in intro.required_output if name != intro.member_x]
 
+    # We are only interested in non-deprecated arguments
+    optional_input = [name for name in intro.optional_input if intro.details[name]['flags'] & _DEPRECATED == 0]
+    optional_output = [name for name in intro.optional_output if intro.details[name]['flags'] & _DEPRECATED == 0]
+
     has_input = len(intro.method_args) >= 1
     has_output = len(required_output) >= 1
-    has_optional_options = len(intro.optional_input) + len(intro.optional_output) >= 1
+    has_optional_options = len(optional_input) + len(optional_output) >= 1
 
     # Add a comment block with some additional markings (@param, @return)
     result = f'\n{indent}/**'
@@ -146,12 +150,12 @@ def generate_operation(operation_name, indent='        '):
         if has_input:
             result += ', '
         result += 'options?: {'
-        for name in intro.optional_input:
+        for name in optional_input:
             result += f'\n{indent}    /**'
             result += f"\n{indent}     * {intro.details[name]['blurb'].capitalize()}."
             result += f'\n{indent}     */'
             result += f"\n{indent}    {js_name(name)}?: {get_js_type(intro.details[name]['type'], True)}"
-        for name in intro.optional_output:
+        for name in optional_output:
             result += f'\n{indent}    /**'
             result += f"\n{indent}     * {intro.details[name]['blurb'].capitalize()} (output)."
             result += f'\n{indent}     */'

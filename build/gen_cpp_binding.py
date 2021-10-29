@@ -227,6 +227,10 @@ def generate_enums_flags(file):
     # Enums
     type_map(type_from_name('GEnum'), add_enum)
 
+    # Hide internal enums
+    filter = ['VipsToken', 'VipsImageType']
+    all_enums = [name for name in all_enums if name not in filter]
+
     # Flags
     all_flags.append('VipsForeignPngFilter')
 

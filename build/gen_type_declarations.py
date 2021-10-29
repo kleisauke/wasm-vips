@@ -252,6 +252,10 @@ def generate_enums_flags(gir_file, out_file):
     # Enums
     type_map(type_from_name('GEnum'), add_enum)
 
+    # Hide internal enums
+    filter = ['VipsToken', 'VipsImageType']
+    all_nicknames = [name for name in all_nicknames if name not in filter]
+
     # Flags
     all_nicknames.append('VipsForeignPngFilter')
     gtype_to_js_param[type_from_name('VipsForeignPngFilter')] = f'{remove_prefix("VipsForeignPngFilter")} | Flag'

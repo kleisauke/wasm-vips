@@ -353,12 +353,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("set", VIPS_COMBINE_MODE_SET)
         .value("add", VIPS_COMBINE_MODE_ADD);
 
-    enum_<VipsToken>("Token")
-        .value("left", VIPS_TOKEN_LEFT)
-        .value("right", VIPS_TOKEN_RIGHT)
-        .value("string", VIPS_TOKEN_STRING)
-        .value("equals", VIPS_TOKEN_EQUALS);
-
     enum_<VipsSaveable>("Saveable")
         .value("mono", VIPS_SAVEABLE_MONO)
         .value("rgb", VIPS_SAVEABLE_RGB)
@@ -366,16 +360,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("rgba_only", VIPS_SAVEABLE_RGBA_ONLY)
         .value("rgb_cmyk", VIPS_SAVEABLE_RGB_CMYK)
         .value("any", VIPS_SAVEABLE_ANY);
-
-    enum_<VipsImageType>("ImageType")
-        .value("error", VIPS_IMAGE_ERROR)
-        .value("none", VIPS_IMAGE_NONE)
-        .value("setbuf", VIPS_IMAGE_SETBUF)
-        .value("setbuf_foreign", VIPS_IMAGE_SETBUF_FOREIGN)
-        .value("openin", VIPS_IMAGE_OPENIN)
-        .value("mmapin", VIPS_IMAGE_MMAPIN)
-        .value("mmapinrw", VIPS_IMAGE_MMAPINRW)
-        .value("openout", VIPS_IMAGE_OPENOUT);
 
     enum_<VipsForeignPngFilter>("ForeignPngFilter")
         .value("none", VIPS_FOREIGN_PNG_FILTER_NONE)

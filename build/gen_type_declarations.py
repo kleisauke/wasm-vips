@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 
 from pyvips import Introspect, GValue, Error, \
     ffi, values_for_enum, values_for_flag, \
-    vips_lib, gobject_lib, type_map, type_name, \
+    gobject_lib, type_map, type_name, \
     type_from_name, nickname_find
 
 # turn a GType into a TypeScript type
@@ -112,13 +112,9 @@ def generate_operation(operation_name, indent='        '):
 
     required_output = [name for name in intro.required_output if name != intro.member_x]
 
-    # We are only interested in non-deprecated arguments
-    optional_input = [name for name in intro.optional_input if intro.details[name]['flags'] & _DEPRECATED == 0]
-    optional_output = [name for name in intro.optional_output if intro.details[name]['flags'] & _DEPRECATED == 0]
-
     has_input = len(intro.method_args) >= 1
     has_output = len(required_output) >= 1
-    has_optional_options = len(optional_input) + len(optional_output) >= 1
+    has_optional_options = len(intro.doc_optional_input) + len(intro.doc_optional_output) >= 1
 
     # Add a comment block with some additional markings (@param, @return)
     result = f'\n{indent}/**'
@@ -150,12 +146,12 @@ def generate_operation(operation_name, indent='        '):
         if has_input:
             result += ', '
         result += 'options?: {'
-        for name in optional_input:
+        for name in intro.doc_optional_input:
             result += f'\n{indent}    /**'
             result += f"\n{indent}     * {intro.details[name]['blurb'].capitalize()}."
             result += f'\n{indent}     */'
             result += f"\n{indent}    {js_name(name)}?: {get_js_type(intro.details[name]['type'], True)}"
-        for name in optional_output:
+        for name in intro.doc_optional_output:
             result += f'\n{indent}    /**'
             result += f"\n{indent}     * {intro.details[name]['blurb'].capitalize()} (output)."
             result += f'\n{indent}     */'
@@ -233,11 +229,6 @@ def generate_enums_flags(gir_file, out_file):
     for node in root.findall('goi:namespace/goi:bitfield', namespace):
         xml_flags[node.get('name')] = node
 
-    # otherwise we're missing some enums
-    vips_lib.vips_token_get_type()
-    vips_lib.vips_saveable_get_type()
-    vips_lib.vips_image_type_get_type()
-
     all_nicknames = []
 
     def add_enum(gtype, a, b):
@@ -251,10 +242,6 @@ def generate_enums_flags(gir_file, out_file):
 
     # Enums
     type_map(type_from_name('GEnum'), add_enum)
-
-    # Hide internal enums
-    filter = ['VipsToken', 'VipsImageType']
-    all_nicknames = [name for name in all_nicknames if name not in filter]
 
     # Flags
     all_nicknames.append('VipsForeignPngFilter')
@@ -291,7 +278,7 @@ def generate_enums_flags(gir_file, out_file):
             values = values_for_enum(gtype) if is_enum else values_for_flag(gtype)
             for i, value in enumerate(values):
                 js_value = value.replace('-', '_')
-                if js_value == 'error' or js_value == 'notset':
+                if i == 0 and (js_value == 'error' or js_value == 'notset'):
                     continue
 
                 member = node.find(f"goi:member[@name='{js_value}']", namespace)

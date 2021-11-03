@@ -353,14 +353,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("set", VIPS_COMBINE_MODE_SET)
         .value("add", VIPS_COMBINE_MODE_ADD);
 
-    enum_<VipsSaveable>("Saveable")
-        .value("mono", VIPS_SAVEABLE_MONO)
-        .value("rgb", VIPS_SAVEABLE_RGB)
-        .value("rgba", VIPS_SAVEABLE_RGBA)
-        .value("rgba_only", VIPS_SAVEABLE_RGBA_ONLY)
-        .value("rgb_cmyk", VIPS_SAVEABLE_RGB_CMYK)
-        .value("any", VIPS_SAVEABLE_ANY);
-
     enum_<VipsForeignPngFilter>("ForeignPngFilter")
         .value("none", VIPS_FOREIGN_PNG_FILTER_NONE)
         .value("sub", VIPS_FOREIGN_PNG_FILTER_SUB)
@@ -843,7 +835,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
                   }))
         .function("asin", optional_override([](const Image &image) {
                       return image.math(VIPS_OPERATION_MATH_ASIN);
-                      ;
                   }))
         .function("acos", optional_override([](const Image &image) {
                       return image.math(VIPS_OPERATION_MATH_ACOS);

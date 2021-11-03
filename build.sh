@@ -93,7 +93,7 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.5
 VERSION_FFI=3.4.2
-VERSION_GLIB=2.70.0
+VERSION_GLIB=2.70.1
 VERSION_EXPAT=2.4.1
 VERSION_EXIF=0.6.23
 VERSION_LCMS2=2.12
@@ -365,11 +365,4 @@ echo "============================================="
 
   # Copy produced vips.wasm file up one directory
   cp $SOURCE_DIR/lib/web/vips.wasm $SOURCE_DIR/lib/
-
-  # FinalizationGroup -> FinalizationRegistry, see:
-  # https://github.com/tc39/proposal-weakrefs/issues/180
-  # https://github.com/emscripten-core/emscripten/issues/11436#issuecomment-645870155
-  # for file in node-commonjs/vips.js node-es6/vips.mjs web/vips.js; do
-  #   sed -i 's/FinalizationGroup/FinalizationRegistry/g' $SOURCE_DIR/lib/$file
-  # done
 )

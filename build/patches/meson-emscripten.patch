@@ -11,7 +11,7 @@ diff --git a/mesonbuild/compilers/mixins/emscripten.py b/mesonbuild/compilers/mi
 index 1111111..2222222 100644
 --- a/mesonbuild/compilers/mixins/emscripten.py
 +++ b/mesonbuild/compilers/mixins/emscripten.py
-@@ -47,10 +47,10 @@ class EmscriptenMixin(Compiler):
+@@ -59,10 +59,10 @@ class EmscriptenMixin(Compiler):
          return os.path.join(dirname, 'output.' + suffix)
  
      def thread_flags(self, env: 'Environment') -> T.List[str]:

@@ -4,7 +4,7 @@
 
 # this needs pyvips
 #
-#   pip install --user git+https://github.com/kleisauke/pyvips@flags-helper
+#   pip install --user pyvips
 import re
 
 from pyvips import Image, Introspect, GValue, Error, \

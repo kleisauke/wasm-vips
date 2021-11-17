@@ -66,7 +66,7 @@ if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 #export LDFLAGS="-L$TARGET/lib -Os -gsource-map -fsanitize=address"
 
 # Specify location where source maps are published (browser specific)
-#export CFLAGS+=" --source-map-base http://localhost:5000/lib/web/"
+#export CFLAGS+=" --source-map-base http://localhost:3000/lib/web/"
 
 # Common compiler flags
 export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint"
@@ -175,6 +175,8 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   cd $DEPS/glib
   patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-function-pointers.patch
+  # Use pcre from sourceforge
+  sed -i 's|ftp.pcre.org/pub/pcre|downloads.sourceforge.net/project/pcre/pcre/8.37|' subprojects/libpcre.wrap
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     --force-fallback-for=libpcre -Diconv="libc" -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
     -Dtests=false -Dglib_assert=false -Dglib_checks=false
@@ -189,8 +191,7 @@ test -f "$TARGET/lib/pkgconfig/expat.pc" || (
   curl -Ls https://github.com/libexpat/libexpat/releases/download/R_${VERSION_EXPAT//./_}/expat-$VERSION_EXPAT.tar.xz | tar xJC $DEPS/expat --strip-components=1
   cd $DEPS/expat
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-    --without-xmlwf --without-docbook --without-getrandom --without-sys-getrandom --without-examples --without-tests \
-    expatcfg_cv_compiler_supports_visibility=no
+    --without-xmlwf --without-docbook --without-getrandom --without-sys-getrandom --without-examples --without-tests
   make install
 )
 
@@ -217,8 +218,7 @@ test -f "$TARGET/lib/pkgconfig/lcms2.pc" || (
   cd $DEPS/lcms2
   # Disable threading support, we rely on libvips' thread pool
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-   --without-threads --without-jpeg --without-tiff --without-zlib \
-   ax_cv_have_func_attribute_visibility=0
+   --without-threads --without-jpeg --without-tiff --without-zlib
   make install SUBDIRS='src include'
 )
 
@@ -278,7 +278,7 @@ test -f "$TARGET/lib/pkgconfig/libwebp.pc" || (
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     ${DISABLE_SIMD:+--disable-sse2 --disable-sse4.1} ${ENABLE_SIMD:+--enable-sse2 --enable-sse4.1} --disable-neon \
     --disable-gl --disable-sdl --disable-png --disable-jpeg --disable-tiff --disable-gif --disable-threading \
-    --enable-libwebpmux --enable-libwebpdemux CPPFLAGS="-DWEBP_EXTERN=extern -DWEBP_DISABLE_STATS"
+    --enable-libwebpmux --enable-libwebpdemux CPPFLAGS="-DWEBP_DISABLE_STATS"
   make -C 'src' install
 )
 
@@ -307,7 +307,7 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/vips-remove-orc.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
-  # TODO(kleisauke): Discuss these patches upstream
+  # TODO(kleisauke): Remove when libvips 8.12 is released
   patch -p1 <$SOURCE_DIR/build/patches/vips-speed-up-getpoint.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-blob-copy-malloc.patch
   emconfigure ./autogen.sh --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \

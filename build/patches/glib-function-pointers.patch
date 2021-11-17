@@ -497,7 +497,7 @@ index 1111111..2222222 100644
  static gboolean g_desktop_app_info_ensure_saved       (GDesktopAppInfo  *info,
                                                         GError          **error);
  
-@@ -4099,7 +4100,8 @@ g_app_info_create_from_commandline (const char           *commandline,
+@@ -4102,7 +4103,8 @@ g_app_info_create_from_commandline (const char           *commandline,
  /* GAppInfo interface init */
  
  static void
@@ -939,7 +939,7 @@ index 1111111..2222222 100644
  
  static GFileAttributeInfoList *local_writable_attributes = NULL;
  static /* GFileAttributeInfoList * */ gsize local_writable_namespaces = 0;
-@@ -2962,7 +2963,8 @@ g_local_file_measure_disk_usage (GFile                         *file,
+@@ -2971,7 +2972,8 @@ g_local_file_measure_disk_usage (GFile                         *file,
  }
  
  static void
@@ -1265,7 +1265,7 @@ index 1111111..2222222 100644
  
  enum
  {
-@@ -400,12 +402,14 @@ g_network_monitor_nm_class_init (GNetworkMonitorNMClass *nl_class)
+@@ -363,12 +365,14 @@ g_network_monitor_nm_class_init (GNetworkMonitorNMClass *nl_class)
  }
  
  static void
@@ -1815,7 +1815,7 @@ index 1111111..2222222 100644
  
  #define g_socks5_proxy_get_type _g_socks5_proxy_get_type
  G_DEFINE_TYPE_WITH_CODE (GSocks5Proxy, g_socks5_proxy, G_TYPE_OBJECT,
-@@ -1097,7 +1098,8 @@ g_socks5_proxy_class_init (GSocks5ProxyClass *class)
+@@ -1100,7 +1101,8 @@ g_socks5_proxy_class_init (GSocks5ProxyClass *class)
  }
  
  static void

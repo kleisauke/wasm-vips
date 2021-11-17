@@ -1,13 +1,29 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Kleis Auke Wolthuizen <github@kleisauke.nl>
-Date: Wed, 18 Sep 2019 14:00:00 +0200
-Subject: [PATCH 1/11] Revert "Meson: Extract objects from convenience libraries
- to link them"
+From: Eli Schwartz <eschwartz@archlinux.org>
+Date: Wed, 6 Oct 2021 16:56:54 -0400
+Subject: [PATCH 1/11] meson: fix warnings for extract_all_objects function
 
-This reverts commit 62af03bda8a1d649b079a0e77d3687695d0ab7d3.
+The "recursive:" kwarg is available in the targeted minimum version of
+meson, and is basically required if you want to not emit warnings and
+maybe error with --fatal-meson-warnings.
 
-Upstream-Status: Inappropriate [other]
-Upstream may still depend on Meson < 0.52.0.
+There are two basic solutions to this problem:
+
+- The current default behavior is false, so explicitly opt in to that
+  value. None of these internal libraries use recursive objects anyway.
+
+- Use link_with to link to the static library directly, rather than the
+  extracted objects.
+
+Option 2 is what used to be done before commit
+62af03bda8a1d649b079a0e77d3687695d0ab7d3, but it only works with meson
+>=0.52 and previously had buggy behavior.
+
+Since the minimum version of meson is now 0.52, it is safe to revert
+that commit and go back to using link_with, and therefore option 2 is
+chosen.
+
+Upstream-Status: Accepted [https://gitlab.gnome.org/GNOME/glib/-/commit/abb8e1c3a0fd86bc86bcc1f8e680e5ed4b9c9e5d]
 
 diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
@@ -30,7 +46,7 @@ index 1111111..2222222 100644
  
    subdir('xdgmime')
    internal_deps += [xdgmime_lib]
--  internal_objects += [xdgmime_lib.extract_all_objects()]
+-  internal_objects += [xdgmime_lib.extract_all_objects(recursive: false)]
  
    install_headers(gio_unix_include_headers, subdir : 'gio-unix-2.0/gio')
  
@@ -38,24 +54,24 @@ index 1111111..2222222 100644
  if glib_conf.has('HAVE_SYS_INOTIFY_H') and have_func_inotify_init1
    subdir('inotify')
    internal_deps += [ inotify_lib ]
--  internal_objects += [inotify_lib.extract_all_objects()]
+-  internal_objects += [inotify_lib.extract_all_objects(recursive: false)]
  endif
  
  # kevent
  if have_func_kqueue and have_func_kevent
    subdir('kqueue')
    internal_deps += [ kqueue_lib ]
--  internal_objects += [kqueue_lib.extract_all_objects()]
+-  internal_objects += [kqueue_lib.extract_all_objects(recursive: false)]
  endif
  
  if host_system == 'windows'
    subdir('win32')
    internal_deps += [ giowin32_lib ]
--  internal_objects += [giowin32_lib.extract_all_objects()]
+-  internal_objects += [giowin32_lib.extract_all_objects(recursive: false)]
  endif
  
  if have_bash
-@@ -807,12 +797,12 @@ endif
+@@ -807,13 +797,13 @@ endif
  libgio = library('gio-2.0',
    gioenumtypes_h, gioenumtypes_c, gnetworking_h, gio_sources,
    gio_dtrace_hdr, gio_dtrace_obj,
@@ -65,24 +81,16 @@ index 1111111..2222222 100644
    darwin_versions : darwin_versions,
    install : true,
    include_directories : [configinc, gioinc],
-+  link_with : internal_deps,
    #  '$(gio_win32_res_ldflag)',
++  link_with: internal_deps,
    dependencies : [libz_dep, libdl_dep, libmount_dep, libglib_dep,
                    libgobject_dep, libgmodule_dep, selinux_dep, xattr_dep,
-diff --git a/glib/gnulib/meson.build b/glib/gnulib/meson.build
-index 1111111..2222222 100644
---- a/glib/gnulib/meson.build
-+++ b/glib/gnulib/meson.build
-@@ -368,4 +368,3 @@ gnulib_lib = static_library('gnulib', gnulib_sources,
-   pic : true,
-   c_args : ['-DGCC_LINT=1', '-DLIBDIR="@0@"'.format(glib_libdir), '-DGLIB_COMPILATION', '-DG_LOG_DOMAIN="GLib"' ] + glib_hidden_visibility_args + extra_gnulib_args)
- 
--gnulib_libm_dependency = [libm]
+                   platform_deps, network_libs, libsysprof_capture_dep],
 diff --git a/glib/meson.build b/glib/meson.build
 index 1111111..2222222 100644
 --- a/glib/meson.build
 +++ b/glib/meson.build
-@@ -20,15 +20,8 @@ libsysprof_capture_dep = dependency('sysprof-capture-4', version: '>= 3.38.0',
+@@ -20,14 +20,8 @@ libsysprof_capture_dep = dependency('sysprof-capture-4', version: '>= 3.38.0',
  )
  glib_conf.set('HAVE_SYSPROF', libsysprof_capture_dep.found())
  
@@ -94,36 +102,33 @@ index 1111111..2222222 100644
  if use_system_printf
    gnulib_lib = []
 -  gnulib_objects = []
--  gnulib_libm_dependency = []
+   gnulib_libm_dependency = []
    glib_conf.set ('gl_unused', '')
    glib_conf.set ('gl_extern_inline', '')
- else
-@@ -117,7 +110,6 @@ else
+@@ -117,7 +111,6 @@ else
    endif
  
    subdir('gnulib')
--  gnulib_objects = [gnulib_lib.extract_all_objects()]
+-  gnulib_objects = [gnulib_lib.extract_all_objects(recursive: false)]
  endif
  
  glib_headers = files(
-@@ -359,7 +351,6 @@ glib_c_args = ['-DG_LOG_DOMAIN="GLib"', '-DGLIB_COMPILATION'] + pcre_static_args
+@@ -359,7 +352,6 @@ glib_c_args = ['-DG_LOG_DOMAIN="GLib"', '-DGLIB_COMPILATION'] + pcre_static_args
  libglib = library('glib-2.0',
    glib_dtrace_obj, glib_dtrace_hdr,
    sources : [deprecated_sources, glib_sources],
--  objects : [charset_lib.extract_all_objects()] + gnulib_objects,
+-  objects : [charset_lib.extract_all_objects(recursive: false)] + gnulib_objects,
    version : library_version,
    soversion : soversion,
    darwin_versions : darwin_versions,
-@@ -367,7 +358,8 @@ libglib = library('glib-2.0',
+@@ -367,6 +359,7 @@ libglib = library('glib-2.0',
    # intl.lib is not compatible with SAFESEH
    link_args : [noseh_link_args, glib_link_flags, win32_ldflags],
    include_directories : configinc,
--  dependencies : [pcre, thread_dep, librt] + libintl_deps + libiconv + platform_deps + [gnulib_libm_dependency, libm] + [libsysprof_capture_dep],
-+  link_with : [charset_lib, gnulib_lib],
-+  dependencies : [pcre, thread_dep, librt] + libintl_deps + libiconv + platform_deps + [libm, libsysprof_capture_dep],
++  link_with: [charset_lib, gnulib_lib],
+   dependencies : [pcre, thread_dep, librt] + libintl_deps + libiconv + platform_deps + [gnulib_libm_dependency, libm] + [libsysprof_capture_dep],
    c_args : glib_c_args,
    objc_args : glib_c_args,
- )
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
@@ -141,8 +146,8 @@ index 1111111..2222222 100644
 +++ b/gio/meson.build
 @@ -804,7 +804,7 @@ libgio = library('gio-2.0',
    include_directories : [configinc, gioinc],
-   link_with : internal_deps,
    #  '$(gio_win32_res_ldflag)',
+   link_with: internal_deps,
 -  dependencies : [libz_dep, libdl_dep, libmount_dep, libglib_dep,
 +  dependencies : [libz_dep, libdl_dep, libmount_dep, thread_dep, libglib_dep,
                    libgobject_dep, libgmodule_dep, selinux_dep, xattr_dep,
@@ -466,7 +471,7 @@ diff --git a/glib/meson.build b/glib/meson.build
 index 1111111..2222222 100644
 --- a/glib/meson.build
 +++ b/glib/meson.build
-@@ -415,7 +415,7 @@ if host_system == 'windows'
+@@ -416,7 +416,7 @@ if host_system == 'windows'
        include_directories : configinc,
        dependencies : [libglib_dep])
    endif

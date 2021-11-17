@@ -4,12 +4,12 @@
 
 # this needs pyvips
 #
-#   pip install --user git+https://github.com/kleisauke/pyvips@flags-helper
+#   pip install --user pyvips
 import re
 
 from pyvips import Image, Introspect, GValue, Error, \
     ffi, values_for_enum, values_for_flag, \
-    vips_lib, gobject_lib, type_map, type_name, \
+    gobject_lib, type_map, type_name, \
     type_from_name, nickname_find
 
 # turn a GType into a C++ type
@@ -208,11 +208,6 @@ def remove_prefix(enum_str):
 
 
 def generate_enums_flags(file):
-    # otherwise we're missing some enums
-    vips_lib.vips_token_get_type()
-    vips_lib.vips_saveable_get_type()
-    vips_lib.vips_image_type_get_type()
-
     all_enums = []
     all_flags = []
 

@@ -9,7 +9,7 @@ diff --git a/src/embind/embind.js b/src/embind/embind.js
 index 1111111..2222222 100644
 --- a/src/embind/embind.js
 +++ b/src/embind/embind.js
-@@ -50,6 +50,9 @@ var LibraryEmbind = {
+@@ 49,6 +49,9 @@ var LibraryEmbind = {
      Module['getLiveInheritedInstances'] = getLiveInheritedInstances;
      Module['flushPendingDeletes'] = flushPendingDeletes;
      Module['setDelayFunction'] = setDelayFunction;
@@ -19,15 +19,15 @@ index 1111111..2222222 100644
  #if IN_TEST_HARNESS
  #if DYNAMIC_EXECUTION
      // Without dynamic execution, dynamically created functions will have no
-@@ -1725,7 +1728,10 @@ var LibraryEmbind = {
-   $attachFinalizer__deps: ['$finalizationGroup', '$detachFinalizer',
+@@ -1730,7 +1733,10 @@ var LibraryEmbind = {
+   $attachFinalizer__deps: ['$finalizationRegistry', '$detachFinalizer',
                             '$releaseClassHandle'],
    $attachFinalizer: function(handle) {
--    if ('undefined' === typeof FinalizationGroup) {
+-    if ('undefined' === typeof FinalizationRegistry) {
 +    if (Module['EMBIND_AUTOMATIC_DELETELATER']) {
 +        attachFinalizer = function (handle) { return handle['deleteLater'](); };
 +        return attachFinalizer(handle);
-+    } else if ('undefined' === typeof FinalizationGroup) {
++    } else if ('undefined' === typeof FinalizationRegistry) {
          attachFinalizer = function (handle) { return handle; };
          return handle;
      }

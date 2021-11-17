@@ -21,16 +21,16 @@
   },
   "devDependencies": {
     "clean-webpack-plugin": "^4.0.0",
-    "copy-webpack-plugin": "^9.0.1",
-    "css-loader": "^6.4.0",
+    "copy-webpack-plugin": "^9.1.0",
+    "css-loader": "^6.5.1",
     "fflate": "^0.7.1",
-    "html-webpack-plugin": "^5.4.0",
-    "mini-css-extract-plugin": "^2.4.2",
-    "monaco-editor": "^0.29.1",
-    "monaco-editor-webpack-plugin": "^5.0.0",
-    "terser-webpack-plugin": "^5.2.4",
-    "webpack": "^5.58.2",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.4.4",
+    "monaco-editor": "^0.30.1",
+    "monaco-editor-webpack-plugin": "^6.0.0",
+    "terser-webpack-plugin": "^5.2.5",
+    "webpack": "^5.64.1",
     "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.3.1"
+    "webpack-dev-server": "^4.5.0"
   }
 }

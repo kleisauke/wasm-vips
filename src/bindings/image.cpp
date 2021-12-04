@@ -377,18 +377,36 @@ emscripten::val Image::write_to_buffer(const std::string &suffix,
                                        emscripten::val js_options) const {
     char filename[VIPS_PATH_MAX];
     char option_string[VIPS_PATH_MAX];
+    const char *operation_name;
+    VipsBlob *blob;
 
+    /* Save with the new target API if we can. Fall back to the older
+     * mechanism in case the saver we need has not been converted yet.
+     *
+     * We need to hide any errors from this first phase.
+     */
     vips__filename_split8(suffix.c_str(), filename, option_string);
 
-    const char *operation_name = vips_foreign_find_save_buffer(filename);
+    vips_error_freeze();
+    operation_name = vips_foreign_find_save_target(filename);
+    vips_error_thaw();
 
-    if (operation_name == nullptr)
+    if (operation_name != nullptr) {
+        Target target = Target::new_to_memory();
+
+        Image::call(operation_name, option_string,
+                    (new Option)->set("in", *this)->set("target", target),
+                    js_options);
+
+        g_object_get(target.get_target(), "blob", &blob, nullptr);
+    } else if ((operation_name = vips_foreign_find_save_buffer(filename)) !=
+               nullptr) {
+        Image::call(operation_name, option_string,
+                    (new Option)->set("in", *this)->set("buffer", &blob),
+                    js_options);
+    } else {
         throw_vips_error("unable to write to buffer");
-
-    VipsBlob *blob;
-    Image::call(operation_name, option_string,
-                (new Option)->set("in", *this)->set("buffer", &blob),
-                js_options);
+    }
 
     emscripten::val result = emscripten::val(emscripten::typed_memory_view(
         VIPS_AREA(blob)->length,

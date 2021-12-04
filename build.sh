@@ -100,9 +100,11 @@ VERSION_LCMS2=2.12
 VERSION_JPEG=2.1.2
 VERSION_PNG16=1.6.37
 VERSION_SPNG=0.7.1
+VERSION_IMAGEQUANT=2.4.1
+VERSION_CGIF=0.0.3
 VERSION_WEBP=1.2.1
 VERSION_TIFF=4.3.0
-VERSION_VIPS=8.11.4
+VERSION_VIPS=8.12.1
 
 # Remove patch version component
 without_patch() {
@@ -264,6 +266,32 @@ test -f "$TARGET/lib/pkgconfig/spng.pc" || (
 )
 
 echo "============================================="
+echo "Compiling imagequant"
+echo "============================================="
+test -f "$TARGET/lib/pkgconfig/imagequant.pc" || (
+  mkdir $DEPS/imagequant
+  curl -Ls https://github.com/lovell/libimagequant/archive/v$VERSION_IMAGEQUANT.tar.gz | tar xzC $DEPS/imagequant --strip-components=1
+  cd $DEPS/imagequant
+  # TODO(kleisauke): Discuss this patch upstream
+  patch -p1 <$SOURCE_DIR/build/patches/imagequant-emscripten.patch
+  meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
+    ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse -DUSE_SSE=1"}
+  ninja -C _build install
+)
+
+echo "============================================="
+echo "Compiling cgif"
+echo "============================================="
+test -f "$TARGET/lib/pkgconfig/cgif.pc" || (
+  mkdir $DEPS/cgif
+  curl -Ls https://github.com/dloebl/cgif/archive/V$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
+  cd $DEPS/cgif
+  meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
+    -Dtests=false 
+  ninja -C _build install
+)
+
+echo "============================================="
 echo "Compiling webp"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/libwebp.pc" || (
@@ -305,15 +333,12 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/vips-remove-orc.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
-  # TODO(kleisauke): Remove when libvips 8.12 is released
-  patch -p1 <$SOURCE_DIR/build/patches/vips-speed-up-getpoint.patch
-  patch -p1 <$SOURCE_DIR/build/patches/vips-blob-copy-malloc.patch
   emconfigure ./autogen.sh --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-debug --disable-introspection --disable-deprecated --disable-modules --with-radiance --with-analyze --with-ppm \
-    --with-nsgif --with-lcms --with-zlib --with-libexif --with-jpeg --with-libspng --with-png --with-tiff --with-libwebp \
-    --without-fftw --without-pangocairo --without-fontconfig --without-imagequant --without-gsf --without-heif --without-pdfium \
-    --without-poppler --without-rsvg --without-OpenEXR --without-libjxl --without-libopenjp2 --without-openslide --without-matio \
-    --without-nifti --without-cfitsio --without-magick
+    --with-imagequant --with-nsgif --with-cgif --with-lcms --with-zlib --with-libexif --with-jpeg --with-libspng --with-png \
+    --with-tiff --with-libwebp --without-fftw --without-pangocairo --without-fontconfig --without-gsf --without-heif \
+    --without-pdfium --without-poppler --without-rsvg --without-OpenEXR --without-libjxl --without-libopenjp2 --without-openslide \
+    --without-matio --without-nifti --without-cfitsio --without-magick
   make -C 'libvips' install
   make install-pkgconfigDATA
 )

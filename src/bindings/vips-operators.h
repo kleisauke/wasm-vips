@@ -249,8 +249,8 @@ static Image jxlload_source(const Source &source, emscripten::val js_options = e
 
 /**
  * Make a laplacian of gaussian image.
- * @param sigma Radius of Logmatian.
- * @param min_ampl Minimum amplitude of Logmatian.
+ * @param sigma Radius of Gaussian.
+ * @param min_ampl Minimum amplitude of Gaussian.
  * @param js_options Optional options.
  * @return Output image.
  */
@@ -1342,6 +1342,27 @@ Image gaussblur(double sigma, emscripten::val js_options = emscripten::val::null
  * @return Array of output values.
  */
 std::vector<double> getpoint(int x, int y) const;
+
+/**
+ * Save as gif.
+ * @param filename Filename to save to.
+ * @param js_options Optional options.
+ */
+void gifsave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save as gif.
+ * @param js_options Optional options.
+ * @return Buffer to save to.
+ */
+emscripten::val gifsave_buffer(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save as gif.
+ * @param target Target to save to.
+ * @param js_options Optional options.
+ */
+void gifsave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Global balance an image mosaic.

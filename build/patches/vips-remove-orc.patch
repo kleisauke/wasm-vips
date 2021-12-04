@@ -28,7 +28,7 @@ diff --git a/configure.ac b/configure.ac
 index 1111111..2222222 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -715,45 +715,6 @@ AS_IF([test x"$with_magick_module" = x"yes"],
+@@ -726,45 +726,6 @@ AS_IF([test x"$with_magick_module" = x"yes"],
     VIPS_LIBS="$VIPS_LIBS $MAGICK_LIBS"])
  AM_CONDITIONAL(MAGICK_MODULE, [test x"$with_magick_module" = x"yes"])
  
@@ -74,7 +74,7 @@ index 1111111..2222222 100644
  # lcms ... refuse to use lcms1
  AC_ARG_WITH([lcms], 
    AS_HELP_STRING([--without-lcms], [build without lcms (default: test)]))
-@@ -1440,7 +1401,6 @@ enable debug: $enable_debug, \
+@@ -1492,7 +1453,6 @@ enable debug: $enable_debug, \
  enable deprecated library components: $enable_deprecated, \
  enable modules: $gmodule_supported_flag, \
  use fftw3 for FFT: $with_fftw, \
@@ -82,7 +82,7 @@ index 1111111..2222222 100644
  ICC profile support with lcms: $with_lcms, \
  zlib: $with_zlib, \
  text rendering with pangocairo: $with_pangocairo, \
-@@ -1552,8 +1512,6 @@ generate C++ docs with doxygen:         $with_doxygen
+@@ -1600,8 +1560,6 @@ GIF load:                               $with_nsgif
  
  ## Optional dependencies
  use fftw3 for FFT:                      $with_fftw
@@ -1589,7 +1589,7 @@ diff --git a/libvips/iofuncs/init.c b/libvips/iofuncs/init.c
 index 1111111..2222222 100644
 --- a/libvips/iofuncs/init.c
 +++ b/libvips/iofuncs/init.c
-@@ -103,7 +103,6 @@
+@@ -107,7 +107,6 @@
  #include <vips/vips.h>
  #include <vips/thread.h>
  #include <vips/internal.h>
@@ -1597,7 +1597,7 @@ index 1111111..2222222 100644
  
  #if ENABLE_DEPRECATED
  #include <vips/vips7compat.h>
-@@ -573,10 +572,6 @@ vips_init( const char *argv0 )
+@@ -648,10 +647,6 @@ vips_init( const char *argv0 )
  	}
  #endif
  
@@ -1608,7 +1608,7 @@ index 1111111..2222222 100644
  #ifdef HAVE_GSF
  	/* Use this for structured file write.
  	 */
-@@ -901,9 +896,6 @@ static GOptionEntry option_entries[] = {
+@@ -918,9 +913,6 @@ static GOptionEntry option_entries[] = {
  	{ "vips-disc-threshold", 0, 0, 
  		G_OPTION_ARG_STRING, &vips__disc_threshold, 
  		N_( "images larger than N are decompressed to disc" ), "N" },

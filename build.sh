@@ -70,7 +70,7 @@ if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 
 # Common compiler flags
 export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint"
-if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128"; fi
+if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"; fi
 if [ "$WASM_BIGINT" = "true" ]; then
   # libffi needs to detect WASM_BIGINT support at compile time
   export CFLAGS+=" -DWASM_BIGINT"
@@ -93,13 +93,13 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.5
 VERSION_FFI=3.4.2
-VERSION_GLIB=2.70.1
+VERSION_GLIB=2.70.2
 VERSION_EXPAT=2.4.1
-VERSION_EXIF=0.6.23
+VERSION_EXIF=0.6.24
 VERSION_LCMS2=2.12
-VERSION_JPEG=2.1.1
+VERSION_JPEG=2.1.2
 VERSION_PNG16=1.6.37
-VERSION_SPNG=0.7.0
+VERSION_SPNG=0.7.1
 VERSION_WEBP=1.2.1
 VERSION_TIFF=4.3.0
 VERSION_VIPS=8.11.4
@@ -175,8 +175,6 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   cd $DEPS/glib
   patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-function-pointers.patch
-  # Use pcre from sourceforge
-  sed -i 's|ftp.pcre.org/pub/pcre|downloads.sourceforge.net/project/pcre/pcre/8.37|' subprojects/libpcre.wrap
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     --force-fallback-for=libpcre -Diconv="libc" -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
     -Dtests=false -Dglib_assert=false -Dglib_checks=false
@@ -200,7 +198,7 @@ echo "Compiling exif"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/libexif.pc" || (
   mkdir $DEPS/exif
-  curl -Ls https://github.com/libexif/libexif/releases/download/v$VERSION_EXIF/libexif-$VERSION_EXIF.tar.xz | tar xJC $DEPS/exif --strip-components=1
+  curl -Ls https://github.com/libexif/libexif/releases/download/v$VERSION_EXIF/libexif-$VERSION_EXIF.tar.bz2 | tar xjC $DEPS/exif --strip-components=1
   cd $DEPS/exif
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix \
@@ -261,7 +259,7 @@ test -f "$TARGET/lib/pkgconfig/spng.pc" || (
   # TODO(kleisauke): Discuss this patch upstream
   patch -p1 <$SOURCE_DIR/build/patches/libspng-emscripten.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Dbuild_examples=false -Dstatic_zlib=true ${DISABLE_SIMD:+-Denable_opt=false} ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse2"}
+    -Dbuild_examples=false -Dstatic_zlib=true ${DISABLE_SIMD:+-Denable_opt=false} ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse4.1 -DSPNG_SSE=4"}
   ninja -C _build install
 )
 

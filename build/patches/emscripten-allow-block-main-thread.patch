@@ -11,7 +11,7 @@ diff --git a/system/lib/libc/musl/src/thread/pthread_cond_timedwait.c b/system/l
 index 1111111..2222222 100644
 --- a/system/lib/libc/musl/src/thread/pthread_cond_timedwait.c
 +++ b/system/lib/libc/musl/src/thread/pthread_cond_timedwait.c
-@@ -80,13 +80,6 @@ int __pthread_cond_timedwait(pthread_cond_t *restrict c, pthread_mutex_t *restri
+@@ -75,13 +75,6 @@ int __pthread_cond_timedwait(pthread_cond_t *restrict c, pthread_mutex_t *restri
  	int e, seq, clock = c->_c_clock, cs, shared=0, oldstate, tmp;
  	volatile int *fut;
  

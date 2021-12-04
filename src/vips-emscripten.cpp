@@ -159,7 +159,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
 
     enum_<VipsOperationMath2>("OperationMath2")
         .value("pow", VIPS_OPERATION_MATH2_POW)
-        .value("wop", VIPS_OPERATION_MATH2_WOP);
+        .value("wop", VIPS_OPERATION_MATH2_WOP)
+        .value("atan2", VIPS_OPERATION_MATH2_ATAN2);
 
     enum_<VipsOperationComplex2>("OperationComplex2")
         .value("cross_phase", VIPS_OPERATION_COMPLEX2_CROSS_PHASE);
@@ -174,7 +175,13 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("log", VIPS_OPERATION_MATH_LOG)
         .value("log10", VIPS_OPERATION_MATH_LOG10)
         .value("exp", VIPS_OPERATION_MATH_EXP)
-        .value("exp10", VIPS_OPERATION_MATH_EXP10);
+        .value("exp10", VIPS_OPERATION_MATH_EXP10)
+        .value("sinh", VIPS_OPERATION_MATH_SINH)
+        .value("cosh", VIPS_OPERATION_MATH_COSH)
+        .value("tanh", VIPS_OPERATION_MATH_TANH)
+        .value("asinh", VIPS_OPERATION_MATH_ASINH)
+        .value("acosh", VIPS_OPERATION_MATH_ACOSH)
+        .value("atanh", VIPS_OPERATION_MATH_ATANH);
 
     enum_<VipsOperationRound>("OperationRound")
         .value("rint", VIPS_OPERATION_ROUND_RINT)
@@ -258,6 +265,18 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("float", VIPS_PRECISION_FLOAT)
         .value("approximate", VIPS_PRECISION_APPROXIMATE);
 
+    enum_<VipsFailOn>("FailOn")
+        .value("none", VIPS_FAIL_ON_NONE)
+        .value("truncated", VIPS_FAIL_ON_TRUNCATED)
+        .value("error", VIPS_FAIL_ON_ERROR)
+        .value("warning", VIPS_FAIL_ON_WARNING);
+
+    enum_<VipsForeignPpmFormat>("ForeignPpmFormat")
+        .value("pbm", VIPS_FOREIGN_PPM_FORMAT_PBM)
+        .value("pgm", VIPS_FOREIGN_PPM_FORMAT_PGM)
+        .value("ppm", VIPS_FOREIGN_PPM_FORMAT_PPM)
+        .value("pfm", VIPS_FOREIGN_PPM_FORMAT_PFM);
+
     enum_<VipsForeignSubsample>("ForeignSubsample")
         .value("auto", VIPS_FOREIGN_SUBSAMPLE_AUTO)
         .value("on", VIPS_FOREIGN_SUBSAMPLE_ON)
@@ -267,7 +286,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("dz", VIPS_FOREIGN_DZ_LAYOUT_DZ)
         .value("zoomify", VIPS_FOREIGN_DZ_LAYOUT_ZOOMIFY)
         .value("google", VIPS_FOREIGN_DZ_LAYOUT_GOOGLE)
-        .value("iiif", VIPS_FOREIGN_DZ_LAYOUT_IIIF);
+        .value("iiif", VIPS_FOREIGN_DZ_LAYOUT_IIIF)
+        .value("iiif3", VIPS_FOREIGN_DZ_LAYOUT_IIIF3);
 
     enum_<VipsForeignDzDepth>("ForeignDzDepth")
         .value("onepixel", VIPS_FOREIGN_DZ_DEPTH_ONEPIXEL)
@@ -842,6 +862,24 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("atan", optional_override([](const Image &image) {
                       return image.math(VIPS_OPERATION_MATH_ATAN);
                   }))
+        .function("sinh", optional_override([](const Image &image) {
+                      return image.math(VIPS_OPERATION_MATH_SINH);
+                  }))
+        .function("cosh", optional_override([](const Image &image) {
+                      return image.math(VIPS_OPERATION_MATH_COSH);
+                  }))
+        .function("tanh", optional_override([](const Image &image) {
+                      return image.math(VIPS_OPERATION_MATH_TANH);
+                  }))
+        .function("asinh", optional_override([](const Image &image) {
+                      return image.math(VIPS_OPERATION_MATH_ASINH);
+                  }))
+        .function("acosh", optional_override([](const Image &image) {
+                      return image.math(VIPS_OPERATION_MATH_ACOSH);
+                  }))
+        .function("atanh", optional_override([](const Image &image) {
+                      return image.math(VIPS_OPERATION_MATH_ATANH);
+                  }))
         .function("log", optional_override([](const Image &image) {
                       return image.math(VIPS_OPERATION_MATH_LOG);
                   }))
@@ -883,6 +921,13 @@ EMSCRIPTEN_BINDINGS(my_module) {
                 return vips::is_image(b)
                            ? a.math2(b.as<Image>(), VIPS_OPERATION_MATH2_WOP)
                            : a.math2_const(VIPS_OPERATION_MATH2_WOP,
+                                           vips::to_vector<double>(b));
+            }))
+        .function(
+            "atan2", optional_override([](const Image &a, emscripten::val b) {
+                return vips::is_image(b)
+                           ? a.math2(b.as<Image>(), VIPS_OPERATION_MATH2_ATAN2)
+                           : a.math2_const(VIPS_OPERATION_MATH2_ATAN2,
                                            vips::to_vector<double>(b));
             }))
         .function("add",
@@ -1530,6 +1575,18 @@ EMSCRIPTEN_BINDINGS(my_module) {
                       return image.gaussblur(sigma);
                   }))
         .function("getpoint", &Image::getpoint)
+        .function("gifsave", &Image::gifsave)
+        .function("gifsave", optional_override([](const Image &image, const std::string &filename) {
+                      image.gifsave(filename);
+                  }))
+        .function("gifsaveBuffer", &Image::gifsave_buffer)
+        .function("gifsaveBuffer", optional_override([](const Image &image) {
+                      return image.gifsave_buffer();
+                  }))
+        .function("gifsaveTarget", &Image::gifsave_target)
+        .function("gifsaveTarget", optional_override([](const Image &image, const Target &target) {
+                      image.gifsave_target(target);
+                  }))
         .function("globalbalance", &Image::globalbalance)
         .function("globalbalance", optional_override([](const Image &image) {
                       return image.globalbalance();

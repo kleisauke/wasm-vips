@@ -2259,6 +2259,43 @@ std::vector<double> Image::getpoint(int x, int y) const
     return out_array;
 }
 
+void Image::gifsave(const std::string &filename, emscripten::val js_options) const
+{
+    this->call("gifsave",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("filename", filename),
+               js_options);
+}
+
+emscripten::val Image::gifsave_buffer(emscripten::val js_options) const
+{
+    VipsBlob *buffer;
+
+    this->call("gifsave_buffer",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("buffer", &buffer),
+               js_options);
+
+    emscripten::val result = emscripten::val(emscripten::typed_memory_view(
+        VIPS_AREA(buffer)->length,
+        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+    VIPS_AREA(buffer)->free_fn = nullptr;
+    vips_area_unref(VIPS_AREA(buffer));
+
+    return result;
+}
+
+void Image::gifsave_target(const Target &target, emscripten::val js_options) const
+{
+    this->call("gifsave_target",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("target", target),
+               js_options);
+}
+
 Image Image::globalbalance(emscripten::val js_options) const
 {
     Image out;

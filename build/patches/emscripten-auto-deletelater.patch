@@ -19,15 +19,15 @@ index 1111111..2222222 100644
  #if IN_TEST_HARNESS
  #if DYNAMIC_EXECUTION
      // Without dynamic execution, dynamically created functions will have no
-@@ -1730,7 +1733,10 @@ var LibraryEmbind = {
-   $attachFinalizer__deps: ['$finalizationRegistry', '$detachFinalizer',
+@@ -1735,7 +1738,10 @@ var LibraryEmbind = {
+   $attachFinalizer__deps: ['$finalizationGroup', '$detachFinalizer',
                             '$releaseClassHandle'],
    $attachFinalizer: function(handle) {
--    if ('undefined' === typeof FinalizationRegistry) {
+-    if ('undefined' === typeof FinalizationGroup) {
 +    if (Module['EMBIND_AUTOMATIC_DELETELATER']) {
 +        attachFinalizer = function (handle) { return handle['deleteLater'](); };
 +        return attachFinalizer(handle);
-+    } else if ('undefined' === typeof FinalizationRegistry) {
++    } else if ('undefined' === typeof FinalizationGroup) {
          attachFinalizer = function (handle) { return handle; };
          return handle;
      }

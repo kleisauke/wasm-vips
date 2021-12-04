@@ -62,6 +62,20 @@ describe('arithmetic', () => {
     images.forEach(x => fmt.forEach(y => runImageunary(`${fn.name} image`, x.cast(y), fn)));
   }
 
+  // run a function on a pair of images
+  // 50,50 and 10,10 should have different values on the test image
+  // don't loop over band elements
+  function runImagebinary (message, left, right, fn) {
+    Helpers.runCmp2(message, left, right, 50, 50, fn);
+    Helpers.runCmp2(message, left, right, 10, 10, fn);
+  }
+
+  function runBinary (images, fn, fmt = Helpers.allFormats) {
+    images.forEach(x => fmt.forEach(y => fmt.forEach(z =>
+      runImagebinary(`${fn.name} ${y} ${z}`, x.cast(y), x.cast(z), fn)
+    )));
+  }
+
   // test all operator overloads we define
 
   it('add', function () {
@@ -575,6 +589,53 @@ describe('arithmetic', () => {
     runUnary([im], atan, Helpers.noncomplexFormats);
   });
 
+  it('sinh', function () {
+    const sinh = (x) => x instanceof vips.Image ? x.sinh() : Math.sinh(x);
+
+    runUnary(allImages, sinh, Helpers.noncomplexFormats);
+  });
+
+  it('cosh', function () {
+    const cosh = (x) => x instanceof vips.Image ? x.cosh() : Math.cosh(x);
+
+    runUnary(allImages, cosh, Helpers.noncomplexFormats);
+  });
+
+  it('tanh', function () {
+    const tanh = (x) => x instanceof vips.Image ? x.tanh() : Math.tanh(x);
+
+    runUnary(allImages, tanh, Helpers.noncomplexFormats);
+  });
+
+  it('asinh', function () {
+    const asinh = (x) => x instanceof vips.Image ? x.asinh() : Math.asinh(x);
+
+    const im = vips.Image.black(100, 100).add([4, 5, 6]).divide(3.0);
+    runUnary([im], asinh, Helpers.noncomplexFormats);
+  });
+
+  it('acosh', function () {
+    const acosh = (x) => x instanceof vips.Image ? x.acosh() : Math.acosh(x);
+
+    const im = vips.Image.black(100, 100).add([4, 5, 6]).divide(3.0);
+    runUnary([im], acosh, Helpers.noncomplexFormats);
+  });
+
+  it('atanh', function () {
+    const atanh = (x) => x instanceof vips.Image ? x.atanh() : Math.atanh(x);
+
+    const im = vips.Image.black(100, 100).add([0, 1, 2]).divide(3.0);
+    runUnary([im], atanh, Helpers.noncomplexFormats);
+  });
+
+  it('atan2', function () {
+    const atan2 = (x, y) => x instanceof vips.Image ? x.atan2(y) : Math.atan2(x[0], y[0]) * (180 / Math.PI);
+
+    const im = vips.Image.black(100, 100).add([1, 2, 3]).divide(3.0);
+    const split = new Array(im.bands).fill(0).map((_, i) => im.extractBand(i)); // equivalent of bandsplit
+    runBinary(split, atan2, Helpers.noncomplexFormats);
+  });
+
   it('log', function () {
     const log = (x) => x instanceof vips.Image ? x.log() : Math.log(x);
 
@@ -768,7 +829,7 @@ describe('arithmetic', () => {
     for (const fmt of Helpers.allFormats) {
       const im = vips.Image.black(50, 50);
       let sum = 0;
-      const im2 = Array(10).fill(0).map((v, i) => {
+      const im2 = Array(10).fill(0).map((_, i) => {
         const add = (i + 1) * 10;
         sum += add;
         return im.add(add).cast(fmt);

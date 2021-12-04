@@ -6,6 +6,7 @@ describe('foreign', () => {
   let globalDeletionQueue;
 
   let colour;
+  let rgba;
   let mono;
   let rad;
   let cmyk;
@@ -33,11 +34,13 @@ describe('foreign', () => {
     pngsave_buffer: (im, opts) => im.pngsaveBuffer(opts),
     tiffsave_buffer: (im, opts) => im.tiffsaveBuffer(opts),
     webpsave_buffer: (im, opts) => im.webpsaveBuffer(opts),
+    gifsave_buffer: (im, opts) => im.gifsaveBuffer(opts),
     radsave_buffer: (im, opts) => im.radsaveBuffer(opts)
   };
 
   before(function () {
     colour = vips.Image.jpegload(Helpers.jpegFile);
+    rgba = vips.Image.newFromFile(Helpers.rgbaFile);
     mono = colour.extractBand(1).copy();
     // we remove the ICC profile: the RGB one will no longer be appropriate
     mono.remove('icc-profile-data');
@@ -138,15 +141,27 @@ describe('foreign', () => {
     saveLoadFile('%s.v', '', colour, 0);
 
     // check we can save and restore metadata
-    const filename = vips.Utils.tempName('%s.v');
+    let filename = vips.Utils.tempName('%s.v');
     colour.writeToFile(filename);
-    const x = vips.Image.newFromFile(filename);
+    let x = vips.Image.newFromFile(filename);
     x.setDeleteOnClose(true);
     const beforeExif = colour.getBlob('exif-data');
     const afterExif = x.getBlob('exif-data');
 
     expect(beforeExif.byteLength).to.equal(afterExif.byteLength);
     expect(beforeExif).to.deep.equal(afterExif);
+
+    // https://github.com/libvips/libvips/issues/1847
+    filename = vips.Utils.tempName('%s.v');
+    x = vips.Image.black(16, 16).add(128);
+    x.writeToFile(filename);
+
+    x = vips.Image.newFromFile(filename);
+    x.setDeleteOnClose(true);
+    expect(x.width).to.equal(16);
+    expect(x.height).to.equal(16);
+    expect(x.bands).to.equal(1);
+    expect(x.avg()).to.equal(128);
   });
 
   it('jpeg', function () {
@@ -321,6 +336,20 @@ describe('foreign', () => {
     expect(q90SubsampleAuto.byteLength).to.equal(q90.byteLength);
     expect(q90SubsampleOn.byteLength).to.be.below(q90.byteLength);
     expect(q90SubsampleOff.byteLength).to.equal(q90SubsampleAuto.byteLength);
+
+    // A non-zero restart_interval should result in a bigger file.
+    // Otherwise, smaller restart intervals will have more restart markers
+    // and therefore be larger
+    const r0 = im.jpegsaveBuffer({ restart_interval: 0 });
+    const r10 = im.jpegsaveBuffer({ restart_interval: 10 });
+    const r2 = im.jpegsaveBuffer({ restart_interval: 2 });
+    expect(r10.byteLength).to.be.above(r0.byteLength);
+    expect(r2.byteLength).to.be.above(r10.byteLength);
+
+    // we should be able to reload jpegs with extra MCU markers
+    const im0 = vips.Image.jpegloadBuffer(r0);
+    const im10 = vips.Image.jpegloadBuffer(r10);
+    expect(im0.avg()).to.equal(im10.avg());
   });
 
   it('truncated', function () {
@@ -444,8 +473,9 @@ describe('foreign', () => {
     saveLoadBuffer('tiffsave_buffer', 'tiffload_buffer', colour);
     saveLoad('%s.tif', mono);
     saveLoad('%s.tif', colour);
-    saveLoad('%s.tif', cmyk);
+    saveLoad('%s.tif', rgba);
 
+    saveLoad('%s.tif', cmyk);
     saveLoad('%s.tif', onebit);
     saveLoadFile('%s.tif', '[bitdepth=1]', onebit, 0);
     saveLoadFile('%s.tif', '[miniswhite]', onebit, 0);
@@ -467,7 +497,21 @@ describe('foreign', () => {
     saveLoadFile('%s.tif', '[bitdepth=4]', im, 0);
 
     let filename = vips.Utils.tempName('%s.tif');
-    let x = vips.Image.newFromFile(Helpers.tifFile);
+    colour.writeToFile(filename, { pyramid: true, compression: 'jpeg' });
+    let x = vips.Image.newFromFile(filename, { page: 2 });
+    x.setDeleteOnClose(true);
+    expect(x.width).to.equal(72);
+    expect(Math.abs(x.avg() - 117.3)).to.be.below(1);
+
+    filename = vips.Utils.tempName('%s.tif');
+    colour.writeToFile(filename, { pyramid: true, subifd: true, compression: 'jpeg' });
+    x = vips.Image.newFromFile(filename, { subifd: 1 });
+    x.setDeleteOnClose(true);
+    expect(x.width).to.equal(72);
+    expect(Math.abs(x.avg() - 117.3)).to.be.below(1);
+
+    filename = vips.Utils.tempName('%s.tif');
+    x = vips.Image.newFromFile(Helpers.tifFile);
     x = x.copy();
     x.setInt('orientation', 2);
     x.writeToFile(filename);
@@ -550,19 +594,28 @@ describe('foreign', () => {
     expect(buf.byteLength).to.equal(buf2.byteLength);
     vips.FS.unlink(filename);
 
-    const a = vips.Image.newFromBuffer(buf, '', { page: 2 });
-    const b = vips.Image.newFromBuffer(buf2, '', { page: 2 });
+    filename = vips.Utils.tempName('%s.tif');
+    rgba.writeToFile(filename, { premultiply: true });
+    let a = vips.Image.newFromFile(filename);
+    a.setDeleteOnClose(true);
+    let b = rgba.premultiply().cast('uchar').unpremultiply().cast('uchar');
+    expect(a.equal(b).min()).to.equal(255);
+
+    a = vips.Image.newFromBuffer(buf, '', { page: 2 });
+    b = vips.Image.newFromBuffer(buf2, '', { page: 2 });
     expect(a.width).to.equal(b.width);
     expect(a.height).to.equal(b.height);
-    expect(a.avg()).to.equal(b.avg());
+    expect(a.equal(b).min()).to.equal(255);
 
-    x = vips.Image.newFromFile(Helpers.tifFile);
-    buf = x.tiffsaveBuffer({ tile: true, pyramid: true, region_shrink: 'mean' });
-    buf = x.tiffsaveBuffer({ tile: true, pyramid: true, region_shrink: 'mode' });
-    buf = x.tiffsaveBuffer({ tile: true, pyramid: true, region_shrink: 'median' });
-    buf = x.tiffsaveBuffer({ tile: true, pyramid: true, region_shrink: 'max' });
-    buf = x.tiffsaveBuffer({ tile: true, pyramid: true, region_shrink: 'min' });
-    buf = x.tiffsaveBuffer({ tile: true, pyramid: true, region_shrink: 'nearest' });
+    // just 0/255 in each band, shrink with mode and all pixels should be 0
+    // or 255 in layer 1
+    x = vips.Image.newFromFile(Helpers.tifFile).more(128);
+    for (const shrink of ['mode', 'median', 'max', 'min']) {
+      buf = x.tiffsaveBuffer({ pyramid: true, region_shrink: shrink });
+      y = vips.Image.newFromBuffer(buf, '', { page: 1 });
+      const z = y.histFind({ band: 0 });
+      expect(z.getpoint(0, 0)[0] + z.getpoint(255, 0)[0]).to.equal(y.width * y.height);
+    }
   });
 
   it('webp', function () {
@@ -624,8 +677,7 @@ describe('foreign', () => {
       }
     }
 
-    // try converting an animated gif to webp ... can't do back to gif
-    // again without IM support
+    // try converting an animated gif to webp
     if (Helpers.have('gifload')) {
       const x1 = vips.Image.newFromFile(Helpers.gifAnimFile, { n: -1 });
       const w1 = x1.webpsaveBuffer({ Q: 10 });
@@ -644,10 +696,16 @@ describe('foreign', () => {
       expect(x1.getInt('page-height')).to.equal(x2.getInt('page-height'));
       expect(x1.getInt('gif-loop')).to.equal(x2.getInt('gif-loop'));
     }
+
+    // Animated WebP round trip
+    im = vips.Image.newFromFile(Helpers.webpAnimFile, { n: -1 });
+    expect(im.width).to.equal(13);
+    expect(im.height).to.equal(16393);
+    buf = im.webpsaveBuffer(); // eslint-disable-line no-unused-vars
   });
 
-  it('gif', function () {
-    // Needs GIF support
+  it('gifload', function () {
+    // Needs GIF load support
     if (!Helpers.have('gifload')) {
       return this.skip();
     }
@@ -687,6 +745,52 @@ describe('foreign', () => {
     expect(x2.height).to.equal(4 * x1.height);
   });
 
+  it('gifsave', function () {
+    // Needs GIF save support
+    if (!Helpers.have('gifsave')) {
+      return this.skip();
+    }
+
+    // Animated GIF round trip
+    let x1 = vips.Image.newFromFile(Helpers.gifAnimFile, { n: -1 });
+    let b1 = x1.gifsaveBuffer();
+    let x2 = vips.Image.newFromBuffer(b1, '', { n: -1 });
+    expect(x2.width).to.equal(x1.width);
+    expect(x2.height).to.equal(x1.height);
+    expect(x2.getInt('n-pages')).to.equal(x1.getInt('n-pages'));
+    expect(x2.getArrayInt('delay')).to.deep.equal(x1.getArrayInt('delay'));
+    expect(x2.getInt('page-height')).to.equal(x1.getInt('page-height'));
+    expect(x2.getInt('loop')).to.equal(x1.getInt('loop'));
+
+    // Reducing dither will typically reduce file size (and quality)
+    const littleDither = colour.gifsaveBuffer({ dither: 0.1, effort: 1 });
+    const largeDither = colour.gifsaveBuffer({ dither: 0.9, effort: 1 });
+    expect(littleDither.byteLength).to.be.below(largeDither.byteLength);
+
+    // Reducing effort will typically increase file size (and reduce quality)
+    const littleEffort = colour.gifsaveBuffer({ effort: 1 });
+    const largeEffort = colour.gifsaveBuffer({ effort: 10 });
+    expect(littleEffort.byteLength).to.be.above(largeEffort.byteLength);
+
+    // Reducing bitdepth will typically reduce file size (and reduce quality)
+    const bitdepth8 = colour.gifsaveBuffer({ bitdepth: 8, effort: 1 });
+    const bitdepth7 = colour.gifsaveBuffer({ bitdepth: 7, effort: 1 });
+    expect(bitdepth8.byteLength).to.be.above(bitdepth7.byteLength);
+
+    // Animated WebP to GIF
+    if (Helpers.have('webpload')) {
+      x1 = vips.Image.newFromFile(Helpers.webpAnimFile, { n: -1 });
+      b1 = x1.gifsaveBuffer();
+      x2 = vips.Image.newFromBuffer(b1, '', { n: -1 });
+      expect(x2.width).to.equal(x1.width);
+      expect(x2.height).to.equal(x1.height);
+      expect(x2.getInt('n-pages')).to.equal(x1.getInt('n-pages'));
+      expect(x2.getArrayInt('delay')).to.deep.equal(x1.getArrayInt('delay'));
+      expect(x2.getInt('page-height')).to.equal(x1.getInt('page-height'));
+      expect(x2.getInt('loop')).to.equal(x1.getInt('loop'));
+    }
+  });
+
   it('analyzeload', function () {
     // Needs Analyze support
     if (!Helpers.have('analyzeload')) {
@@ -720,6 +824,20 @@ describe('foreign', () => {
 
     saveLoad('%s.ppm', mono);
     saveLoad('%s.ppm', colour);
+
+    saveLoadFile('%s.ppm', '[ascii]', mono, 0);
+    saveLoadFile('%s.ppm', '[ascii]', colour, 0);
+
+    saveLoadFile('%s.ppm', '[ascii,bitdepth=1]', onebit, 0);
+
+    const rgb16 = colour.colourspace('rgb16');
+    const grey16 = mono.colourspace('rgb16');
+
+    saveLoad('%s.ppm', grey16);
+    saveLoad('%s.ppm', rgb16);
+
+    saveLoadFile('%s.ppm', '[ascii]', grey16, 0);
+    saveLoadFile('%s.ppm', '[ascii]', rgb16, 0);
   });
 
   it('radload', function () {
@@ -730,5 +848,34 @@ describe('foreign', () => {
 
     saveLoad('%s.hdr', colour);
     saveBufferTempfile('radsave_buffer', '.hdr', rad, 0);
+  });
+
+  it('fail_on', function () {
+    // csvload should spot trunc correctly
+    const target = vips.Target.newToMemory();
+    mono.writeToTarget(target, '.csv');
+    const buf = target.getBlob();
+
+    let source = vips.Source.newFromMemory(buf);
+    let im = vips.Image.csvloadSource(source);
+    expect(im.avg()).to.be.above(0);
+
+    // truncation should be OK by default
+    const bufTrunc = buf.slice(0, -100);
+    source = vips.Source.newFromMemory(bufTrunc);
+    im = vips.Image.csvloadSource(source);
+    expect(im.avg()).to.be.above(0);
+
+    // set trunc should make it fail
+    im = vips.Image.csvloadSource(source, { fail_on: 'truncated' });
+    expect(() =>
+      // this will now force parsing of the whole file, which should
+      // trigger an error
+      im.avg()
+    ).to.throw(/unexpected end of file/);
+
+    // warn should fail too, since trunc implies warn
+    im = vips.Image.csvloadSource(source, { fail_on: 'warning' });
+    expect(() => im.avg()).to.throw(/unexpected end of file/);
   });
 });

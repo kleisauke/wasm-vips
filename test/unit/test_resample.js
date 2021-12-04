@@ -156,10 +156,6 @@ describe('resample', () => {
 
   it('thumbnail', function () {
     // added in 8.5
-    if (!Helpers.have('thumbnail')) {
-      return this.skip();
-    }
-
     let im = vips.Image.thumbnail(Helpers.jpegFile, 100);
 
     expect(im.height).to.equal(100);
@@ -198,29 +194,46 @@ describe('resample', () => {
     expect(im.height).to.equal(300);
 
     let im1 = vips.Image.thumbnail(Helpers.jpegFile, 100);
-    const buf = vips.FS.readFile(Helpers.jpegFile);
+    let buf = vips.FS.readFile(Helpers.jpegFile);
     let im2 = vips.Image.thumbnailBuffer(buf, 100);
     expect(Math.abs(im1.avg() - im2.avg())).to.be.below(1);
 
-    // should be able to thumbnail many-page tiff
-    im = vips.Image.thumbnail(Helpers.omeFile, 100);
-    expect(im.width).to.equal(100);
-    expect(im.height).to.equal(38);
+    // Needs TIFF support
+    if (Helpers.have('tiffload')) {
+      // should be able to thumbnail many-page tiff
+      im = vips.Image.thumbnail(Helpers.omeFile, 100);
+      expect(im.width).to.equal(100);
+      expect(im.height).to.equal(38);
 
-    // should be able to thumbnail individual pages from many-page tiff
-    im1 = vips.Image.thumbnail(Helpers.omeFile + '[page=0]', 100);
-    expect(im.width).to.equal(100);
-    expect(im.height).to.equal(38);
-    im2 = vips.Image.thumbnail(Helpers.omeFile + '[page=1]', 100);
-    expect(im.width).to.equal(100);
-    expect(im.height).to.equal(38);
-    expect(im1.subtract(im2).abs().max()).to.not.equal(0);
+      // should be able to thumbnail individual pages from many-page tiff
+      im1 = vips.Image.thumbnail(Helpers.omeFile + '[page=0]', 100);
+      expect(im.width).to.equal(100);
+      expect(im.height).to.equal(38);
+      im2 = vips.Image.thumbnail(Helpers.omeFile + '[page=1]', 100);
+      expect(im.width).to.equal(100);
+      expect(im.height).to.equal(38);
+      expect(im1.subtract(im2).abs().max()).to.not.equal(0);
 
-    // should be able to thumbnail entire many-page tiff as a toilet-roll
-    // image
-    im = vips.Image.thumbnail(Helpers.omeFile + '[n=-1]', 100);
-    expect(im.width).to.equal(100);
-    expect(im.height).to.equal(570);
+      // should be able to thumbnail entire many-page tiff as a toilet-roll
+      // image
+      im = vips.Image.thumbnail(Helpers.omeFile + '[n=-1]', 100);
+      expect(im.width).to.equal(100);
+      expect(im.height).to.equal(570);
+
+      // should be able to thumbnail a single-page tiff in a buffer
+      im1 = vips.Image.thumbnail(Helpers.tifFile, 100);
+      buf = vips.FS.readFile(Helpers.tifFile);
+      im2 = vips.Image.thumbnailBuffer(buf, 100);
+      expect(Math.abs(im1.avg() - im2.avg())).to.be.below(1);
+    }
+
+    // Needs PPM support
+    if (Helpers.have('ppmload')) {
+      // linear shrink should work on rgba images
+      im1 = vips.Image.thumbnail(Helpers.rgbaFile, 64, { linear: true });
+      im2 = vips.Image.newFromFile(Helpers.rgbaCorrectFile);
+      expect(Math.abs(im1.flatten({ background: 255 }).avg() - im2.avg())).to.be.below(1);
+    }
   });
 
   it('similarity', function () {
@@ -247,10 +260,6 @@ describe('resample', () => {
 
   it('rotate', function () {
     // added in 8.7
-    if (!Helpers.have('rotate')) {
-      return this.skip();
-    }
-
     const im = vips.Image.newFromFile(Helpers.jpegFile);
     const im2 = im.rotate(90);
     const im3 = im.affine([0, -1, 1, 0]);

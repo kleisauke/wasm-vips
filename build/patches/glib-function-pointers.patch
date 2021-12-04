@@ -304,7 +304,7 @@ diff --git a/gio/gdbusconnection.c b/gio/gdbusconnection.c
 index 1111111..2222222 100644
 --- a/gio/gdbusconnection.c
 +++ b/gio/gdbusconnection.c
-@@ -523,8 +523,10 @@ static void schedule_method_call (GDBusConnection            *connection,
+@@ -524,8 +524,10 @@ static void schedule_method_call (GDBusConnection            *connection,
  
  static guint signals[LAST_SIGNAL] = { 0 };
  
@@ -317,7 +317,7 @@ index 1111111..2222222 100644
  
  G_DEFINE_TYPE_WITH_CODE (GDBusConnection, g_dbus_connection, G_TYPE_OBJECT,
                           G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, initable_iface_init)
-@@ -2673,7 +2675,8 @@ initable_init (GInitable     *initable,
+@@ -2674,7 +2676,8 @@ initable_init (GInitable     *initable,
  }
  
  static void
@@ -327,7 +327,7 @@ index 1111111..2222222 100644
  {
    initable_iface->init = initable_init;
  }
-@@ -2681,7 +2684,8 @@ initable_iface_init (GInitableIface *initable_iface)
+@@ -2682,7 +2685,8 @@ initable_iface_init (GInitableIface *initable_iface)
  /* ---------------------------------------------------------------------------------------------------- */
  
  static void
@@ -1511,7 +1511,7 @@ diff --git a/gio/gsettings.c b/gio/gsettings.c
 index 1111111..2222222 100644
 --- a/gio/gsettings.c
 +++ b/gio/gsettings.c
-@@ -3159,7 +3159,8 @@ typedef struct
+@@ -3161,7 +3161,8 @@ typedef struct
  typedef GObjectClass GSettingsActionClass;
  
  static GType g_settings_action_get_type (void);
@@ -1521,7 +1521,7 @@ index 1111111..2222222 100644
  G_DEFINE_TYPE_WITH_CODE (GSettingsAction, g_settings_action, G_TYPE_OBJECT,
                           G_IMPLEMENT_INTERFACE (G_TYPE_ACTION, g_settings_action_iface_init))
  
-@@ -3319,7 +3320,8 @@ g_settings_action_init (GSettingsAction *gsa)
+@@ -3321,7 +3322,8 @@ g_settings_action_init (GSettingsAction *gsa)
  }
  
  static void
@@ -2047,7 +2047,7 @@ diff --git a/gio/gwin32appinfo.c b/gio/gwin32appinfo.c
 index 1111111..2222222 100644
 --- a/gio/gwin32appinfo.c
 +++ b/gio/gwin32appinfo.c
-@@ -4040,7 +4040,8 @@ gio_win32_appinfo_init (gboolean do_wait)
+@@ -4043,7 +4043,8 @@ gio_win32_appinfo_init (gboolean do_wait)
  }
  
  
@@ -2057,7 +2057,7 @@ index 1111111..2222222 100644
  
  struct _GWin32AppInfo
  {
-@@ -5207,7 +5208,8 @@ g_app_info_create_from_commandline (const char           *commandline,
+@@ -5210,7 +5211,8 @@ g_app_info_create_from_commandline (const char           *commandline,
  /* GAppInfo interface init */
  
  static void

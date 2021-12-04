@@ -42,7 +42,7 @@ diff --git a/libvips/iofuncs/init.c b/libvips/iofuncs/init.c
 index 1111111..2222222 100644
 --- a/libvips/iofuncs/init.c
 +++ b/libvips/iofuncs/init.c
-@@ -385,7 +385,6 @@ vips_init( const char *argv0 )
+@@ -460,7 +460,6 @@ vips_init( const char *argv0 )
  	extern GType vips_system_get_type( void );
  	extern GType write_thread_state_get_type( void );
  	extern GType sink_memory_thread_state_get_type( void ); 
@@ -50,7 +50,7 @@ index 1111111..2222222 100644
  	extern GType vips_source_get_type( void ); 
  	extern GType vips_source_custom_get_type( void ); 
  	extern GType vips_target_get_type( void ); 
-@@ -498,7 +497,6 @@ vips_init( const char *argv0 )
+@@ -573,7 +572,6 @@ vips_init( const char *argv0 )
  	(void) vips_region_get_type();
  	(void) write_thread_state_get_type();
  	(void) sink_memory_thread_state_get_type(); 
@@ -58,15 +58,14 @@ index 1111111..2222222 100644
  	(void) vips_source_get_type(); 
  	(void) vips_source_custom_get_type(); 
  	(void) vips_target_get_type(); 
-@@ -731,8 +729,6 @@ vips_shutdown( void )
+@@ -764,7 +762,6 @@ vips_shutdown( void )
  		vips__thread_gate_stop( "init: main" ); 
  }
  
 -	vips__render_shutdown();
--
  	vips_thread_shutdown();
- 
  	vips__thread_profile_stop();
+ 	vips__threadpool_shutdown();
 diff --git a/libvips/iofuncs/sinkscreen.c b/libvips/iofuncs/sinkscreen.c
 index 1111111..2222222 100644
 --- a/libvips/iofuncs/sinkscreen.c
@@ -550,7 +549,7 @@ index 1111111..2222222 100644
  			VIPS_DEBUG_MSG( "render_tile_request: "
  				"no tiles to reuse\n" );
  			return( NULL );
-@@ -967,102 +653,6 @@ mask_fill( VipsRegion *out, void *seq, void *a, void *b, gboolean *stop )
+@@ -967,101 +653,6 @@ mask_fill( VipsRegion *out, void *seq, void *a, void *b, gboolean *stop )
  	return( 0 );
  }
  
@@ -641,8 +640,7 @@ index 1111111..2222222 100644
 -	vips_semaphore_init( &n_render_dirty_sem, 0, "n_render_dirty" );
 -
 -	/* Don't use vips__thread_execute() since this thread will only be
--	 * ended by _shutdown, and that isn't always called early enough on
--	 * windows from atexit().
+-	 * ended by vips_shutdown, and that isn't always called.
 -	 */
 -	render_thread = vips_g_thread_new( "sink_screen",
 -		render_thread_main, NULL );
@@ -653,7 +651,7 @@ index 1111111..2222222 100644
  /**
   * vips_sink_screen: (method)
   * @in: input image
-@@ -1072,12 +662,9 @@ vips__sink_screen_once( void *data )
+@@ -1071,12 +662,9 @@ vips__sink_screen_once( void *data )
   * @tile_height: tile height
   * @max_tiles: maximum tiles to cache
   * @priority: rendering priority
@@ -667,7 +665,7 @@ index 1111111..2222222 100644
   * tiles sized @tile_width by @tile_height pixels and with at most @max_tiles 
   * tiles.
   * If @max_tiles is -1, the cache is of unlimited size (up to the maximum image
-@@ -1095,18 +682,7 @@ vips__sink_screen_once( void *data )
+@@ -1094,18 +682,7 @@ vips__sink_screen_once( void *data )
   * whatever is
   * currently in cache for that #VipsRect (check @mask to see which parts of the
   * #VipsRect are valid). Any pixels in the #VipsRect which are not in 
@@ -687,7 +685,7 @@ index 1111111..2222222 100644
   *
   * See also: vips_tilecache(), vips_region_prepare(), 
   * vips_sink_disc(), vips_sink().
-@@ -1124,7 +700,8 @@ vips_sink_screen( VipsImage *in, VipsImage *out, VipsImage *mask,
+@@ -1123,7 +700,8 @@ vips_sink_screen( VipsImage *in, VipsImage *out, VipsImage *mask,
  
  	Render *render;
  
@@ -697,7 +695,7 @@ index 1111111..2222222 100644
  
  	if( tile_width <= 0 || tile_height <= 0 || 
  		max_tiles < -1 ) {
-@@ -1149,7 +726,7 @@ vips_sink_screen( VipsImage *in, VipsImage *out, VipsImage *mask,
+@@ -1148,7 +726,7 @@ vips_sink_screen( VipsImage *in, VipsImage *out, VipsImage *mask,
  	}
  
  	if( !(render = render_new( in, out, mask, 
@@ -706,7 +704,7 @@ index 1111111..2222222 100644
  		return( -1 );
  
  	VIPS_DEBUG_MSG( "vips_sink_screen: max = %d, %p\n", max_tiles, render );
-@@ -1179,15 +756,5 @@ vips__print_renders( void )
+@@ -1178,15 +756,5 @@ vips__print_renders( void )
  	}
  #endif /*VIPS_DEBUG_AMBER*/
  

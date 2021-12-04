@@ -12,7 +12,10 @@ export const analyzeFiles = [getPath('t00740_tr1_segm.hdr'), getPath('t00740_tr1
 export const gifFile = getPath('cramps.gif');
 export const gifAnimFile = getPath('cogs.gif');
 export const webpFile = getPath('1.webp');
+export const webpAnimFile = getPath('big-height.webp');
 export const srgbFile = getPath('sRGB.icm');
+export const rgbaFile = getPath('rgba.png');
+export const rgbaCorrectFile = getPath('rgba-correct.ppm');
 export const mosaicFiles = [
   getPath('cd1.1.jpg'), getPath('cd1.2.jpg'),
   getPath('cd2.1.jpg'), getPath('cd2.2.jpg'),
@@ -31,7 +34,10 @@ export const testFiles = [
   gifFile,
   gifAnimFile,
   webpFile,
-  srgbFile
+  webpAnimFile,
+  srgbFile,
+  rgbaFile,
+  rgbaCorrectFile
 ].concat(analyzeFiles).concat(mosaicFiles);
 
 export const mosaicMarks = [

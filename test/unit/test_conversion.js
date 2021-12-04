@@ -56,6 +56,31 @@ describe('conversion', () => {
     )));
   }
 
+  it('cast', function () {
+    // casting negative pixels to an unsigned format should clip to zero
+    for (const signed of Helpers.signedFormats) {
+      const im = vips.Image.black(1, 1).subtract(10).cast(signed);
+      for (const unsigned of Helpers.unsignedFormats) {
+        const im2 = im.cast(unsigned);
+        expect(im2.avg()).to.equal(0);
+      }
+    }
+
+    // casting very positive pixels to a signed format should clip to max
+    let im = vips.Image.black(1, 1).add(Helpers.maxValue.uint).cast('uint');
+    expect(im.avg()).to.equal(Helpers.maxValue.uint);
+    let im2 = im.cast('int');
+    expect(im2.avg()).to.equal(Helpers.maxValue.int);
+    im = vips.Image.black(1, 1).add(Helpers.maxValue.ushort).cast('ushort');
+    expect(im.avg()).to.equal(Helpers.maxValue.ushort);
+    im2 = im.cast('short');
+    expect(im2.avg()).to.equal(Helpers.maxValue.short);
+    im = vips.Image.black(1, 1).add(Helpers.maxValue.uchar).cast('uchar');
+    expect(im.avg()).to.equal(Helpers.maxValue.uchar);
+    im2 = im.cast('char');
+    expect(im2.avg()).to.equal(Helpers.maxValue.char);
+  });
+
   it('bandand', function () {
     const bandand = (x) => x instanceof vips.Image ? x.bandand() : x.reduce((a, b) => a & b);
 
@@ -75,7 +100,7 @@ describe('conversion', () => {
   });
 
   it('bandjoin', function () {
-    const bandjoin = (x, y) => x instanceof vips.Image && y instanceof vips.Image ? x.bandjoin(y) : x.concat(y);
+    const bandjoin = (x, y) => x instanceof vips.Image ? x.bandjoin(y) : x.concat(y);
 
     runBinary(allImages, bandjoin);
   });
@@ -101,7 +126,7 @@ describe('conversion', () => {
 
   it('bandrank', function () {
     const median = (x, y) => Helpers.zip(x, y).map(z => z.sort()[Math.floor(z.length / 2)]);
-    const bandrank = (x, y) => x instanceof vips.Image && y instanceof vips.Image ? x.bandrank([y]) : median(x, y);
+    const bandrank = (x, y) => x instanceof vips.Image ? x.bandrank([y]) : median(x, y);
 
     runBinary(allImages, bandrank, Helpers.noncomplexFormats);
 
@@ -366,6 +391,21 @@ describe('conversion', () => {
         expect(Math.abs(xy[0] - xy[1])).to.be.below(2);
       }
     }
+
+    // if the image has max_alpha less than the numeric range of the
+    // format, we can get out of range values ... check they are clipped
+    // correctly
+    const rgba = vips.Image.newFromFile(Helpers.rgbaFile);
+
+    let im = rgba.multiply(256);
+    im = im.cast('ushort');
+    im = im.flatten();
+
+    let im2 = rgba.multiply(256);
+    im2 = im2.flatten();
+    im2 = im2.cast('ushort');
+
+    expect(im.subtract(im2).abs().max()).to.equal(0);
   });
 
   it('premultiply', function () {

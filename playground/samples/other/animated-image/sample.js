@@ -13,12 +13,12 @@ thumbnail.setArrayInt('delay', delays.map(d => d * 1.5));
 
 // Write the result to a blob
 const t0 = performance.now();
-const outBuffer = new Uint8Array(thumbnail.writeToBuffer('.webp'));
+const outBuffer = new Uint8Array(thumbnail.writeToBuffer('.gif'));
 const t1 = performance.now();
 
 console.log(`Call to writeToBuffer took ${t1 - t0} milliseconds.`);
 
-const blob = new Blob([outBuffer], { type: 'image/webp' });
+const blob = new Blob([outBuffer], { type: 'image/gif' });
 const blobURL = URL.createObjectURL(blob);
 const img = document.createElement('img');
 img.src = blobURL;

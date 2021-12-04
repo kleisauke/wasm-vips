@@ -1123,6 +1123,42 @@ declare namespace vips {
         atan(): Image;
 
         /**
+         * Return the hyperbolic sine of an image in radians.
+         * @return Output image.
+         */
+        sinh(): Image;
+
+        /**
+         * Return the hyperbolic cosine of an image in radians.
+         * @return Output image.
+         */
+        cosh(): Image;
+
+        /**
+         * Return the hyperbolic tangent of an image in radians.
+         * @return Output image.
+         */
+        tanh(): Image;
+
+        /**
+         * Return the inverse hyperbolic sine of an image in radians.
+         * @return Output image.
+         */
+        asinh(): Image;
+
+        /**
+         * Return the inverse hyperbolic cosine of an image in radians.
+         * @return Output image.
+         */
+        acosh(): Image;
+
+        /**
+         * Return the inverse hyperbolic tangent of an image in radians.
+         * @return Output image.
+         */
+        atanh(): Image;
+
+        /**
          * Return the natural log of an image.
          * @return Output image.
          */
@@ -1173,6 +1209,13 @@ declare namespace vips {
          * @return Output image.
          */
         wop(right: Image | ArrayConstant): Image;
+
+        /**
+         * Arc tangent of an image or constant.
+         * @param right Divisor parameter.
+         * @return Output image.
+         */
+        atan2(right: Image | ArrayConstant): Image;
 
         /**
          * Performs a bitwise left shift operation (<<).

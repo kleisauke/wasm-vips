@@ -70,7 +70,7 @@ if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 
 # Common compiler flags
 export CFLAGS="-O0 -gsource-map -fno-rtti -fno-exceptions -mnontrapping-fptoint"
-if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW -DSIMDE_NO_INLINE"; fi
+if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"; fi
 if [ "$WASM_BIGINT" = "true" ]; then
   # libffi needs to detect WASM_BIGINT support at compile time
   export CFLAGS+=" -DWASM_BIGINT"
@@ -93,16 +93,18 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.5
 VERSION_FFI=3.4.2
-VERSION_GLIB=2.70.1
+VERSION_GLIB=2.70.2
 VERSION_EXPAT=2.4.1
-VERSION_EXIF=0.6.23
+VERSION_EXIF=0.6.24
 VERSION_LCMS2=2.12
-VERSION_JPEG=2.1.1
+VERSION_JPEG=2.1.2
 VERSION_PNG16=1.6.37
-VERSION_SPNG=0.7.0
+VERSION_SPNG=0.7.1
+VERSION_IMAGEQUANT=2.4.1
+VERSION_CGIF=0.0.3
 VERSION_WEBP=1.2.1
 VERSION_TIFF=4.3.0
-VERSION_VIPS=8.11.4
+VERSION_VIPS=8.12.1
 
 # Remove patch version component
 without_patch() {
@@ -175,8 +177,6 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   cd $DEPS/glib
   patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-function-pointers.patch
-  # Use pcre from sourceforge
-  sed -i 's|ftp.pcre.org/pub/pcre|downloads.sourceforge.net/project/pcre/pcre/8.37|' subprojects/libpcre.wrap
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     --force-fallback-for=libpcre -Diconv="libc" -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
     -Dtests=false -Dglib_assert=false -Dglib_checks=false
@@ -200,7 +200,7 @@ echo "Compiling exif"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/libexif.pc" || (
   mkdir $DEPS/exif
-  curl -Ls https://github.com/libexif/libexif/releases/download/v$VERSION_EXIF/libexif-$VERSION_EXIF.tar.xz | tar xJC $DEPS/exif --strip-components=1
+  curl -Ls https://github.com/libexif/libexif/releases/download/v$VERSION_EXIF/libexif-$VERSION_EXIF.tar.bz2 | tar xjC $DEPS/exif --strip-components=1
   cd $DEPS/exif
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix \
@@ -263,7 +263,33 @@ test -f "$TARGET/lib/pkgconfig/spng.pc" || (
   # TODO(kleisauke): Discuss this patch upstream
   patch -p1 <$SOURCE_DIR/build/patches/libspng-emscripten.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Dbuild_examples=false -Dstatic_zlib=true ${DISABLE_SIMD:+-Denable_opt=false} ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse2"}
+    -Dbuild_examples=false -Dstatic_zlib=true ${DISABLE_SIMD:+-Denable_opt=false} ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse4.1 -DSPNG_SSE=4"}
+  ninja -C _build install
+)
+
+echo "============================================="
+echo "Compiling imagequant"
+echo "============================================="
+test -f "$TARGET/lib/pkgconfig/imagequant.pc" || (
+  mkdir $DEPS/imagequant
+  curl -Ls https://github.com/lovell/libimagequant/archive/v$VERSION_IMAGEQUANT.tar.gz | tar xzC $DEPS/imagequant --strip-components=1
+  cd $DEPS/imagequant
+  # TODO(kleisauke): Discuss this patch upstream
+  patch -p1 <$SOURCE_DIR/build/patches/imagequant-emscripten.patch
+  meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
+    ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse -DUSE_SSE=1"}
+  ninja -C _build install
+)
+
+echo "============================================="
+echo "Compiling cgif"
+echo "============================================="
+test -f "$TARGET/lib/pkgconfig/cgif.pc" || (
+  mkdir $DEPS/cgif
+  curl -Ls https://github.com/dloebl/cgif/archive/V$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
+  cd $DEPS/cgif
+  meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
+    -Dtests=false 
   ninja -C _build install
 )
 
@@ -309,15 +335,12 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/vips-remove-orc.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
-  # TODO(kleisauke): Remove when libvips 8.12 is released
-  patch -p1 <$SOURCE_DIR/build/patches/vips-speed-up-getpoint.patch
-  patch -p1 <$SOURCE_DIR/build/patches/vips-blob-copy-malloc.patch
   emconfigure ./autogen.sh --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-debug --disable-introspection --disable-deprecated --disable-modules --with-radiance --with-analyze --with-ppm \
-    --with-nsgif --with-lcms --with-zlib --with-libexif --with-jpeg --with-libspng --with-png --with-tiff --with-libwebp \
-    --without-fftw --without-pangocairo --without-fontconfig --without-imagequant --without-gsf --without-heif --without-pdfium \
-    --without-poppler --without-rsvg --without-OpenEXR --without-libjxl --without-libopenjp2 --without-openslide --without-matio \
-    --without-nifti --without-cfitsio --without-magick
+    --with-imagequant --with-nsgif --with-cgif --with-lcms --with-zlib --with-libexif --with-jpeg --with-libspng --with-png \
+    --with-tiff --with-libwebp --without-fftw --without-pangocairo --without-fontconfig --without-gsf --without-heif \
+    --without-pdfium --without-poppler --without-rsvg --without-OpenEXR --without-libjxl --without-libopenjp2 --without-openslide \
+    --without-matio --without-nifti --without-cfitsio --without-magick
   make -C 'libvips' install
   make install-pkgconfigDATA
 )

@@ -80,9 +80,9 @@ export const playSamples = [
   },
   {
     chapter: 'Other',
-    name: 'Animated WebP',
-    id: 'animated-webp',
-    path: 'other/animated-webp'
+    name: 'Animated WebP/GIF',
+    id: 'animated-image',
+    path: 'other/animated-image'
   },
   {
     chapter: 'Other',

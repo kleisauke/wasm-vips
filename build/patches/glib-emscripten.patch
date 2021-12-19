@@ -1,139 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Eli Schwartz <eschwartz@archlinux.org>
-Date: Wed, 6 Oct 2021 16:56:54 -0400
-Subject: [PATCH 1/11] meson: fix warnings for extract_all_objects function
-
-The "recursive:" kwarg is available in the targeted minimum version of
-meson, and is basically required if you want to not emit warnings and
-maybe error with --fatal-meson-warnings.
-
-There are two basic solutions to this problem:
-
-- The current default behavior is false, so explicitly opt in to that
-  value. None of these internal libraries use recursive objects anyway.
-
-- Use link_with to link to the static library directly, rather than the
-  extracted objects.
-
-Option 2 is what used to be done before commit
-62af03bda8a1d649b079a0e77d3687695d0ab7d3, but it only works with meson
->=0.52 and previously had buggy behavior.
-
-Since the minimum version of meson is now 0.52, it is safe to revert
-that commit and go back to using link_with, and therefore option 2 is
-chosen.
-
-Upstream-Status: Accepted [https://gitlab.gnome.org/GNOME/glib/-/commit/abb8e1c3a0fd86bc86bcc1f8e680e5ed4b9c9e5d]
-
-diff --git a/gio/meson.build b/gio/meson.build
-index 1111111..2222222 100644
---- a/gio/meson.build
-+++ b/gio/meson.build
-@@ -341,12 +341,6 @@ local_sources = files(
- 
- platform_deps = []
- internal_deps = []
--# TODO: internal_objects is a workaround for
--# <https://github.com/mesonbuild/meson/issues/3934> and
--# <https://github.com/mesonbuild/meson/issues/3937>. When we can depend
--# on a meson version where those are fixed, revert the commit that
--# introduced this workaround.
--internal_objects = []
- appinfo_sources = []
- contenttype_sources = []
- portal_sources = []
-@@ -419,7 +413,6 @@ if host_system != 'windows'
- 
-   subdir('xdgmime')
-   internal_deps += [xdgmime_lib]
--  internal_objects += [xdgmime_lib.extract_all_objects(recursive: false)]
- 
-   install_headers(gio_unix_include_headers, subdir : 'gio-unix-2.0/gio')
- 
-@@ -758,20 +751,17 @@ gioenumtypes_dep = declare_dependency(sources : [gioenumtypes_h, glib_enumtypes_
- if glib_conf.has('HAVE_SYS_INOTIFY_H') and have_func_inotify_init1
-   subdir('inotify')
-   internal_deps += [ inotify_lib ]
--  internal_objects += [inotify_lib.extract_all_objects(recursive: false)]
- endif
- 
- # kevent
- if have_func_kqueue and have_func_kevent
-   subdir('kqueue')
-   internal_deps += [ kqueue_lib ]
--  internal_objects += [kqueue_lib.extract_all_objects(recursive: false)]
- endif
- 
- if host_system == 'windows'
-   subdir('win32')
-   internal_deps += [ giowin32_lib ]
--  internal_objects += [giowin32_lib.extract_all_objects(recursive: false)]
- endif
- 
- if have_bash
-@@ -807,13 +797,13 @@ endif
- libgio = library('gio-2.0',
-   gioenumtypes_h, gioenumtypes_c, gnetworking_h, gio_sources,
-   gio_dtrace_hdr, gio_dtrace_obj,
--  objects : internal_objects,
-   version : library_version,
-   soversion : soversion,
-   darwin_versions : darwin_versions,
-   install : true,
-   include_directories : [configinc, gioinc],
-   #  '$(gio_win32_res_ldflag)',
-+  link_with: internal_deps,
-   dependencies : [libz_dep, libdl_dep, libmount_dep, libglib_dep,
-                   libgobject_dep, libgmodule_dep, selinux_dep, xattr_dep,
-                   platform_deps, network_libs, libsysprof_capture_dep],
-diff --git a/glib/meson.build b/glib/meson.build
-index 1111111..2222222 100644
---- a/glib/meson.build
-+++ b/glib/meson.build
-@@ -20,14 +20,8 @@ libsysprof_capture_dep = dependency('sysprof-capture-4', version: '>= 3.38.0',
- )
- glib_conf.set('HAVE_SYSPROF', libsysprof_capture_dep.found())
- 
--# TODO: gnulib_objects is a workaround for
--# <https://github.com/mesonbuild/meson/issues/3934> and
--# <https://github.com/mesonbuild/meson/issues/3937>. When we can depend
--# on a meson version where those are fixed, revert the commit that
--# introduced this workaround.
- if use_system_printf
-   gnulib_lib = []
--  gnulib_objects = []
-   gnulib_libm_dependency = []
-   glib_conf.set ('gl_unused', '')
-   glib_conf.set ('gl_extern_inline', '')
-@@ -117,7 +111,6 @@ else
-   endif
- 
-   subdir('gnulib')
--  gnulib_objects = [gnulib_lib.extract_all_objects(recursive: false)]
- endif
- 
- glib_headers = files(
-@@ -359,7 +352,6 @@ glib_c_args = ['-DG_LOG_DOMAIN="GLib"', '-DGLIB_COMPILATION'] + pcre_static_args
- libglib = library('glib-2.0',
-   glib_dtrace_obj, glib_dtrace_hdr,
-   sources : [deprecated_sources, glib_sources],
--  objects : [charset_lib.extract_all_objects(recursive: false)] + gnulib_objects,
-   version : library_version,
-   soversion : soversion,
-   darwin_versions : darwin_versions,
-@@ -367,6 +359,7 @@ libglib = library('glib-2.0',
-   # intl.lib is not compatible with SAFESEH
-   link_args : [noseh_link_args, glib_link_flags, win32_ldflags],
-   include_directories : configinc,
-+  link_with: [charset_lib, gnulib_lib],
-   dependencies : [pcre, thread_dep, librt] + libintl_deps + libiconv + platform_deps + [gnulib_libm_dependency, libm] + [libsysprof_capture_dep],
-   c_args : glib_c_args,
-   objc_args : glib_c_args,
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 30 Sep 2020 14:00:00 +0200
-Subject: [PATCH 2/11] Explicitly link gio and gobject against pthread
+Subject: [PATCH 1/10] Explicitly link gio and gobject against pthread
 
 To ensure that the compiled code uses the "atomics" target feature of WASM.
 
@@ -144,7 +12,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -804,7 +804,7 @@ libgio = library('gio-2.0',
+@@ -793,7 +793,7 @@ libgio = library('gio-2.0',
    include_directories : [configinc, gioinc],
    #  '$(gio_win32_res_ldflag)',
    link_with: internal_deps,
@@ -170,7 +38,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:00:00 +0200
-Subject: [PATCH 3/11] LLVM doesn't define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
+Subject: [PATCH 2/10] LLVM doesn't define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
 
 See: https://bugs.llvm.org/show_bug.cgi?id=11174
 
@@ -180,7 +48,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1833,7 +1833,7 @@ atomicdefine = '''
+@@ -1847,7 +1847,7 @@ atomicdefine = '''
  # We know that we can always use real ("lock free") atomic operations with MSVC
  if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
    have_atomic_lock_free = true
@@ -193,7 +61,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:20:00 +0200
-Subject: [PATCH 4/11] posix_spawn isn't usable in WASM
+Subject: [PATCH 3/10] posix_spawn isn't usable in WASM
 
 Upstream-Status: Pending
 
@@ -201,7 +69,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -642,7 +642,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
+@@ -654,7 +654,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
  endif
  
  # Check that posix_spawn() is usable; must use header
@@ -213,7 +81,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:40:00 +0200
-Subject: [PATCH 5/11] Network libs are not available in WASM
+Subject: [PATCH 4/10] Network libs are not available in WASM
 
 Upstream-Status: Pending
 
@@ -234,7 +102,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 22 Apr 2020 12:11:28 +0200
-Subject: [PATCH 6/11] Ensure separate checks are also done for Emscripten
+Subject: [PATCH 5/10] Ensure separate checks are also done for Emscripten
 
 Upstream-Status: Pending
 
@@ -248,10 +116,10 @@ index 1111111..2222222 100644
  # Compiler flags
 -if cc.get_id() == 'gcc' or cc.get_id() == 'clang'
 +if cc.get_id() == 'gcc' or cc.get_id() == 'clang' or cc.get_id() == 'emscripten'
-   warning_c_args = [
+   warning_common_args = [
      '-Wduplicated-branches',
      '-Wimplicit-fallthrough',
-@@ -1476,13 +1476,13 @@ g_sizet_compatibility = {
+@@ -1490,13 +1490,13 @@ g_sizet_compatibility = {
    'long long': sizet_size == long_long_size,
  }
  
@@ -272,7 +140,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Tue, 13 Apr 2021 15:30:00 +0200
-Subject: [PATCH 7/11] Use vsnpintf/snprintf/printf from musl libc
+Subject: [PATCH 6/10] Use vsnpintf/snprintf/printf from musl libc
 
 The C99 semantics of these functions is well supported in musl libc.
 
@@ -282,7 +150,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -949,9 +949,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
+@@ -963,9 +963,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
    glib_conf.set('HAVE_C99_SNPRINTF', false)
    glib_conf.set('HAVE_C99_VSNPRINTF', false)
    glib_conf.set('HAVE_UNIX98_PRINTF', false)
@@ -299,7 +167,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Fri, 15 Nov 2019 11:00:00 +0100
-Subject: [PATCH 8/11] Implement g_get_num_processors for Emscripten
+Subject: [PATCH 7/10] Implement g_get_num_processors for Emscripten
 
 Upstream-Status: Pending
 
@@ -333,7 +201,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Tue, 25 May 2021 11:00:00 +0200
-Subject: [PATCH 9/11] Disable GModule implementation on Emscripten
+Subject: [PATCH 8/10] Disable GModule implementation on Emscripten
 
 Upstream-Status: Pending
 
@@ -354,7 +222,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Tue, 8 Oct 2019 11:30:00 +0200
-Subject: [PATCH 10/11] Do not build executables
+Subject: [PATCH 9/10] Do not build executables
 
 We're only interested in the libraries.
 
@@ -365,7 +233,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -915,101 +915,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
+@@ -904,101 +904,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
      output : ['gconstructor_as_data.h'],
      command : [python, '@INPUT0@', '@INPUT1@', 'gconstructor_code', '@OUTPUT@'])
  
@@ -499,7 +367,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -2340,7 +2340,6 @@ subdir('gobject')
+@@ -2354,7 +2354,6 @@ subdir('gobject')
  subdir('gthread')
  subdir('gmodule')
  subdir('gio')

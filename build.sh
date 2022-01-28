@@ -91,20 +91,20 @@ export CHOST="wasm32-unknown-linux" # wasm32-unknown-emscripten
 export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 
 # Dependency version numbers
-VERSION_ZLIBNG=2.0.5
+VERSION_ZLIBNG=2.0.6
 VERSION_FFI=3.4.2
-VERSION_GLIB=2.70.2
-VERSION_EXPAT=2.4.1
+VERSION_GLIB=2.71.1
+VERSION_EXPAT=2.4.3
 VERSION_EXIF=0.6.24
 VERSION_LCMS2=2.12
 VERSION_JPEG=2.1.2
 VERSION_PNG16=1.6.37
 VERSION_SPNG=0.7.1
 VERSION_IMAGEQUANT=2.4.1
-VERSION_CGIF=0.0.3
-VERSION_WEBP=1.2.1
+VERSION_CGIF=0.1.0
+VERSION_WEBP=1.2.2
 VERSION_TIFF=4.3.0
-VERSION_VIPS=8.12.1
+VERSION_VIPS=8.12.2
 
 # Remove patch version component
 without_patch() {
@@ -246,6 +246,8 @@ test -f "$TARGET/lib/pkgconfig/libpng16.pc" || (
   cd $DEPS/png16
   # Switch the default zlib compression strategy to Z_RLE, as this is especially suitable for PNG images
   sed -i 's/Z_FILTERED/Z_RLE/g' scripts/pnglibconf.dfa
+  # libpng's user limits can be set for both reading and writing PNG images
+  sed -i '/^option USER_LIMITS/s/requires READ//' scripts/pnglibconf.dfa
   # The hardware optimizations in libpng are only used for reading PNG images, since we use libspng
   # for that we can safely pass --disable-hardware-optimizations and compile with -DPNG_NO_READ
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \

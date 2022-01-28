@@ -19,23 +19,23 @@ index 1111111..2222222 100644
  #if IN_TEST_HARNESS
  #if DYNAMIC_EXECUTION
      // Without dynamic execution, dynamically created functions will have no
-@@ -1735,7 +1738,10 @@ var LibraryEmbind = {
+@@ -1742,7 +1745,10 @@ var LibraryEmbind = {
    $attachFinalizer__deps: ['$finalizationGroup', '$detachFinalizer',
                             '$releaseClassHandle'],
    $attachFinalizer: function(handle) {
 -    if ('undefined' === typeof FinalizationGroup) {
 +    if (Module['EMBIND_AUTOMATIC_DELETELATER']) {
-+        attachFinalizer = function (handle) { return handle['deleteLater'](); };
++        attachFinalizer = (handle) => handle['deleteLater']();
 +        return attachFinalizer(handle);
 +    } else if ('undefined' === typeof FinalizationGroup) {
-         attachFinalizer = function (handle) { return handle; };
+         attachFinalizer = (handle) => handle;
          return handle;
      }
 diff --git a/src/settings.js b/src/settings.js
 index 1111111..2222222 100644
 --- a/src/settings.js
 +++ b/src/settings.js
-@@ -1587,6 +1587,15 @@ var TEXTDECODER = 1;
+@@ -1585,6 +1585,15 @@ var TEXTDECODER = 1;
  // [link]
  var EMBIND_STD_STRING_IS_UTF8 = 1;
  

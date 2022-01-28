@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Fri, 20 Sep 2019 16:05:00 +0200
-Subject: [PATCH 11/11] Fix function pointer cast issues
+Subject: [PATCH 10/10] Fix function pointer cast issues
 
 It is undefined behavior in C and C++ to cast a function pointer
 to another type and call it that way. This does work in most native
@@ -399,7 +399,7 @@ index 1111111..2222222 100644
  {
    /* for now, just use default: run GInitable code in thread */
  }
-@@ -1863,7 +1868,8 @@ g_dbus_object_manager_client_get_objects (GDBusObjectManager *_manager)
+@@ -1861,7 +1866,8 @@ g_dbus_object_manager_client_get_objects (GDBusObjectManager *_manager)
  
  
  static void
@@ -429,7 +429,7 @@ index 1111111..2222222 100644
  
  G_DEFINE_TYPE_WITH_CODE (GDBusProxy, g_dbus_proxy, G_TYPE_OBJECT,
                           G_ADD_PRIVATE (GDBusProxy)
-@@ -1839,7 +1842,8 @@ async_initable_init_finish (GAsyncInitable  *initable,
+@@ -1847,7 +1850,8 @@ async_initable_init_finish (GAsyncInitable  *initable,
  }
  
  static void
@@ -439,7 +439,7 @@ index 1111111..2222222 100644
  {
    async_initable_iface->init_async = async_initable_init_async;
    async_initable_iface->init_finish = async_initable_init_finish;
-@@ -1926,7 +1930,8 @@ initable_init (GInitable     *initable,
+@@ -1934,7 +1938,8 @@ initable_init (GInitable     *initable,
  }
  
  static void
@@ -449,7 +449,7 @@ index 1111111..2222222 100644
  {
    initable_iface->init = initable_init;
  }
-@@ -3181,7 +3186,8 @@ _g_dbus_proxy_set_object (GDBusInterface *interface,
+@@ -3189,7 +3194,8 @@ _g_dbus_proxy_set_object (GDBusInterface *interface,
  }
  
  static void
@@ -496,8 +496,8 @@ index 1111111..2222222 100644
 +                                                       gpointer          iface_data);
  static gboolean g_desktop_app_info_ensure_saved       (GDesktopAppInfo  *info,
                                                         GError          **error);
- 
-@@ -4102,7 +4103,8 @@ g_app_info_create_from_commandline (const char           *commandline,
+ static gboolean g_desktop_app_info_load_file (GDesktopAppInfo *self);
+@@ -4266,7 +4267,8 @@ g_app_info_create_from_commandline (const char           *commandline,
  /* GAppInfo interface init */
  
  static void
@@ -1113,7 +1113,7 @@ diff --git a/gio/gmemoryoutputstream.c b/gio/gmemoryoutputstream.c
 index 1111111..2222222 100644
 --- a/gio/gmemoryoutputstream.c
 +++ b/gio/gmemoryoutputstream.c
-@@ -96,7 +96,8 @@ static gboolean g_memory_output_stream_close_finish (GOutputStream        *strea
+@@ -97,7 +97,8 @@ static gboolean g_memory_output_stream_close_finish (GOutputStream        *strea
                                                       GAsyncResult         *result,
                                                       GError              **error);
  
@@ -1123,7 +1123,7 @@ index 1111111..2222222 100644
  static goffset  g_memory_output_stream_tell                (GSeekable       *seekable);
  static gboolean g_memory_output_stream_can_seek            (GSeekable       *seekable);
  static gboolean g_memory_output_stream_seek                (GSeekable       *seekable,
-@@ -114,7 +115,8 @@ static gboolean g_memory_output_stream_is_writable       (GPollableOutputStream
+@@ -115,7 +116,8 @@ static gboolean g_memory_output_stream_is_writable       (GPollableOutputStream
  static GSource *g_memory_output_stream_create_source     (GPollableOutputStream *stream,
                                                            GCancellable          *cancellable);
  
@@ -1133,7 +1133,7 @@ index 1111111..2222222 100644
  
  G_DEFINE_TYPE_WITH_CODE (GMemoryOutputStream, g_memory_output_stream, G_TYPE_OUTPUT_STREAM,
                           G_ADD_PRIVATE (GMemoryOutputStream)
-@@ -221,7 +223,8 @@ g_memory_output_stream_class_init (GMemoryOutputStreamClass *klass)
+@@ -222,7 +224,8 @@ g_memory_output_stream_class_init (GMemoryOutputStreamClass *klass)
  }
  
  static void
@@ -1143,7 +1143,7 @@ index 1111111..2222222 100644
  {
    iface->is_writable = g_memory_output_stream_is_writable;
    iface->create_source = g_memory_output_stream_create_source;
-@@ -310,7 +313,8 @@ g_memory_output_stream_finalize (GObject *object)
+@@ -311,7 +314,8 @@ g_memory_output_stream_finalize (GObject *object)
  }
  
  static void
@@ -1644,7 +1644,7 @@ diff --git a/gio/gsocket.c b/gio/gsocket.c
 index 1111111..2222222 100644
 --- a/gio/gsocket.c
 +++ b/gio/gsocket.c
-@@ -137,12 +137,14 @@
+@@ -141,12 +141,14 @@
   * Since: 2.22
   */
  
@@ -1661,7 +1661,7 @@ index 1111111..2222222 100644
  static gint     g_socket_datagram_based_receive_messages (GDatagramBased  *self,
                                                            GInputMessage   *messages,
                                                            guint            num_messages,
-@@ -1095,13 +1097,15 @@ g_socket_class_init (GSocketClass *klass)
+@@ -1099,13 +1101,15 @@ g_socket_class_init (GSocketClass *klass)
  }
  
  static void
@@ -1683,7 +1683,7 @@ diff --git a/gio/gsocketaddress.c b/gio/gsocketaddress.c
 index 1111111..2222222 100644
 --- a/gio/gsocketaddress.c
 +++ b/gio/gsocketaddress.c
-@@ -64,7 +64,8 @@ enum
+@@ -66,7 +66,8 @@ enum
    PROP_FAMILY
  };
  
@@ -1693,7 +1693,7 @@ index 1111111..2222222 100644
  static GSocketAddressEnumerator *g_socket_address_connectable_enumerate	       (GSocketConnectable      *connectable);
  static GSocketAddressEnumerator *g_socket_address_connectable_proxy_enumerate  (GSocketConnectable      *connectable);
  
-@@ -125,7 +126,8 @@ g_socket_address_class_init (GSocketAddressClass *klass)
+@@ -127,7 +128,8 @@ g_socket_address_class_init (GSocketAddressClass *klass)
  }
  
  static void
@@ -1829,7 +1829,7 @@ diff --git a/gio/gsubprocess.c b/gio/gsubprocess.c
 index 1111111..2222222 100644
 --- a/gio/gsubprocess.c
 +++ b/gio/gsubprocess.c
-@@ -140,7 +140,8 @@
+@@ -143,7 +143,8 @@
   * via the worker thread so that we don't race with waitpid() and
   * accidentally send a signal to an already-reaped child.
   */
@@ -1839,7 +1839,7 @@ index 1111111..2222222 100644
  
  typedef GObjectClass GSubprocessClass;
  
-@@ -482,7 +483,8 @@ g_subprocess_init (GSubprocess  *self)
+@@ -485,7 +486,8 @@ g_subprocess_init (GSubprocess  *self)
  }
  
  static void
@@ -1853,7 +1853,7 @@ diff --git a/gio/gtask.c b/gio/gtask.c
 index 1111111..2222222 100644
 --- a/gio/gtask.c
 +++ b/gio/gtask.c
-@@ -604,7 +604,8 @@ typedef enum
+@@ -608,7 +608,8 @@ typedef enum
    PROP_COMPLETED = 1,
  } GTaskProperty;
  
@@ -1863,7 +1863,7 @@ index 1111111..2222222 100644
  static void g_task_thread_pool_init (void);
  
  G_DEFINE_TYPE_WITH_CODE (GTask, g_task, G_TYPE_OBJECT,
-@@ -2255,7 +2256,8 @@ g_task_is_tagged (GAsyncResult *res,
+@@ -2259,7 +2260,8 @@ g_task_is_tagged (GAsyncResult *res,
  }
  
  static void
@@ -1999,7 +1999,7 @@ diff --git a/gio/gunixsocketaddress.c b/gio/gunixsocketaddress.c
 index 1111111..2222222 100644
 --- a/gio/gunixsocketaddress.c
 +++ b/gio/gunixsocketaddress.c
-@@ -79,7 +79,8 @@ struct _GUnixSocketAddressPrivate
+@@ -86,7 +86,8 @@ struct _GUnixSocketAddressPrivate
    GUnixSocketAddressType address_type;
  };
  
@@ -2009,7 +2009,7 @@ index 1111111..2222222 100644
  static gchar *g_unix_socket_address_connectable_to_string  (GSocketConnectable      *connectable);
  
  G_DEFINE_TYPE_WITH_CODE (GUnixSocketAddress, g_unix_socket_address, G_TYPE_SOCKET_ADDRESS,
-@@ -312,7 +313,8 @@ g_unix_socket_address_class_init (GUnixSocketAddressClass *klass)
+@@ -319,7 +320,8 @@ g_unix_socket_address_class_init (GUnixSocketAddressClass *klass)
  }
  
  static void
@@ -2057,7 +2057,7 @@ index 1111111..2222222 100644
  
  struct _GWin32AppInfo
  {
-@@ -5210,7 +5211,8 @@ g_app_info_create_from_commandline (const char           *commandline,
+@@ -5225,7 +5226,8 @@ g_app_info_create_from_commandline (const char           *commandline,
  /* GAppInfo interface init */
  
  static void
@@ -2225,7 +2225,7 @@ diff --git a/gobject/gobject.c b/gobject/gobject.c
 index 1111111..2222222 100644
 --- a/gobject/gobject.c
 +++ b/gobject/gobject.c
-@@ -193,7 +193,8 @@ G_STATIC_ASSERT(G_STRUCT_OFFSET(GObject, qdata) == G_STRUCT_OFFSET(GObjectReal,
+@@ -195,7 +195,8 @@ G_STATIC_ASSERT(G_STRUCT_OFFSET(GObject, qdata) == G_STRUCT_OFFSET(GObjectReal,
  /* --- prototypes --- */
  static void	g_object_base_class_init		(GObjectClass	*class);
  static void	g_object_base_class_finalize		(GObjectClass	*class);
@@ -2235,7 +2235,7 @@ index 1111111..2222222 100644
  static void	g_object_init				(GObject	*object,
  							 GObjectClass	*class);
  static GObject*	g_object_constructor			(GType                  type,
-@@ -500,7 +501,8 @@ g_object_base_class_finalize (GObjectClass *class)
+@@ -504,7 +505,8 @@ g_object_base_class_finalize (GObjectClass *class)
  }
  
  static void
@@ -2496,7 +2496,7 @@ index 1111111..2222222 100644
    }; \
    g_type_add_interface_static (g_define_type_id, TYPE_IFACE, &g_implement_interface_info); \
  }
-@@ -2058,7 +2058,8 @@ guint     g_type_get_type_registration_serial (void);
+@@ -2064,7 +2064,8 @@ guint     g_type_get_type_registration_serial (void);
   */
  #if GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_38
  #define _G_DEFINE_TYPE_EXTENDED_CLASS_INIT(TypeName, type_name) \
@@ -2506,7 +2506,7 @@ index 1111111..2222222 100644
  { \
    type_name##_parent_class = g_type_class_peek_parent (klass); \
    if (TypeName##_private_offset != 0) \
-@@ -2068,7 +2069,8 @@ static void     type_name##_class_intern_init (gpointer klass) \
+@@ -2074,7 +2075,8 @@ static void     type_name##_class_intern_init (gpointer klass) \
  
  #else
  #define _G_DEFINE_TYPE_EXTENDED_CLASS_INIT(TypeName, type_name) \
@@ -2516,7 +2516,7 @@ index 1111111..2222222 100644
  { \
    type_name##_parent_class = g_type_class_peek_parent (klass); \
    type_name##_class_init ((TypeName##Class*) klass); \
-@@ -2080,6 +2082,11 @@ static void     type_name##_class_intern_init (gpointer klass) \
+@@ -2086,6 +2088,11 @@ static void     type_name##_class_intern_init (gpointer klass) \
  \
  static void     type_name##_init              (TypeName        *self); \
  static void     type_name##_class_init        (TypeName##Class *klass); \
@@ -2528,7 +2528,7 @@ index 1111111..2222222 100644
  static GType    type_name##_get_type_once     (void); \
  static gpointer type_name##_parent_class = NULL; \
  static gint     TypeName##_private_offset; \
-@@ -2117,9 +2124,9 @@ type_name##_get_type_once (void) \
+@@ -2123,9 +2130,9 @@ type_name##_get_type_once (void) \
          g_type_register_static_simple (TYPE_PARENT, \
                                         g_intern_static_string (#TypeName), \
                                         sizeof (TypeName##Class), \
@@ -2540,7 +2540,7 @@ index 1111111..2222222 100644
                                         (GTypeFlags) flags); \
      { /* custom code follows */
  #define _G_DEFINE_TYPE_EXTENDED_END()	\
-@@ -2137,7 +2144,12 @@ type_name##_get_type_once (void) \
+@@ -2143,7 +2150,12 @@ type_name##_get_type_once (void) \
  
  #define _G_DEFINE_INTERFACE_EXTENDED_BEGIN(TypeName, type_name, TYPE_PREREQ) \
  \
@@ -2554,7 +2554,7 @@ index 1111111..2222222 100644
  \
  GType \
  type_name##_get_type (void) \
-@@ -2149,7 +2161,7 @@ type_name##_get_type (void) \
+@@ -2155,7 +2167,7 @@ type_name##_get_type (void) \
          g_type_register_static_simple (G_TYPE_INTERFACE, \
                                         g_intern_static_string (#TypeName), \
                                         sizeof (TypeName##Interface), \

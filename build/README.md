@@ -24,7 +24,8 @@ git pull
 ./emsdk activate tot
 
 # Prefer the default system-installed version of Node.js
-sed -i'.old' "/^NODE_JS/s/= .*/= '\/usr\/bin\/node'/" .emscripten
+NODE=$(which node)
+sed -i'.old' "/^NODE_JS/s/= .*/= '${NODE//\//\\/}'/" .emscripten
 
 # Activate PATH and other environment variables in the current terminal
 source ./emsdk_env.sh

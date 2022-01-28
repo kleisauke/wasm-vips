@@ -1644,7 +1644,7 @@ diff --git a/gio/gsocket.c b/gio/gsocket.c
 index 1111111..2222222 100644
 --- a/gio/gsocket.c
 +++ b/gio/gsocket.c
-@@ -137,12 +137,14 @@
+@@ -141,12 +141,14 @@
   * Since: 2.22
   */
  
@@ -1661,7 +1661,7 @@ index 1111111..2222222 100644
  static gint     g_socket_datagram_based_receive_messages (GDatagramBased  *self,
                                                            GInputMessage   *messages,
                                                            guint            num_messages,
-@@ -1095,13 +1097,15 @@ g_socket_class_init (GSocketClass *klass)
+@@ -1099,13 +1101,15 @@ g_socket_class_init (GSocketClass *klass)
  }
  
  static void
@@ -1683,7 +1683,7 @@ diff --git a/gio/gsocketaddress.c b/gio/gsocketaddress.c
 index 1111111..2222222 100644
 --- a/gio/gsocketaddress.c
 +++ b/gio/gsocketaddress.c
-@@ -64,7 +64,8 @@ enum
+@@ -66,7 +66,8 @@ enum
    PROP_FAMILY
  };
  
@@ -1693,7 +1693,7 @@ index 1111111..2222222 100644
  static GSocketAddressEnumerator *g_socket_address_connectable_enumerate	       (GSocketConnectable      *connectable);
  static GSocketAddressEnumerator *g_socket_address_connectable_proxy_enumerate  (GSocketConnectable      *connectable);
  
-@@ -125,7 +126,8 @@ g_socket_address_class_init (GSocketAddressClass *klass)
+@@ -127,7 +128,8 @@ g_socket_address_class_init (GSocketAddressClass *klass)
  }
  
  static void
@@ -1999,7 +1999,7 @@ diff --git a/gio/gunixsocketaddress.c b/gio/gunixsocketaddress.c
 index 1111111..2222222 100644
 --- a/gio/gunixsocketaddress.c
 +++ b/gio/gunixsocketaddress.c
-@@ -79,7 +79,8 @@ struct _GUnixSocketAddressPrivate
+@@ -86,7 +86,8 @@ struct _GUnixSocketAddressPrivate
    GUnixSocketAddressType address_type;
  };
  
@@ -2009,7 +2009,7 @@ index 1111111..2222222 100644
  static gchar *g_unix_socket_address_connectable_to_string  (GSocketConnectable      *connectable);
  
  G_DEFINE_TYPE_WITH_CODE (GUnixSocketAddress, g_unix_socket_address, G_TYPE_SOCKET_ADDRESS,
-@@ -312,7 +313,8 @@ g_unix_socket_address_class_init (GUnixSocketAddressClass *klass)
+@@ -319,7 +320,8 @@ g_unix_socket_address_class_init (GUnixSocketAddressClass *klass)
  }
  
  static void

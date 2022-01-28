@@ -12,7 +12,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -793,7 +793,7 @@ libgio = library('gio-2.0',
+@@ -802,7 +802,7 @@ libgio = library('gio-2.0',
    include_directories : [configinc, gioinc],
    #  '$(gio_win32_res_ldflag)',
    link_with: internal_deps,
@@ -48,7 +48,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1847,7 +1847,7 @@ atomicdefine = '''
+@@ -1842,7 +1842,7 @@ atomicdefine = '''
  # We know that we can always use real ("lock free") atomic operations with MSVC
  if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
    have_atomic_lock_free = true
@@ -69,7 +69,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -654,7 +654,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
+@@ -659,7 +659,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
  endif
  
  # Check that posix_spawn() is usable; must use header
@@ -110,7 +110,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -424,7 +424,7 @@ foreach m : struct_members
+@@ -429,7 +429,7 @@ foreach m : struct_members
  endforeach
  
  # Compiler flags
@@ -119,7 +119,7 @@ index 1111111..2222222 100644
    warning_common_args = [
      '-Wduplicated-branches',
      '-Wimplicit-fallthrough',
-@@ -1490,13 +1490,13 @@ g_sizet_compatibility = {
+@@ -1485,13 +1485,13 @@ g_sizet_compatibility = {
    'long long': sizet_size == long_long_size,
  }
  
@@ -150,7 +150,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -963,9 +963,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
+@@ -958,9 +958,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
    glib_conf.set('HAVE_C99_SNPRINTF', false)
    glib_conf.set('HAVE_C99_VSNPRINTF', false)
    glib_conf.set('HAVE_UNIX98_PRINTF', false)
@@ -233,7 +233,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -904,101 +904,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
+@@ -912,101 +912,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
      output : ['gconstructor_as_data.h'],
      command : [python, '@INPUT0@', '@INPUT1@', 'gconstructor_code', '@OUTPUT@'])
  
@@ -339,7 +339,7 @@ diff --git a/glib/meson.build b/glib/meson.build
 index 1111111..2222222 100644
 --- a/glib/meson.build
 +++ b/glib/meson.build
-@@ -416,7 +416,7 @@ if host_system == 'windows'
+@@ -427,7 +427,7 @@ if host_system == 'windows'
        include_directories : configinc,
        dependencies : [libglib_dep])
    endif
@@ -367,7 +367,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -2354,7 +2354,6 @@ subdir('gobject')
+@@ -2349,7 +2349,6 @@ subdir('gobject')
  subdir('gthread')
  subdir('gmodule')
  subdir('gio')

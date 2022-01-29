@@ -18,7 +18,7 @@ An engine that [supports WebAssembly SIMD](https://webassembly.org/roadmap/).
 This is present on most major browser engines. Node.js >= 16.4.0 is required
 to match the final SIMD opcodes.
 
-| ![Chrome](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome_32x32.png)<br>Chrome | ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_32x32.png)<br>Firefox | ![Edge](https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_32x32.png)<br>Edge | ![Node.js](https://raw.githubusercontent.com/nodejs/nodejs.org/master/static/images/favicons/favicon-32x32.png)<br>Node.js
+| ![Chrome](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome_32x32.png)<br>Chrome | ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_32x32.png)<br>Firefox | ![Edge](https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_32x32.png)<br>Edge | ![Node.js](https://raw.githubusercontent.com/nodejs/nodejs.org/master/static/images/favicons/favicon-32x32.png)<br>Node.js |
 |:---:|:---:|:---:|:---:|
 | :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 89+](https://bugzilla.mozilla.org/show_bug.cgi?id=1695585) | :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 16.4+](https://github.com/nodejs/node/pull/38273) |
 

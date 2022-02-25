@@ -6,6 +6,7 @@
 
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
+#include <emscripten/version.h>
 
 #include <vips/vips.h>
 
@@ -404,14 +405,14 @@ EMSCRIPTEN_BINDINGS(my_module) {
     function("concurrency", &vips_concurrency_get);
     function("version", vips_version);
     function("version", optional_override([]() {
-                 std::string major = std::to_string(vips_version(0));
-                 std::string minor = std::to_string(vips_version(1));
-                 std::string patch = std::to_string(vips_version(2));
-
-                 return major + "." + minor + "." + patch;
+                 return std::string(VIPS_VERSION);
              }));
     function("emscriptenVersion", optional_override([]() {
-                 return std::string(EMSCRIPTEN_VERSION);
+                 std::string major = std::to_string(__EMSCRIPTEN_major__);
+                 std::string minor = std::to_string(__EMSCRIPTEN_minor__);
+                 std::string patch = std::to_string(__EMSCRIPTEN_tiny__);
+
+                 return major + "." + minor + "." + patch;
              }));
     function("config", optional_override([]() {
                  return vips::replace_all(VIPS_CONFIG, ", ", "\n");

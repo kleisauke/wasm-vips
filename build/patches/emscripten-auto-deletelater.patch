@@ -20,14 +20,14 @@ index 1111111..2222222 100644
  #if DYNAMIC_EXECUTION
      // Without dynamic execution, dynamically created functions will have no
 @@ -1742,7 +1745,10 @@ var LibraryEmbind = {
-   $attachFinalizer__deps: ['$finalizationGroup', '$detachFinalizer',
-                            '$releaseClassHandle'],
+   $attachFinalizer__deps: ['$finalizationRegistry', '$detachFinalizer',
+                            '$releaseClassHandle', '$RegisteredPointer_fromWireType'],
    $attachFinalizer: function(handle) {
--    if ('undefined' === typeof FinalizationGroup) {
+-    if ('undefined' === typeof FinalizationRegistry) {
 +    if (Module['EMBIND_AUTOMATIC_DELETELATER']) {
 +        attachFinalizer = (handle) => handle['deleteLater']();
 +        return attachFinalizer(handle);
-+    } else if ('undefined' === typeof FinalizationGroup) {
++    } else if ('undefined' === typeof FinalizationRegistry) {
          attachFinalizer = (handle) => handle;
          return handle;
      }
@@ -35,7 +35,7 @@ diff --git a/src/settings.js b/src/settings.js
 index 1111111..2222222 100644
 --- a/src/settings.js
 +++ b/src/settings.js
-@@ -1602,6 +1602,15 @@ var TEXTDECODER = 1;
+@@ -1603,6 +1603,15 @@ var TEXTDECODER = 1;
  // [link]
  var EMBIND_STD_STRING_IS_UTF8 = 1;
  

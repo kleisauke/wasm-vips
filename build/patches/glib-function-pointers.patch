@@ -49,7 +49,7 @@ index 1111111..2222222 100644
  {
    iface->activate_action_full = g_application_exported_actions_activate_action_full;
    iface->change_action_state_full = g_application_exported_actions_change_action_state_full;
-@@ -2729,7 +2733,8 @@ g_application_remove_action (GActionMap  *action_map,
+@@ -2730,7 +2734,8 @@ g_application_remove_action (GActionMap  *action_map,
  }
  
  static void
@@ -59,7 +59,7 @@ index 1111111..2222222 100644
  {
    iface->list_actions = g_application_list_actions;
    iface->query_action = g_application_query_action;
-@@ -2738,7 +2743,8 @@ g_application_action_group_iface_init (GActionGroupInterface *iface)
+@@ -2739,7 +2744,8 @@ g_application_action_group_iface_init (GActionGroupInterface *iface)
  }
  
  static void

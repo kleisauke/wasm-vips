@@ -25,7 +25,7 @@ diff --git a/gobject/meson.build b/gobject/meson.build
 index 1111111..2222222 100644
 --- a/gobject/meson.build
 +++ b/gobject/meson.build
-@@ -125,7 +125,7 @@ libgobject = library('gobject-2.0',
+@@ -133,7 +133,7 @@ libgobject = library('gobject-2.0',
    darwin_versions : darwin_versions,
    install : true,
    include_directories : [configinc],
@@ -48,7 +48,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1842,7 +1842,7 @@ atomicdefine = '''
+@@ -1853,7 +1853,7 @@ atomicdefine = '''
  # We know that we can always use real ("lock free") atomic operations with MSVC
  if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
    have_atomic_lock_free = true
@@ -69,7 +69,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -659,7 +659,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
+@@ -670,7 +670,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
  endif
  
  # Check that posix_spawn() is usable; must use header
@@ -119,7 +119,7 @@ index 1111111..2222222 100644
    warning_common_args = [
      '-Wduplicated-branches',
      '-Wimplicit-fallthrough',
-@@ -1485,13 +1485,13 @@ g_sizet_compatibility = {
+@@ -1496,13 +1496,13 @@ g_sizet_compatibility = {
    'long long': sizet_size == long_long_size,
  }
  
@@ -150,7 +150,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -958,9 +958,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
+@@ -969,9 +969,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
    glib_conf.set('HAVE_C99_SNPRINTF', false)
    glib_conf.set('HAVE_C99_VSNPRINTF', false)
    glib_conf.set('HAVE_UNIX98_PRINTF', false)
@@ -339,7 +339,7 @@ diff --git a/glib/meson.build b/glib/meson.build
 index 1111111..2222222 100644
 --- a/glib/meson.build
 +++ b/glib/meson.build
-@@ -427,7 +427,7 @@ if host_system == 'windows'
+@@ -431,7 +431,7 @@ if host_system == 'windows'
        include_directories : configinc,
        dependencies : [libglib_dep])
    endif
@@ -352,7 +352,7 @@ diff --git a/gobject/meson.build b/gobject/meson.build
 index 1111111..2222222 100644
 --- a/gobject/meson.build
 +++ b/gobject/meson.build
-@@ -147,10 +147,6 @@ if meson.version().version_compare('>=0.54.0')
+@@ -155,10 +155,6 @@ if meson.version().version_compare('>=0.54.0')
    meson.override_dependency('gobject-2.0', libgobject_dep)
  endif
  
@@ -367,7 +367,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -2349,7 +2349,6 @@ subdir('gobject')
+@@ -2364,7 +2364,6 @@ subdir('gobject')
  subdir('gthread')
  subdir('gmodule')
  subdir('gio')

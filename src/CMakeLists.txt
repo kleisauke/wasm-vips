@@ -22,7 +22,7 @@ add_library(${PROJECT_NAME} OBJECT ${HEADERS} ${SOURCES})
 
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
-            COMPILE_FLAGS "-pthread -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0 -DEMSCRIPTEN_VERSION=\\\"${EMSCRIPTEN_VERSION}\\\""
+            COMPILE_FLAGS "-pthread -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0"
             LINK_FLAGS "--bind"
         )
 

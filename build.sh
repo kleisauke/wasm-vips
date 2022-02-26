@@ -23,10 +23,16 @@ mkdir -p $TARGET
 ENVIRONMENT="web,node"
 
 # Fixed-width SIMD, enabled by default
+# https://github.com/WebAssembly/simd
 SIMD=true
 
 # JS BigInt to Wasm i64 integration, enabled by default
+# https://github.com/WebAssembly/JS-BigInt-integration
 WASM_BIGINT=true
+
+# setjmp/longjmp support using Wasm EH instructions, disabled by default
+# https://github.com/WebAssembly/exception-handling
+WASM_EH=false
 
 # Link-time optimizations (LTO), disabled by default
 # https://github.com/emscripten-core/emscripten/issues/10603
@@ -36,6 +42,7 @@ LTO=false
 while [ $# -gt 0 ]; do
   case $1 in
     --enable-lto) LTO=true ;;
+    --enable-wasm-eh) WASM_EH=true ;;
     --disable-simd) SIMD=false ;;
     --disable-wasm-bigint) WASM_BIGINT=false ;;
     -e|--environment) ENVIRONMENT="$2"; shift ;;
@@ -75,10 +82,12 @@ if [ "$WASM_BIGINT" = "true" ]; then
   # libffi needs to detect WASM_BIGINT support at compile time
   export CFLAGS+=" -DWASM_BIGINT"
 fi
+if [ "$WASM_EH" = "true" ]; then export CFLAGS+=" -sSUPPORT_LONGJMP=wasm"; fi
 if [ "$LTO" = "true" ]; then export CFLAGS+=" -flto"; fi
 export CXXFLAGS="$CFLAGS"
 export LDFLAGS="-L$TARGET/lib -O0 -gsource-map"
 if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
+if [ "$WASM_EH" = "true" ]; then export LDFLAGS+=" -sSUPPORT_LONGJMP=wasm"; fi
 if [ "$LTO" = "true" ]; then export LDFLAGS+=" -flto"; fi
 
 # Build paths
@@ -163,6 +172,8 @@ test -f "$TARGET/lib/pkgconfig/libffi.pc" || (
   cd $DEPS/ffi
   patch -p1 <$SOURCE_DIR/build/patches/libffi-emscripten.patch
   autoreconf -fiv
+  # Compile without -fexceptions
+  sed -i 's/ -fexceptions//g' configure
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-builddir --disable-multi-os-directory --disable-raw-api --disable-structs --disable-docs
   make install SUBDIRS='include'
@@ -250,6 +261,8 @@ test -f "$TARGET/lib/pkgconfig/libpng16.pc" || (
   sed -i '/^option USER_LIMITS/s/requires READ//' scripts/pnglibconf.dfa
   # The hardware optimizations in libpng are only used for reading PNG images, since we use libspng
   # for that we can safely pass --disable-hardware-optimizations and compile with -DPNG_NO_READ
+  # Need to compile with -pthread after https://reviews.llvm.org/D120013 as png.c uses setjmp/longjmp
+  CFLAGS="$CFLAGS -pthread" \
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-hardware-optimizations --disable-unversioned-libpng-config --without-binconfigs CPPFLAGS="-DPNG_NO_READ"
   make install dist_man_MANS= bin_PROGRAMS=
@@ -319,6 +332,8 @@ test -f "$TARGET/lib/pkgconfig/libtiff-4.pc" || (
   mkdir $DEPS/tiff
   curl -Ls https://download.osgeo.org/libtiff/tiff-$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1
   cd $DEPS/tiff
+  # Need to compile with -pthread after https://reviews.llvm.org/D120013 as tif_jpeg.c uses setjmp/longjmp
+  CFLAGS="$CFLAGS -pthread" \
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-mdi --disable-pixarlog --disable-old-jpeg --disable-cxx
   make -C 'libtiff' install noinst_PROGRAMS=

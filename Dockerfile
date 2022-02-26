@@ -6,14 +6,12 @@ ENV RUNNING_IN_CONTAINER=true
 RUN apt-get update \
   && apt-get install -qqy \
     build-essential \
-    prelink \
     autoconf \
     libtool \
-    texinfo \
     pkgconf \
+    libglib2.0-dev \
     # needed for building libvips from source
     gtk-doc-tools \
-    libglib2.0-dev \
     gobject-introspection \
     # needed for Meson
     ninja-build \

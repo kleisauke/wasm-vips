@@ -248,6 +248,8 @@ test -f "$TARGET/lib/pkgconfig/libpng16.pc" || (
   sed -i '/^option USER_LIMITS/s/requires READ//' scripts/pnglibconf.dfa
   # The hardware optimizations in libpng are only used for reading PNG images, since we use libspng
   # for that we can safely pass --disable-hardware-optimizations and compile with -DPNG_NO_READ
+  # Need to compile with -pthread after https://reviews.llvm.org/D120013 as png.c uses setjmp/longjmp
+  CFLAGS="$CFLAGS -pthread" \
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-hardware-optimizations --disable-unversioned-libpng-config --without-binconfigs CPPFLAGS="-DPNG_NO_READ"
   make install dist_man_MANS= bin_PROGRAMS=
@@ -317,6 +319,8 @@ test -f "$TARGET/lib/pkgconfig/libtiff-4.pc" || (
   mkdir $DEPS/tiff
   curl -Ls https://download.osgeo.org/libtiff/tiff-$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1
   cd $DEPS/tiff
+  # Need to compile with -pthread after https://reviews.llvm.org/D120013 as tif_jpeg.c uses setjmp/longjmp
+  CFLAGS="$CFLAGS -pthread" \
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-mdi --disable-pixarlog --disable-old-jpeg --disable-cxx
   make -C 'libtiff' install noinst_PROGRAMS=

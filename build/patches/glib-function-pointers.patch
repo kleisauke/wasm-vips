@@ -49,7 +49,7 @@ index 1111111..2222222 100644
  {
    iface->activate_action_full = g_application_exported_actions_activate_action_full;
    iface->change_action_state_full = g_application_exported_actions_change_action_state_full;
-@@ -2730,7 +2734,8 @@ g_application_remove_action (GActionMap  *action_map,
+@@ -2729,7 +2733,8 @@ g_application_remove_action (GActionMap  *action_map,
  }
  
  static void
@@ -59,7 +59,7 @@ index 1111111..2222222 100644
  {
    iface->list_actions = g_application_list_actions;
    iface->query_action = g_application_query_action;
-@@ -2739,7 +2744,8 @@ g_application_action_group_iface_init (GActionGroupInterface *iface)
+@@ -2738,7 +2743,8 @@ g_application_action_group_iface_init (GActionGroupInterface *iface)
  }
  
  static void
@@ -497,7 +497,7 @@ index 1111111..2222222 100644
  static gboolean g_desktop_app_info_ensure_saved       (GDesktopAppInfo  *info,
                                                         GError          **error);
  static gboolean g_desktop_app_info_load_file (GDesktopAppInfo *self);
-@@ -4266,7 +4267,8 @@ g_app_info_create_from_commandline (const char           *commandline,
+@@ -4272,7 +4273,8 @@ g_app_info_create_from_commandline (const char           *commandline,
  /* GAppInfo interface init */
  
  static void
@@ -1863,7 +1863,7 @@ index 1111111..2222222 100644
  static void g_task_thread_pool_init (void);
  
  G_DEFINE_TYPE_WITH_CODE (GTask, g_task, G_TYPE_OBJECT,
-@@ -2259,7 +2260,8 @@ g_task_is_tagged (GAsyncResult *res,
+@@ -2266,7 +2267,8 @@ g_task_is_tagged (GAsyncResult *res,
  }
  
  static void
@@ -2487,7 +2487,7 @@ diff --git a/gobject/gtype.h b/gobject/gtype.h
 index 1111111..2222222 100644
 --- a/gobject/gtype.h
 +++ b/gobject/gtype.h
-@@ -1922,7 +1922,7 @@ guint     g_type_get_type_registration_serial (void);
+@@ -1957,7 +1957,7 @@ guint     g_type_get_type_registration_serial (void);
   */
  #define G_IMPLEMENT_INTERFACE(TYPE_IFACE, iface_init)       { \
    const GInterfaceInfo g_implement_interface_info = { \
@@ -2496,7 +2496,7 @@ index 1111111..2222222 100644
    }; \
    g_type_add_interface_static (g_define_type_id, TYPE_IFACE, &g_implement_interface_info); \
  }
-@@ -2064,7 +2064,8 @@ guint     g_type_get_type_registration_serial (void);
+@@ -2099,7 +2099,8 @@ guint     g_type_get_type_registration_serial (void);
   */
  #if GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_38
  #define _G_DEFINE_TYPE_EXTENDED_CLASS_INIT(TypeName, type_name) \
@@ -2506,7 +2506,7 @@ index 1111111..2222222 100644
  { \
    type_name##_parent_class = g_type_class_peek_parent (klass); \
    if (TypeName##_private_offset != 0) \
-@@ -2074,7 +2075,8 @@ static void     type_name##_class_intern_init (gpointer klass) \
+@@ -2109,7 +2110,8 @@ static void     type_name##_class_intern_init (gpointer klass) \
  
  #else
  #define _G_DEFINE_TYPE_EXTENDED_CLASS_INIT(TypeName, type_name) \
@@ -2516,7 +2516,7 @@ index 1111111..2222222 100644
  { \
    type_name##_parent_class = g_type_class_peek_parent (klass); \
    type_name##_class_init ((TypeName##Class*) klass); \
-@@ -2086,6 +2088,11 @@ static void     type_name##_class_intern_init (gpointer klass) \
+@@ -2121,6 +2123,11 @@ static void     type_name##_class_intern_init (gpointer klass) \
  \
  static void     type_name##_init              (TypeName        *self); \
  static void     type_name##_class_init        (TypeName##Class *klass); \
@@ -2528,7 +2528,7 @@ index 1111111..2222222 100644
  static GType    type_name##_get_type_once     (void); \
  static gpointer type_name##_parent_class = NULL; \
  static gint     TypeName##_private_offset; \
-@@ -2123,9 +2130,9 @@ type_name##_get_type_once (void) \
+@@ -2158,9 +2165,9 @@ type_name##_get_type_once (void) \
          g_type_register_static_simple (TYPE_PARENT, \
                                         g_intern_static_string (#TypeName), \
                                         sizeof (TypeName##Class), \
@@ -2540,7 +2540,7 @@ index 1111111..2222222 100644
                                         (GTypeFlags) flags); \
      { /* custom code follows */
  #define _G_DEFINE_TYPE_EXTENDED_END()	\
-@@ -2143,7 +2150,12 @@ type_name##_get_type_once (void) \
+@@ -2178,7 +2185,12 @@ type_name##_get_type_once (void) \
  
  #define _G_DEFINE_INTERFACE_EXTENDED_BEGIN(TypeName, type_name, TYPE_PREREQ) \
  \
@@ -2554,7 +2554,7 @@ index 1111111..2222222 100644
  \
  GType \
  type_name##_get_type (void) \
-@@ -2155,7 +2167,7 @@ type_name##_get_type (void) \
+@@ -2190,7 +2202,7 @@ type_name##_get_type (void) \
          g_type_register_static_simple (G_TYPE_INTERFACE, \
                                         g_intern_static_string (#TypeName), \
                                         sizeof (TypeName##Interface), \

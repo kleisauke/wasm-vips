@@ -9,7 +9,7 @@ diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 1111111..2222222 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -62,7 +62,13 @@ foreach(ARCH ${CMAKE_OSX_ARCHITECTURES})
+@@ -65,7 +65,13 @@ foreach(ARCH ${CMAKE_OSX_ARCHITECTURES})
    endif()
    math(EXPR COUNT "${COUNT}+1")
  endforeach()
@@ -38,47 +38,25 @@ index 1111111..2222222 100644
  
  # If Neon instructions are not explicitly enabled at compile time (e.g. using
  # -mfpu=neon) with an AArch32 Linux or Android build, then the AArch32 SIMD
-@@ -224,7 +225,7 @@ elseif(CPU_TYPE STREQUAL "arm64" OR CPU_TYPE STREQUAL "arm")
- # following test determines whether -mfloat-abi=softfp should be explicitly
- # added to the compile flags for the intrinsics implementation of the Neon SIMD
- # extensions.
--if(BITS EQUAL 32)
-+if(BITS EQUAL 32 AND NOT EMSCRIPTEN)
-   check_c_source_compiles("
-     #if defined(__ARM_NEON__) || (!defined(__linux__) && !defined(ANDROID) && !defined(__ANDROID__))
-     #error \"Neon run-time auto-detection will not be used\"
-@@ -242,7 +243,7 @@ if(BITS EQUAL 32)
+@@ -241,7 +242,7 @@ if(BITS EQUAL 32)
+   endif()
  endif()
  
- include(CheckSymbolExists)
 -if(BITS EQUAL 32)
 +if(BITS EQUAL 32 OR EMSCRIPTEN)
    set(CMAKE_REQUIRED_FLAGS "-mfpu=neon ${SOFTFP_FLAG}")
    check_c_source_compiles("
      #include <arm_neon.h>
-@@ -259,7 +260,7 @@ endif()
- check_symbol_exists(vld1_s16_x3 arm_neon.h HAVE_VLD1_S16_X3)
- check_symbol_exists(vld1_u16_x2 arm_neon.h HAVE_VLD1_U16_X2)
- check_symbol_exists(vld1q_u8_x4 arm_neon.h HAVE_VLD1Q_U8_X4)
+@@ -303,7 +304,7 @@ check_c_source_compiles("
+     vst4q_u8(input, output);
+     return (int)input[0];
+   }" HAVE_VLD1Q_U8_X4)
 -if(BITS EQUAL 32)
 +if(BITS EQUAL 32 OR EMSCRIPTEN)
    unset(CMAKE_REQUIRED_FLAGS)
  endif()
  configure_file(arm/neon-compat.h.in arm/neon-compat.h @ONLY)
-@@ -270,9 +271,9 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/arm)
- # those compilers, we default to using the older GAS implementation of the Neon
- # SIMD extensions for certain algorithms.  The presence or absence of the three
- # intrinsics we tested above is a reasonable proxy for this.  We always default
--# to using the full Neon intrinsics implementation when building for macOS or
--# iOS, to avoid the need for gas-preprocessor.
--if((HAVE_VLD1_S16_X3 AND HAVE_VLD1_U16_X2 AND HAVE_VLD1Q_U8_X4) OR APPLE)
-+# to using the full Neon intrinsics implementation when building for macOS, iOS
-+# or Emscripten, to avoid the need for gas-preprocessor.
-+if((HAVE_VLD1_S16_X3 AND HAVE_VLD1_U16_X2 AND HAVE_VLD1Q_U8_X4) OR APPLE OR EMSCRIPTEN)
-   set(DEFAULT_NEON_INTRINSICS 1)
- else()
-   set(DEFAULT_NEON_INTRINSICS 0)
-@@ -301,7 +302,7 @@ if(NEON_INTRINSICS OR BITS EQUAL 32)
+@@ -381,7 +382,7 @@ if(NEON_INTRINSICS OR BITS EQUAL 32)
    set(SIMD_SOURCES ${SIMD_SOURCES} arm/aarch${BITS}/jchuff-neon.c
      arm/jdcolor-neon.c arm/jfdctint-neon.c)
  endif()
@@ -93,7 +71,7 @@ From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Sun, 15 Aug 2021 11:50:00 +0200
 Subject: [PATCH 2/2] Revert "Neon/AArch32: Work around Clang T32 miscompilation"
 
-This reverts commit 2a2970a as inline asm won't work for Emscripten.
+This reverts commit 2a2970a as inline asm won't work on Emscripten.
 
 Upstream-Status: Inappropriate [Emscripten specific]
 

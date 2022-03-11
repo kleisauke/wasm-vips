@@ -54,7 +54,8 @@
     ],
     "ignore": [
       "src/closure-externs/wasm-vips.js",
-      "test/bench/perf.js"
+      "test/bench/perf.js",
+      "test/bench/perf-jpeg-buffer-passthrough.js"
     ],
     "env": [
       "browser",

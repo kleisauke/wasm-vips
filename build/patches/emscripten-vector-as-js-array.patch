@@ -290,7 +290,7 @@ diff --git a/system/include/emscripten/bind.h b/system/include/emscripten/bind.h
 index 1111111..2222222 100644
 --- a/system/include/emscripten/bind.h
 +++ b/system/include/emscripten/bind.h
-@@ -86,6 +86,13 @@ namespace emscripten {
+@@ -87,6 +87,13 @@ namespace emscripten {
      size_t charSize,
      const char* name);
  
@@ -304,7 +304,7 @@ index 1111111..2222222 100644
  void _embind_register_emval(
      TYPEID emvalType,
      const char* name);
-@@ -1753,7 +1760,8 @@ namespace emscripten {
+@@ -1754,7 +1761,8 @@ namespace emscripten {
  } // end namespace internal
  
  template<typename T>
@@ -314,7 +314,7 @@ index 1111111..2222222 100644
      typedef std::vector<T> VecType;
  
      void (VecType::*push_back)(const T&) = &VecType::push_back;
-@@ -1769,6 +1777,17 @@ namespace emscripten {
+@@ -1770,6 +1778,17 @@ namespace emscripten {
          ;
  }
  
@@ -336,44 +336,44 @@ diff --git a/system/include/emscripten/wire.h b/system/include/emscripten/wire.h
 index 1111111..2222222 100644
 --- a/system/include/emscripten/wire.h
 +++ b/system/include/emscripten/wire.h
-@@ -287,9 +287,9 @@ namespace emscripten {
-         };
+@@ -288,9 +288,9 @@ namespace emscripten {
+ };
  
-         template<typename T>
--        struct BindingType<std::basic_string<T>> {
-+        struct BindingType<std::basic_string<T>,
-+          typename std::enable_if<std::is_trivially_copyable<T>::value>::type> {
-             using String = std::basic_string<T>;
--            static_assert(std::is_trivially_copyable<T>::value, "basic_string elements are memcpy'd");
-             typedef struct {
-                 size_t length;
-                 T data[1]; // trailing data
-@@ -305,6 +305,28 @@ namespace emscripten {
-             }
-         };
+ template<typename T>
+-struct BindingType<std::basic_string<T>> {
++struct BindingType<std::basic_string<T>,
++  typename std::enable_if<std::is_trivially_copyable<T>::value>::type> {
+     using String = std::basic_string<T>;
+-    static_assert(std::is_trivially_copyable<T>::value, "basic_string elements are memcpy'd");
+     typedef struct {
+         size_t length;
+         T data[1]; // trailing data
+@@ -306,6 +306,28 @@ namespace emscripten {
+     }
+ };
  
-+        template<typename T>
-+        struct BindingType<std::vector<T>,
-+          typename std::enable_if<std::is_arithmetic<T>::value>::type> {
-+            using Vector = std::vector<T>;
-+            struct VectorStruct {
-+                size_t length;
-+                T data[]; // Flexible array member
-+            };
-+            using WireType = VectorStruct *;
++template<typename T>
++struct BindingType<std::vector<T>,
++  typename std::enable_if<std::is_arithmetic<T>::value>::type> {
++    using Vector = std::vector<T>;
++    struct VectorStruct {
++        size_t length;
++        T data[]; // Flexible array member
++    };
++    using WireType = VectorStruct *;
 +
-+            static WireType toWireType(const Vector& v) {
-+                WireType wt =
-+                  (WireType)malloc(offsetof(struct VectorStruct, data) + v.size() * sizeof(T));
-+                wt->length = v.size();
-+                std::copy(v.begin(), v.end(), wt->data);
-+                return wt;
-+            }
-+            static Vector fromWireType(WireType v) {
-+                return Vector(v->data, v->data + v->length);
-+            }
-+        };
++    static WireType toWireType(const Vector& v) {
++        WireType wt =
++          (WireType)malloc(offsetof(struct VectorStruct, data) + v.size() * sizeof(T));
++        wt->length = v.size();
++        std::copy(v.begin(), v.end(), wt->data);
++        return wt;
++    }
++    static Vector fromWireType(WireType v) {
++        return Vector(v->data, v->data + v->length);
++    }
++};
 +
-         template<typename T>
-         struct BindingType<const T> : public BindingType<T> {
-         };
+ template<typename T>
+ struct BindingType<const T> : public BindingType<T> {
+ };

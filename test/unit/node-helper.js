@@ -19,7 +19,7 @@ export async function mochaGlobalSetup () {
       });
 
       // Handy for debugging
-      // module.ENV.G_MESSAGES_DEBUG = 'VIPS';
+      // module.ENV.VIPS_INFO = '1';
       // module.ENV.VIPS_LEAK = '1';
 
       // Hide warning messages

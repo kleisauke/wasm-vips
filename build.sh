@@ -73,7 +73,7 @@ if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 #export LDFLAGS="-L$TARGET/lib -Os -gsource-map -fsanitize=address"
 
 # Specify location where source maps are published (browser specific)
-#export CFLAGS+=" --source-map-base http://localhost:3000/lib/web/"
+#export CFLAGS+=" --source-map-base http://localhost:3000/lib"
 
 # Common compiler flags
 export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint"
@@ -403,6 +403,7 @@ echo "============================================="
     sed -i 's/vips.wasm/..\/&/g' $SOURCE_DIR/lib/$file
   done
 
-  # Copy produced vips.wasm file up one directory
-  cp $SOURCE_DIR/lib/web/vips.wasm $SOURCE_DIR/lib/
+  # Merge the whole lib/web/ directory with lib/
+  cp -rlf $SOURCE_DIR/lib/web/* $SOURCE_DIR/lib/
+  rm -r $SOURCE_DIR/lib/web
 )

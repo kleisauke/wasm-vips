@@ -21,6 +21,7 @@
     "default": "./lib/vips.js"
   },
   "main": "lib/node-commonjs/vips.js",
+  "browser": "lib/vips.js",
   "types": "lib/vips.d.ts",
   "files": [
     "lib/node-commonjs/*.js",

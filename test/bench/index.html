@@ -30,6 +30,7 @@
   const benchFiles = [jpegFile, pngFile, webpFile];
 
   const vips = await Vips({
+    locateFile: (fileName, scriptDirectory) => scriptDirectory + fileName,
     preRun: (module) => {
       module.FS.mkdir('images');
       for (const file of benchFiles)

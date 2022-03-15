@@ -97,6 +97,7 @@
 
   const options = {
     print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
+    locateFile: (fileName, scriptDirectory) => scriptDirectory + fileName,
     preRun: (module) => {
       module.EMBIND_AUTOMATIC_DELETELATER = true;
       module.setDelayFunction(fn => {

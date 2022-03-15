@@ -140,6 +140,10 @@ if("web" IN_LIST ENVIRONMENT)
     set_property(
             TARGET ${PROJECT_NAME}-web
             APPEND_STRING PROPERTY
-            LINK_FLAGS " -sENVIRONMENT=web,worker -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$Browser ${WEB_MIN_TARGETS}"
+            LINK_FLAGS " \
+--pre-js=${CMAKE_CURRENT_SOURCE_DIR}/locatefile-cors-pre.js \
+-sENVIRONMENT=web,worker \
+-sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$Browser \
+${WEB_MIN_TARGETS}"
             )
 endif()

@@ -55,6 +55,7 @@
     ],
     "ignore": [
       "src/closure-externs/wasm-vips.js",
+      "src/locatefile-cors-pre.js",
       "test/bench/perf.js"
     ],
     "env": [

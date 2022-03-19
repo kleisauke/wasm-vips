@@ -11,15 +11,17 @@ Uses libvips v8.12.2, compiled with Emscripten v3.1.7.
 - Add `vips.emscriptenVersion()` for identifying the Emscripten version.
 - Support for loading GIF images with vendored `libnsgif`.
 - Support for saving GIF images with `cgif` and `libimagequant`.
+- Add support for Deno.
 
 ### Fixed
 - Don't intercept errors in Node.js.
 - Distribute the web variant within the NPM package ([#4](https://github.com/kleisauke/wasm-vips/issues/4)).
 - Ensure that deprecated args are not listed in `vips.d.ts`.
+- Workaround CORS issue for externally hosted JS ([#12](https://github.com/kleisauke/wasm-vips/issues/12)).
 
 ### Changed
 - Split utilities to separate classes/functions.
-- Enable shipped WebAssembly features by default (i.e. [fixed-width SIMD](https://github.com/WebAssembly/simd) and [JS-BigInt-integration](https://github.com/WebAssembly/JS-BigInt-integration) proposals).
+- Enable shipped WebAssembly features by default (i.e. the [fixed-width SIMD](https://github.com/WebAssembly/simd) and [JS-BigInt-integration](https://github.com/WebAssembly/JS-BigInt-integration) proposals).
 - Build a dual CommonJS/ES6 module package for Node.js.
 - Enable Closure Compiler to minify Emscripten-generated code.
 - Update methods/enums for libvips 8.12.

@@ -70,7 +70,7 @@ if("web" IN_LIST ENVIRONMENT)
 
     set_target_properties(${PROJECT_NAME}-web
             PROPERTIES
-                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/web"
+                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
             )
 
     target_link_libraries(${PROJECT_NAME}-web

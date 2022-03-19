@@ -391,9 +391,9 @@ echo "============================================="
   sed -i 's/__filename/fileURLToPath(import.meta.url)/g' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
 
   # The produced vips.wasm file should be the same across the different variants (sanity check)
-  sha256=$(sha256sum "$SOURCE_DIR/lib/web/vips.wasm" | awk '{ print $1 }')
+  expected_sha256=$(sha256sum "$SOURCE_DIR/lib/vips.wasm" | awk '{ print $1 }')
   for file in node-commonjs/vips.wasm node-es6/vips.wasm; do
-    echo "$sha256 $SOURCE_DIR/lib/$file" | sha256sum --check
+    echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check
     rm $SOURCE_DIR/lib/$file
   done
 
@@ -402,8 +402,4 @@ echo "============================================="
   for file in node-commonjs/vips.js node-es6/vips.mjs; do
     sed -i 's/vips.wasm/..\/&/g' $SOURCE_DIR/lib/$file
   done
-
-  # Merge the whole lib/web/ directory with lib/
-  cp -rlf $SOURCE_DIR/lib/web/* $SOURCE_DIR/lib/
-  rm -r $SOURCE_DIR/lib/web
 )

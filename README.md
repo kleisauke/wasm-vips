@@ -50,7 +50,7 @@ the main document:
 Cross-Origin-Embedder-Policy: require-corp
 Cross-Origin-Opener-Policy: same-origin
 ```
-<sup>See [here](https://web.dev/coop-coep/) for more information.</sup>
+<sup>See <https://web.dev/coop-coep/> for more information.</sup>
 
 After that, wasm-vips can be imported and initialized like this:
 
@@ -60,6 +60,16 @@ After that, wasm-vips can be imported and initialized like this:
   const vips = await Vips();
 </script>
 ```
+
+Or, if you prefer to use ES6 modules:
+
+```html
+<script type="module">
+  import Vips from './vips-es6.js';
+  const vips = await Vips();
+</script>
+```
+<sup>This won't work on Firefox due to <https://bugzil.la/1540913>.</sup>
 
 ### Node.js
 

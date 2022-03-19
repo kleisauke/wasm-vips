@@ -392,14 +392,17 @@ echo "============================================="
 
   # The produced vips.wasm file should be the same across the different variants (sanity check)
   expected_sha256=$(sha256sum "$SOURCE_DIR/lib/vips.wasm" | awk '{ print $1 }')
-  for file in node-commonjs/vips.wasm node-es6/vips.wasm; do
+  for file in vips-es6.wasm node-commonjs/vips.wasm node-es6/vips.wasm; do
     echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check
     rm $SOURCE_DIR/lib/$file
   done
 
-  # Adjust vips.wasm path for Node.js
-  # Note: this is intentionally skipped for the web variant
-  for file in node-commonjs/vips.js node-es6/vips.mjs; do
-    sed -i 's/vips.wasm/..\/&/g' $SOURCE_DIR/lib/$file
+  # Adjust vips.wasm path for web and Node.js
+  for file in vips-es6.js node-commonjs/vips.js node-es6/vips.mjs; do
+    case "$file" in
+      vips-es6.js) expression='s/vips-es6.wasm/vips.wasm/g' ;;
+      *) expression='s/vips.wasm/..\/&/g' ;;
+    esac
+    sed -i "$expression" $SOURCE_DIR/lib/$file
   done
 )

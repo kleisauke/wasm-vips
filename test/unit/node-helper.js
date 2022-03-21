@@ -13,7 +13,7 @@ globalThis.expect = expect;
 export async function mochaGlobalSetup () {
   const options = {
     preRun: (module) => {
-      module.EMBIND_AUTOMATIC_DELETELATER = true;
+      module.setAutoDeleteLater(true);
       module.setDelayFunction(fn => {
         globalThis.cleanup = fn;
       });

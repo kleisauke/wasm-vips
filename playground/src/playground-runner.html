@@ -44,7 +44,7 @@
     }
     if (data.js) {
       try {
-        eval(data.js);
+        eval("(async () => {\n" + data.js + "\n})()");
       } catch (err) {
         const pre = document.createElement('pre');
         pre.appendChild(document.createTextNode(err));

@@ -22,7 +22,7 @@ document.getElementById('stats').innerText = JSON.stringify({
 
 // Finally, write the result to a blob
 const t0 = performance.now();
-const outBuffer = new Uint8Array(im.writeToBuffer('.png'));
+const outBuffer = im.writeToBuffer('.png');
 const t1 = performance.now();
 
 console.log(`Call to writeToBuffer took ${t1 - t0} milliseconds.`);

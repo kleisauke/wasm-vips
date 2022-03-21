@@ -32,7 +32,7 @@ if (im.hasAlpha()) {
 
 // Finally, write the result to a blob
 const t0 = performance.now();
-const outBuffer = new Uint8Array(tinted.writeToBuffer('.jpg'));
+const outBuffer = tinted.writeToBuffer('.jpg');
 const t1 = performance.now();
 
 console.log(`Call to writeToBuffer took ${t1 - t0} milliseconds.`);

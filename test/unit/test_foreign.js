@@ -123,7 +123,7 @@ describe('foreign', () => {
   function saveBufferTempfile (saver, suf, im, maxDiff = 0) {
     const filename = vips.Utils.tempName('%s' + suf);
 
-    const buf = new Uint8Array(bufferSavers[saver](im, {}));
+    const buf = bufferSavers[saver](im, {});
     const stream = vips.FS.open(filename, 'w+');
     vips.FS.write(stream, buf, 0, buf.length, 0);
     vips.FS.close(stream);

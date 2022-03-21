@@ -26,6 +26,11 @@ set_target_properties(${PROJECT_NAME}
             LINK_FLAGS "--bind"
         )
 
+target_compile_definitions(${PROJECT_NAME}
+        PUBLIC
+            $<$<CONFIG:Release>:G_DISABLE_CAST_CHECK G_DISABLE_CHECKS G_DISABLE_ASSERT>
+)
+
 target_include_directories(${PROJECT_NAME}
         PRIVATE
             ${VIPS_INCLUDE_DIRS}

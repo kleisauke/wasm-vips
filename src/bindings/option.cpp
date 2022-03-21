@@ -249,9 +249,8 @@ static void set_property(VipsObject *object, const std::string &name,
     // Look up the GParamSpec
     GParamSpec *pspec = g_object_class_find_property(
         G_OBJECT_CLASS(object_class), name.c_str());
-    if (pspec == nullptr) {
+    if (pspec == nullptr)
         throw_vips_error("property " + name + " not found");
-    }
 
     if (G_IS_PARAM_SPEC_ENUM(pspec) && type == G_TYPE_STRING) {
         GType pspec_type = G_PARAM_SPEC_VALUE_TYPE(pspec);

@@ -17,6 +17,8 @@ void Image::call(const char *operation_name, const char *option_string,
         throw_vips_error("no such operation " + std::string(operation_name));
     }
 
+    VipsObject *object = VIPS_OBJECT(operation);
+
 #ifdef VIPS_DEBUG_VERBOSE
     printf("call: starting for %s ...\n", operation_name);
 #endif /*VIPS_DEBUG_VERBOSE*/
@@ -24,59 +26,36 @@ void Image::call(const char *operation_name, const char *option_string,
     // Set str options before kwargs options, so the user can't
     // override things we set deliberately.
     if (option_string != nullptr &&
-        vips_object_set_from_string(VIPS_OBJECT(operation), option_string) !=
-            0) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        delete args;
-        throw_vips_error("unable to call " + std::string(operation_name));
-    }
+        vips_object_set_from_string(object, option_string) != 0)
+        goto error;
 
     // Set keyword args
     if (!kwargs.isNull()) {
-        if (!is_type(kwargs, "object")) {
-            g_object_unref(operation);
-            delete args;
-            throw_type_error("keyword options must be object");
-        }
+        g_assert(is_type(kwargs, "object"));
 
         emscripten::val keys = ObjectVal.call<emscripten::val>("keys", kwargs);
 
         if (args == nullptr)
             args = new Option;
 
-        VipsObjectClass *vips_class = VIPS_OBJECT_GET_CLASS(operation);
-        GObjectClass *object_class = G_OBJECT_CLASS(vips_class);
-
         int key_length = keys["length"].as<int>();
         for (int i = 0; i < key_length; ++i) {
             std::string key = keys[i].as<std::string>();
             emscripten::val value = kwargs[key];
 
-            // Look up the GParamSpec
-            GParamSpec *spec =
-                g_object_class_find_property(object_class, key.c_str());
-            if (spec == nullptr) {
-                g_object_unref(operation);
-                delete args;
-                throw_vips_error("property named " + key + " not found");
-            }
+            GParamSpec *pspec;
+            VipsArgumentClass *argument_class;
+            VipsArgumentInstance *argument_instance;
 
-            // Look up the VipsArgumentClass
-            VipsArgumentClass *argument_class =
-                reinterpret_cast<VipsArgumentClass *>(
-                    vips__argument_table_lookup(vips_class->argument_table,
-                                                spec));
-            if (argument_class == nullptr) {
-                g_object_unref(operation);
-                delete args;
-                throw_vips_error("vips argument named  " + key + " not found");
-            }
+            if (vips_object_get_argument(object, key.c_str(), &pspec,
+                                         &argument_class,
+                                         &argument_instance) != 0)
+                goto error;
 
             args = (argument_class->flags & VIPS_ARGUMENT_OUTPUT) &&
                            !(argument_class->flags & VIPS_ARGUMENT_REQUIRED)
-                       ? args->set(key, spec->value_type)
-                       : args->set(key, spec->value_type, value, match_image);
+                       ? args->set(key, pspec->value_type)
+                       : args->set(key, pspec->value_type, value, match_image);
         }
     }
 
@@ -85,12 +64,8 @@ void Image::call(const char *operation_name, const char *option_string,
         args->set_operation(operation);
 
     // Build from cache.
-    if (vips_cache_operation_buildp(&operation) != 0) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        delete args;
-        throw_vips_error("unable to call " + std::string(operation_name));
-    }
+    if (vips_cache_operation_buildp(&operation) != 0)
+        goto error;
 
     // Walk args again, writing output.
     if (args != nullptr)
@@ -103,6 +78,14 @@ void Image::call(const char *operation_name, const char *option_string,
     // one of its arguments or have finished its work. Either
     // way, we can unref.
     g_object_unref(operation);
+
+    return;
+
+error:
+    vips_object_unref_outputs(object);
+    g_object_unref(operation);
+    delete args;
+    throw_vips_error("unable to call " + std::string(operation_name));
 }
 
 void Image::call(const char *operation_name, Option *args,

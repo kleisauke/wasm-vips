@@ -18,6 +18,7 @@ Uses libvips v8.12.2, compiled with Emscripten v3.1.7.
 - Distribute the web variant within the NPM package ([#4](https://github.com/kleisauke/wasm-vips/issues/4)).
 - Ensure that deprecated args are not listed in `vips.d.ts`.
 - Workaround CORS issue for externally hosted JS ([#12](https://github.com/kleisauke/wasm-vips/issues/12)).
+- Fix memory leak during buffer/memory write ([#13](https://github.com/kleisauke/wasm-vips/issues/13)).
 
 ### Changed
 - Split utilities to separate classes/functions.

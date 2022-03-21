@@ -8,6 +8,14 @@
 namespace vips {
 
 /**
+ * JS helpers.
+ */
+thread_local const emscripten::val ObjectVal =
+    emscripten::val::global("Object");
+thread_local const emscripten::val BlobVal =
+    emscripten::val::global("Uint8Array");
+
+/**
  * Determines if a JS value is of the specified type.
  * If a property does not exist, we will see it as undefined.
  */

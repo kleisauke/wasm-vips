@@ -1,6 +1,7 @@
 #pragma once
 
 #include "object.h"
+#include "utils.h"
 
 #include <string>
 
@@ -92,7 +93,7 @@ class Target : public Connection {
         VipsBlob *blob;
         g_object_get(get_target(), "blob", &blob, nullptr);
 
-        emscripten::val result = emscripten::val(emscripten::typed_memory_view(
+        emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
             VIPS_AREA(blob)->length,
             reinterpret_cast<uint8_t *>(VIPS_AREA(blob)->data)));
         vips_area_unref(VIPS_AREA(blob));

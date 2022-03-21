@@ -40,9 +40,7 @@ void Image::call(const char *operation_name, const char *option_string,
             throw_type_error("keyword options must be object");
         }
 
-        emscripten::val keys =
-            emscripten::val::global("Object").call<emscripten::val>("keys",
-                                                                    kwargs);
+        emscripten::val keys = ObjectVal.call<emscripten::val>("keys", kwargs);
 
         if (args == nullptr)
             args = new Option;
@@ -408,10 +406,9 @@ emscripten::val Image::write_to_buffer(const std::string &suffix,
         throw_vips_error("unable to write to buffer");
     }
 
-    emscripten::val result = emscripten::val(emscripten::typed_memory_view(
+    emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(blob)->length,
         reinterpret_cast<uint8_t *>(VIPS_AREA(blob)->data)));
-    VIPS_AREA(blob)->free_fn = nullptr;
     vips_area_unref(VIPS_AREA(blob));
 
     return result;
@@ -436,13 +433,15 @@ void Image::write_to_target(const Target &target, const std::string &suffix,
 
 emscripten::val Image::write_to_memory() const {
     size_t size;
-    void *result = vips_image_write_to_memory(get_image(), &size);
+    void *mem = vips_image_write_to_memory(get_image(), &size);
 
-    if (result == nullptr)
+    if (mem == nullptr)
         throw_vips_error("unable to write to memory");
 
-    return emscripten::val(emscripten::typed_memory_view(
-        size, reinterpret_cast<uint8_t *>(result)));
+    emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
+        size, reinterpret_cast<uint8_t *>(mem)));
+    g_free(mem);
+    return result;
 }
 
 #include "vips-operators.cpp"

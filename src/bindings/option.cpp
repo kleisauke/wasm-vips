@@ -1,7 +1,7 @@
 #include "option.h"
+#include "connection.h"
 #include "image.h"
 #include "interpolate.h"
-#include "connection.h"
 #include "utils.h"
 
 namespace vips {
@@ -354,12 +354,10 @@ void Option::get_operation(VipsOperation *operation, emscripten::val kwargs) {
                 if (option->type == Type::JS_OUTPUT) {
                     VipsBlob *blob =
                         reinterpret_cast<VipsBlob *>(g_value_dup_boxed(value));
-                    kwargs.set(name,
-                               emscripten::val(emscripten::typed_memory_view(
-                                   VIPS_AREA(blob)->length,
-                                   reinterpret_cast<uint8_t *>(
-                                       VIPS_AREA(blob)->data))));
-                    VIPS_AREA(blob)->free_fn = nullptr;
+                    kwargs.set(name, BlobVal.new_(emscripten::typed_memory_view(
+                                         VIPS_AREA(blob)->length,
+                                         reinterpret_cast<uint8_t *>(
+                                             VIPS_AREA(blob)->data))));
                     vips_area_unref(VIPS_AREA(blob));
                 } else {
                     // our caller gets a reference

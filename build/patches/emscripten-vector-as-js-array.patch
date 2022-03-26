@@ -11,7 +11,7 @@ diff --git a/src/embind/embind.js b/src/embind/embind.js
 index 1111111..2222222 100644
 --- a/src/embind/embind.js
 +++ b/src/embind/embind.js
-@@ -413,6 +413,36 @@ var LibraryEmbind = {
+@@ -412,6 +412,36 @@ var LibraryEmbind = {
      return array;
    },
  
@@ -48,7 +48,7 @@ index 1111111..2222222 100644
    $requireRegisteredType__deps: [
      '$registeredTypes', '$getTypeName', '$throwBindingError'],
    $requireRegisteredType: function(rawType, humanName) {
-@@ -441,7 +471,7 @@ var LibraryEmbind = {
+@@ -440,7 +470,7 @@ var LibraryEmbind = {
    },
  
    _embind_register_bool__deps: [
@@ -57,7 +57,7 @@ index 1111111..2222222 100644
    _embind_register_bool: function(rawType, name, size, trueValue, falseValue) {
      var shift = getShiftFromSize(size);
  
-@@ -459,16 +489,7 @@ var LibraryEmbind = {
+@@ -458,16 +488,7 @@ var LibraryEmbind = {
          'argPackAdvance': 8,
          'readValueFromPointer': function(pointer) {
              // TODO: if heap is fixed (like in asm.js) this could be executed outside
@@ -75,7 +75,7 @@ index 1111111..2222222 100644
              return this['fromWireType'](heap[pointer >> shift]);
          },
          destructorFunction: null, // This type does not need a destructor
-@@ -488,60 +509,57 @@ var LibraryEmbind = {
+@@ -487,60 +508,57 @@ var LibraryEmbind = {
      }
    },
  
@@ -159,7 +159,7 @@ index 1111111..2222222 100644
      }
    },
  
-@@ -565,7 +583,7 @@ var LibraryEmbind = {
+@@ -564,7 +582,7 @@ var LibraryEmbind = {
          fromWireType = (value) => (value << bitshift) >>> bitshift;
      }
  
@@ -168,7 +168,7 @@ index 1111111..2222222 100644
      var checkAssertions = (value, toTypeName) => {
  #if ASSERTIONS
          if (typeof value != "number" && typeof value != "boolean") {
-@@ -608,7 +626,7 @@ var LibraryEmbind = {
+@@ -607,7 +625,7 @@ var LibraryEmbind = {
  
      var shift = getShiftFromSize(size);
  
@@ -177,7 +177,7 @@ index 1111111..2222222 100644
  
      // maxRange comes through as -1 for uint64_t (see issue 13902). Work around that temporarily
      if (isUnsignedType) {
-@@ -776,6 +794,7 @@ var LibraryEmbind = {
+@@ -775,6 +793,7 @@ var LibraryEmbind = {
  
    _embind_register_std_wstring__deps: [
      '$readLatin1String', '$registerType', '$simpleReadValueFromPointer',
@@ -185,36 +185,36 @@ index 1111111..2222222 100644
  #if MINIMAL_RUNTIME
      '$UTF16ToString', '$stringToUTF16', '$lengthBytesUTF16',
      '$UTF32ToString', '$stringToUTF32', '$lengthBytesUTF32',
-@@ -783,18 +802,16 @@ var LibraryEmbind = {
+@@ -782,18 +801,16 @@ var LibraryEmbind = {
      ],
    _embind_register_std_wstring: function(rawType, charSize, name) {
      name = readLatin1String(name);
 -    var decodeString, encodeString, getHeap, lengthBytesUTF, shift;
 +    var decodeString, encodeString, lengthBytesUTF, shift;
      if (charSize === 2) {
-         decodeString = UTF16ToString;
-         encodeString = stringToUTF16;
-         lengthBytesUTF = lengthBytesUTF16;
--        getHeap = () => HEAPU16;
-         shift = 1;
+       decodeString = UTF16ToString;
+       encodeString = stringToUTF16;
+       lengthBytesUTF = lengthBytesUTF16;
+-      getHeap = () => HEAPU16;
+       shift = 1;
      } else if (charSize === 4) {
-         decodeString = UTF32ToString;
-         encodeString = stringToUTF32;
-         lengthBytesUTF = lengthBytesUTF32;
--        getHeap = () => HEAPU32;
-         shift = 2;
+       decodeString = UTF32ToString;
+       encodeString = stringToUTF32;
+       lengthBytesUTF = lengthBytesUTF32;
+-      getHeap = () => HEAPU32;
+       shift = 2;
      }
      registerType(rawType, {
-@@ -802,7 +821,7 @@ var LibraryEmbind = {
-         'fromWireType': function(value) {
-             // Code mostly taken from _embind_register_std_string fromWireType
-             var length = HEAPU32[value >> 2];
--            var HEAP = getHeap();
-+            var HEAP = getIntegerHeap(name, shift, false);
-             var str;
+@@ -801,7 +820,7 @@ var LibraryEmbind = {
+       'fromWireType': function(value) {
+         // Code mostly taken from _embind_register_std_string fromWireType
+         var length = HEAPU32[value >> 2];
+-        var HEAP = getHeap();
++        var HEAP = getIntegerHeap(name, shift, false);
+         var str;
  
-             var decodeStartPtr = value + 4;
-@@ -876,6 +895,71 @@ var LibraryEmbind = {
+         var decodeStartPtr = value + 4;
+@@ -875,6 +894,71 @@ var LibraryEmbind = {
      });
    },
  
@@ -226,60 +226,60 @@ index 1111111..2222222 100644
 +    var shift = getShiftFromSize(size);
 +
 +    registerType(rawType, {
-+        name: name,
-+        'fromWireType': function (value) {
-+            // Code mostly taken from _embind_register_std_string fromWireType
-+            var length = HEAPU32[value >> 2];
-+            var HEAP = isfloat ?
-+              getFloatHeap(name, shift) :
-+              getIntegerHeap(name, shift, signed);
++      name: name,
++      'fromWireType': function (value) {
++        // Code mostly taken from _embind_register_std_string fromWireType
++        var length = HEAPU32[value >> 2];
++        var HEAP = isfloat ?
++        getFloatHeap(name, shift) :
++        getIntegerHeap(name, shift, signed);
 +
-+            var a = new Array(length);
-+            var firstElement = value + size;
-+            for (var i = 0; i < length; ++i) {
-+              a[i] = HEAP[(firstElement >> shift) + i];
-+            }
++        var a = new Array(length);
++        var firstElement = value + size;
++        for (var i = 0; i < length; ++i) {
++          a[i] = HEAP[(firstElement >> shift) + i];
++        }
 +
-+            _free(value);
++        _free(value);
 +
-+            return a;
-+        },
-+        'toWireType': function (destructors, value) {
-+            // We allow singular values as well
-+            if (typeof value == 'number') {
-+              value = [value];
-+            }
++        return a;
++      },
++      'toWireType': function (destructors, value) {
++        // We allow singular values as well
++        if (typeof value == 'number') {
++          value = [value];
++        }
 +
-+            if (!Array.isArray(value)) {
-+              throwBindingError('Cannot pass non-array to C++ vector type ' + name);
-+            }
++        if (!Array.isArray(value)) {
++          throwBindingError('Cannot pass non-array to C++ vector type ' + name);
++        }
 +
-+            // flatten 2D arrays
-+            value = Array.prototype.concat.apply([], value);
++        // flatten 2D arrays
++        value = Array.prototype.concat.apply([], value);
 +
-+            var length = value.length;
-+            var HEAP = isfloat ?
-+              getFloatHeap(name, shift) :
-+              getIntegerHeap(name, shift, signed);
-+            var ptr = _malloc(size + length * size);
++        var length = value.length;
++        var HEAP = isfloat ?
++          getFloatHeap(name, shift) :
++          getIntegerHeap(name, shift, signed);
++        var ptr = _malloc(size + length * size);
 +#if CAN_ADDRESS_2GB
-+            ptr >>>= 0;
++        ptr >>>= 0;
 +#endif
 +
-+            HEAPU32[ptr >> 2] = length;
-+            var firstElement = ptr + size;
-+            for (var i = 0; i < length; ++i) {
-+              HEAP[(firstElement >> shift) + i] = value[i];
-+            }
++        HEAPU32[ptr >> 2] = length;
++        var firstElement = ptr + size;
++        for (var i = 0; i < length; ++i) {
++          HEAP[(firstElement >> shift) + i] = value[i];
++        }
 +
-+            if (destructors !== null) {
-+              destructors.push(_free, ptr);
-+            }
-+            return ptr;
-+        },
-+        'argPackAdvance': 8,
-+        'readValueFromPointer': simpleReadValueFromPointer,
-+        destructorFunction: function (ptr) { _free(ptr); },
++        if (destructors !== null) {
++          destructors.push(_free, ptr);
++        }
++        return ptr;
++      },
++      'argPackAdvance': 8,
++      'readValueFromPointer': simpleReadValueFromPointer,
++      destructorFunction: function (ptr) { _free(ptr); },
 +    });
 +  },
 +

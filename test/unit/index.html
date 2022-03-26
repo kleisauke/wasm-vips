@@ -108,9 +108,8 @@
       // module.ENV.VIPS_INFO = '1';
       // module.ENV.VIPS_LEAK = '1';
 
-      module.FS.mkdir('images');
       for (const file of Helpers.testFiles)
-        module.FS.createPreloadedFile('images', file.split('/').pop(), 'test/unit/' + file, true, false);
+        module.FS.createPreloadedFile('/', file.split('/').pop(), 'test/unit/images/' + file, true, false);
     },
     postRun: (module) => {
       const pad = 30;

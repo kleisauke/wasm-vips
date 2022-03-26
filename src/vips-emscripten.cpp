@@ -7,6 +7,9 @@
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 #include <emscripten/version.h>
+#ifdef WASMFS
+#include <emscripten/wasmfs.h>
+#endif
 
 #include <vips/vips.h>
 
@@ -22,18 +25,32 @@ using vips::SourceCustom;
 using vips::Target;
 using vips::TargetCustom;
 
+#ifdef WASMFS
+EM_JS(bool, is_node, (), { return ENVIRONMENT_IS_NODE; });
+
+static backend_t get_backend() {
+    return is_node() ? wasmfs_create_node_backend(".")  // WASMFS_NODE_BACKEND
+                     : nullptr;                         // WASMFS_MEMORY_BACKEND
+}
+#endif
+
 int main() {
     if (vips_init("wasm-vips") != 0) {
         vips_error_exit("unable to start up libvips");
     }
 
-    // By default libvips' operation cache will (at its maximum):
+    // By default, libvips' operation cache will (at its maximum):
     //  - cache 100 operations;
     //  - spend 100mb of memory;
     //  - hold 100 files open;
     // We need to lower these numbers for WASM a bit.
     vips_cache_set_max_mem(50 * 1024 * 1024);  // = 50mb
     vips_cache_set_max_files(20);
+
+#ifdef WASMFS
+    int err = wasmfs_create_directory("/root", 0777, get_backend());
+    g_assert(err == 0);
+#endif
 
     // Handy for debugging.
     // vips_leak_set(1);

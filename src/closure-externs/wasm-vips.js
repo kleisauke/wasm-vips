@@ -4,7 +4,7 @@
  * See: https://emscripten.org/docs/api_reference/Filesystem-API.html
  * @suppress {duplicate}
  */
-var FS;
+var FS, fs;
 
 /**
  * @suppress {duplicate}

@@ -30,6 +30,10 @@ SIMD=true
 # https://github.com/WebAssembly/JS-BigInt-integration
 WASM_BIGINT=true
 
+# WebAssembly-based file system layer for Emscripten, disabled by default
+# https://github.com/emscripten-core/emscripten/issues/15041
+WASM_FS=false
+
 # setjmp/longjmp support using Wasm EH instructions, disabled by default
 # https://github.com/WebAssembly/exception-handling
 WASM_EH=false
@@ -42,6 +46,7 @@ LTO=false
 while [ $# -gt 0 ]; do
   case $1 in
     --enable-lto) LTO=true ;;
+    --enable-wasm-fs) WASM_FS=true ;;
     --enable-wasm-eh) WASM_EH=true ;;
     --disable-simd) SIMD=false ;;
     --disable-wasm-bigint) WASM_BIGINT=false ;;
@@ -65,7 +70,7 @@ if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 #export CFLAGS="-O0 -gsource-map"
 #export CXXFLAGS="$CFLAGS"
 #export LDFLAGS="-L$TARGET/lib -O0 -gsource-map"
-#export EMCC_DEBUG="1"
+#export EMCC_DEBUG=1
 
 # Handy for catching bugs
 #export CFLAGS="-Os -gsource-map -fsanitize=address -sINITIAL_MEMORY=64MB"
@@ -82,11 +87,13 @@ if [ "$WASM_BIGINT" = "true" ]; then
   # libffi needs to detect WASM_BIGINT support at compile time
   export CFLAGS+=" -DWASM_BIGINT"
 fi
+if [ "$WASM_FS" = "true" ]; then export CFLAGS+=" -DWASMFS"; fi
 if [ "$WASM_EH" = "true" ]; then export CFLAGS+=" -sSUPPORT_LONGJMP=wasm"; fi
 if [ "$LTO" = "true" ]; then export CFLAGS+=" -flto"; fi
 export CXXFLAGS="$CFLAGS"
 export LDFLAGS="-L$TARGET/lib -O3"
 if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
+if [ "$WASM_FS" = "true" ]; then export LDFLAGS+=" -sWASMFS"; fi
 if [ "$WASM_EH" = "true" ]; then export LDFLAGS+=" -sSUPPORT_LONGJMP=wasm"; fi
 if [ "$LTO" = "true" ]; then export LDFLAGS+=" -flto"; fi
 

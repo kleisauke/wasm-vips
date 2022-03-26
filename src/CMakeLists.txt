@@ -23,7 +23,7 @@ add_library(${PROJECT_NAME} OBJECT ${HEADERS} ${SOURCES})
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
             COMPILE_FLAGS "-pthread -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0"
-            LINK_FLAGS "--bind"
+            LINK_FLAGS "-lembind"
         )
 
 target_compile_definitions(${PROJECT_NAME}
@@ -122,7 +122,7 @@ set_target_properties(${TARGETS}
             LINK_FLAGS "\
 --closure=1 \
 --closure-args=\"--externs ${CMAKE_CURRENT_SOURCE_DIR}/closure-externs/wasm-vips.js\" \
---bind \
+-lembind \
 -sMODULARIZE \
 -sEXPORT_NAME='Vips' \
 -sEXIT_RUNTIME \

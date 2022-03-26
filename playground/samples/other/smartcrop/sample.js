@@ -9,7 +9,7 @@ const thumbnail = vips.Image.thumbnail('owl.jpg', 500, {
 
 // Finally, write the result to a blob
 const t0 = performance.now();
-const outBuffer = new Uint8Array(thumbnail.writeToBuffer('.jpg'));
+const outBuffer = thumbnail.writeToBuffer('.jpg');
 const t1 = performance.now();
 
 console.log(`Call to writeToBuffer took ${t1 - t0} milliseconds.`);

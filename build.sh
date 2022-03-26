@@ -30,6 +30,10 @@ SIMD=true
 # https://github.com/WebAssembly/JS-BigInt-integration
 WASM_BIGINT=true
 
+# WebAssembly-based file system layer for Emscripten, disabled by default
+# https://github.com/emscripten-core/emscripten/issues/15041
+WASM_FS=false
+
 # setjmp/longjmp support using Wasm EH instructions, disabled by default
 # https://github.com/WebAssembly/exception-handling
 WASM_EH=false
@@ -42,6 +46,7 @@ LTO=false
 while [ $# -gt 0 ]; do
   case $1 in
     --enable-lto) LTO=true ;;
+    --enable-wasm-fs) WASM_FS=true ;;
     --enable-wasm-eh) WASM_EH=true ;;
     --disable-simd) SIMD=false ;;
     --disable-wasm-bigint) WASM_BIGINT=false ;;
@@ -65,7 +70,7 @@ if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 #export CFLAGS="-O0 -gsource-map"
 #export CXXFLAGS="$CFLAGS"
 #export LDFLAGS="-L$TARGET/lib -O0 -gsource-map"
-#export EMCC_DEBUG="1"
+#export EMCC_DEBUG=1
 
 # Handy for catching bugs
 #export CFLAGS="-Os -gsource-map -fsanitize=address -sINITIAL_MEMORY=64MB"
@@ -73,7 +78,7 @@ if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 #export LDFLAGS="-L$TARGET/lib -Os -gsource-map -fsanitize=address"
 
 # Specify location where source maps are published (browser specific)
-#export CFLAGS+=" --source-map-base http://localhost:3000/lib/web/"
+#export CFLAGS+=" --source-map-base http://localhost:3000/lib"
 
 # Common compiler flags
 export CFLAGS="-O0 -gsource-map -fno-rtti -fno-exceptions -mnontrapping-fptoint"
@@ -82,11 +87,13 @@ if [ "$WASM_BIGINT" = "true" ]; then
   # libffi needs to detect WASM_BIGINT support at compile time
   export CFLAGS+=" -DWASM_BIGINT"
 fi
+if [ "$WASM_FS" = "true" ]; then export CFLAGS+=" -DWASMFS"; fi
 if [ "$WASM_EH" = "true" ]; then export CFLAGS+=" -sSUPPORT_LONGJMP=wasm"; fi
 if [ "$LTO" = "true" ]; then export CFLAGS+=" -flto"; fi
 export CXXFLAGS="$CFLAGS"
 export LDFLAGS="-L$TARGET/lib -O0 -gsource-map"
 if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
+if [ "$WASM_FS" = "true" ]; then export LDFLAGS+=" -sWASMFS"; fi
 if [ "$WASM_EH" = "true" ]; then export LDFLAGS+=" -sSUPPORT_LONGJMP=wasm"; fi
 if [ "$LTO" = "true" ]; then export LDFLAGS+=" -flto"; fi
 
@@ -102,7 +109,7 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.6
 VERSION_FFI=3.4.2
-VERSION_GLIB=2.71.3
+VERSION_GLIB=2.72.0
 VERSION_EXPAT=2.4.7
 VERSION_EXIF=0.6.24
 VERSION_LCMS2=2.13.1
@@ -392,19 +399,23 @@ echo "============================================="
   sed -i 's/var Module/const require = createRequire(import.meta.url);&/' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
   sed -i 's/__filename/fileURLToPath(import.meta.url)/g' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
 
+  # Ensure compatibility with Deno (classic workers are not supported)
+  sed -i 's/new Worker(\([^()]\+\))/new Worker(\1,{type:"module"})/g' $SOURCE_DIR/lib/vips-es6.js
+  sed -i 's/new Worker(\(new URL([^)]\+)\)/new Worker(\1,{type:"module"}/g' $SOURCE_DIR/lib/vips-es6.js
+
   # The produced vips.wasm file should be the same across the different variants (sanity check)
-  sha256=$(sha256sum "$SOURCE_DIR/lib/web/vips.wasm" | awk '{ print $1 }')
-  for file in node-commonjs/vips.wasm node-es6/vips.wasm; do
-    echo "$sha256 $SOURCE_DIR/lib/$file" | sha256sum --check
+  expected_sha256=$(sha256sum "$SOURCE_DIR/lib/vips.wasm" | awk '{ print $1 }')
+  for file in vips-es6.wasm node-commonjs/vips.wasm node-es6/vips.wasm; do
+    echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check
     rm $SOURCE_DIR/lib/$file
   done
 
-  # Adjust vips.wasm path for Node.js
-  # Note: this is intentionally skipped for the web variant
-  for file in node-commonjs/vips.js node-es6/vips.mjs; do
-    sed -i 's/vips.wasm/..\/&/g' $SOURCE_DIR/lib/$file
+  # Adjust vips.wasm path for web and Node.js
+  for file in vips-es6.js node-commonjs/vips.js node-es6/vips.mjs; do
+    case "$file" in
+      vips-es6.js) expression='s/vips-es6.wasm/vips.wasm/g' ;;
+      *) expression='s/vips.wasm/..\/&/g' ;;
+    esac
+    sed -i "$expression" $SOURCE_DIR/lib/$file
   done
-
-  # Copy produced vips.wasm file up one directory
-  cp $SOURCE_DIR/lib/web/vips.wasm $SOURCE_DIR/lib/
 )

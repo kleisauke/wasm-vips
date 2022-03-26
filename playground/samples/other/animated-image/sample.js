@@ -13,7 +13,7 @@ thumbnail.setArrayInt('delay', delays.map(d => d * 1.5));
 
 // Write the result to a blob
 const t0 = performance.now();
-const outBuffer = new Uint8Array(thumbnail.writeToBuffer('.gif'));
+const outBuffer = thumbnail.writeToBuffer('.gif');
 const t1 = performance.now();
 
 console.log(`Call to writeToBuffer took ${t1 - t0} milliseconds.`);

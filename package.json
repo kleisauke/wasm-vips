@@ -18,14 +18,15 @@
       "import": "./lib/node-es6/vips.mjs",
       "require": "./lib/node-commonjs/vips.js"
     },
-    "default": "./lib/web/vips.js"
+    "default": "./lib/vips.js"
   },
   "main": "lib/node-commonjs/vips.js",
+  "browser": "lib/vips.js",
   "types": "lib/vips.d.ts",
   "files": [
     "lib/node-commonjs/*.js",
     "lib/node-es6/*.mjs",
-    "lib/web/*.js",
+    "lib/*.js",
     "lib/vips.d.ts",
     "lib/vips.wasm"
   ],
@@ -54,6 +55,7 @@
     ],
     "ignore": [
       "src/closure-externs/wasm-vips.js",
+      "src/locatefile-cors-pre.js",
       "test/bench/perf.js",
       "test/bench/perf-jpeg-buffer-passthrough.js"
     ],

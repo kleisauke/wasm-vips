@@ -103,9 +103,10 @@ export const rotAngleBonds = ['d0'].concat(rotAngles.slice(1).reverse());
 export function getPath (filename) {
   return typeof window === 'undefined'
     // Node.js
+    // ? '/root/images/' + filename // WasmFS
     ? path.join(path.dirname(url.fileURLToPath(import.meta.url)), 'images', filename) // eslint-disable-line no-undef
     // Browser
-    : 'images/' + filename;
+    : filename;
 }
 
 // a function that mimics Python's zip behaviour on edge cases

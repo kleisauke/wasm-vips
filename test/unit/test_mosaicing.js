@@ -73,7 +73,7 @@ describe('mosaicing', () => {
     }
 
     // Uncomment to see the output
-    // const outBuffer = new Uint8Array(mosaicedImage.writeToBuffer('.jpg'));
+    // const outBuffer = mosaicedImage.writeToBuffer('.jpg');
     // const blob = new Blob([outBuffer], {type: 'image/jpeg'});
     // const blobURL = URL.createObjectURL(blob);
     // const img = document.createElement('img');
@@ -113,7 +113,7 @@ describe('mosaicing', () => {
     mosaicedImage = mosaicedImage.globalbalance();
 
     // Uncomment to see the output
-    // const outBuffer = new Uint8Array(mosaicedImage.writeToBuffer('.jpg'));
+    // const outBuffer = mosaicedImage.writeToBuffer('.jpg');
     // const blob = new Blob([outBuffer], {type: 'image/jpeg'});
     // const blobURL = URL.createObjectURL(blob);
     // const img = document.createElement('img');

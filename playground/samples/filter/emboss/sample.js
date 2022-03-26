@@ -42,7 +42,7 @@ im = vips.Image.arrayjoin(images, {
 
 // Finally, write the result to a blob
 const t0 = performance.now();
-const outBuffer = new Uint8Array(im.writeToBuffer('.jpg'));
+const outBuffer = im.writeToBuffer('.jpg');
 const t1 = performance.now();
 
 console.log(`Call to writeToBuffer took ${t1 - t0} milliseconds.`);

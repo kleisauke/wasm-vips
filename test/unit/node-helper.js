@@ -13,13 +13,13 @@ globalThis.expect = expect;
 export async function mochaGlobalSetup () {
   const options = {
     preRun: (module) => {
-      module.EMBIND_AUTOMATIC_DELETELATER = true;
+      module.setAutoDeleteLater(true);
       module.setDelayFunction(fn => {
         globalThis.cleanup = fn;
       });
 
       // Handy for debugging
-      // module.ENV.G_MESSAGES_DEBUG = 'VIPS';
+      // module.ENV.VIPS_INFO = '1';
       // module.ENV.VIPS_LEAK = '1';
 
       // Hide warning messages

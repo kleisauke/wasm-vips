@@ -98,11 +98,15 @@ module.exports = {
           to: path.resolve(__dirname, 'dist', 'samples')
         },
         {
-          from: path.resolve(__dirname, '..', 'lib', 'web'),
+          from: path.resolve(__dirname, '..', 'lib', '*.js'),
           to: path.resolve(__dirname, 'dist', 'lib')
         },
         {
           from: path.resolve(__dirname, '..', 'lib', 'vips.d.ts'),
+          to: path.resolve(__dirname, 'dist', 'lib')
+        },
+        {
+          from: path.resolve(__dirname, '..', 'lib', 'vips.wasm'),
           to: path.resolve(__dirname, 'dist', 'lib')
         }
       ]

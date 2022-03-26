@@ -23,8 +23,13 @@ add_library(${PROJECT_NAME} OBJECT ${HEADERS} ${SOURCES})
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
             COMPILE_FLAGS "-pthread -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0"
-            LINK_FLAGS "--bind"
+            LINK_FLAGS "-lembind"
         )
+
+target_compile_definitions(${PROJECT_NAME}
+        PUBLIC
+            $<$<CONFIG:Release>:G_DISABLE_CAST_CHECK G_DISABLE_CHECKS G_DISABLE_ASSERT>
+)
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE
@@ -67,18 +72,28 @@ endif()
 
 if("web" IN_LIST ENVIRONMENT)
     add_executable(${PROJECT_NAME}-web $<TARGET_OBJECTS:${PROJECT_NAME}>)
+    add_executable(${PROJECT_NAME}-web-es6 $<TARGET_OBJECTS:${PROJECT_NAME}>)
 
     set_target_properties(${PROJECT_NAME}-web
             PROPERTIES
-                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/web"
+                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+            )
+    set_target_properties(${PROJECT_NAME}-web-es6
+            PROPERTIES
+                 SUFFIX "-es6.js"
+                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
             )
 
     target_link_libraries(${PROJECT_NAME}-web
             PRIVATE
                 ${VIPS_STATIC_LDFLAGS}
             )
+    target_link_libraries(${PROJECT_NAME}-web-es6
+            PRIVATE
+                ${VIPS_STATIC_LDFLAGS}
+            )
 
-    list(APPEND TARGETS ${PROJECT_NAME}-web)
+    list(APPEND TARGETS ${PROJECT_NAME}-web ${PROJECT_NAME}-web-es6)
 endif()
 
 # Handy for debugging
@@ -107,7 +122,7 @@ set_target_properties(${TARGETS}
             LINK_FLAGS "\
 --closure=1 \
 --closure-args=\"--externs ${CMAKE_CURRENT_SOURCE_DIR}/closure-externs/wasm-vips.js\" \
---bind \
+-lembind \
 -sMODULARIZE \
 -sEXPORT_NAME='Vips' \
 -sEXIT_RUNTIME \
@@ -117,29 +132,39 @@ set_target_properties(${TARGETS}
 -sALLOW_BLOCKING_ON_MAIN_THREAD \
 -sTEXTDECODER=2 \
 -sASSERTIONS=0 \
+-sFORCE_FILESYSTEM \
 -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=emscripten_num_logical_cores \
 -sEXPORTED_RUNTIME_METHODS=FS,ENV,deletionQueue,addFunction"
         )
 
 if("node" IN_LIST ENVIRONMENT)
-    set(NODE_LINK_FLAGS " -sENVIRONMENT=node,worker -sNODERAWFS -sNODEJS_CATCH_EXIT=0 -sNODEJS_CATCH_REJECTION=0")
+    set(NODE_LINK_FLAGS "-sENVIRONMENT=node,worker -sNODERAWFS -sNODEJS_CATCH_EXIT=0 -sNODEJS_CATCH_REJECTION=0")
     set_property(
             TARGET ${PROJECT_NAME}-node-es6
             APPEND_STRING PROPERTY
-            LINK_FLAGS "${NODE_LINK_FLAGS} -sEXPORT_ES6"
+            LINK_FLAGS " ${NODE_LINK_FLAGS} -sEXPORT_ES6"
     )
     set_property(
             TARGET ${PROJECT_NAME}-node-commonjs
             APPEND_STRING PROPERTY
-            LINK_FLAGS "${NODE_LINK_FLAGS}"
+            LINK_FLAGS " ${NODE_LINK_FLAGS}"
             )
 endif()
 
 if("web" IN_LIST ENVIRONMENT)
+    set(WEB_CORS_WORKAROUND "--pre-js=${CMAKE_CURRENT_SOURCE_DIR}/locatefile-cors-pre.js")
     set(WEB_MIN_TARGETS "-sMIN_FIREFOX_VERSION=89 -sMIN_EDGE_VERSION=91 -sMIN_CHROME_VERSION=91")
+    set(WEB_LINK_FLAGS "-sENVIRONMENT=web,worker -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$Browser ${WEB_MIN_TARGETS}")
+
     set_property(
             TARGET ${PROJECT_NAME}-web
             APPEND_STRING PROPERTY
-            LINK_FLAGS " -sENVIRONMENT=web,worker -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$Browser ${WEB_MIN_TARGETS}"
+            LINK_FLAGS " ${WEB_CORS_WORKAROUND} ${WEB_LINK_FLAGS}"
             )
+    set_property(
+            TARGET ${PROJECT_NAME}-web-es6
+            APPEND_STRING PROPERTY
+            # Note: we don't apply the CORS workaround since module scripts don't support `importScripts()`.
+            LINK_FLAGS " ${WEB_LINK_FLAGS} -sEXPORT_ES6"
+    )
 endif()

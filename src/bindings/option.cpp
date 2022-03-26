@@ -1,7 +1,7 @@
 #include "option.h"
+#include "connection.h"
 #include "image.h"
 #include "interpolate.h"
-#include "connection.h"
 #include "utils.h"
 
 namespace vips {
@@ -249,9 +249,8 @@ static void set_property(VipsObject *object, const std::string &name,
     // Look up the GParamSpec
     GParamSpec *pspec = g_object_class_find_property(
         G_OBJECT_CLASS(object_class), name.c_str());
-    if (pspec == nullptr) {
+    if (pspec == nullptr)
         throw_vips_error("property " + name + " not found");
-    }
 
     if (G_IS_PARAM_SPEC_ENUM(pspec) && type == G_TYPE_STRING) {
         GType pspec_type = G_PARAM_SPEC_VALUE_TYPE(pspec);
@@ -354,12 +353,10 @@ void Option::get_operation(VipsOperation *operation, emscripten::val kwargs) {
                 if (option->type == Type::JS_OUTPUT) {
                     VipsBlob *blob =
                         reinterpret_cast<VipsBlob *>(g_value_dup_boxed(value));
-                    kwargs.set(name,
-                               emscripten::val(emscripten::typed_memory_view(
-                                   VIPS_AREA(blob)->length,
-                                   reinterpret_cast<uint8_t *>(
-                                       VIPS_AREA(blob)->data))));
-                    VIPS_AREA(blob)->free_fn = nullptr;
+                    kwargs.set(name, BlobVal.new_(emscripten::typed_memory_view(
+                                         VIPS_AREA(blob)->length,
+                                         reinterpret_cast<uint8_t *>(
+                                             VIPS_AREA(blob)->data))));
                     vips_area_unref(VIPS_AREA(blob));
                 } else {
                     // our caller gets a reference

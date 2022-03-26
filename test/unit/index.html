@@ -3,7 +3,7 @@
   <meta charset="utf-8">
   <title>wasm-vips testsuite</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/9.2.1/mocha.min.css" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/9.2.2/mocha.min.css" crossorigin="anonymous"/>
   <style>
     html,
     body {
@@ -66,7 +66,7 @@
 </head>
 <body>
 <div id="mocha"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/9.2.1/mocha.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/9.2.2/mocha.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.3.6/chai.min.js" crossorigin="anonymous"></script>
 <script class="mocha-init">
   mocha.setup({
@@ -75,7 +75,7 @@
     timeout: 60000
   });
 </script>
-<script src="lib/web/vips.js"></script>
+<script src="lib/vips.js"></script>
 <script type="module" src="test_arithmetic.js"></script>
 <script type="module" src="test_colour.js"></script>
 <script type="module" src="test_connection.js"></script>
@@ -97,19 +97,19 @@
 
   const options = {
     print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
+    locateFile: (fileName, scriptDirectory) => scriptDirectory + fileName,
     preRun: (module) => {
-      module.EMBIND_AUTOMATIC_DELETELATER = true;
+      module.setAutoDeleteLater(true);
       module.setDelayFunction(fn => {
         globalThis.cleanup = fn;
       });
 
       // Handy for debugging
-      // module.ENV.G_MESSAGES_DEBUG = 'VIPS';
+      // module.ENV.VIPS_INFO = '1';
       // module.ENV.VIPS_LEAK = '1';
 
-      module.FS.mkdir('images');
       for (const file of Helpers.testFiles)
-        module.FS.createPreloadedFile('images', file.split('/').pop(), 'test/unit/' + file, true, false);
+        module.FS.createPreloadedFile('/', file.split('/').pop(), 'test/unit/images/' + file, true, false);
     },
     postRun: (module) => {
       const pad = 30;

@@ -1,4 +1,4 @@
-FROM emscripten/emsdk:3.1.7
+FROM emscripten/emsdk:3.1.8
 
 # Enable detection of running in a container
 ENV RUNNING_IN_CONTAINER=true

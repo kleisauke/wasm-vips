@@ -44,7 +44,7 @@
     }
     if (data.js) {
       try {
-        eval(data.js);
+        eval("(async () => {\n" + data.js + "\n})()");
       } catch (err) {
         const pre = document.createElement('pre');
         pre.appendChild(document.createTextNode(err));
@@ -56,14 +56,15 @@
 
   const options = {
     print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
+    locateFile: (fileName, scriptDirectory) => scriptDirectory + fileName + '?<%= __webpack_hash__ %>',
     preRun: (module) => {
-      module.EMBIND_AUTOMATIC_DELETELATER = true;
+      module.setAutoDeleteLater(!document.referrer.includes("disableAutoDelete"));
       module.setDelayFunction(fn => {
         globalThis.cleanup = fn;
       });
 
       // Handy for debugging
-      // module.ENV.G_MESSAGES_DEBUG = 'VIPS';
+      // module.ENV.VIPS_INFO = '1';
       // module.ENV.VIPS_LEAK = '1';
 
       for (const image of ['owl.jpg', 'owl.tif', 'owl.webp', 'banana.webp', 'banana.gif', 'transparency_demo.png'])

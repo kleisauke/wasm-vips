@@ -1,0 +1,54 @@
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      force-rebuild:
+        type: boolean
+        description: Force rebuild
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    outputs:
+      cache-key: ${{ steps.gen-cache-key.outputs.key }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: gen-cache-key
+        run: |
+          if [ "${{ github.event.inputs.force-rebuild }}" = true ]; then
+            echo "::set-output name=key::$(date +%s)"
+          else
+            echo "::set-output name=key::${{ hashFiles('build/patches/**', 'src/**', 'build.sh', 'Dockerfile') }}"
+          fi
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path: lib
+          key: ${{ steps.gen-cache-key.outputs.key }}
+      - name: Build
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm run build
+  CI:
+    runs-on: ${{ matrix.os }}
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04, macos-11, windows-2022]
+    steps:
+      - uses: actions/checkout@v3
+      # https://github.com/actions/cache/issues/576
+      - name: Default to GNU tar on Windows
+        if: runner.os == 'Windows'
+        run: Add-Content $env:GITHUB_PATH "C:\Program Files\Git\usr\bin"
+      - uses: actions/cache@v3
+        with:
+          path: lib
+          key: ${{ needs.build.outputs.cache-key }}
+      - name: Install dependencies
+        run: npm install
+      - name: Install test dependencies
+        run: npm --prefix test/unit install  
+      - name: Test
+        run: npm test

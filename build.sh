@@ -140,6 +140,7 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-auto-deletelater.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-vector-as-js-array.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-allow-block-main-thread.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-windows-path.patch
 
   # Need to rebuild libembind and libc, since we modified it
   # with the patches above

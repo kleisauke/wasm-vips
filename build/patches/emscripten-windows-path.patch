@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Sun, 27 Mar 2022 20:00:00 +0200
+Subject: [PATCH 1/1] Fix absolute path handling on Windows
+
+See: https://github.com/emscripten-core/emscripten/pull/16296#issuecomment-1079979886
+
+Upstream-Status: Pending
+
+diff --git a/src/library_syscall.js b/src/library_syscall.js
+index 1111111..2222222 100644
+--- a/src/library_syscall.js
++++ b/src/library_syscall.js
+@@ -21,6 +21,13 @@ var SyscallsLibrary = {
+ 
+     // shared utilities
+     calculateAt: function(dirfd, path, allowEmpty) {
++#if ENVIRONMENT_MAY_BE_NODE
++     if (ENVIRONMENT_IS_NODE) {
++       if (nodePath['isAbsolute'](path)) {
++         return path;
++       }
++     } else
++#endif
+       if (path[0] === '/') {
+         return path;
+       }

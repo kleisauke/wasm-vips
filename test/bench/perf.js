@@ -4,6 +4,7 @@ import assert from 'assert';
 import Benchmark from 'benchmark';
 
 import Vips from '../../lib/node-es6/vips.mjs';
+import { tmpdir } from 'os';
 import { inputJpg, inputPng, inputWebP, getPath } from './images.js';
 
 const width = 720;
@@ -13,7 +14,13 @@ const jpegOut = getPath('output.jpg');
 const pngOut = getPath('output.png');
 const webpOut = getPath('output.webp');
 
-const vips = await Vips();
+const vips = await Vips({
+  preRun: (module) => {
+    // libvips stores temporary files by default in `/tmp`;
+    // set the TMPDIR env variable to override this directory
+    module.ENV.TMPDIR = tmpdir();
+  }
+});
 
 // Disable libvips cache to ensure tests are as fair as they can be
 vips.Cache.max(0);

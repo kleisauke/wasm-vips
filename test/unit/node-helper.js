@@ -4,6 +4,7 @@ import Vips from '../../lib/node-es6/vips.mjs';
 
 import url from 'url';
 import path from 'path';
+import { tmpdir } from 'os';
 import { expect } from 'chai';
 
 globalThis.url = url;
@@ -24,6 +25,10 @@ export async function mochaGlobalSetup () {
 
       // Hide warning messages
       module.ENV.VIPS_WARNING = '0';
+
+      // libvips stores temporary files by default in `/tmp`;
+      // set the TMPDIR env variable to override this directory
+      module.ENV.TMPDIR = tmpdir();
     }
   };
   globalThis.vips = await Vips(options);

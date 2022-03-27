@@ -104,7 +104,7 @@ export function getPath (filename) {
   return typeof window === 'undefined'
     // Node.js
     // ? '/root/images/' + filename // WasmFS
-    ? path.join(path.dirname(url.fileURLToPath(import.meta.url)), 'images', filename) // eslint-disable-line no-undef
+    ? './images/' + filename
     // Browser
     : filename;
 }

@@ -2,13 +2,9 @@
 
 import Vips from '../../lib/node-es6/vips.mjs';
 
-import url from 'url';
-import path from 'path';
 import { tmpdir } from 'os';
 import { expect } from 'chai';
 
-globalThis.url = url;
-globalThis.path = path;
 globalThis.expect = expect;
 
 export async function mochaGlobalSetup () {

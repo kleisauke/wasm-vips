@@ -1,11 +1,8 @@
 'use strict';
 
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
-
 // Helpers
 export function getPath (filename) {
-  return join(dirname(fileURLToPath(import.meta.url)), 'images', filename);
+  return './images/' + filename;
 }
 
 // https://www.flickr.com/photos/grizdave/2569067123/

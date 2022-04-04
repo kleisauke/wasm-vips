@@ -9,6 +9,8 @@ declare namespace vips {
     type ArrayConstant = Array<number>;
     type ArrayImage = Array<Image> | Vector<Image>;
 
+    //#region Utility functions
+
     /**
      * Get the major, minor or patch version number of the libvips library.
      * When the flag is omitted, the entire version number is returned as a string.
@@ -44,6 +46,10 @@ declare namespace vips {
      */
     function shutdown(): void;
 
+    //#endregion
+
+    //#region APIs
+    
     /**
      * A sequence container representing an array that can change in size.
      */
@@ -388,7 +394,7 @@ declare namespace vips {
          */
         readonly filename: string;
 
-        // constructors
+        //#region Constructor functions
 
         /**
          * Creates a new image which, when written to, will create a memory image.
@@ -593,7 +599,9 @@ declare namespace vips {
          */
         copyMemory(): Image;
 
-        // writers
+        //#endregion
+
+        //#region Writer functions
 
         /**
          * Write an image to another image.
@@ -693,7 +701,9 @@ declare namespace vips {
          */
         writeToMemory(): Uint8Array;
 
-        // get/set metadata
+        //#endregion
+
+        //#region get/set metadata
 
         /**
          * Set an integer on an image as metadata.
@@ -809,7 +819,9 @@ declare namespace vips {
          */
         remove(name: string): string;
 
-        // handwritten functions
+        //#endregion
+
+        //#region Handwritten functions
 
         /**
          * Does this image have an alpha channel?
@@ -899,6 +911,10 @@ declare namespace vips {
          */
         bandsplit(): Vector<Image>;
 
+        //#endregion
+
+        //#region Instance overloads
+
         /**
          * Append a set of images or constants bandwise
          * @param _in Array of input images.
@@ -971,6 +987,10 @@ declare namespace vips {
             premultiplied?: boolean
         }): Image;
 
+        //#endregion
+
+        //#region Extra utility functions
+
         /**
          * Return the coordinates of the image maximum.
          * @return Array of output values.
@@ -982,6 +1002,10 @@ declare namespace vips {
          * @return Array of output values.
          */
         minPos(): number[];
+
+        //#endregion
+
+        //#region Enum overloads
 
         /**
          * Flip an image horizontally.
@@ -1182,6 +1206,10 @@ declare namespace vips {
          */
         exp10(): Image;
 
+        //#endregion
+
+        //#region Constant/image overloads
+
         /**
          * Erode with a structuring element.
          * @param mask Input matrix image.
@@ -1293,5 +1321,9 @@ declare namespace vips {
          * @return Output image.
          */
         notEq(right: Image | ArrayConstant): Image;
+
+        //#endregion
     }
+
+    //#endregion
 

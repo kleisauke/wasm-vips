@@ -1,6 +1,6 @@
 {
   "name": "wasm-vips-playground",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "A playground for experimenting with wasm-vips",
   "homepage": "https://github.com/kleisauke/wasm-vips/tree/master/playground#readme",

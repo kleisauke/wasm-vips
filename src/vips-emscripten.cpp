@@ -35,9 +35,8 @@ static backend_t get_backend() {
 #endif
 
 int main() {
-    if (vips_init("wasm-vips") != 0) {
+    if (vips_init("wasm-vips") != 0)
         vips_error_exit("unable to start up libvips");
-    }
 
     // By default, libvips' operation cache will (at its maximum):
     //  - cache 100 operations;

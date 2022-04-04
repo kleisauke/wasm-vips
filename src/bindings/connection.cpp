@@ -28,14 +28,12 @@ Source Source::new_from_memory(const std::string &memory) {
 
 gint64 SourceCustom::read_handler(VipsSourceCustom *source, void *buffer,
                                   gint64 length, void *user) {
-    if (length <= 0) {
+    if (length <= 0)
         return 0;
-    }
 
     SourceCustom *self = reinterpret_cast<SourceCustom *>(user);
-    if (self->read_callback == nullptr) {
+    if (self->read_callback == nullptr)
         return -1;
-    }
 
     // Ensure that we call the JS function on the main thread, see:
     // https://github.com/emscripten-core/emscripten/issues/11317
@@ -47,9 +45,8 @@ gint64 SourceCustom::read_handler(VipsSourceCustom *source, void *buffer,
 gint64 SourceCustom::seek_handler(VipsSourceCustom *source, gint64 pos,
                                   int whence, void *user) {
     SourceCustom *self = reinterpret_cast<SourceCustom *>(user);
-    if (self->seek_callback == nullptr) {
+    if (self->seek_callback == nullptr)
         return -1;
-    }
 
     int new_pos = emscripten_sync_run_in_main_runtime_thread(
         EM_FUNC_SIG_III, self->seek_callback, static_cast<int>(pos), whence);
@@ -89,9 +86,8 @@ Target Target::new_to_memory() {
 gint64 TargetCustom::write_handler(VipsTargetCustom *target, const void *buffer,
                                    gint64 length, void *user) {
     TargetCustom *self = reinterpret_cast<TargetCustom *>(user);
-    if (self->write_callback == nullptr) {
+    if (self->write_callback == nullptr)
         return -1;
-    }
 
     int bytes_written = emscripten_sync_run_in_main_runtime_thread(
         EM_FUNC_SIG_III, self->write_callback, buffer,
@@ -101,10 +97,9 @@ gint64 TargetCustom::write_handler(VipsTargetCustom *target, const void *buffer,
 
 void TargetCustom::finish_handler(VipsTargetCustom *target, void *user) {
     TargetCustom *self = reinterpret_cast<TargetCustom *>(user);
-    if (self->finish_callback != nullptr) {
+    if (self->finish_callback != nullptr)
         emscripten_sync_run_in_main_runtime_thread(EM_FUNC_SIG_V,
                                                    self->finish_callback);
-    }
 }
 
 void TargetCustom::set_write_callback(emscripten::val js_func) {

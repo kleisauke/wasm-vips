@@ -31,14 +31,12 @@ inline bool is_image(emscripten::val value) {
  * Determines if a JS value is a rectangular array of something.
  */
 inline bool is_2D(emscripten::val value) {
-    if (!value.isArray()) {
+    if (!value.isArray())
         return false;
-    }
 
     unsigned l = value["length"].as<unsigned>();
-    if (l == 0 || !value[0].isArray()) {
+    if (l == 0 || !value[0].isArray())
         return false;
-    }
 
     unsigned l_first = value[0]["length"].as<unsigned>();
 

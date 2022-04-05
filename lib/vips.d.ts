@@ -456,13 +456,14 @@ declare namespace vips {
              */
             memory?: boolean
             /**
-             * Hint the expected access pattern for the image
+             * Hint the expected access pattern for the image.
              */
             access?: Access | Enum
             /**
-             * Fail on first error.
+             * The type of error that will cause load to fail. By default,
+             * loaders are permissive, that is, [[FailOn.none]].
              */
-            fail?: boolean
+            fail_on?: FailOn | Enum
         }): Image;
 
         /**
@@ -520,13 +521,14 @@ declare namespace vips {
          */
         static newFromBuffer(data: Blob, strOptions?: string, options?: {
             /**
-             * Hint the expected access pattern for the image
+             * Hint the expected access pattern for the image.
              */
             access?: Access | Enum
             /**
-             * Fail on first error.
+             * The type of error that will cause load to fail. By default,
+             * loaders are permissive, that is, [[FailOn.none]].
              */
-            fail?: boolean
+            fail_on?: FailOn | Enum
         }): Image;
 
         /**
@@ -541,13 +543,14 @@ declare namespace vips {
          */
         static newFromSource(source: Source, strOptions?: string, options?: {
             /**
-             * Hint the expected access pattern for the image
+             * Hint the expected access pattern for the image.
              */
             access?: Access | Enum
             /**
-             * Fail on first error.
+             * The type of error that will cause load to fail. By default,
+             * loaders are permissive, that is, [[FailOn.none]].
              */
-            fail?: boolean
+            fail_on?: FailOn | Enum
         }): Image;
 
         /**

@@ -557,7 +557,7 @@ declare namespace vips {
          * Create an image from a 1D array.
          *
          * A new one-band image with [[BandFormat.double]] pixels is
-         * created from the array. These image are useful with the libvips
+         * created from the array. These images are useful with the libvips
          * convolution operator [[conv]].
          * @param width Image width.
          * @param height Image height.
@@ -570,7 +570,7 @@ declare namespace vips {
          * Create an image from a 2D array.
          *
          * A new one-band image with [[BandFormat.double]] pixels is
-         * created from the array. These image are useful with the libvips
+         * created from the array. These images are useful with the libvips
          * convolution operator [[conv]].
          * @param array Create the image from these values.
          * @param scale Default to 1.0. What to divide each pixel by after

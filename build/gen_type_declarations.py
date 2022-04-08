@@ -170,7 +170,7 @@ def generate_operation(operation_name, indent='        '):
     return result
 
 
-def generate_type_declarations(filename):
+def generate_type_declarations(filename, indent='    '):
     all_nicknames = []
 
     def add_nickname(gtype, a, b):
@@ -204,17 +204,20 @@ def generate_type_declarations(filename):
     all_nicknames = [name for name in all_nicknames if name not in filter]
 
     with open(filename, 'a') as f:
-        f.write('    class ImageAutoGen {\n')
-        f.write('        // THIS IS A GENERATED CLASS. DO NOT EDIT DIRECTLY.\n')
+        f.write(f'{indent}//#region Auto-generated classes\n\n')
+        f.write(f'{indent}abstract class ImageAutoGen {{\n')
+        f.write(f'{indent}    // THIS IS A GENERATED CLASS. DO NOT EDIT DIRECTLY.\n')
 
         for nickname in all_nicknames:
             f.write(generate_operation(nickname) + '\n')
 
-        f.write('    }\n')
-        f.write('}')
+        f.write(f'{indent}}}\n\n')
+        f.write(f'{indent}//#endregion\n\n')
+        f.write('}\n\n')
+        f.write('export = Vips;\n')
 
 
-def generate_enums_flags(gir_file, out_file):
+def generate_enums_flags(gir_file, out_file, indent='    '):
     root = ET.parse(gir_file).getroot()
     namespace = {
         'goi': 'http://www.gtk.org/introspection/core/1.0'
@@ -252,6 +255,7 @@ def generate_enums_flags(gir_file, out_file):
 
     with open(out_file, 'w') as f:
         f.write(preamble)
+        f.write(f'{indent}//#region Auto-generated enumerations\n\n')
 
         for name in all_nicknames:
             gtype = type_from_name(name)
@@ -269,11 +273,11 @@ def generate_enums_flags(gir_file, out_file):
 
             if enum_doc is not None:
                 text = enum_doc.text.replace('\n', '\n     * ')
-                f.write('    /**\n')
-                f.write(f"     * {text}\n")
-                f.write('     */\n')
+                f.write(f'{indent}/**\n')
+                f.write(f"{indent} * {text}\n")
+                f.write(f'{indent} */\n')
 
-            f.write(f'    export enum {name} {{\n')
+            f.write(f'{indent}enum {name} {{\n')
 
             values = values_for_enum(gtype) if is_enum else values_for_flag(gtype)
             for i, value in enumerate(values):
@@ -285,16 +289,18 @@ def generate_enums_flags(gir_file, out_file):
                 member_doc = member.find('goi:doc', namespace)
                 if member_doc is not None:
                     text = member_doc.text[:1].upper() + member_doc.text[1:]
-                    f.write('        /**\n')
-                    f.write(f'         * {text}\n')
-                    f.write('         */\n')
+                    f.write(f'{indent}    /**\n')
+                    f.write(f'{indent}     * {text}\n')
+                    f.write(f'{indent}     */\n')
 
-                f.write(f"        {js_value} = '{value}'")
+                f.write(f"{indent}    {js_value} = '{value}'")
 
                 if i != len(values) - 1:
                     f.write(',\n')
 
-            f.write('\n    }\n\n')
+            f.write(f'\n{indent}}}\n\n')
+
+        f.write(f'{indent}//#endregion\n\n')
 
 
 parser = argparse.ArgumentParser(description='TypeScript declaration generator')

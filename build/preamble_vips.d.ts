@@ -1,5 +1,22 @@
-declare namespace vips {
+declare function Vips(config?: Partial<EmscriptenModule>): Promise<NonNullable<typeof Vips>>;
 
+type ModuleCallback = { (module?: any): void };
+
+interface EmscriptenModule {
+    print(str: string): void;
+    printErr(str: string): void;
+
+    preInit: ModuleCallback | ModuleCallback[];
+    preRun: ModuleCallback | ModuleCallback[];
+    postRun: ModuleCallback | ModuleCallback[];
+
+    onAbort: { (what: any): void };
+    onRuntimeInitialized: { (): void };
+
+    locateFile(url: string, scriptDirectory: string): string;
+}
+
+declare module Vips {
     // Allow single pixels/images as input.
     type Array<T> = T | T[];
 
@@ -49,11 +66,11 @@ declare namespace vips {
     //#endregion
 
     //#region APIs
-    
+
     /**
      * A sequence container representing an array that can change in size.
      */
-    export interface Vector<T> {
+    interface Vector<T> {
         /**
          * Adds a new element at the end of the vector, after its current last element.
          * @param val The value to be appended at the end of the container.
@@ -92,7 +109,7 @@ declare namespace vips {
     /**
      * A class around libvips' operation cache.
      */
-    export class Cache {
+    class Cache {
         /**
          * Gets or, when a parameter is provided, sets the maximum number of operations libvips keeps in cache.
          * @param max Maximum number of operations.
@@ -126,7 +143,7 @@ declare namespace vips {
      * libvips watches the total amount of live tracked memory and
      * uses this information to decide when to trim caches.
      */
-    export class Stats {
+    class Stats {
         /**
          * Get the number of active allocations.
          * @return The number of active allocations.
@@ -157,7 +174,7 @@ declare namespace vips {
     /**
      * A class for error messages and error handling.
      */
-    export class Error {
+    class Error {
         /**
          * Get the error buffer as a string.
          * @return The error buffer as a string.
@@ -174,7 +191,7 @@ declare namespace vips {
     /**
      * Handy utilities.
      */
-    export class Utils {
+    class Utils {
         /**
          * Get the GType for a name.
          * Looks up the GType for a nickname. Types below basename in the type hierarchy are searched.
@@ -195,7 +212,7 @@ declare namespace vips {
     /**
      * The abstract base Connection class.
      */
-    export class Connection {
+    abstract class Connection {
         /**
          * Get the filename associated with a connection.
          */
@@ -210,7 +227,7 @@ declare namespace vips {
     /**
      * An input connection.
      */
-    export class Source extends Connection {
+    class Source extends Connection {
         /**
          * Make a new source from a file.
          *
@@ -242,7 +259,7 @@ declare namespace vips {
     /**
      * A source that can be attached to callbacks to implement behavior.
      */
-    export class SourceCustom extends Source {
+    class SourceCustom extends Source {
         /**
          * Attach a read handler.
          * @param ptr A pointer to an array of bytes where the read content is stored.
@@ -265,7 +282,7 @@ declare namespace vips {
     /**
      * An output connection.
      */
-    export class Target extends Connection {
+    class Target extends Connection {
         /**
          * Make a new target to write to a file.
          *
@@ -305,7 +322,7 @@ declare namespace vips {
     /**
      * A target that can be attached to callbacks to implement behavior.
      */
-    export class TargetCustom extends Target {
+    class TargetCustom extends Target {
         /**
          * Attach a write handler.
          * @param ptr A pointer to an array of bytes which will be written to.
@@ -326,7 +343,7 @@ declare namespace vips {
      * A class to build various interpolators.
      * For e.g. nearest, bilinear, and some non-linear.
      */
-    export class Interpolate {
+    class Interpolate {
         /**
          * Look up an interpolator from a nickname and make one.
          * @param nickname Nickname for interpolator.
@@ -338,7 +355,7 @@ declare namespace vips {
     /**
      * An image class.
      */
-    export class Image extends ImageAutoGen {
+    class Image extends ImageAutoGen {
         /**
          * Image width in pixels.
          */

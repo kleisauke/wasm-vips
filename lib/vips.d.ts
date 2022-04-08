@@ -1,5 +1,22 @@
-declare namespace vips {
+declare function Vips(config?: Partial<EmscriptenModule>): Promise<NonNullable<typeof Vips>>;
 
+type ModuleCallback = { (module?: any): void };
+
+interface EmscriptenModule {
+    print(str: string): void;
+    printErr(str: string): void;
+
+    preInit: ModuleCallback | ModuleCallback[];
+    preRun: ModuleCallback | ModuleCallback[];
+    postRun: ModuleCallback | ModuleCallback[];
+
+    onAbort: { (what: any): void };
+    onRuntimeInitialized: { (): void };
+
+    locateFile(url: string, scriptDirectory: string): string;
+}
+
+declare module Vips {
     // Allow single pixels/images as input.
     type Array<T> = T | T[];
 
@@ -53,7 +70,7 @@ declare namespace vips {
     /**
      * A sequence container representing an array that can change in size.
      */
-    export interface Vector<T> {
+    interface Vector<T> {
         /**
          * Adds a new element at the end of the vector, after its current last element.
          * @param val The value to be appended at the end of the container.
@@ -92,7 +109,7 @@ declare namespace vips {
     /**
      * A class around libvips' operation cache.
      */
-    export class Cache {
+    class Cache {
         /**
          * Gets or, when a parameter is provided, sets the maximum number of operations libvips keeps in cache.
          * @param max Maximum number of operations.
@@ -126,7 +143,7 @@ declare namespace vips {
      * libvips watches the total amount of live tracked memory and
      * uses this information to decide when to trim caches.
      */
-    export class Stats {
+    class Stats {
         /**
          * Get the number of active allocations.
          * @return The number of active allocations.
@@ -157,7 +174,7 @@ declare namespace vips {
     /**
      * A class for error messages and error handling.
      */
-    export class Error {
+    class Error {
         /**
          * Get the error buffer as a string.
          * @return The error buffer as a string.
@@ -174,7 +191,7 @@ declare namespace vips {
     /**
      * Handy utilities.
      */
-    export class Utils {
+    class Utils {
         /**
          * Get the GType for a name.
          * Looks up the GType for a nickname. Types below basename in the type hierarchy are searched.
@@ -195,7 +212,7 @@ declare namespace vips {
     /**
      * The abstract base Connection class.
      */
-    export class Connection {
+    abstract class Connection {
         /**
          * Get the filename associated with a connection.
          */
@@ -210,7 +227,7 @@ declare namespace vips {
     /**
      * An input connection.
      */
-    export class Source extends Connection {
+    class Source extends Connection {
         /**
          * Make a new source from a file.
          *
@@ -242,7 +259,7 @@ declare namespace vips {
     /**
      * A source that can be attached to callbacks to implement behavior.
      */
-    export class SourceCustom extends Source {
+    class SourceCustom extends Source {
         /**
          * Attach a read handler.
          * @param ptr A pointer to an array of bytes where the read content is stored.
@@ -265,7 +282,7 @@ declare namespace vips {
     /**
      * An output connection.
      */
-    export class Target extends Connection {
+    class Target extends Connection {
         /**
          * Make a new target to write to a file.
          *
@@ -305,7 +322,7 @@ declare namespace vips {
     /**
      * A target that can be attached to callbacks to implement behavior.
      */
-    export class TargetCustom extends Target {
+    class TargetCustom extends Target {
         /**
          * Attach a write handler.
          * @param ptr A pointer to an array of bytes which will be written to.
@@ -326,7 +343,7 @@ declare namespace vips {
      * A class to build various interpolators.
      * For e.g. nearest, bilinear, and some non-linear.
      */
-    export class Interpolate {
+    class Interpolate {
         /**
          * Look up an interpolator from a nickname and make one.
          * @param nickname Nickname for interpolator.
@@ -338,7 +355,7 @@ declare namespace vips {
     /**
      * An image class.
      */
-    export class Image extends ImageAutoGen {
+    class Image extends ImageAutoGen {
         /**
          * Image width in pixels.
          */
@@ -1330,13 +1347,15 @@ declare namespace vips {
 
     //#endregion
 
+    //#region Auto-generated enumerations
+
     /**
      * The format used for each band element.
      * 
      * Each corresponds to a native C type for the current machine. For example,
      * #VIPS_FORMAT_USHORT is <type>unsigned short</type>.
      */
-    export enum BandFormat {
+    enum BandFormat {
         /**
          * Unsigned char format
          */
@@ -1389,7 +1408,7 @@ declare namespace vips {
      * 
      * The non-separable modes are not implemented.
      */
-    export enum BlendMode {
+    enum BlendMode {
         /**
          * Where the second object is drawn, the first is removed
          */
@@ -1502,7 +1521,7 @@ declare namespace vips {
      * The gaps in the numbering are historical and must be maintained. Allocate
      * new numbers from the end.
      */
-    export enum Coding {
+    enum Coding {
         /**
          * Pixels are not coded
          */
@@ -1528,7 +1547,7 @@ declare namespace vips {
      * The gaps in numbering are historical and must be maintained. Allocate
      * new numbers from the end.
      */
-    export enum Interpretation {
+    enum Interpretation {
         /**
          * Generic many-band image
          */
@@ -1639,7 +1658,7 @@ declare namespace vips {
      * 
      * See also: vips_image_pipelinev().
      */
-    export enum DemandStyle {
+    enum DemandStyle {
         /**
          * Demand in small (typically 64x64 pixel) tiles
          */
@@ -1657,7 +1676,7 @@ declare namespace vips {
     /**
      * See also: vips_relational().
      */
-    export enum OperationRelational {
+    enum OperationRelational {
         /**
          * ==
          */
@@ -1687,7 +1706,7 @@ declare namespace vips {
     /**
      * See also: vips_boolean().
      */
-    export enum OperationBoolean {
+    enum OperationBoolean {
         /**
          * &
          */
@@ -1713,7 +1732,7 @@ declare namespace vips {
     /**
      * See also: vips_math().
      */
-    export enum OperationMath2 {
+    enum OperationMath2 {
         /**
          * Pow( left, right )
          */
@@ -1731,7 +1750,7 @@ declare namespace vips {
     /**
      * See also: vips_complex2().
      */
-    export enum OperationComplex2 {
+    enum OperationComplex2 {
         /**
          * Convert to polar coordinates
          */
@@ -1741,7 +1760,7 @@ declare namespace vips {
     /**
      * See also: vips_math().
      */
-    export enum OperationMath {
+    enum OperationMath {
         /**
          * Sin(), angles in degrees
          */
@@ -1811,7 +1830,7 @@ declare namespace vips {
     /**
      * See also: vips_round().
      */
-    export enum OperationRound {
+    enum OperationRound {
         /**
          * Round to nearest
          */
@@ -1829,7 +1848,7 @@ declare namespace vips {
     /**
      * See also: vips_complex().
      */
-    export enum OperationComplex {
+    enum OperationComplex {
         /**
          * Convert to polar coordinates
          */
@@ -1847,7 +1866,7 @@ declare namespace vips {
     /**
      * See also: vips_complexget().
      */
-    export enum OperationComplexget {
+    enum OperationComplexget {
         /**
          * Get real component
          */
@@ -1861,7 +1880,7 @@ declare namespace vips {
     /**
      * How to combine values. See vips_compass(), for example.
      */
-    export enum Combine {
+    enum Combine {
         /**
          * Take the maximum of the possible values
          */
@@ -1885,7 +1904,7 @@ declare namespace vips {
      * @VIPS_ACCESS_SEQUENTIAL means requests will be top-to-bottom, but with some
      * amount of buffering behind the read point for small non-local accesses.
      */
-    export enum Access {
+    enum Access {
         /**
          * Can read anywhere
          */
@@ -1922,7 +1941,7 @@ declare namespace vips {
      * 
      * See also: vips_embed().
      */
-    export enum Extend {
+    enum Extend {
         /**
          * Extend with black (all 0) pixels
          */
@@ -1952,7 +1971,7 @@ declare namespace vips {
     /**
      * A direction on a compass. Used for vips_gravity(), for example.
      */
-    export enum CompassDirection {
+    enum CompassDirection {
         /**
          * Centre
          */
@@ -1999,7 +2018,7 @@ declare namespace vips {
      * 
      * See also: vips_flip(), vips_join().
      */
-    export enum Direction {
+    enum Direction {
         /**
          * Left-right
          */
@@ -2018,7 +2037,7 @@ declare namespace vips {
      * 
      * See also: vips_join().
      */
-    export enum Align {
+    enum Align {
         /**
          * Align low coordinate edge
          */
@@ -2044,7 +2063,7 @@ declare namespace vips {
      * 
      * See also: vips_smartcrop().
      */
-    export enum Interesting {
+    enum Interesting {
         /**
          * Do nothing
          */
@@ -2082,7 +2101,7 @@ declare namespace vips {
      * 
      * See also: vips_rot().
      */
-    export enum Angle {
+    enum Angle {
         /**
          * No rotate
          */
@@ -2108,7 +2127,7 @@ declare namespace vips {
      * 
      * See also: vips_rot45().
      */
-    export enum Angle45 {
+    enum Angle45 {
         /**
          * No rotate
          */
@@ -2146,7 +2165,7 @@ declare namespace vips {
     /**
      * How accurate an operation should be.
      */
-    export enum Precision {
+    enum Precision {
         /**
          * Int everywhere
          */
@@ -2168,7 +2187,7 @@ declare namespace vips {
      * Each one implies the ones before it, so #VIPS_FAIL_ON_ERROR implies
      * #VIPS_FAIL_ON_TRUNCATED.
      */
-    export enum FailOn {
+    enum FailOn {
         /**
          * Never stop
          */
@@ -2198,7 +2217,7 @@ declare namespace vips {
      * 
      * #VIPS_FOREIGN_PPM_FORMAT_PFM images are 32-bit float pixels.
      */
-    export enum ForeignPpmFormat {
+    enum ForeignPpmFormat {
         /**
          * Portable bitmap
          */
@@ -2220,7 +2239,7 @@ declare namespace vips {
     /**
      * Set subsampling mode.
      */
-    export enum ForeignSubsample {
+    enum ForeignSubsample {
         /**
          * Prevent subsampling when quality >= 90
          */
@@ -2238,7 +2257,7 @@ declare namespace vips {
     /**
      * What directory layout and metadata standard to use.
      */
-    export enum ForeignDzLayout {
+    enum ForeignDzLayout {
         /**
          * Use DeepZoom directory layout
          */
@@ -2264,7 +2283,7 @@ declare namespace vips {
     /**
      * How many pyramid layers to create.
      */
-    export enum ForeignDzDepth {
+    enum ForeignDzDepth {
         /**
          * Create layers down to 1x1 pixel
          */
@@ -2282,7 +2301,7 @@ declare namespace vips {
     /**
      * How many pyramid layers to create.
      */
-    export enum ForeignDzContainer {
+    enum ForeignDzContainer {
         /**
          * Write tiles to the filesystem
          */
@@ -2300,7 +2319,7 @@ declare namespace vips {
     /**
      * How to calculate the output pixels when shrinking a 2x2 region.
      */
-    export enum RegionShrink {
+    enum RegionShrink {
         /**
          * Use the average
          */
@@ -2330,7 +2349,7 @@ declare namespace vips {
     /**
      * Tune lossy encoder settings for different image types.
      */
-    export enum ForeignWebpPreset {
+    enum ForeignWebpPreset {
         /**
          * Default preset
          */
@@ -2368,7 +2387,7 @@ declare namespace vips {
      * 
      * Use @level to set webp and zstd compression level.
      */
-    export enum ForeignTiffCompression {
+    enum ForeignTiffCompression {
         /**
          * No compression
          */
@@ -2411,7 +2430,7 @@ declare namespace vips {
      * The predictor can help deflate and lzw compression. The values are fixed by
      * the tiff library.
      */
-    export enum ForeignTiffPredictor {
+    enum ForeignTiffPredictor {
         /**
          * No prediction
          */
@@ -2429,7 +2448,7 @@ declare namespace vips {
     /**
      * Use inches or centimeters as the resolution unit for a tiff file.
      */
-    export enum ForeignTiffResunit {
+    enum ForeignTiffResunit {
         /**
          * Use centimeters
          */
@@ -2445,7 +2464,7 @@ declare namespace vips {
      * 
      * This is assumed to use the same numbering as %heif_compression_format.
      */
-    export enum ForeignHeifCompression {
+    enum ForeignHeifCompression {
         /**
          * X265
          */
@@ -2470,7 +2489,7 @@ declare namespace vips {
      * 
      * See also: vips_thumbnail().
      */
-    export enum Size {
+    enum Size {
         /**
          * Size both up and down
          */
@@ -2494,7 +2513,7 @@ declare namespace vips {
      * scientific work, #VIPS_INTENT_RELATIVE is usually best for
      * accurate communication with other imaging libraries.
      */
-    export enum Intent {
+    enum Intent {
         /**
          * Perceptual rendering intent
          */
@@ -2516,7 +2535,7 @@ declare namespace vips {
     /**
      * The resampling kernels vips supports. See vips_reduce(), for example.
      */
-    export enum Kernel {
+    enum Kernel {
         /**
          * The nearest pixel to the point.
          */
@@ -2548,7 +2567,7 @@ declare namespace vips {
      * vips_icc_export(). LAB is usually best, XYZ can be more convenient in some
      * cases.
      */
-    export enum PCS {
+    enum PCS {
         /**
          * Use CIELAB D65 as the Profile Connection Space
          */
@@ -2564,7 +2583,7 @@ declare namespace vips {
      * 
      * See also: vips_morph().
      */
-    export enum OperationMorphology {
+    enum OperationMorphology {
         /**
          * True if all set
          */
@@ -2583,7 +2602,7 @@ declare namespace vips {
      * 
      * See also: vips_join().
      */
-    export enum CombineMode {
+    enum CombineMode {
         /**
          * Set pixels to the new value
          */
@@ -2598,7 +2617,7 @@ declare namespace vips {
      * http://www.w3.org/TR/PNG-Filters.html
      * The values mirror those of png.h in libpng.
      */
-    export enum ForeignPngFilter {
+    enum ForeignPngFilter {
         /**
          * No filtering
          */
@@ -2625,7 +2644,11 @@ declare namespace vips {
         all = 'all'
     }
 
-    class ImageAutoGen {
+    //#endregion
+
+    //#region Auto-generated classes
+
+    abstract class ImageAutoGen {
         // THIS IS A GENERATED CLASS. DO NOT EDIT DIRECTLY.
 
         /**
@@ -9203,4 +9226,9 @@ declare namespace vips {
          */
         zoom(xfac: number, yfac: number): Image;
     }
+
+    //#endregion
+
 }
+
+export = Vips;

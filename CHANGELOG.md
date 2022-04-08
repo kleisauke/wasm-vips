@@ -8,6 +8,7 @@ Uses libvips v8.12.2, compiled with Emscripten v3.1.8.
 
 ### Fixed
 - Include web-specific package exports in `package.json`.
+- Ensure type definitions are exported ([#14](https://github.com/kleisauke/wasm-vips/issues/14)).
 
 ## [v0.0.2] - 2022-04-04
 Uses libvips v8.12.2, compiled with Emscripten v3.1.8.

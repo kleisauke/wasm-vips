@@ -1,29 +1,94 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Sun, 27 Mar 2022 20:00:00 +0200
-Subject: [PATCH 1/1] Fix absolute path handling on Windows
+Subject: [PATCH 1/1] Fix path handling on Windows
 
 See: https://github.com/emscripten-core/emscripten/pull/16296#issuecomment-1079979886
 
 Upstream-Status: Pending
 
-diff --git a/src/library_path.js b/src/library_path.js
+diff --git a/src/library_async.js b/src/library_async.js
 index 1111111..2222222 100644
---- a/src/library_path.js
-+++ b/src/library_path.js
-@@ -6,7 +6,14 @@
+--- a/src/library_async.js
++++ b/src/library_async.js
+@@ -351,7 +351,7 @@ mergeInto(LibraryManager.library, {
+     Asyncify.handleSleep((wakeUp) => {
+       var _url = UTF8ToString(url);
+       var _file = UTF8ToString(file);
+-      _file = PATH_FS.resolve(FS.cwd(), _file);
++      _file = PATH_FS.resolve(_file);
+       var destinationDirectory = PATH.dirname(_file);
+       FS.createPreloadedFile(
+         destinationDirectory,
+diff --git a/src/library_fs.js b/src/library_fs.js
+index 1111111..2222222 100644
+--- a/src/library_fs.js
++++ b/src/library_fs.js
+@@ -116,7 +116,7 @@ FS.staticInit();` +
+     // paths
+     //
+     lookupPath: (path, opts = {}) => {
+-      path = PATH_FS.resolve(FS.cwd(), path);
++      path = PATH_FS.resolve(path);
  
- mergeInto(LibraryManager.library, {
-   $PATH: {
--    isAbs: (path) => path.charAt(0) === '/',
-+    isAbs: (path) => {
-+#if ENVIRONMENT_MAY_BE_NODE
-+      if (ENVIRONMENT_IS_NODE) {
-+        return nodePath['isAbsolute'](path);
-+      } else
-+#endif
-+      return path.charAt(0) === '/';
+       if (!path) return { path: '', node: null };
+ 
+@@ -130,8 +130,8 @@ FS.staticInit();` +
+         throw new FS.ErrnoError({{{ cDefine('ELOOP') }}});
+       }
+ 
+-      // split the path
+-      var parts = PATH.normalizeArray(path.split('/').filter((p) => !!p), false);
++      // split the absolute path
++      var parts = path.split('/').filter((p) => !!p);
+ 
+       // start at the root
+       var current = FS.root;
+diff --git a/src/library_nodepath.js b/src/library_nodepath.js
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/src/library_nodepath.js
+@@ -0,0 +1,29 @@
++/**
++ * @license
++ * Copyright 2022 The Emscripten Authors
++ * SPDX-License-Identifier: MIT
++ */
++
++mergeInto(LibraryManager.library, {
++  $PATH: {
++    isAbs: (path) => nodePath['isAbsolute'](path),
++    normalize: (path) => nodePath['normalize'](path),
++    dirname: (path) => nodePath['dirname'](path),
++    basename: (path) => nodePath['basename'](path),
++    join: function () {
++      return nodePath['join'].apply(null, arguments);
 +    },
-     // split a filename into [root, dir, basename, ext], unix version
-     // 'root' is just a slash, or nothing.
-     splitPath: (filename) => {
++    join2: (l, r) => nodePath['join'](l, r),
++  },
++  // The FS-using parts are split out into a separate object, so simple path
++  // usage does not require the FS.
++  $PATH_FS__deps: ['$FS'],
++  $PATH_FS: {
++    resolve: function () {
++      var paths = Array.prototype.slice.call(arguments, 0);
++      paths.unshift(FS.cwd());
++      return nodePath['posix']['resolve'].apply(null, paths);
++    },
++    relative: (from, to) => nodePath['posix']['relative'](from || FS.cwd(), to || FS.cwd()),
++  }
++});
+diff --git a/src/modules.js b/src/modules.js
+index 1111111..2222222 100644
+--- a/src/modules.js
++++ b/src/modules.js
+@@ -87,6 +87,8 @@ global.LibraryManager = {
+           libraries.push('library_nodefs.js');
+         }
+         libraries.push('library_noderawfs.js');
++        // NODERAWFS overwrites library_path.js
++        libraries.push('library_nodepath.js');
+       }
+     } else if (WASMFS) {
+       libraries.push('library_wasmfs.js');

@@ -304,7 +304,7 @@ diff --git a/gio/gdbusconnection.c b/gio/gdbusconnection.c
 index 1111111..2222222 100644
 --- a/gio/gdbusconnection.c
 +++ b/gio/gdbusconnection.c
-@@ -524,8 +524,10 @@ static void schedule_method_call (GDBusConnection            *connection,
+@@ -508,8 +508,10 @@ static void schedule_method_call (GDBusConnection            *connection,
  
  static guint signals[LAST_SIGNAL] = { 0 };
  
@@ -317,7 +317,7 @@ index 1111111..2222222 100644
  
  G_DEFINE_TYPE_WITH_CODE (GDBusConnection, g_dbus_connection, G_TYPE_OBJECT,
                           G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, initable_iface_init)
-@@ -2674,7 +2676,8 @@ initable_init (GInitable     *initable,
+@@ -2658,7 +2660,8 @@ initable_init (GInitable     *initable,
  }
  
  static void
@@ -327,7 +327,7 @@ index 1111111..2222222 100644
  {
    initable_iface->init = initable_init;
  }
-@@ -2682,7 +2685,8 @@ initable_iface_init (GInitableIface *initable_iface)
+@@ -2666,7 +2669,8 @@ initable_iface_init (GInitableIface *initable_iface)
  /* ---------------------------------------------------------------------------------------------------- */
  
  static void

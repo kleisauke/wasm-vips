@@ -7,21 +7,23 @@ See: https://github.com/emscripten-core/emscripten/pull/16296#issuecomment-10799
 
 Upstream-Status: Pending
 
-diff --git a/src/library_syscall.js b/src/library_syscall.js
+diff --git a/src/library_path.js b/src/library_path.js
 index 1111111..2222222 100644
---- a/src/library_syscall.js
-+++ b/src/library_syscall.js
-@@ -21,6 +21,13 @@ var SyscallsLibrary = {
+--- a/src/library_path.js
++++ b/src/library_path.js
+@@ -6,7 +6,14 @@
  
-     // shared utilities
-     calculateAt: function(dirfd, path, allowEmpty) {
+ mergeInto(LibraryManager.library, {
+   $PATH: {
+-    isAbs: (path) => path.charAt(0) === '/',
++    isAbs: (path) => {
 +#if ENVIRONMENT_MAY_BE_NODE
-+     if (ENVIRONMENT_IS_NODE) {
-+       if (nodePath['isAbsolute'](path)) {
-+         return path;
-+       }
-+     } else
++      if (ENVIRONMENT_IS_NODE) {
++        return nodePath['isAbsolute'](path);
++      } else
 +#endif
-       if (path[0] === '/') {
-         return path;
-       }
++      return path.charAt(0) === '/';
++    },
+     // split a filename into [root, dir, basename, ext], unix version
+     // 'root' is just a slash, or nothing.
+     splitPath: (filename) => {

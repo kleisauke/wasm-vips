@@ -109,7 +109,7 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.6
 VERSION_FFI=3.4.2
-VERSION_GLIB=2.72.0
+VERSION_GLIB=2.72.1
 VERSION_EXPAT=2.4.8
 VERSION_EXIF=0.6.24
 VERSION_LCMS2=2.13.1
@@ -141,6 +141,9 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-vector-as-js-array.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-allow-block-main-thread.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-windows-path.patch
+
+  # https://github.com/emscripten-core/emscripten/pull/16795
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-16795.patch
 
   # Need to rebuild libembind and libc, since we modified it
   # with the patches above

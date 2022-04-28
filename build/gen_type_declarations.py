@@ -205,7 +205,7 @@ def generate_type_declarations(filename, indent='    '):
 
     with open(filename, 'a') as f:
         f.write(f'{indent}//#region Auto-generated classes\n\n')
-        f.write(f'{indent}abstract class ImageAutoGen {{\n')
+        f.write(f'{indent}abstract class ImageAutoGen extends EmbindClassHandle<ImageAutoGen> {{\n')
         f.write(f'{indent}    // THIS IS A GENERATED CLASS. DO NOT EDIT DIRECTLY.\n')
 
         for nickname in all_nicknames:

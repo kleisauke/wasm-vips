@@ -69,9 +69,44 @@ declare module Vips {
     //#region APIs
 
     /**
+     * Embind adds the following methods to all its exposed classes.
+     */
+    abstract class EmbindClassHandle<T extends EmbindClassHandle<T>> {
+        /**
+         * Returns a new handle. It must eventually also be disposed with [[delete]] or
+         * [[deleteLater]].
+         * @return A new handle.
+         */
+        clone(): T;
+
+        /**
+         * Signal that a C++ object is no longer needed and can be deleted.
+         */
+        delete(): void;
+
+        /**
+         * Signal that a C++ object is no longer needed and can be deleted later.
+         */
+        deleteLater(): void;
+
+        /**
+         * Check whether two Embind handles point to the same underlying object.
+         * @param other Embind handle for comparison.
+         * @return `true` if the handles point to the same underlying object.
+         */
+        isAliasOf(other: any): boolean;
+
+        /**
+         * Check whether this handle is deleted.
+         * @return `true` if this handle is deleted.
+         */
+        isDeleted(): boolean;
+    }
+
+    /**
      * A sequence container representing an array that can change in size.
      */
-    interface Vector<T> {
+    interface Vector<T> extends EmbindClassHandle<Vector<T>> {
         /**
          * Adds a new element at the end of the vector, after its current last element.
          * @param val The value to be appended at the end of the container.
@@ -108,9 +143,9 @@ declare module Vips {
     }
 
     /**
-     * A class around libvips' operation cache.
+     * An abstract class around libvips' operation cache.
      */
-    class Cache {
+    abstract class Cache {
         /**
          * Gets or, when a parameter is provided, sets the maximum number of operations libvips keeps in cache.
          * @param max Maximum number of operations.
@@ -140,11 +175,11 @@ declare module Vips {
     }
 
     /**
-     * A class that provides the statistics of memory usage and opened files.
+     * An abstract class that provides the statistics of memory usage and opened files.
      * libvips watches the total amount of live tracked memory and
      * uses this information to decide when to trim caches.
      */
-    class Stats {
+    abstract class Stats {
         /**
          * Get the number of active allocations.
          * @return The number of active allocations.
@@ -173,9 +208,9 @@ declare module Vips {
     }
 
     /**
-     * A class for error messages and error handling.
+     * An abstract class for error messages and error handling.
      */
-    class Error {
+    abstract class Error {
         /**
          * Get the error buffer as a string.
          * @return The error buffer as a string.
@@ -192,7 +227,7 @@ declare module Vips {
     /**
      * Handy utilities.
      */
-    class Utils {
+    abstract class Utils {
         /**
          * Get the GType for a name.
          * Looks up the GType for a nickname. Types below basename in the type hierarchy are searched.
@@ -213,7 +248,7 @@ declare module Vips {
     /**
      * The abstract base Connection class.
      */
-    abstract class Connection {
+    abstract class Connection extends EmbindClassHandle<Connection> {
         /**
          * Get the filename associated with a connection.
          */
@@ -344,7 +379,7 @@ declare module Vips {
      * A class to build various interpolators.
      * For e.g. nearest, bilinear, and some non-linear.
      */
-    class Interpolate {
+    class Interpolate extends EmbindClassHandle<Interpolate> {
         /**
          * Look up an interpolator from a nickname and make one.
          * @param nickname Nickname for interpolator.

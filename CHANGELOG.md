@@ -12,6 +12,7 @@ Uses libvips v8.12.2, compiled with Emscripten v3.1.9.
 - Add type definition for `mainScriptUrlOrBlob` setting.
   [#16](https://github.com/kleisauke/wasm-vips/pull/16)
   [@bentron2000](https://github.com/bentron2000)
+- Add type definitions for Embind methods.
 
 ### Fixed
 

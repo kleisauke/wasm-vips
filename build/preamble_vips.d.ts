@@ -14,6 +14,7 @@ interface EmscriptenModule {
     onRuntimeInitialized: { (): void };
 
     locateFile(url: string, scriptDirectory: string): string;
+    mainScriptUrlOrBlob: Blob | File | string;
 }
 
 declare module Vips {

@@ -20,6 +20,7 @@
     "test": "node perf"
   },
   "devDependencies": {
+    "@silvia-odwyer/photon-node": "^0.3.2",
     "benchmark": "^2.1.4"
   },
   "engines": {

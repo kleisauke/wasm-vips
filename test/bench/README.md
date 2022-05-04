@@ -14,7 +14,7 @@ https://sharp.pixelplumbing.com/performance
 ## Test images
 
 | Image                                                                                   | Dimensions |
-| :-------------------------------------------------------------------------------------- | :--------: |
+|:----------------------------------------------------------------------------------------|:----------:|
 | [`2569067123_aca715a2ee_o.jpg`](images/2569067123_aca715a2ee_o.jpg)                     | 2725×2225  |
 | [`alpha-premultiply-2048x1536-paper.png`](images/alpha-premultiply-2048x1536-paper.png) | 2048×1536  |
 | [`4.webp`](images/4.webp)                                                               |  1024×772  |
@@ -31,7 +31,7 @@ images. For PNG images a zlib compression level of 6 is used.
 ## Results
 
 | Module             | Format | Input  | Output | Ops/sec | Speed-up |
-| :----------------- | :----- | :----- | :----- | ------: | -------: |
+|:-------------------|:-------|:-------|:-------|--------:|---------:|
 | jimp               | JPEG   | buffer | buffer |    0.99 |      1.0 |
 | squoosh-cli        | JPEG   | file   | file   |    1.50 |      1.5 |
 | squoosh-lib        | JPEG   | buffer | buffer |    2.49 |      2.5 |
@@ -46,15 +46,16 @@ images. For PNG images a zlib compression level of 6 is used.
 | sharp              | JPEG   | file   | file   |   42.63 |     43.1 |
 | sharp              | JPEG   | buffer | buffer |   43.38 |     43.8 |
 |                    |        |        |        |         |          |
-| jimp               | PNG    | buffer | buffer |    5.43 |      1.0 |
-| wasm-vips          | PNG    | buffer | buffer |    5.61 |      1.0 |
-| mapnik             | PNG    | buffer | buffer |    6.76 |      1.2 |
-| gm                 | PNG    | file   | file   |    8.94 |      1.6 |
-| imagemagick        | PNG    | file   | file   |    9.15 |      1.7 |
-| sharp (w/o liborc) | PNG    | file   | file   |   23.52 |      4.3 |
-| sharp              | PNG    | file   | file   |   23.57 |      4.3 |
-| sharp (w/o liborc) | PNG    | buffer | buffer |   23.93 |      4.4 |
-| sharp              | PNG    | buffer | buffer |   23.93 |      4.4 |
+| photon             | PNG    | buffer | buffer |    3.33 |      1.0 |
+| jimp               | PNG    | buffer | buffer |    5.43 |      1.6 |
+| wasm-vips          | PNG    | buffer | buffer |    5.61 |      1.7 |
+| mapnik             | PNG    | buffer | buffer |    6.76 |      2.0 |
+| gm                 | PNG    | file   | file   |    8.94 |      2.7 |
+| imagemagick        | PNG    | file   | file   |    9.15 |      2.7 |
+| sharp (w/o liborc) | PNG    | file   | file   |   23.52 |      7.1 |
+| sharp              | PNG    | file   | file   |   23.57 |      7.1 |
+| sharp (w/o liborc) | PNG    | buffer | buffer |   23.93 |      7.2 |
+| sharp              | PNG    | buffer | buffer |   23.93 |      7.2 |
 |                    |        |        |        |         |          |
 | wasm-vips          | WebP   | buffer | buffer |   11.15 |      1.0 |
 | sharp (w/o liborc) | WebP   | file   | file   |   12.39 |      1.1 |

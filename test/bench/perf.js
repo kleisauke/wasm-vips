@@ -1,10 +1,12 @@
 'use strict';
 
-import assert from 'assert';
+import assert from 'node:assert';
 import Benchmark from 'benchmark';
 
 import Vips from '../../lib/node-es6/vips.mjs';
-import { tmpdir } from 'os';
+import photon from '@silvia-odwyer/photon-node';
+import { tmpdir } from 'node:os';
+// import { writeFile } from 'node:fs';
 import { inputJpg, inputPng, inputWebP, getPath } from './images.js';
 
 const width = 720;
@@ -374,6 +376,27 @@ const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
     const buffer = im.pngsaveBuffer({...defaultPngSaveOptions, compression: 9});
     assert.notStrictEqual(null, buffer);
     im.delete();
+    deferred.resolve();
+  }
+}).add('photon-buffer-buffer', {
+  defer: true,
+  fn: function (deferred) {
+    const im = photon.PhotonImage.new_from_byteslice(inputPngBuffer);
+
+    // Photon breaks aspect ratio during resize, so specify 540 as height instead
+    // FIXME: premultiplication prior resize?
+    const resized = photon.resize(im, width, /*height*/540, photon.SamplingFilter.Lanczos3);
+
+    // FIXME: zlib compression?
+    // FIXME: png row filter(s)?
+    const buffer = resized.get_bytes();
+    assert.notStrictEqual(null, buffer);
+    im.free();
+    resized.free();
+    /*writeFile('output.png', buffer, err => {
+      assert.strictEqual(null, err);
+      deferred.resolve();
+    });*/
     deferred.resolve();
   }
 }).on('cycle', function (event) {

@@ -142,9 +142,6 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-allow-block-main-thread.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-windows-path.patch
 
-  # https://github.com/emscripten-core/emscripten/pull/16795
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-16795.patch
-
   # Need to rebuild libembind and libc, since we modified it
   # with the patches above
   embuilder.py build libembind libc-mt --force $LTO_FLAG

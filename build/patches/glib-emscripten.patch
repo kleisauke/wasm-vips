@@ -144,6 +144,11 @@ Subject: [PATCH 6/10] Use vsnpintf/snprintf/printf from musl libc
 
 The C99 semantics of these functions is well supported in musl libc.
 
+Note: can also be set with these properties in the Meson cross file:
+have_c99_vsnprintf = true
+have_c99_snprintf = true
+have_unix98_printf = true
+
 Upstream-Status: Pending
 
 diff --git a/meson.build b/meson.build

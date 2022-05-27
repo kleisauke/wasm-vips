@@ -83,7 +83,7 @@ diff --git a/src/modules.js b/src/modules.js
 index 1111111..2222222 100644
 --- a/src/modules.js
 +++ b/src/modules.js
-@@ -87,6 +87,8 @@ global.LibraryManager = {
+@@ -89,6 +89,8 @@ global.LibraryManager = {
            libraries.push('library_nodefs.js');
          }
          libraries.push('library_noderawfs.js');

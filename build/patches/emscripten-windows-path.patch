@@ -11,7 +11,7 @@ diff --git a/src/library_async.js b/src/library_async.js
 index 1111111..2222222 100644
 --- a/src/library_async.js
 +++ b/src/library_async.js
-@@ -351,7 +351,7 @@ mergeInto(LibraryManager.library, {
+@@ -440,7 +440,7 @@ mergeInto(LibraryManager.library, {
      Asyncify.handleSleep((wakeUp) => {
        var _url = UTF8ToString(url);
        var _file = UTF8ToString(file);

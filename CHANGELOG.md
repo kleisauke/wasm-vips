@@ -13,6 +13,7 @@ Uses libvips v8.12.2, compiled with Emscripten v3.1.13.
   [#16](https://github.com/kleisauke/wasm-vips/pull/16)
   [@bentron2000](https://github.com/bentron2000)
 - Add type definitions for Embind methods.
+- Add type definition for `instantiateWasm` callback.
 
 ### Fixed
 

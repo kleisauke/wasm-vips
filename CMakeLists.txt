@@ -15,7 +15,7 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 set(ENVIRONMENT "environment" CACHE STRING "Specifies the environment(s) to target.")
-set(ENVIRONMENT_VALUES "web;node" CACHE INTERNAL "List of possible environments.")
+set(ENVIRONMENT_VALUES "web;node;cf" CACHE INTERNAL "List of possible environments.")
 
 set_property(CACHE ENVIRONMENT PROPERTY STRINGS ${ENVIRONMENT_VALUES})
 

@@ -555,3 +555,16 @@ node --version
   # Copy versions.json
   cp $TARGET/versions.json $SOURCE_DIR
 )
+
+[ -n "$DISABLE_BINDINGS" ] || [ "$ENVIRONMENT" != "cf" ] || (
+  # Ensure ENVIRONMENT_IS_WEB == true (`Atomics.wait` cannot be used on Cloudflare workers)
+  sed -i 's/"object"==typeof window/true/' $SOURCE_DIR/lib/vips.js
+  # `import.meta.url` cannot be used on Cloudflare workers
+  # https://github.com/cloudflare/workerd/issues/2963
+  sed -i 's|import.meta.url|"file:///worker"|g' $SOURCE_DIR/lib/vips.js
+  # `navigator.hardwareConcurrency` cannot be used
+  sed -i -e 's/navigator.hardwareConcurrency/1/g' $SOURCE_DIR/lib/vips.js
+  # Export onmessage
+  sed -i '1i export var onmessage;' $SOURCE_DIR/lib/vips.js
+  sed -i 's/self.onmessage/onmessage/g' $SOURCE_DIR/lib/vips.js
+)

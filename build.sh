@@ -564,3 +564,12 @@ node --version
   # Copy versions.json
   cp $TARGET/versions.json $SOURCE_DIR
 )
+
+[ -n "$DISABLE_BINDINGS" ] || [ "$ENVIRONMENT" != "cf" ] || (
+  # Ensure ENVIRONMENT_IS_WORKER == false
+  sed -i 's/"undefined"!=typeof WorkerGlobalScope/false/' $SOURCE_DIR/lib/vips.js
+  # Ensure ENVIRONMENT_IS_WEB == true (`Atomics.wait` cannot be used on Cloudflare workers)
+  sed -i 's/"object"==typeof window/true/' $SOURCE_DIR/lib/vips.js
+  # `navigator.hardwareConcurrency` cannot be used
+  sed -i -e 's/navigator.hardwareConcurrency/1/g' $SOURCE_DIR/lib/vips.js
+)

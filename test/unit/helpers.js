@@ -103,7 +103,6 @@ export const rotAngleBonds = ['d0'].concat(rotAngles.slice(1).reverse());
 export function getPath (filename) {
   return typeof window === 'undefined'
     // Node.js
-    // ? '/root/images/' + filename // WasmFS
     ? './images/' + filename
     // Browser
     : filename;

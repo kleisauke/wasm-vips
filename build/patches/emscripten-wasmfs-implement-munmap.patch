@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Sat, 25 Jun 2022 16:32:17 +0200
+Subject: [PATCH 1/1] [WasmFS] Implement munmap
+
+Upstream-Status: Pending
+
+diff --git a/src/library_syscall.js b/src/library_syscall.js
+index 1111111..2222222 100644
+--- a/src/library_syscall.js
++++ b/src/library_syscall.js
+@@ -140,7 +140,7 @@ var SyscallsLibrary = {
+     '$FS',
+ #endif
+   ],
+-  _munmap_js__sig: 'vppiiip',
++  _munmap_js__sig: 'ippiiip',
+   _munmap_js: function(addr, len, prot, flags, fd, offset) {
+ #if CAN_ADDRESS_2GB
+     addr >>>= 0;
+@@ -153,6 +153,7 @@ var SyscallsLibrary = {
+       }
+       FS.munmap(stream);
+     }
++    // implicitly return 0
+ #endif
+   },
+ 
+diff --git a/system/lib/wasmfs/syscalls.cpp b/system/lib/wasmfs/syscalls.cpp
+index 1111111..2222222 100644
+--- a/system/lib/wasmfs/syscalls.cpp
++++ b/system/lib/wasmfs/syscalls.cpp
+@@ -1530,6 +1530,13 @@ intptr_t _mmap_js(
+   return (intptr_t)ptr;
+ }
+ 
++int _munmap_js(
++  intptr_t addr, size_t length, int prot, int flags, int fd, size_t offset) {
++  if ((prot & PROT_WRITE) != 0)
++    return __syscall_fdatasync(fd);
++  return 0;
++}
++
+ // Stubs (at least for now)
+ 
+ int __syscall_accept4(int sockfd,

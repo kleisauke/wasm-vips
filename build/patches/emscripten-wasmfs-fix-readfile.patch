@@ -1,0 +1,51 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Sat, 25 Jun 2022 17:21:57 +0200
+Subject: [PATCH 1/1] [WasmFS] Fix FS.readFile + WASM_BIGINT
+
+`_wasmfs_read_file` wrote a 32-bit unsigned integer, while
+`makeGetValue` in JS read this as a 64-bit integer.
+
+This caused the length to be returned incorrectly when linking
+with `-sWASM_BIGINT`. Fix this by ensuring that `_wasmfs_read_file`
+will write a 64-bit integer.
+
+Upstream-Status: Submitted [https://github.com/emscripten-core/emscripten/pull/17316]
+
+diff --git a/src/library_wasmfs.js b/src/library_wasmfs.js
+index 1111111..2222222 100644
+--- a/src/library_wasmfs.js
++++ b/src/library_wasmfs.js
+@@ -86,7 +86,7 @@ mergeInto(LibraryManager.library, {
+ 
+       // Copy the file into a JS buffer on the heap.
+       var buf = __wasmfs_read_file(pathName);
+-      // The integer length is returned in the first 8 bytes of the buffer.
++      // The integer length resides in the first 8 bytes of the buffer.
+       var length = {{{ makeGetValue('buf', '0', 'i64') }}};
+ 
+       // Default return type is binary.
+diff --git a/system/lib/wasmfs/js_api.cpp b/system/lib/wasmfs/js_api.cpp
+index 1111111..2222222 100644
+--- a/system/lib/wasmfs/js_api.cpp
++++ b/system/lib/wasmfs/js_api.cpp
+@@ -21,6 +21,8 @@ __wasi_fd_t wasmfs_create_file(char* pathname, mode_t mode, backend_t backend);
+ // The buffer will also contain the file length.
+ // Caller must free the returned pointer.
+ void* _wasmfs_read_file(char* path) {
++  static_assert(sizeof(off_t) == 8, "File offset type must be 64-bit");
++
+   struct stat file;
+   int err = 0;
+   err = stat(path, &file);
+@@ -33,8 +35,8 @@ void* _wasmfs_read_file(char* path) {
+   // first 8 bytes. The remaining bytes will contain the buffer contents. This
+   // allows the caller to use HEAPU8.subarray(buf + 8, buf + 8 + length).
+   off_t size = file.st_size;
+-  uint8_t* result = (uint8_t*)malloc((size + sizeof(size)));
+-  *(uint32_t*)result = size;
++  uint8_t* result = (uint8_t*)malloc(size + sizeof(size));
++  *(off_t*)result = size;
+ 
+   int fd = open(path, O_RDONLY);
+   if (fd < 0) {

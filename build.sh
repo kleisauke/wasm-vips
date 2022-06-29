@@ -141,14 +141,19 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-vector-as-js-array.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-allow-block-main-thread.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-windows-path.patch
-
-  # Need to rebuild libembind and libc, since we modified it
-  # with the patches above
-  embuilder.py build libembind libc-mt{,-debug} --force $LTO_FLAG
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-implement-munmap.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-implement-fs-unlink.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-mmap-avoid-set-allocated.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-mmap-shared.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-fix-readfile.patch
 
   # The system headers require to be reinstalled, as some of
-  # them have also been changed with the patches above
+  # them have been changed with the patches above
   embuilder.py build sysroot --force
+
+  # Need to rebuild libembind, libc, and libwasmfs, since we
+  # also modified it with the patches above
+  embuilder.py build libembind libc-mt{,-debug} libwasmfs{,-debug}-mt --force $LTO_FLAG
 fi
 
 echo "============================================="

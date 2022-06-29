@@ -19,22 +19,21 @@
   const height = 588;
 
   // https://www.flickr.com/photos/grizdave/2569067123/
-  const jpegFile = 'images/2569067123_aca715a2ee_o.jpg';
+  const jpegFile = '2569067123_aca715a2ee_o.jpg';
 
   // https://gist.github.com/gasi/769cfb9f2359a1fbedc5
-  const pngFile = 'images/alpha-premultiply-2048x1536-paper.png';
+  const pngFile = 'alpha-premultiply-2048x1536-paper.png';
 
   // https://www.gstatic.com/webp/gallery/4.webp
-  const webpFile = 'images/4.webp';
+  const webpFile = '4.webp';
 
   const benchFiles = [jpegFile, pngFile, webpFile];
 
   const vips = await Vips({
     locateFile: (fileName, scriptDirectory) => scriptDirectory + fileName,
     preRun: (module) => {
-      module.FS.mkdir('images');
       for (const file of benchFiles)
-        module.FS.createPreloadedFile('images', file.split('/').pop(), 'test/bench/' + file, true, false);
+        module.FS.createPreloadedFile('/', file.split('/').pop(), 'test/bench/images/' + file, true, false);
     }
   });
 

@@ -1,0 +1,55 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Sun, 26 Jun 2022 10:51:53 +0200
+Subject: [PATCH 1/1] [WasmFS] Implement FS.unlink
+
+Upstream-Status: Pending
+
+diff --git a/emcc.py b/emcc.py
+index 1111111..2222222 100644
+--- a/emcc.py
++++ b/emcc.py
+@@ -2068,6 +2068,7 @@ def phase_linker_setup(options, state, newargs, user_settings):
+         '_wasmfs_mkdir',
+         '_wasmfs_chdir',
+         '_wasmfs_symlink',
++        '_wasmfs_unlink',
+         '_wasmfs_chmod',
+         '_wasmfs_identify',
+       ]
+diff --git a/src/library_wasmfs.js b/src/library_wasmfs.js
+index 1111111..2222222 100644
+--- a/src/library_wasmfs.js
++++ b/src/library_wasmfs.js
+@@ -127,7 +127,11 @@ mergeInto(LibraryManager.library, {
+     symlink: (target, linkpath) => {
+       var targetBuffer = allocateUTF8OnStack(target);
+       var linkpathBuffer = allocateUTF8OnStack(linkpath);
+-      __wasmfs_symlink(targetBuffer, linkpathBuffer);
++      return __wasmfs_symlink(targetBuffer, linkpathBuffer);
++    },
++    unlink: (path) => {
++      var pathBuffer = allocateUTF8OnStack(path);
++      return __wasmfs_unlink(pathBuffer);
+     },
+     chmod: (path, mode) => {
+       var buffer = allocateUTF8OnStack(path);
+diff --git a/system/lib/wasmfs/js_api.cpp b/system/lib/wasmfs/js_api.cpp
+index 1111111..2222222 100644
+--- a/system/lib/wasmfs/js_api.cpp
++++ b/system/lib/wasmfs/js_api.cpp
+@@ -97,8 +97,12 @@ int _wasmfs_mkdir(char* path, int mode) {
+ 
+ int _wasmfs_chdir(char* path) { return __syscall_chdir((intptr_t)path); }
+ 
+-void _wasmfs_symlink(char* old_path, char* new_path) {
+-  __syscall_symlink((intptr_t)old_path, (intptr_t)new_path);
++int _wasmfs_symlink(char* old_path, char* new_path) {
++  return __syscall_symlink((intptr_t)old_path, (intptr_t)new_path);
++}
++
++int _wasmfs_unlink(char* path) {
++  return __syscall_unlinkat(AT_FDCWD, (intptr_t)path, 0);
+ }
+ 
+ int _wasmfs_chmod(char* path, mode_t mode) {

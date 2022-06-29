@@ -27,11 +27,6 @@ using vips::TargetCustom;
 
 #ifdef WASMFS
 EM_JS(bool, is_node, (), { return ENVIRONMENT_IS_NODE; });
-
-static backend_t get_backend() {
-    return is_node() ? wasmfs_create_node_backend(".")  // WASMFS_NODE_BACKEND
-                     : nullptr;                         // WASMFS_MEMORY_BACKEND
-}
 #endif
 
 int main() {
@@ -47,8 +42,13 @@ int main() {
     vips_cache_set_max_files(20);
 
 #ifdef WASMFS
-    int err = wasmfs_create_directory("/root", 0777, get_backend());
-    g_assert(err == 0);
+    if (is_node()) {
+        int err = wasmfs_create_directory("root", 0777,
+                                          wasmfs_create_node_backend("."));
+        g_assert(err == 0);
+        err = chdir("root");
+        g_assert(err == 0);
+    }
 #endif
 
     // Handy for debugging.

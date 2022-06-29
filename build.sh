@@ -73,9 +73,9 @@ if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 #export EMCC_DEBUG=1
 
 # Handy for catching bugs
-#export CFLAGS="-Os -gsource-map -fsanitize=address -sINITIAL_MEMORY=64MB"
+#export CFLAGS="-Os -gsource-map -fsanitize=address"
 #export CXXFLAGS="$CFLAGS"
-#export LDFLAGS="-L$TARGET/lib -Os -gsource-map -fsanitize=address"
+#export LDFLAGS="-L$TARGET/lib -Os -gsource-map -fsanitize=address -sINITIAL_MEMORY=64MB"
 
 # Specify location where source maps are published (browser specific)
 #export CFLAGS+=" --source-map-base http://localhost:3000/lib"
@@ -109,7 +109,7 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.6
 VERSION_FFI=3.4.2
-VERSION_GLIB=2.73.0
+VERSION_GLIB=2.73.1
 VERSION_EXPAT=2.4.8
 VERSION_EXIF=0.6.24
 VERSION_LCMS2=2.13.1
@@ -144,7 +144,7 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
 
   # Need to rebuild libembind and libc, since we modified it
   # with the patches above
-  embuilder.py build libembind libc-mt --force $LTO_FLAG
+  embuilder.py build libembind libc-mt{,-debug} --force $LTO_FLAG
 
   # The system headers require to be reinstalled, as some of
   # them have also been changed with the patches above
@@ -197,7 +197,7 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-function-pointers.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    --force-fallback-for=libpcre -Diconv="libc" -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
+    --force-fallback-for=libpcre,gvdb -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
     -Dtests=false -Dglib_assert=false -Dglib_checks=false
   ninja -C _build install
 )

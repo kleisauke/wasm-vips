@@ -54,10 +54,10 @@ index 1111111..2222222 100644
    _embind_register_bool__deps: [
 -    '$getShiftFromSize', '$readLatin1String', '$registerType'],
 +    '$getShiftFromSize', '$readLatin1String', '$registerType', '$getIntegerHeap'],
+   _embind_register_bool__sig: 'vpppii',
    _embind_register_bool: function(rawType, name, size, trueValue, falseValue) {
      var shift = getShiftFromSize(size);
- 
-@@ -457,16 +487,7 @@ var LibraryEmbind = {
+@@ -458,16 +488,7 @@ var LibraryEmbind = {
          'argPackAdvance': 8,
          'readValueFromPointer': function(pointer) {
              // TODO: if heap is fixed (like in asm.js) this could be executed outside
@@ -75,7 +75,7 @@ index 1111111..2222222 100644
              return this['fromWireType'](heap[pointer >> shift]);
          },
          destructorFunction: null, // This type does not need a destructor
-@@ -485,60 +506,57 @@ var LibraryEmbind = {
+@@ -486,60 +507,57 @@ var LibraryEmbind = {
      }
    },
  
@@ -159,7 +159,7 @@ index 1111111..2222222 100644
      }
    },
  
-@@ -562,7 +580,7 @@ var LibraryEmbind = {
+@@ -566,7 +584,7 @@ var LibraryEmbind = {
          fromWireType = (value) => (value << bitshift) >>> bitshift;
      }
  
@@ -168,7 +168,7 @@ index 1111111..2222222 100644
      var checkAssertions = (value, toTypeName) => {
  #if ASSERTIONS
          if (typeof value != "number" && typeof value != "boolean") {
-@@ -605,7 +623,7 @@ var LibraryEmbind = {
+@@ -610,7 +628,7 @@ var LibraryEmbind = {
  
      var shift = getShiftFromSize(size);
  
@@ -177,7 +177,7 @@ index 1111111..2222222 100644
  
      // maxRange comes through as -1 for uint64_t (see issue 13902). Work around that temporarily
      if (isUnsignedType) {
-@@ -773,6 +791,7 @@ var LibraryEmbind = {
+@@ -779,6 +797,7 @@ var LibraryEmbind = {
  
    _embind_register_std_wstring__deps: [
      '$readLatin1String', '$registerType', '$simpleReadValueFromPointer',
@@ -185,7 +185,7 @@ index 1111111..2222222 100644
  #if MINIMAL_RUNTIME
      '$UTF16ToString', '$stringToUTF16', '$lengthBytesUTF16',
      '$UTF32ToString', '$stringToUTF32', '$lengthBytesUTF32',
-@@ -780,18 +799,16 @@ var LibraryEmbind = {
+@@ -786,18 +805,16 @@ var LibraryEmbind = {
      ],
    _embind_register_std_wstring: function(rawType, charSize, name) {
      name = readLatin1String(name);
@@ -205,7 +205,7 @@ index 1111111..2222222 100644
        shift = 2;
      }
      registerType(rawType, {
-@@ -799,7 +816,7 @@ var LibraryEmbind = {
+@@ -805,7 +822,7 @@ var LibraryEmbind = {
        'fromWireType': function(value) {
          // Code mostly taken from _embind_register_std_string fromWireType
          var length = HEAPU32[value >> 2];
@@ -214,7 +214,7 @@ index 1111111..2222222 100644
          var str;
  
          var decodeStartPtr = value + 4;
-@@ -873,6 +892,71 @@ var LibraryEmbind = {
+@@ -879,6 +896,71 @@ var LibraryEmbind = {
      });
    },
  
@@ -304,7 +304,7 @@ index 1111111..2222222 100644
  void _embind_register_emval(
      TYPEID emvalType,
      const char* name);
-@@ -1754,7 +1761,8 @@ namespace emscripten {
+@@ -1784,7 +1791,8 @@ namespace emscripten {
  } // end namespace internal
  
  template<typename T>
@@ -314,7 +314,7 @@ index 1111111..2222222 100644
      typedef std::vector<T> VecType;
  
      void (VecType::*push_back)(const T&) = &VecType::push_back;
-@@ -1770,6 +1778,17 @@ namespace emscripten {
+@@ -1800,6 +1808,17 @@ namespace emscripten {
          ;
  }
  

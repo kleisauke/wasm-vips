@@ -12,15 +12,15 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -810,7 +810,7 @@ libgio = library('gio-2.0',
+@@ -812,7 +812,7 @@ libgio = library('gio-2.0',
    include_directories : [configinc, gioinc],
    #  '$(gio_win32_res_ldflag)',
    link_with: internal_deps,
 -  dependencies : [libz_dep, libdl_dep, libmount_dep, libglib_dep,
 +  dependencies : [libz_dep, libdl_dep, libmount_dep, thread_dep, libglib_dep,
                    libgobject_dep, libgmodule_dep, selinux_dep, xattr_dep,
-                   platform_deps, network_libs, libsysprof_capture_dep],
-   c_args : gio_c_args,
+                   platform_deps, network_libs, libsysprof_capture_dep,
+                   gioenumtypes_dep, gvdb_dep],
 diff --git a/gobject/meson.build b/gobject/meson.build
 index 1111111..2222222 100644
 --- a/gobject/meson.build
@@ -48,7 +48,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1834,7 +1834,7 @@ atomicdefine = '''
+@@ -1858,7 +1858,7 @@ atomicdefine = '''
  # We know that we can always use real ("lock free") atomic operations with MSVC
  if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
    have_atomic_lock_free = true
@@ -69,7 +69,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -683,7 +683,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix : '#inc
+@@ -707,7 +707,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix: '#incl
  endif
  
  # Check that posix_spawn() is usable; must use header
@@ -110,7 +110,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -427,7 +427,7 @@ foreach m : struct_members
+@@ -451,7 +451,7 @@ foreach m : struct_members
  endforeach
  
  # Compiler flags
@@ -119,7 +119,7 @@ index 1111111..2222222 100644
    warning_common_args = [
      '-Wduplicated-branches',
      '-Wimplicit-fallthrough',
-@@ -1509,10 +1509,10 @@ g_sizet_compatibility = {
+@@ -1533,10 +1533,10 @@ g_sizet_compatibility = {
    'long long': sizet_size == long_long_size,
  }
  
@@ -152,7 +152,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -982,9 +982,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
+@@ -1006,9 +1006,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
    glib_conf.set('HAVE_C99_SNPRINTF', false)
    glib_conf.set('HAVE_C99_VSNPRINTF', false)
    glib_conf.set('HAVE_UNIX98_PRINTF', false)
@@ -235,7 +235,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -917,101 +917,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
+@@ -920,101 +920,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
      output : ['gconstructor_as_data.h'],
      command : [python, '@INPUT0@', '@INPUT1@', 'gconstructor_code', '@OUTPUT@'])
  
@@ -283,19 +283,19 @@ index 1111111..2222222 100644
 -  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
 -
 -glib_compile_schemas = executable('glib-compile-schemas',
--  ['gvdb/gvdb-builder.c', 'glib-compile-schemas.c'],
+-  ['glib-compile-schemas.c'],
 -  install : true,
 -  # intl.lib is not compatible with SAFESEH
 -  link_args : noseh_link_args,
--  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
+-  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep, gvdb_dep])
 -
 -glib_compile_resources = executable('glib-compile-resources',
--  [gconstructor_as_data_h, 'gvdb/gvdb-builder.c', 'glib-compile-resources.c'],
+-  [gconstructor_as_data_h, 'glib-compile-resources.c'],
 -  install : true,
 -  c_args : gio_c_args,
 -  # intl.lib is not compatible with SAFESEH
 -  link_args : noseh_link_args,
--  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
+-  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep, gvdb_dep])
 -
 -# Cannot override those programs in cross compilation case because they are
 -# native executables that cannot be run on the build machine.
@@ -369,7 +369,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -2326,7 +2326,6 @@ subdir('gobject')
+@@ -2344,7 +2344,6 @@ subdir('gobject')
  subdir('gthread')
  subdir('gmodule')
  subdir('gio')

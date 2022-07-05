@@ -153,7 +153,7 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
 
   # Need to rebuild libembind, libc, and libwasmfs, since we
   # also modified it with the patches above
-  embuilder.py build libembind libc-mt{,-debug} libwasmfs{,-debug}-mt --force $LTO_FLAG
+  embuilder.py build libembind libc-mt{,-debug} libwasmfs-mt{,-debug} --force $LTO_FLAG
 fi
 
 echo "============================================="
@@ -387,7 +387,7 @@ echo "============================================="
 echo "============================================="
 echo "Prepare NPM package"
 echo "============================================="
-[ "$ENVIRONMENT" = "web,node" ] && (
+[ "$ENVIRONMENT" != "web,node" ] || (
   # Building for both Node.js and web, prepare NPM package
   # FIXME(kleisauke): Workaround for https://github.com/emscripten-core/emscripten/issues/11792
   sed -i '1iimport { dirname } from "path";' $SOURCE_DIR/lib/node-es6/vips.mjs

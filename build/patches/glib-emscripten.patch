@@ -38,9 +38,10 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:00:00 +0200
-Subject: [PATCH 2/10] LLVM doesn't define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
+Subject: [PATCH 2/10] Emscripten doesn't define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
+ either
 
-See: https://bugs.llvm.org/show_bug.cgi?id=11174
+https://bugs.llvm.org/show_bug.cgi?id=11174 might be relevant here.
 
 Upstream-Status: Pending
 
@@ -48,15 +49,17 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1858,7 +1858,7 @@ atomicdefine = '''
+@@ -1858,8 +1858,8 @@ atomicdefine = '''
  # We know that we can always use real ("lock free") atomic operations with MSVC
  if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
    have_atomic_lock_free = true
 -  if cc.get_id() == 'gcc' and not cc.compiles(atomicdefine, name : 'atomic ops define')
-+  if not cc.compiles(atomicdefine, name : 'atomic ops define')
-     # Old gcc release may provide
+-    # Old gcc release may provide
++  if (cc.get_id() == 'gcc' or host_system == 'emscripten') and not cc.compiles(atomicdefine, name : 'atomic ops define')
++    # gcc (some old releases) or Emscripten provides
      # __sync_bool_compare_and_swap but doesn't define
      # __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
+     glib_conf.set('__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4', true)
 
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>

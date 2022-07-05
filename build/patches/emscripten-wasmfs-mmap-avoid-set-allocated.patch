@@ -9,10 +9,10 @@ may occur (causing the pointer to be `free()`'d).
 Upstream-Status: Submitted [https://github.com/emscripten-core/emscripten/pull/17317]
 
 diff --git a/system/lib/wasmfs/syscalls.cpp b/system/lib/wasmfs/syscalls.cpp
-index 47c561862..47fe0aa52 100644
+index 1111111..2222222 100644
 --- a/system/lib/wasmfs/syscalls.cpp
 +++ b/system/lib/wasmfs/syscalls.cpp
-@@ -1508,7 +1508,6 @@ intptr_t _mmap_js(
+@@ -1529,7 +1529,6 @@ intptr_t _mmap_js(
    if (!ptr) {
      return -ENOMEM;
    }

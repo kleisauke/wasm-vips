@@ -15,7 +15,7 @@ interface EmscriptenModule {
 
     instantiateWasm(
         imports: WebAssembly.Imports,
-        successCallback: (module: WebAssembly.Module) => void
+        successCallback: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void
     ): WebAssembly.Exports;
     locateFile(url: string, scriptDirectory: string): string;
     mainScriptUrlOrBlob: Blob | File | string;

@@ -67,13 +67,13 @@ fi
 if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 
 # Handy for debugging
-#export CFLAGS="-O0 -gsource-map"
+#export CFLAGS="-O0 -gsource-map -pthread"
 #export CXXFLAGS="$CFLAGS"
 #export LDFLAGS="-L$TARGET/lib -O0 -gsource-map"
 #export EMCC_DEBUG=1
 
 # Handy for catching bugs
-#export CFLAGS="-Os -gsource-map -fsanitize=address"
+#export CFLAGS="-Os -gsource-map -fsanitize=address -pthread"
 #export CXXFLAGS="$CFLAGS"
 #export LDFLAGS="-L$TARGET/lib -Os -gsource-map -fsanitize=address -sINITIAL_MEMORY=64MB"
 
@@ -81,7 +81,7 @@ if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 #export CFLAGS+=" --source-map-base http://localhost:3000/lib"
 
 # Common compiler flags
-export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint"
+export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint -pthread"
 if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"; fi
 if [ "$WASM_BIGINT" = "true" ]; then
   # libffi needs to detect WASM_BIGINT support at compile time
@@ -109,7 +109,7 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.6
 VERSION_FFI=3.4.2
-VERSION_GLIB=2.73.1
+VERSION_GLIB=2.73.2
 VERSION_EXPAT=2.4.8
 VERSION_EXIF=0.6.24
 VERSION_LCMS2=2.13.1
@@ -183,6 +183,7 @@ test -f "$TARGET/lib/pkgconfig/libffi.pc" || (
   mkdir $DEPS/ffi
   curl -Ls https://github.com/libffi/libffi/releases/download/v$VERSION_FFI/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
   cd $DEPS/ffi
+  # TODO(kleisauke): https://github.com/hoodmane/libffi-emscripten/issues/16
   patch -p1 <$SOURCE_DIR/build/patches/libffi-emscripten.patch
   autoreconf -fiv
   # Compile without -fexceptions
@@ -199,10 +200,13 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   mkdir $DEPS/glib
   curl -Lks https://download.gnome.org/sources/glib/$(without_patch $VERSION_GLIB)/glib-$VERSION_GLIB.tar.xz | tar xJC $DEPS/glib --strip-components=1
   cd $DEPS/glib
+  patch -p1 <$SOURCE_DIR/build/patches/glib-without-tools.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-without-gregex.patch
+  # TODO(kleisauke): Discuss these patches upstream
   patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-function-pointers.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    --force-fallback-for=libpcre,gvdb -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
+    --force-fallback-for=gvdb -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
     -Dtests=false -Dglib_assert=false -Dglib_checks=false
   ninja -C _build install
 )
@@ -272,8 +276,6 @@ test -f "$TARGET/lib/pkgconfig/libpng16.pc" || (
   sed -i '/^option USER_LIMITS/s/requires READ//' scripts/pnglibconf.dfa
   # The hardware optimizations in libpng are only used for reading PNG images, since we use libspng
   # for that we can safely pass --disable-hardware-optimizations and compile with -DPNG_NO_READ
-  # Need to compile with -pthread after https://reviews.llvm.org/D120013 as png.c uses setjmp/longjmp
-  CFLAGS="$CFLAGS -pthread" \
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-hardware-optimizations --disable-unversioned-libpng-config --without-binconfigs CPPFLAGS="-DPNG_NO_READ"
   make install dist_man_MANS= bin_PROGRAMS=
@@ -343,8 +345,6 @@ test -f "$TARGET/lib/pkgconfig/libtiff-4.pc" || (
   mkdir $DEPS/tiff
   curl -Ls https://download.osgeo.org/libtiff/tiff-$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1
   cd $DEPS/tiff
-  # Need to compile with -pthread after https://reviews.llvm.org/D120013 as tif_jpeg.c uses setjmp/longjmp
-  CFLAGS="$CFLAGS -pthread" \
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-mdi --disable-pixarlog --disable-old-jpeg --disable-cxx
   make -C 'libtiff' install noinst_PROGRAMS=

@@ -22,14 +22,14 @@ add_library(${PROJECT_NAME} OBJECT ${HEADERS} ${SOURCES})
 
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
-            COMPILE_FLAGS "-pthread -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0"
+            COMPILE_FLAGS "-DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0"
             LINK_FLAGS "-lembind"
         )
 
 target_compile_definitions(${PROJECT_NAME}
         PUBLIC
             $<$<CONFIG:Release>:G_DISABLE_CAST_CHECK G_DISABLE_CHECKS G_DISABLE_ASSERT>
-)
+        )
 
 target_include_directories(${PROJECT_NAME}
         PRIVATE
@@ -44,7 +44,7 @@ target_link_libraries(${PROJECT_NAME}
 # List of targets
 set(TARGETS "")
 
-if("node" IN_LIST ENVIRONMENT)
+if ("node" IN_LIST ENVIRONMENT)
     add_executable(${PROJECT_NAME}-node-es6 $<TARGET_OBJECTS:${PROJECT_NAME}>)
     add_executable(${PROJECT_NAME}-node-commonjs $<TARGET_OBJECTS:${PROJECT_NAME}>)
 
@@ -70,7 +70,7 @@ if("node" IN_LIST ENVIRONMENT)
     list(APPEND TARGETS ${PROJECT_NAME}-node-es6 ${PROJECT_NAME}-node-commonjs)
 endif()
 
-if("web" IN_LIST ENVIRONMENT)
+if ("web" IN_LIST ENVIRONMENT)
     add_executable(${PROJECT_NAME}-web $<TARGET_OBJECTS:${PROJECT_NAME}>)
     add_executable(${PROJECT_NAME}-web-es6 $<TARGET_OBJECTS:${PROJECT_NAME}>)
 
@@ -132,12 +132,12 @@ set_target_properties(${TARGETS}
 -sALLOW_BLOCKING_ON_MAIN_THREAD \
 -sTEXTDECODER=2 \
 -sASSERTIONS=0 \
+-sLEGACY_RUNTIME=0 \
 -sFORCE_FILESYSTEM \
--sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=emscripten_num_logical_cores \
 -sEXPORTED_RUNTIME_METHODS=FS,ENV,deletionQueue,addFunction"
         )
 
-if("node" IN_LIST ENVIRONMENT)
+if ("node" IN_LIST ENVIRONMENT)
     set(NODE_LINK_FLAGS "-sENVIRONMENT=node,worker -sNODERAWFS -sNODEJS_CATCH_EXIT=0 -sNODEJS_CATCH_REJECTION=0")
     set_property(
             TARGET ${PROJECT_NAME}-node-es6
@@ -151,7 +151,7 @@ if("node" IN_LIST ENVIRONMENT)
             )
 endif()
 
-if("web" IN_LIST ENVIRONMENT)
+if ("web" IN_LIST ENVIRONMENT)
     set(WEB_CORS_WORKAROUND "--pre-js=${CMAKE_CURRENT_SOURCE_DIR}/locatefile-cors-pre.js")
     set(WEB_MIN_TARGETS "-sMIN_FIREFOX_VERSION=89 -sMIN_EDGE_VERSION=91 -sMIN_CHROME_VERSION=91")
     set(WEB_LINK_FLAGS "-sENVIRONMENT=web,worker -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$Browser ${WEB_MIN_TARGETS}")

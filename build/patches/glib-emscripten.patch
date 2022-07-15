@@ -1,44 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
-Date: Wed, 30 Sep 2020 14:00:00 +0200
-Subject: [PATCH 1/10] Explicitly link gio and gobject against pthread
-
-To ensure that the compiled code uses the "atomics" target feature of WASM.
-
-Upstream-Status: Inappropriate [Emscripten specific]
-Specific for Emscripten and not appropriate for native environments.
-
-diff --git a/gio/meson.build b/gio/meson.build
-index 1111111..2222222 100644
---- a/gio/meson.build
-+++ b/gio/meson.build
-@@ -812,7 +812,7 @@ libgio = library('gio-2.0',
-   include_directories : [configinc, gioinc],
-   #  '$(gio_win32_res_ldflag)',
-   link_with: internal_deps,
--  dependencies : [libz_dep, libdl_dep, libmount_dep, libglib_dep,
-+  dependencies : [libz_dep, libdl_dep, libmount_dep, thread_dep, libglib_dep,
-                   libgobject_dep, libgmodule_dep, selinux_dep, xattr_dep,
-                   platform_deps, network_libs, libsysprof_capture_dep,
-                   gioenumtypes_dep, gvdb_dep],
-diff --git a/gobject/meson.build b/gobject/meson.build
-index 1111111..2222222 100644
---- a/gobject/meson.build
-+++ b/gobject/meson.build
-@@ -133,7 +133,7 @@ libgobject = library('gobject-2.0',
-   darwin_versions : darwin_versions,
-   install : true,
-   include_directories : [configinc],
--  dependencies : [libffi_dep, libglib_dep],
-+  dependencies : [libffi_dep, thread_dep, libglib_dep],
-   c_args : ['-DG_LOG_DOMAIN="GLib-GObject"', '-DGOBJECT_COMPILATION'] + glib_hidden_visibility_args,
-   link_args : glib_link_flags,
- )
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:00:00 +0200
-Subject: [PATCH 2/10] Emscripten doesn't define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
+Subject: [PATCH 1/8] Emscripten doesn't define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
  either
 
 https://bugs.llvm.org/show_bug.cgi?id=11174 might be relevant here.
@@ -49,7 +12,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1858,8 +1858,8 @@ atomicdefine = '''
+@@ -1868,8 +1868,8 @@ atomicdefine = '''
  # We know that we can always use real ("lock free") atomic operations with MSVC
  if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
    have_atomic_lock_free = true
@@ -64,7 +27,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:20:00 +0200
-Subject: [PATCH 3/10] posix_spawn isn't usable in WASM
+Subject: [PATCH 2/8] posix_spawn isn't usable in WASM
 
 Upstream-Status: Pending
 
@@ -72,7 +35,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -707,7 +707,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix: '#incl
+@@ -709,7 +709,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix: '#incl
  endif
  
  # Check that posix_spawn() is usable; must use header
@@ -84,7 +47,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:40:00 +0200
-Subject: [PATCH 4/10] Network libs are not available in WASM
+Subject: [PATCH 3/8] Network libs are not available in WASM
 
 Upstream-Status: Pending
 
@@ -105,7 +68,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 22 Apr 2020 12:11:28 +0200
-Subject: [PATCH 5/10] Ensure separate checks are also done for Emscripten
+Subject: [PATCH 4/8] Ensure separate checks are also done for Emscripten
 
 Upstream-Status: Pending
 
@@ -122,7 +85,7 @@ index 1111111..2222222 100644
    warning_common_args = [
      '-Wduplicated-branches',
      '-Wimplicit-fallthrough',
-@@ -1533,10 +1533,10 @@ g_sizet_compatibility = {
+@@ -1549,10 +1549,10 @@ g_sizet_compatibility = {
    'long long': sizet_size == long_long_size,
  }
  
@@ -140,7 +103,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Tue, 13 Apr 2021 15:30:00 +0200
-Subject: [PATCH 6/10] Use vsnpintf/snprintf/printf from musl libc
+Subject: [PATCH 5/8] Use vsnpintf/snprintf/printf from musl libc
 
 The C99 semantics of these functions is well supported in musl libc.
 
@@ -155,7 +118,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1006,9 +1006,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
+@@ -1022,9 +1022,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
    glib_conf.set('HAVE_C99_SNPRINTF', false)
    glib_conf.set('HAVE_C99_VSNPRINTF', false)
    glib_conf.set('HAVE_UNIX98_PRINTF', false)
@@ -172,7 +135,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Fri, 15 Nov 2019 11:00:00 +0100
-Subject: [PATCH 7/10] Implement g_get_num_processors for Emscripten
+Subject: [PATCH 6/8] Implement g_get_num_processors for Emscripten
 
 Upstream-Status: Pending
 
@@ -206,7 +169,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Tue, 25 May 2021 11:00:00 +0200
-Subject: [PATCH 8/10] Disable GModule implementation on Emscripten
+Subject: [PATCH 7/8] Disable GModule implementation on Emscripten
 
 Upstream-Status: Pending
 
@@ -219,164 +182,8 @@ index 1111111..2222222 100644
  elif host_system == 'aix'
    g_module_impl = 'G_MODULE_IMPL_AR'
 -elif have_dlopen_dlsym
-+# Dynamic linking should be avoided whenever possible on Emscripten
++# Static linking should be preferred on Emscripten whenever possible
 +elif have_dlopen_dlsym and host_system != 'emscripten'
    g_module_impl = 'G_MODULE_IMPL_DL'
  endif
  
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Kleis Auke Wolthuizen <github@kleisauke.nl>
-Date: Tue, 8 Oct 2019 11:30:00 +0200
-Subject: [PATCH 9/10] Do not build executables
-
-We're only interested in the libraries.
-
-Upstream-Status: Inappropriate [disable feature]
-This patch is just for our convenience.
-
-diff --git a/gio/meson.build b/gio/meson.build
-index 1111111..2222222 100644
---- a/gio/meson.build
-+++ b/gio/meson.build
-@@ -920,101 +920,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
-     output : ['gconstructor_as_data.h'],
-     command : [python, '@INPUT0@', '@INPUT1@', 'gconstructor_code', '@OUTPUT@'])
- 
--# Several installed executables
--gio_tool_sources = [
--  'gio-tool.c',
--  'gio-tool.h',
--  'gio-tool-cat.c',
--  'gio-tool-copy.c',
--  'gio-tool-info.c',
--  'gio-tool-launch.c',
--  'gio-tool-list.c',
--  'gio-tool-mime.c',
--  'gio-tool-mkdir.c',
--  'gio-tool-monitor.c',
--  'gio-tool-mount.c',
--  'gio-tool-move.c',
--  'gio-tool-open.c',
--  'gio-tool-rename.c',
--  'gio-tool-remove.c',
--  'gio-tool-save.c',
--  'gio-tool-set.c',
--  'gio-tool-trash.c',
--  'gio-tool-tree.c',
--]
--
--executable('gio', gio_tool_sources,
--  install : true,
--  c_args : gio_c_args,
--  # intl.lib is not compatible with SAFESEH
--  link_args : noseh_link_args,
--  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
--
--executable('gresource', 'gresource-tool.c',
--  install : true,
--  # intl.lib is not compatible with SAFESEH
--  link_args : noseh_link_args,
--  dependencies : [libelf, libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
--
--gio_querymodules = executable('gio-querymodules', 'gio-querymodules.c', 'giomodule-priv.c',
--  install : true,
--  c_args : gio_c_args,
--  # intl.lib is not compatible with SAFESEH
--  link_args : noseh_link_args,
--  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
--
--glib_compile_schemas = executable('glib-compile-schemas',
--  ['glib-compile-schemas.c'],
--  install : true,
--  # intl.lib is not compatible with SAFESEH
--  link_args : noseh_link_args,
--  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep, gvdb_dep])
--
--glib_compile_resources = executable('glib-compile-resources',
--  [gconstructor_as_data_h, 'glib-compile-resources.c'],
--  install : true,
--  c_args : gio_c_args,
--  # intl.lib is not compatible with SAFESEH
--  link_args : noseh_link_args,
--  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep, gvdb_dep])
--
--# Cannot override those programs in cross compilation case because they are
--# native executables that cannot be run on the build machine.
--# See https://gitlab.gnome.org/GNOME/glib/issues/1859.
--if meson.can_run_host_binaries()
--  meson.override_find_program('glib-compile-schemas', glib_compile_schemas)
--  meson.override_find_program('glib-compile-resources', glib_compile_resources)
--  meson.override_find_program('gio-querymodules', gio_querymodules)
--endif
--
--executable('gsettings', 'gsettings-tool.c',
--  install : true,
--  c_args : gio_c_args,
--  # intl.lib is not compatible with SAFESEH
--  link_args : noseh_link_args,
--  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
--install_data('gschema.dtd',
--  install_dir : join_paths(get_option('datadir'), schemas_subdir))
--
--install_data(['gschema.loc', 'gschema.its'],
--  install_dir : join_paths(get_option('datadir'), 'gettext/its'))
--
--executable('gdbus', 'gdbus-tool.c',
--  install : true,
--  c_args : gio_c_args,
--  # intl.lib is not compatible with SAFESEH
--  link_args : noseh_link_args,
--  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
--
--if host_system != 'windows' and not glib_have_cocoa
--  executable('gapplication', 'gapplication-tool.c',
--    install : true,
--    c_args : gio_c_args,
--    # intl.lib is not compatible with SAFESEH
--    link_args : noseh_link_args,
--    dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
--endif
--
- if enable_systemtap
-   gio_stp = configure_file(input : 'gio.stp.in',
-     output : '@0@.stp'.format(libgio.full_path().split('/').get(-1)),
-diff --git a/glib/meson.build b/glib/meson.build
-index 1111111..2222222 100644
---- a/glib/meson.build
-+++ b/glib/meson.build
-@@ -428,7 +428,7 @@ if host_system == 'windows'
-       include_directories : configinc,
-       dependencies : [libglib_dep])
-   endif
--else
-+elif host_system != 'emscripten'
-   gtester = executable('gtester', 'gtester.c',
-     install : true,
-     c_args : ['-UG_DISABLE_ASSERT'],
-diff --git a/gobject/meson.build b/gobject/meson.build
-index 1111111..2222222 100644
---- a/gobject/meson.build
-+++ b/gobject/meson.build
-@@ -152,10 +152,6 @@ libgobject_dep = declare_dependency(link_with : libgobject,
-   dependencies : [libglib_dep, glib_enumtypes_dep])
- meson.override_dependency('gobject-2.0', libgobject_dep)
- 
--executable('gobject-query', 'gobject-query.c',
--  install : true,
--  dependencies : [libglib_dep, libgobject_dep])
--
- install_data('gobject_gdb.py', install_dir : join_paths(glib_pkgdatadir, 'gdb'))
- gdb_conf = configuration_data()
- gdb_conf.set('datadir', glib_datadir)
-diff --git a/meson.build b/meson.build
-index 1111111..2222222 100644
---- a/meson.build
-+++ b/meson.build
-@@ -2344,7 +2344,6 @@ subdir('gobject')
- subdir('gthread')
- subdir('gmodule')
- subdir('gio')
--subdir('fuzzing')
- if build_tests
-   subdir('tests')
- endif

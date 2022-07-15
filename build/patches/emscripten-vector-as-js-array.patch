@@ -182,10 +182,10 @@ index 1111111..2222222 100644
    _embind_register_std_wstring__deps: [
      '$readLatin1String', '$registerType', '$simpleReadValueFromPointer',
 +    '$getIntegerHeap',
- #if MINIMAL_RUNTIME
      '$UTF16ToString', '$stringToUTF16', '$lengthBytesUTF16',
      '$UTF32ToString', '$stringToUTF32', '$lengthBytesUTF32',
-@@ -792,18 +811,16 @@ var LibraryEmbind = {
+     ],
+@@ -790,18 +809,16 @@ var LibraryEmbind = {
      ],
    _embind_register_std_wstring: function(rawType, charSize, name) {
      name = readLatin1String(name);
@@ -205,7 +205,7 @@ index 1111111..2222222 100644
        shift = 2;
      }
      registerType(rawType, {
-@@ -811,7 +828,7 @@ var LibraryEmbind = {
+@@ -809,7 +826,7 @@ var LibraryEmbind = {
        'fromWireType': function(value) {
          // Code mostly taken from _embind_register_std_string fromWireType
          var length = HEAPU32[value >> 2];
@@ -214,7 +214,7 @@ index 1111111..2222222 100644
          var str;
  
          var decodeStartPtr = value + 4;
-@@ -886,6 +903,71 @@ var LibraryEmbind = {
+@@ -884,6 +901,71 @@ var LibraryEmbind = {
      });
    },
  

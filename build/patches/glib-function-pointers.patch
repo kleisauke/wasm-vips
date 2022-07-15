@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Fri, 20 Sep 2019 16:05:00 +0200
-Subject: [PATCH 10/10] Fix function pointer cast issues
+Subject: [PATCH 8/8] Fix function pointer cast issues
 
 It is undefined behavior in C and C++ to cast a function pointer
 to another type and call it that way. This does work in most native
@@ -341,7 +341,7 @@ diff --git a/gio/gdbusdaemon.c b/gio/gdbusdaemon.c
 index 1111111..2222222 100644
 --- a/gio/gdbusdaemon.c
 +++ b/gio/gdbusdaemon.c
-@@ -69,8 +69,10 @@ enum
+@@ -90,8 +90,10 @@ enum
  static guint g_dbus_daemon_signals[NR_SIGNALS];
  
  
@@ -354,7 +354,7 @@ index 1111111..2222222 100644
  
  #define g_dbus_daemon_get_type _g_dbus_daemon_get_type
  G_DEFINE_TYPE_WITH_CODE (GDBusDaemon, g_dbus_daemon, _G_TYPE_FREEDESKTOP_DBUS_SKELETON,
-@@ -1702,7 +1704,8 @@ g_dbus_daemon_class_init (GDBusDaemonClass *klass)
+@@ -1723,7 +1725,8 @@ g_dbus_daemon_class_init (GDBusDaemonClass *klass)
  }
  
  static void
@@ -364,7 +364,7 @@ index 1111111..2222222 100644
  {
    iface->handle_add_match = handle_add_match;
    iface->handle_get_connection_selinux_security_context = handle_get_connection_selinux_security_context;
-@@ -1724,7 +1727,8 @@ g_dbus_daemon_iface_init (_GFreedesktopDBusIface *iface)
+@@ -1745,7 +1748,8 @@ g_dbus_daemon_iface_init (_GFreedesktopDBusIface *iface)
  }
  
  static void
@@ -544,7 +544,7 @@ index 1111111..2222222 100644
  static gboolean g_desktop_app_info_ensure_saved       (GDesktopAppInfo  *info,
                                                         GError          **error);
  static gboolean g_desktop_app_info_load_file (GDesktopAppInfo *self);
-@@ -4274,7 +4275,8 @@ g_app_info_create_from_commandline (const char           *commandline,
+@@ -4279,7 +4280,8 @@ g_app_info_create_from_commandline (const char           *commandline,
  /* GAppInfo interface init */
  
  static void
@@ -1428,7 +1428,7 @@ diff --git a/gio/gosxappinfo.m b/gio/gosxappinfo.m
 index 1111111..2222222 100644
 --- a/gio/gosxappinfo.m
 +++ b/gio/gosxappinfo.m
-@@ -41,7 +41,8 @@
+@@ -43,7 +43,8 @@
   * Note that `<gio/gosxappinfo.h>` is unique to OSX.
   */
  
@@ -1438,7 +1438,7 @@ index 1111111..2222222 100644
  static const char *g_osx_app_info_get_id     (GAppInfo      *appinfo);
  
  /**
-@@ -555,7 +556,8 @@ g_osx_app_info_can_delete (GAppInfo *appinfo)
+@@ -557,7 +558,8 @@ g_osx_app_info_can_delete (GAppInfo *appinfo)
  }
  
  static void
@@ -1944,7 +1944,7 @@ index 1111111..2222222 100644
  static void g_task_thread_pool_init (void);
  
  G_DEFINE_TYPE_WITH_CODE (GTask, g_task, G_TYPE_OBJECT,
-@@ -2279,7 +2280,8 @@ g_task_is_tagged (GAsyncResult *res,
+@@ -2280,7 +2281,8 @@ g_task_is_tagged (GAsyncResult *res,
  }
  
  static void
@@ -2306,7 +2306,7 @@ diff --git a/gobject/gobject.c b/gobject/gobject.c
 index 1111111..2222222 100644
 --- a/gobject/gobject.c
 +++ b/gobject/gobject.c
-@@ -197,7 +197,8 @@ G_STATIC_ASSERT(G_STRUCT_OFFSET(GObject, qdata) == G_STRUCT_OFFSET(GObjectReal,
+@@ -203,7 +203,8 @@ G_STATIC_ASSERT(G_STRUCT_OFFSET(GObject, qdata) == G_STRUCT_OFFSET(GObjectReal,
  /* --- prototypes --- */
  static void	g_object_base_class_init		(GObjectClass	*class);
  static void	g_object_base_class_finalize		(GObjectClass	*class);
@@ -2316,7 +2316,7 @@ index 1111111..2222222 100644
  static void	g_object_init				(GObject	*object,
  							 GObjectClass	*class);
  static GObject*	g_object_constructor			(GType                  type,
-@@ -512,7 +513,8 @@ g_object_base_class_finalize (GObjectClass *class)
+@@ -518,7 +519,8 @@ g_object_base_class_finalize (GObjectClass *class)
  }
  
  static void
@@ -2330,7 +2330,7 @@ diff --git a/gobject/gparam.h b/gobject/gparam.h
 index 1111111..2222222 100644
 --- a/gobject/gparam.h
 +++ b/gobject/gparam.h
-@@ -397,7 +397,8 @@ struct _GParamSpecTypeInfo
+@@ -399,7 +399,8 @@ struct _GParamSpecTypeInfo
    /* type system portion */
    guint16         instance_size;                               /* obligatory */
    guint16         n_preallocs;                                 /* optional */
@@ -2344,7 +2344,7 @@ diff --git a/gobject/gparamspecs.c b/gobject/gparamspecs.c
 index 1111111..2222222 100644
 --- a/gobject/gparamspecs.c
 +++ b/gobject/gparamspecs.c
-@@ -64,7 +64,8 @@
+@@ -66,7 +66,8 @@
  
  /* --- param spec functions --- */
  static void
@@ -2354,7 +2354,7 @@ index 1111111..2222222 100644
  {
    GParamSpecChar *cspec = G_PARAM_SPEC_CHAR (pspec);
    
-@@ -103,7 +104,8 @@ param_char_validate (GParamSpec *pspec,
+@@ -105,7 +106,8 @@ param_char_validate (GParamSpec *pspec,
  }
  
  static void
@@ -2364,7 +2364,7 @@ index 1111111..2222222 100644
  {
    GParamSpecUChar *uspec = G_PARAM_SPEC_UCHAR (pspec);
    
-@@ -169,7 +171,8 @@ param_boolean_validate (GParamSpec *pspec,
+@@ -171,7 +173,8 @@ param_boolean_validate (GParamSpec *pspec,
  }
  
  static void
@@ -2374,7 +2374,7 @@ index 1111111..2222222 100644
  {
    GParamSpecInt *ispec = G_PARAM_SPEC_INT (pspec);
    
-@@ -219,7 +222,8 @@ param_int_values_cmp (GParamSpec   *pspec,
+@@ -221,7 +224,8 @@ param_int_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2384,7 +2384,7 @@ index 1111111..2222222 100644
  {
    GParamSpecUInt *uspec = G_PARAM_SPEC_UINT (pspec);
    
-@@ -269,7 +273,8 @@ param_uint_values_cmp (GParamSpec   *pspec,
+@@ -271,7 +275,8 @@ param_uint_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2394,7 +2394,7 @@ index 1111111..2222222 100644
  {
    GParamSpecLong *lspec = G_PARAM_SPEC_LONG (pspec);
    
-@@ -324,7 +329,8 @@ param_long_values_cmp (GParamSpec   *pspec,
+@@ -326,7 +331,8 @@ param_long_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2404,7 +2404,7 @@ index 1111111..2222222 100644
  {
    GParamSpecULong *uspec = G_PARAM_SPEC_ULONG (pspec);
    
-@@ -378,7 +384,8 @@ param_ulong_values_cmp (GParamSpec   *pspec,
+@@ -380,7 +386,8 @@ param_ulong_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2414,7 +2414,7 @@ index 1111111..2222222 100644
  {
    GParamSpecInt64 *lspec = G_PARAM_SPEC_INT64 (pspec);
    
-@@ -428,7 +435,8 @@ param_int64_values_cmp (GParamSpec   *pspec,
+@@ -430,7 +437,8 @@ param_int64_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2424,7 +2424,7 @@ index 1111111..2222222 100644
  {
    GParamSpecUInt64 *uspec = G_PARAM_SPEC_UINT64 (pspec);
    
-@@ -478,7 +486,8 @@ param_uint64_values_cmp (GParamSpec   *pspec,
+@@ -480,7 +488,8 @@ param_uint64_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2434,7 +2434,7 @@ index 1111111..2222222 100644
  {
    GParamSpecUnichar *uspec = G_PARAM_SPEC_UNICHAR (pspec);
    
-@@ -527,7 +536,8 @@ param_unichar_values_cmp (GParamSpec   *pspec,
+@@ -529,7 +538,8 @@ param_unichar_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2444,7 +2444,7 @@ index 1111111..2222222 100644
  {
    GParamSpecEnum *espec = G_PARAM_SPEC_ENUM (pspec);
    
-@@ -582,7 +592,8 @@ param_enum_validate (GParamSpec *pspec,
+@@ -584,7 +594,8 @@ param_enum_validate (GParamSpec *pspec,
  }
  
  static void
@@ -2454,7 +2454,7 @@ index 1111111..2222222 100644
  {
    GParamSpecFlags *fspec = G_PARAM_SPEC_FLAGS (pspec);
    
-@@ -637,7 +648,8 @@ param_flags_validate (GParamSpec *pspec,
+@@ -639,7 +650,8 @@ param_flags_validate (GParamSpec *pspec,
  }
  
  static void
@@ -2464,7 +2464,7 @@ index 1111111..2222222 100644
  {
    GParamSpecFloat *fspec = G_PARAM_SPEC_FLOAT (pspec);
    
-@@ -690,7 +702,8 @@ param_float_values_cmp (GParamSpec   *pspec,
+@@ -692,7 +704,8 @@ param_float_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2474,7 +2474,7 @@ index 1111111..2222222 100644
  {
    GParamSpecDouble *dspec = G_PARAM_SPEC_DOUBLE (pspec);
    
-@@ -743,7 +756,8 @@ param_double_values_cmp (GParamSpec   *pspec,
+@@ -745,7 +758,8 @@ param_double_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2484,7 +2484,7 @@ index 1111111..2222222 100644
  {
    GParamSpecString *sspec = G_PARAM_SPEC_STRING (pspec);
    
-@@ -874,7 +888,8 @@ param_string_values_cmp (GParamSpec   *pspec,
+@@ -876,7 +890,8 @@ param_string_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2494,7 +2494,7 @@ index 1111111..2222222 100644
  {
    /* GParamSpecParam *spec = G_PARAM_SPEC_PARAM (pspec); */
  }
-@@ -914,7 +929,8 @@ param_param_validate (GParamSpec *pspec,
+@@ -916,7 +931,8 @@ param_param_validate (GParamSpec *pspec,
  }
  
  static void
@@ -2504,7 +2504,7 @@ index 1111111..2222222 100644
  {
    /* GParamSpecBoxed *bspec = G_PARAM_SPEC_BOXED (pspec); */
  }
-@@ -940,7 +956,8 @@ param_boxed_values_cmp (GParamSpec    *pspec,
+@@ -942,7 +958,8 @@ param_boxed_values_cmp (GParamSpec    *pspec,
  }
  
  static void
@@ -2514,7 +2514,7 @@ index 1111111..2222222 100644
  {
    /* GParamSpecPointer *spec = G_PARAM_SPEC_POINTER (pspec); */
  }
-@@ -966,7 +983,8 @@ param_pointer_values_cmp (GParamSpec   *pspec,
+@@ -968,7 +985,8 @@ param_pointer_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2524,7 +2524,7 @@ index 1111111..2222222 100644
  {
    GParamSpecValueArray *aspec = G_PARAM_SPEC_VALUE_ARRAY (pspec);
  
-@@ -1117,7 +1135,8 @@ param_value_array_values_cmp (GParamSpec   *pspec,
+@@ -1119,7 +1137,8 @@ param_value_array_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2534,7 +2534,7 @@ index 1111111..2222222 100644
  {
    /* GParamSpecObject *ospec = G_PARAM_SPEC_OBJECT (pspec); */
  }
-@@ -1172,7 +1191,8 @@ param_object_values_cmp (GParamSpec   *pspec,
+@@ -1174,7 +1193,8 @@ param_object_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2544,7 +2544,7 @@ index 1111111..2222222 100644
  {
    /* GParamSpecOverride *ospec = G_PARAM_SPEC_OVERRIDE (pspec); */
  }
-@@ -1230,7 +1250,8 @@ param_override_values_cmp (GParamSpec   *pspec,
+@@ -1232,7 +1252,8 @@ param_override_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2554,7 +2554,7 @@ index 1111111..2222222 100644
  {
  }
  
-@@ -1285,7 +1306,8 @@ param_gtype_values_cmp (GParamSpec   *pspec,
+@@ -1287,7 +1308,8 @@ param_gtype_values_cmp (GParamSpec   *pspec,
  }
  
  static void
@@ -2568,7 +2568,7 @@ diff --git a/gobject/gtype.h b/gobject/gtype.h
 index 1111111..2222222 100644
 --- a/gobject/gtype.h
 +++ b/gobject/gtype.h
-@@ -1961,7 +1961,7 @@ guint     g_type_get_type_registration_serial (void);
+@@ -1967,7 +1967,7 @@ guint     g_type_get_type_registration_serial (void);
   */
  #define G_IMPLEMENT_INTERFACE(TYPE_IFACE, iface_init)       { \
    const GInterfaceInfo g_implement_interface_info = { \
@@ -2577,7 +2577,7 @@ index 1111111..2222222 100644
    }; \
    g_type_add_interface_static (g_define_type_id, TYPE_IFACE, &g_implement_interface_info); \
  }
-@@ -2103,7 +2103,8 @@ guint     g_type_get_type_registration_serial (void);
+@@ -2109,7 +2109,8 @@ guint     g_type_get_type_registration_serial (void);
   */
  #if GLIB_VERSION_MAX_ALLOWED >= GLIB_VERSION_2_38
  #define _G_DEFINE_TYPE_EXTENDED_CLASS_INIT(TypeName, type_name) \
@@ -2587,7 +2587,7 @@ index 1111111..2222222 100644
  { \
    type_name##_parent_class = g_type_class_peek_parent (klass); \
    if (TypeName##_private_offset != 0) \
-@@ -2113,7 +2114,8 @@ static void     type_name##_class_intern_init (gpointer klass) \
+@@ -2119,7 +2120,8 @@ static void     type_name##_class_intern_init (gpointer klass) \
  
  #else
  #define _G_DEFINE_TYPE_EXTENDED_CLASS_INIT(TypeName, type_name) \
@@ -2597,7 +2597,7 @@ index 1111111..2222222 100644
  { \
    type_name##_parent_class = g_type_class_peek_parent (klass); \
    type_name##_class_init ((TypeName##Class*) klass); \
-@@ -2125,6 +2127,11 @@ static void     type_name##_class_intern_init (gpointer klass) \
+@@ -2131,6 +2133,11 @@ static void     type_name##_class_intern_init (gpointer klass) \
  \
  static void     type_name##_init              (TypeName        *self); \
  static void     type_name##_class_init        (TypeName##Class *klass); \
@@ -2609,7 +2609,7 @@ index 1111111..2222222 100644
  static GType    type_name##_get_type_once     (void); \
  static gpointer type_name##_parent_class = NULL; \
  static gint     TypeName##_private_offset; \
-@@ -2162,9 +2169,9 @@ type_name##_get_type_once (void) \
+@@ -2168,9 +2175,9 @@ type_name##_get_type_once (void) \
          g_type_register_static_simple (TYPE_PARENT, \
                                         g_intern_static_string (#TypeName), \
                                         sizeof (TypeName##Class), \
@@ -2621,8 +2621,8 @@ index 1111111..2222222 100644
                                         (GTypeFlags) flags); \
      { /* custom code follows */
  #define _G_DEFINE_TYPE_EXTENDED_END()	\
-@@ -2182,7 +2189,12 @@ type_name##_get_type_once (void) \
- 
+@@ -2190,7 +2197,12 @@ type_name##_get_type_once (void) \
+  * to avoid deprecation warnings with older GLIB_VERSION_MAX_ALLOWED */
  #define _G_DEFINE_INTERFACE_EXTENDED_BEGIN(TypeName, type_name, TYPE_PREREQ) \
  \
 -static void     type_name##_default_init        (TypeName##Interface *klass); \
@@ -2635,7 +2635,7 @@ index 1111111..2222222 100644
  \
  GType \
  type_name##_get_type (void) \
-@@ -2194,7 +2206,7 @@ type_name##_get_type (void) \
+@@ -2202,7 +2214,7 @@ type_name##_get_type (void) \
          g_type_register_static_simple (G_TYPE_INTERFACE, \
                                         g_intern_static_string (#TypeName), \
                                         sizeof (TypeName##Interface), \
@@ -2648,7 +2648,7 @@ diff --git a/gobject/gtypemodule.c b/gobject/gtypemodule.c
 index 1111111..2222222 100644
 --- a/gobject/gtypemodule.c
 +++ b/gobject/gtypemodule.c
-@@ -129,7 +129,8 @@ g_type_module_class_init (GTypeModuleClass *class)
+@@ -131,7 +131,8 @@ g_type_module_class_init (GTypeModuleClass *class)
  }
  
  static void
@@ -2662,7 +2662,7 @@ diff --git a/gobject/gtypemodule.h b/gobject/gtypemodule.h
 index 1111111..2222222 100644
 --- a/gobject/gtypemodule.h
 +++ b/gobject/gtypemodule.h
-@@ -207,12 +207,12 @@ type_name##_register_type (GTypeModule *type_module) \
+@@ -209,12 +209,12 @@ type_name##_register_type (GTypeModule *type_module) \
      sizeof (TypeName##Class), \
      (GBaseInitFunc) NULL, \
      (GBaseFinalizeFunc) NULL, \
@@ -2678,7 +2678,7 @@ index 1111111..2222222 100644
      NULL    /* value_table */ \
    }; \
    type_name##_type_id = g_type_module_register_type (type_module, \
-@@ -242,7 +242,7 @@ type_name##_register_type (GTypeModule *type_module) \
+@@ -244,7 +244,7 @@ type_name##_register_type (GTypeModule *type_module) \
   */
  #define G_IMPLEMENT_INTERFACE_DYNAMIC(TYPE_IFACE, iface_init)       { \
    const GInterfaceInfo g_implement_interface_info = { \

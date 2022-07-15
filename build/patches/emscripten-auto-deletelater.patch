@@ -33,7 +33,7 @@ index 1111111..2222222 100644
      Module['flushPendingDeletes'] = flushPendingDeletes;
      Module['setDelayFunction'] = setDelayFunction;
  #if IN_TEST_HARNESS
-@@ -1760,15 +1761,25 @@ var LibraryEmbind = {
+@@ -1758,15 +1759,25 @@ var LibraryEmbind = {
      }
    },
  

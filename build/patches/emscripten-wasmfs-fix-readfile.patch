@@ -16,7 +16,7 @@ diff --git a/src/library_wasmfs.js b/src/library_wasmfs.js
 index 1111111..2222222 100644
 --- a/src/library_wasmfs.js
 +++ b/src/library_wasmfs.js
-@@ -86,12 +86,17 @@ mergeInto(LibraryManager.library, {
+@@ -88,12 +88,17 @@ mergeInto(LibraryManager.library, {
  
        // Copy the file into a JS buffer on the heap.
        var buf = __wasmfs_read_file(pathName);

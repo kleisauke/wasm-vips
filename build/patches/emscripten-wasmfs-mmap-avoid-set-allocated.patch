@@ -6,7 +6,7 @@ Subject: [PATCH 1/1] [WasmFS] mmap: avoid setting *allocated too early
 Setting `*allocated` here is probably too early, as read errors
 may occur (causing the pointer to be `free()`'d).
 
-Upstream-Status: Submitted [https://github.com/emscripten-core/emscripten/pull/17317]
+Upstream-Status: Accepted [https://github.com/emscripten-core/emscripten/commit/77da62969eb0b5efe4ce4a0c9ce67c45b9e32638]
 
 diff --git a/system/lib/wasmfs/syscalls.cpp b/system/lib/wasmfs/syscalls.cpp
 index 1111111..2222222 100644

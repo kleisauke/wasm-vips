@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [v0.0.3] - TBD
 
-Uses libvips v8.12.2, compiled with Emscripten v3.1.17.
+Uses libvips v8.13.0, compiled with Emscripten v3.1.17.
 
 ### Added
 
@@ -20,6 +20,10 @@ Uses libvips v8.12.2, compiled with Emscripten v3.1.17.
 - Include web-specific package exports in `package.json`.
 - Ensure type definitions are exported.
   [#14](https://github.com/kleisauke/wasm-vips/issues/14)
+
+### Changed
+
+- Update methods/enums for libvips 8.13.
 
 ## [v0.0.2] - 2022-04-04
 

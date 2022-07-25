@@ -23,15 +23,22 @@ interface EmscriptenModule {
 
 declare module Vips {
     // Allow single pixels/images as input.
-    type Array<T> = T | T[];
+    type SingleOrArray<T> = T | T[];
 
     type Enum = string | number;
     type Flag = string | number;
     type Blob = string | ArrayBuffer | Uint8Array | Uint8ClampedArray | Int8Array;
-    type ArrayConstant = Array<number>;
-    type ArrayImage = Array<Image> | Vector<Image>;
+    type ArrayConstant = SingleOrArray<number>;
+    type ArrayImage = SingleOrArray<Image> | Vector<Image>;
+    type DeletionFuncs<T extends EmbindClassHandle<T>> = EmbindClassHandle<T>[];
 
     //#region Utility functions
+
+    /**
+     * Queue of handles to be deleted.
+     * This is filled when [[deleteLater]] is called on the handle.
+     */
+    const deletionQueue: DeletionFuncs<Image | Connection | Interpolate>;
 
     /**
      * Get the major, minor or patch version number of the libvips library.
@@ -67,6 +74,14 @@ declare module Vips {
      * Emscripten prevents the event loop from exiting.
      */
     function shutdown(): void;
+
+    /**
+     * Convert a bigint value (usually coming from Wasm->JS call) into an int53 JS Number.
+     * This is used when we have an incoming i64 that we know is a pointer or size_t and
+     * is expected to be withing the int53 range.
+     * @return The converted bigint value or NaN if the incoming bigint is outside the range.
+     */
+    function bigintToI53Checked(num: bigint): number;
 
     //#endregion
 
@@ -306,7 +321,7 @@ declare module Vips {
          * @param size The maximum number of bytes to be read.
          * @return The total number of bytes read into the buffer.
          */
-        onRead: (ptr: number, size: number) => number;
+        onRead: (ptr: number, size: bigint) => bigint;
 
         /**
          * Attach a seek handler.
@@ -316,7 +331,7 @@ declare module Vips {
          * @param size A value indicating the reference point used to obtain the new position.
          * @return The new position within the current source.
          */
-        onSeek: (offset: number, whence: number) => number;
+        onSeek: (offset: bigint, whence: number) => bigint;
     }
 
     /**
@@ -369,14 +384,34 @@ declare module Vips {
          * @param length The number of bytes to write.
          * @return The number of bytes that were written.
          */
-        onWrite: (ptr: number, size: number) => number;
+        onWrite: (ptr: number, size: bigint) => bigint;
+
+        /* libtiff needs to be able to seek and read on targets, unfortunately.
+         */
 
         /**
-         * Attach a finish handler.
+         * Attach a read handler.
+         * @param ptr A pointer to an array of bytes where the read content is stored.
+         * @param size The maximum number of bytes to be read.
+         * @return The total number of bytes read from the target.
+         */
+        onRead: (ptr: number, size: bigint) => bigint;
+
+        /**
+         * Attach a seek handler.
+         * @param offset A byte offset relative to the whence parameter.
+         * @param size A value indicating the reference point used to obtain the new position.
+         * @return The new position within the current target.
+         */
+        onSeek: (offset: bigint, whence: number) => bigint;
+
+        /**
+         * Attach an end handler.
          * This optional handler is called at the end of write. It should do any
          * cleaning up, if necessary.
+         * @return 0 on success, -1 on error.
          */
-        onFinish: () => void;
+        onEnd: () => number;
     }
 
     /**
@@ -1002,7 +1037,7 @@ declare module Vips {
          * @param options Optional options.
          * @return Blended image.
          */
-        static composite(_in: ArrayImage, mode: Array<Enum>, options?: {
+        static composite(_in: ArrayImage, mode: SingleOrArray<BlendMode>, options?: {
             /**
              * Array of x coordinates to join at.
              */
@@ -1028,7 +1063,7 @@ declare module Vips {
          * @param options Optional options.
          * @return Blended image.
          */
-        composite(overlay: ArrayImage, mode: Array<Enum>, options?: {
+        composite(overlay: ArrayImage, mode: SingleOrArray<BlendMode>, options?: {
             /**
              * Array of x coordinates to join at.
              */
@@ -3119,6 +3154,10 @@ declare module Vips {
              */
             thumbnail?: boolean
             /**
+             * Remove all denial of service limits.
+             */
+            unlimited?: boolean
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -3156,6 +3195,10 @@ declare module Vips {
              */
             thumbnail?: boolean
             /**
+             * Remove all denial of service limits.
+             */
+            unlimited?: boolean
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -3192,6 +3235,10 @@ declare module Vips {
              * Fetch thumbnail image.
              */
             thumbnail?: boolean
+            /**
+             * Remove all denial of service limits.
+             */
+            unlimited?: boolean
             /**
              * Force open via memory.
              */
@@ -3619,7 +3666,7 @@ declare module Vips {
          * @param order Filter order.
          * @param frequency_cutoff_x Frequency cutoff x.
          * @param frequency_cutoff_y Frequency cutoff y.
-         * @param radius radius of circle.
+         * @param radius Radius of circle.
          * @param amplitude_cutoff Amplitude cutoff.
          * @param options Optional options.
          * @return Output image.
@@ -3734,7 +3781,7 @@ declare module Vips {
          * @param height Image height in pixels.
          * @param frequency_cutoff_x Frequency cutoff x.
          * @param frequency_cutoff_y Frequency cutoff y.
-         * @param radius radius of circle.
+         * @param radius Radius of circle.
          * @param amplitude_cutoff Amplitude cutoff.
          * @param options Optional options.
          * @return Output image.
@@ -3820,7 +3867,7 @@ declare module Vips {
          * @param height Image height in pixels.
          * @param frequency_cutoff_x Frequency cutoff x.
          * @param frequency_cutoff_y Frequency cutoff y.
-         * @param radius radius of circle.
+         * @param radius Radius of circle.
          * @param options Optional options.
          * @return Output image.
          */
@@ -4131,6 +4178,10 @@ declare module Vips {
              */
             background?: ArrayConstant
             /**
+             * Decrypt with this password.
+             */
+            password?: string
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -4176,6 +4227,10 @@ declare module Vips {
              */
             background?: ArrayConstant
             /**
+             * Decrypt with this password.
+             */
+            password?: string
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -4220,6 +4275,10 @@ declare module Vips {
              * Background value.
              */
             background?: ArrayConstant
+            /**
+             * Decrypt with this password.
+             */
+            password?: string
             /**
              * Force open via memory.
              */
@@ -4783,6 +4842,10 @@ declare module Vips {
              * Rendering intent.
              */
             intent?: Intent | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
         }): Image;
 
         /**
@@ -4829,6 +4892,10 @@ declare module Vips {
              * Rendering intent.
              */
             intent?: Intent | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
         }): Image;
 
         /**
@@ -4875,6 +4942,10 @@ declare module Vips {
              * Rendering intent.
              */
             intent?: Intent | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
         }): Image;
 
         /**
@@ -5471,7 +5542,7 @@ declare module Vips {
 
         /**
          * Boolean operation across image bands.
-         * @param boolean boolean to perform.
+         * @param boolean Boolean to perform.
          * @return Output image.
          */
         bandbool(boolean: OperationBoolean | Enum): Image;
@@ -5509,7 +5580,7 @@ declare module Vips {
         /**
          * Boolean operation on two images.
          * @param right Right-hand image argument.
-         * @param boolean boolean to perform.
+         * @param boolean Boolean to perform.
          * @return Output image.
          */
         boolean(right: Image | ArrayConstant, boolean: OperationBoolean | Enum): Image;
@@ -5630,7 +5701,7 @@ declare module Vips {
 
         /**
          * Perform a complex operation on an image.
-         * @param cmplx complex to perform.
+         * @param cmplx Complex to perform.
          * @return Output image.
          */
         complex(cmplx: OperationComplex | Enum): Image;
@@ -5638,7 +5709,7 @@ declare module Vips {
         /**
          * Complex binary operations on two images.
          * @param right Right-hand image argument.
-         * @param cmplx binary complex operation to perform.
+         * @param cmplx Binary complex operation to perform.
          * @return Output image.
          */
         complex2(right: Image | ArrayConstant, cmplx: OperationComplex2 | Enum): Image;
@@ -5652,7 +5723,7 @@ declare module Vips {
 
         /**
          * Get a component from a complex image.
-         * @param get complex to perform.
+         * @param get Complex to perform.
          * @return Output image.
          */
         complexget(get: OperationComplexget | Enum): Image;
@@ -6066,10 +6137,6 @@ declare module Vips {
              */
             container?: ForeignDzContainer | Enum
             /**
-             * Write a properties file to the output directory.
-             */
-            properties?: boolean
-            /**
              * Zip deflate compression level.
              */
             compression?: number
@@ -6146,10 +6213,6 @@ declare module Vips {
              */
             container?: ForeignDzContainer | Enum
             /**
-             * Write a properties file to the output directory.
-             */
-            properties?: boolean
-            /**
              * Zip deflate compression level.
              */
             compression?: number
@@ -6182,6 +6245,82 @@ declare module Vips {
              */
             page_height?: number
         }): Uint8Array;
+
+        /**
+         * Save image to deepzoom target.
+         * @param target Target to save to.
+         * @param options Optional options.
+         */
+        dzsaveTarget(target: Target, options?: {
+            /**
+             * Base name to save to.
+             */
+            basename?: string
+            /**
+             * Directory layout.
+             */
+            layout?: ForeignDzLayout | Enum
+            /**
+             * Filename suffix for tiles.
+             */
+            suffix?: string
+            /**
+             * Tile overlap in pixels.
+             */
+            overlap?: number
+            /**
+             * Tile size in pixels.
+             */
+            tile_size?: number
+            /**
+             * Center image in tile.
+             */
+            centre?: boolean
+            /**
+             * Pyramid depth.
+             */
+            depth?: ForeignDzDepth | Enum
+            /**
+             * Rotate image during save.
+             */
+            angle?: Angle | Enum
+            /**
+             * Pyramid container type.
+             */
+            container?: ForeignDzContainer | Enum
+            /**
+             * Zip deflate compression level.
+             */
+            compression?: number
+            /**
+             * Method to shrink regions.
+             */
+            region_shrink?: RegionShrink | Enum
+            /**
+             * Skip tiles which are nearly equal to the background.
+             */
+            skip_blanks?: number
+            /**
+             * Don't strip tile metadata.
+             */
+            no_strip?: boolean
+            /**
+             * Resource id.
+             */
+            id?: string
+            /**
+             * Strip all metadata from image.
+             */
+            strip?: boolean
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Set page height for multipage save.
+             */
+            page_height?: number
+        }): void;
 
         /**
          * Embed an image in a larger image.
@@ -6369,6 +6508,18 @@ declare module Vips {
              */
             bitdepth?: number
             /**
+             * Maximum inter-frame error for transparency.
+             */
+            interframe_maxerror?: number
+            /**
+             * Reoptimise colour palettes.
+             */
+            reoptimise?: boolean
+            /**
+             * Maximum inter-palette error for palette reusage.
+             */
+            interpalette_maxerror?: number
+            /**
              * Strip all metadata from image.
              */
             strip?: boolean
@@ -6400,6 +6551,18 @@ declare module Vips {
              * Number of bits per pixel.
              */
             bitdepth?: number
+            /**
+             * Maximum inter-frame error for transparency.
+             */
+            interframe_maxerror?: number
+            /**
+             * Reoptimise colour palettes.
+             */
+            reoptimise?: boolean
+            /**
+             * Maximum inter-palette error for palette reusage.
+             */
+            interpalette_maxerror?: number
             /**
              * Strip all metadata from image.
              */
@@ -6433,6 +6596,18 @@ declare module Vips {
              */
             bitdepth?: number
             /**
+             * Maximum inter-frame error for transparency.
+             */
+            interframe_maxerror?: number
+            /**
+             * Reoptimise colour palettes.
+             */
+            reoptimise?: boolean
+            /**
+             * Maximum inter-palette error for palette reusage.
+             */
+            interpalette_maxerror?: number
+            /**
              * Strip all metadata from image.
              */
             strip?: boolean
@@ -6464,7 +6639,7 @@ declare module Vips {
 
         /**
          * Place an image within a larger image with a certain gravity.
-         * @param direction direction to place image within width/height.
+         * @param direction Direction to place image within width/height.
          * @param width Image width in pixels.
          * @param height Image height in pixels.
          * @param options Optional options.
@@ -6483,9 +6658,9 @@ declare module Vips {
 
         /**
          * Grid an image.
-         * @param tile_height chop into tiles this high.
-         * @param across number of tiles across.
-         * @param down number of tiles down.
+         * @param tile_height Chop into tiles this high.
+         * @param across Number of tiles across.
+         * @param down Number of tiles down.
          * @return Output image.
          */
         grid(tile_height: number, across: number, down: number): Image;
@@ -6500,6 +6675,10 @@ declare module Vips {
              * Q factor.
              */
             Q?: number
+            /**
+             * Number of bits per pixel.
+             */
+            bitdepth?: number
             /**
              * Enable lossless compression.
              */
@@ -6541,6 +6720,10 @@ declare module Vips {
              */
             Q?: number
             /**
+             * Number of bits per pixel.
+             */
+            bitdepth?: number
+            /**
              * Enable lossless compression.
              */
             lossless?: boolean
@@ -6580,6 +6763,10 @@ declare module Vips {
              * Q factor.
              */
             Q?: number
+            /**
+             * Number of bits per pixel.
+             */
+            bitdepth?: number
             /**
              * Enable lossless compression.
              */
@@ -7410,7 +7597,7 @@ declare module Vips {
          */
         labelregions(options?: {
             /**
-             * Number of discrete contigious regions (output).
+             * Number of discrete contiguous regions (output).
              */
             segments?: number | undefined
         }): Image;
@@ -7476,6 +7663,10 @@ declare module Vips {
              */
             optimize_gif_transparency?: boolean
             /**
+             * Number of bits per pixel.
+             */
+            bitdepth?: number
+            /**
              * Strip all metadata from image.
              */
             strip?: boolean
@@ -7512,6 +7703,10 @@ declare module Vips {
              */
             optimize_gif_transparency?: boolean
             /**
+             * Number of bits per pixel.
+             */
+            bitdepth?: number
+            /**
              * Strip all metadata from image.
              */
             strip?: boolean
@@ -7536,6 +7731,18 @@ declare module Vips {
              * Interpolate pixels with this.
              */
             interpolate?: Interpolate
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Images have premultiplied alpha.
+             */
+            premultiplied?: boolean
+            /**
+             * How to generate the extra pixels.
+             */
+            extend?: Extend | Enum
         }): Image;
 
         /**
@@ -7586,7 +7793,7 @@ declare module Vips {
 
         /**
          * Apply a math operation to an image.
-         * @param math math to perform.
+         * @param math Math to perform.
          * @return Output image.
          */
         math(math: OperationMath | Enum): Image;
@@ -7594,7 +7801,7 @@ declare module Vips {
         /**
          * Binary math operations.
          * @param right Right-hand image argument.
-         * @param math2 math to perform.
+         * @param math2 Math to perform.
          * @return Output image.
          */
         math2(right: Image | ArrayConstant, math2: OperationMath2 | Enum): Image;
@@ -7868,10 +8075,6 @@ declare module Vips {
              * Maximum blend size.
              */
             mblend?: number
-            /**
-             * Band to search for features on.
-             */
-            bandno?: number
         }): Image;
 
         /**
@@ -7928,7 +8131,7 @@ declare module Vips {
         phasecor(in2: Image | ArrayConstant): Image;
 
         /**
-         * Save image to png file.
+         * Save image to file as png.
          * @param filename Filename to save to.
          * @param options Optional options.
          */
@@ -7946,7 +8149,7 @@ declare module Vips {
              */
             profile?: string
             /**
-             * Libpng row filter flag(s).
+             * Libspng row filter flag(s).
              */
             filter?: ForeignPngFilter | Flag
             /**
@@ -7984,7 +8187,7 @@ declare module Vips {
         }): void;
 
         /**
-         * Save image to png buffer.
+         * Save image to buffer as png.
          * @param options Optional options.
          * @return Buffer to save to.
          */
@@ -8002,7 +8205,7 @@ declare module Vips {
              */
             profile?: string
             /**
-             * Libpng row filter flag(s).
+             * Libspng row filter flag(s).
              */
             filter?: ForeignPngFilter | Flag
             /**
@@ -8058,7 +8261,7 @@ declare module Vips {
              */
             profile?: string
             /**
-             * Libpng row filter flag(s).
+             * Libspng row filter flag(s).
              */
             filter?: ForeignPngFilter | Flag
             /**
@@ -8301,7 +8504,7 @@ declare module Vips {
 
         /**
          * Linear recombination with matrix.
-         * @param m matrix of coefficients.
+         * @param m Matrix of coefficients.
          * @return Output image.
          */
         recomb(m: Image | ArrayConstant): Image;
@@ -8318,6 +8521,10 @@ declare module Vips {
              * Resampling kernel.
              */
             kernel?: Kernel | Enum
+            /**
+             * Reducing gap.
+             */
+            gap?: number
         }): Image;
 
         /**
@@ -8331,6 +8538,10 @@ declare module Vips {
              * Resampling kernel.
              */
             kernel?: Kernel | Enum
+            /**
+             * Reducing gap.
+             */
+            gap?: number
         }): Image;
 
         /**
@@ -8344,12 +8555,16 @@ declare module Vips {
              * Resampling kernel.
              */
             kernel?: Kernel | Enum
+            /**
+             * Reducing gap.
+             */
+            gap?: number
         }): Image;
 
         /**
          * Relational operation on two images.
          * @param right Right-hand image argument.
-         * @param relational relational to perform.
+         * @param relational Relational to perform.
          * @return Output image.
          */
         relational(right: Image | ArrayConstant, relational: OperationRelational | Enum): Image;
@@ -8380,6 +8595,10 @@ declare module Vips {
              * Resampling kernel.
              */
             kernel?: Kernel | Enum
+            /**
+             * Reducing gap.
+             */
+            gap?: number
             /**
              * Vertical scale image by this factor.
              */
@@ -8440,7 +8659,7 @@ declare module Vips {
 
         /**
          * Perform a round function on an image.
-         * @param round rounding operation to perform.
+         * @param round Rounding operation to perform.
          * @return Output image.
          */
         round(round: OperationRound | Enum): Image;
@@ -8551,23 +8770,41 @@ declare module Vips {
          * Shrink an image.
          * @param hshrink Horizontal shrink factor.
          * @param vshrink Vertical shrink factor.
+         * @param options Optional options.
          * @return Output image.
          */
-        shrink(hshrink: number, vshrink: number): Image;
+        shrink(hshrink: number, vshrink: number, options?: {
+            /**
+             * Round-up output dimensions.
+             */
+            ceil?: boolean
+        }): Image;
 
         /**
          * Shrink an image horizontally.
          * @param hshrink Horizontal shrink factor.
+         * @param options Optional options.
          * @return Output image.
          */
-        shrinkh(hshrink: number): Image;
+        shrinkh(hshrink: number, options?: {
+            /**
+             * Round-up output dimensions.
+             */
+            ceil?: boolean
+        }): Image;
 
         /**
          * Shrink an image vertically.
          * @param vshrink Vertical shrink factor.
+         * @param options Optional options.
          * @return Output image.
          */
-        shrinkv(vshrink: number): Image;
+        shrinkv(vshrink: number, options?: {
+            /**
+             * Round-up output dimensions.
+             */
+            ceil?: boolean
+        }): Image;
 
         /**
          * Unit vector of pixel.
@@ -8740,6 +8977,10 @@ declare module Vips {
              * Rendering intent.
              */
             intent?: Intent | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
         }): Image;
 
         /**
@@ -8951,6 +9192,110 @@ declare module Vips {
         }): Uint8Array;
 
         /**
+         * Save image to tiff target.
+         * @param target Target to save to.
+         * @param options Optional options.
+         */
+        tiffsaveTarget(target: Target, options?: {
+            /**
+             * Compression for this file.
+             */
+            compression?: ForeignTiffCompression | Enum
+            /**
+             * Q factor.
+             */
+            Q?: number
+            /**
+             * Compression prediction.
+             */
+            predictor?: ForeignTiffPredictor | Enum
+            /**
+             * Icc profile to embed.
+             */
+            profile?: string
+            /**
+             * Write a tiled tiff.
+             */
+            tile?: boolean
+            /**
+             * Tile width in pixels.
+             */
+            tile_width?: number
+            /**
+             * Tile height in pixels.
+             */
+            tile_height?: number
+            /**
+             * Write a pyramidal tiff.
+             */
+            pyramid?: boolean
+            /**
+             * Use 0 for white in 1-bit images.
+             */
+            miniswhite?: boolean
+            /**
+             * Write as a 1, 2, 4 or 8 bit image.
+             */
+            bitdepth?: number
+            /**
+             * Resolution unit.
+             */
+            resunit?: ForeignTiffResunit | Enum
+            /**
+             * Horizontal resolution in pixels/mm.
+             */
+            xres?: number
+            /**
+             * Vertical resolution in pixels/mm.
+             */
+            yres?: number
+            /**
+             * Write a bigtiff image.
+             */
+            bigtiff?: boolean
+            /**
+             * Write a properties document to imagedescription.
+             */
+            properties?: boolean
+            /**
+             * Method to shrink regions.
+             */
+            region_shrink?: RegionShrink | Enum
+            /**
+             * Zstd compression level.
+             */
+            level?: number
+            /**
+             * Enable webp lossless mode.
+             */
+            lossless?: boolean
+            /**
+             * Pyramid depth.
+             */
+            depth?: ForeignDzDepth | Enum
+            /**
+             * Save pyr layers as sub-ifds.
+             */
+            subifd?: boolean
+            /**
+             * Save with premultiplied alpha.
+             */
+            premultiply?: boolean
+            /**
+             * Strip all metadata from image.
+             */
+            strip?: boolean
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Set page height for multipage save.
+             */
+            page_height?: number
+        }): void;
+
+        /**
          * Cache an image as a set of tiles.
          * @param options Optional options.
          * @return Output image.
@@ -9081,7 +9426,7 @@ declare module Vips {
              */
             alpha_q?: number
             /**
-             * Optimise for minium size.
+             * Optimise for minimum size.
              */
             min_size?: boolean
             /**
@@ -9100,6 +9445,10 @@ declare module Vips {
              * Icc profile to embed.
              */
             profile?: string
+            /**
+             * Allow mixed encoding (might reduce file size).
+             */
+            mixed?: boolean
             /**
              * Strip all metadata from image.
              */
@@ -9145,7 +9494,7 @@ declare module Vips {
              */
             alpha_q?: number
             /**
-             * Optimise for minium size.
+             * Optimise for minimum size.
              */
             min_size?: boolean
             /**
@@ -9164,6 +9513,10 @@ declare module Vips {
              * Icc profile to embed.
              */
             profile?: string
+            /**
+             * Allow mixed encoding (might reduce file size).
+             */
+            mixed?: boolean
             /**
              * Strip all metadata from image.
              */
@@ -9209,7 +9562,7 @@ declare module Vips {
              */
             alpha_q?: number
             /**
-             * Optimise for minium size.
+             * Optimise for minimum size.
              */
             min_size?: boolean
             /**
@@ -9228,6 +9581,10 @@ declare module Vips {
              * Icc profile to embed.
              */
             profile?: string
+            /**
+             * Allow mixed encoding (might reduce file size).
+             */
+            mixed?: boolean
             /**
              * Strip all metadata from image.
              */

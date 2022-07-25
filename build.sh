@@ -117,13 +117,12 @@ VERSION_EXPAT=2.4.8
 VERSION_EXIF=0.6.24
 VERSION_LCMS2=2.13.1
 VERSION_JPEG=2.1.3
-VERSION_PNG16=1.6.37
 VERSION_SPNG=0.7.2
 VERSION_IMAGEQUANT=2.4.1
 VERSION_CGIF=0.3.0
 VERSION_WEBP=1.2.3
 VERSION_TIFF=4.4.0
-VERSION_VIPS=8.12.2
+VERSION_VIPS=8.13.0
 
 # Remove patch version component
 without_patch() {
@@ -139,6 +138,8 @@ cd $(dirname $(which emcc))
 
 # Assumes that the patches have already been applied when not running in a container
 if [ "$RUNNING_IN_CONTAINER" = true ]; then
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-missing-proxy-signatures.patch
+
   # TODO(kleisauke): Discuss these patches upstream
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-auto-deletelater.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-vector-as-js-array.patch
@@ -263,24 +264,6 @@ test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
 )
 
 echo "============================================="
-echo "Compiling png16"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/libpng16.pc" || (
-  mkdir $DEPS/png16
-  curl -Ls https://downloads.sourceforge.net/project/libpng/libpng16/$VERSION_PNG16/libpng-$VERSION_PNG16.tar.xz | tar xJC $DEPS/png16 --strip-components=1
-  cd $DEPS/png16
-  # Switch the default zlib compression strategy to Z_RLE, as this is especially suitable for PNG images
-  sed -i 's/Z_FILTERED/Z_RLE/g' scripts/pnglibconf.dfa
-  # libpng's user limits can be set for both reading and writing PNG images
-  sed -i '/^option USER_LIMITS/s/requires READ//' scripts/pnglibconf.dfa
-  # The hardware optimizations in libpng are only used for reading PNG images, since we use libspng
-  # for that we can safely pass --disable-hardware-optimizations and compile with -DPNG_NO_READ
-  emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-    --disable-hardware-optimizations --disable-unversioned-libpng-config --without-binconfigs CPPFLAGS="-DPNG_NO_READ"
-  make install dist_man_MANS= bin_PROGRAMS=
-)
-
-echo "============================================="
 echo "Compiling spng"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/spng.pc" || (
@@ -289,6 +272,8 @@ test -f "$TARGET/lib/pkgconfig/spng.pc" || (
   cd $DEPS/spng
   # TODO(kleisauke): Discuss this patch upstream
   patch -p1 <$SOURCE_DIR/build/patches/libspng-emscripten.patch
+  # Switch the default zlib compression strategy to Z_RLE, as this is especially suitable for PNG images
+  sed -i 's/Z_FILTERED/Z_RLE/g' spng/spng.c
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Dbuild_examples=false -Dstatic_zlib=true ${DISABLE_SIMD:+-Denable_opt=false} ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse4.1 -DSPNG_SSE=4"}
   ninja -C _build install
@@ -355,20 +340,18 @@ echo "============================================="
 test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   mkdir $DEPS/vips
   curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$VERSION_VIPS.tar.gz | tar xzC $DEPS/vips --strip-components=1
-  #curl -Ls https://github.com/libvips/libvips/archive/$VERSION_VIPS.tar.gz | tar xzC $DEPS/vips --strip-components=1
   cd $DEPS/vips
   # Emscripten specific patches
   patch -p1 <$SOURCE_DIR/build/patches/vips-remove-orc.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
-  emconfigure ./autogen.sh --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-    --disable-debug --disable-introspection --disable-deprecated --disable-modules --with-radiance --with-analyze --with-ppm \
-    --with-imagequant --with-nsgif --with-cgif --with-lcms --with-zlib --with-libexif --with-jpeg --with-libspng --with-png \
-    --with-tiff --with-libwebp --without-fftw --without-pangocairo --without-fontconfig --without-gsf --without-heif \
-    --without-pdfium --without-poppler --without-rsvg --without-OpenEXR --without-libjxl --without-libopenjp2 --without-openslide \
-    --without-matio --without-nifti --without-cfitsio --without-magick
-  make -C 'libvips' install
-  make install-pkgconfigDATA
+  # Disable building C++ bindings, man pages, gettext po files, tools, and (fuzz-)tests
+  sed -i'.bak' "/subdir('cplusplus')/{N;N;N;N;N;d;}" meson.build
+  meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
+    -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled -Dcgif=enabled -Dexif=enabled \
+    -Dimagequant=enabled -Djpeg=enabled -Dlcms=enabled -Dspng=enabled -Dtiff=enabled -Dwebp=enabled \
+    -Dnsgif=true -Dppm=true -Danalyze=true -Dradiance=true
+  ninja -C _build install
 )
 
 echo "============================================="

@@ -21,9 +21,10 @@ set_property(CACHE ENVIRONMENT PROPERTY STRINGS ${ENVIRONMENT_VALUES})
 # Let's enable C++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Find libvips (required)
 find_package(PkgConfig)
-pkg_check_modules(VIPS vips>=8.12 REQUIRED)
+pkg_check_modules(VIPS vips>=8.13 REQUIRED)
 
 add_subdirectory(src)

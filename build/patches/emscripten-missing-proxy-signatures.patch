@@ -1,0 +1,73 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Thu, 16 Jun 2022 13:09:20 +0200
+Subject: [PATCH 1/1] Add `EM_FUNC_SIG_JJI` and `EM_FUNC_SIG_JPJ` signatures
+
+Upstream-Status: Inappropriate [wasm-vips specific]
+Specific for wasm-vips and not appropriate for upstreaming.
+
+diff --git a/system/include/emscripten/threading.h b/system/include/emscripten/threading.h
+index 1111111..2222222 100644
+--- a/system/include/emscripten/threading.h
++++ b/system/include/emscripten/threading.h
+@@ -150,6 +150,24 @@ void *emscripten_sync_run_in_main_thread_7(int function, void *arg1, void *arg2,
+ #define EM_PROXIED_RESIZE_OFFSCREENCANVAS (EM_PROXIED_FUNC_SPECIAL(0) | EM_FUNC_SIG_IIII)
+ #define EM_PROXIED_JS_FUNCTION (EM_PROXIED_FUNC_SPECIAL(1) | EM_FUNC_SIG_D)
+ 
++#define EM_FUNC_SIG_JJI                                                        \
++    (EM_FUNC_SIG_RETURN_VALUE_I64 | EM_FUNC_SIG_WITH_N_PARAMETERS(2) |         \
++     EM_FUNC_SIG_SET_PARAM(0, EM_FUNC_SIG_PARAM_I64) |                         \
++     EM_FUNC_SIG_SET_PARAM(1, EM_FUNC_SIG_PARAM_I))
++
++// Need to use a different type on `__wasm64__` where pointers are 64-bits wide.
++#ifdef __wasm64__
++#define EM_FUNC_SIG_JPJ                                                        \
++    (EM_FUNC_SIG_RETURN_VALUE_I64 | EM_FUNC_SIG_WITH_N_PARAMETERS(2) |         \
++     EM_FUNC_SIG_SET_PARAM(0, EM_FUNC_SIG_PARAM_I64) |                         \
++     EM_FUNC_SIG_SET_PARAM(1, EM_FUNC_SIG_PARAM_I64))
++#else
++#define EM_FUNC_SIG_JPJ                                                        \
++    (EM_FUNC_SIG_RETURN_VALUE_I64 | EM_FUNC_SIG_WITH_N_PARAMETERS(2) |         \
++     EM_FUNC_SIG_SET_PARAM(0, EM_FUNC_SIG_PARAM_I) |                           \
++     EM_FUNC_SIG_SET_PARAM(1, EM_FUNC_SIG_PARAM_I64))
++#endif
++
+ // Runs the given function synchronously on the main Emscripten runtime thread.
+ // If this thread is the main thread, the operation is immediately performed,
+ // and the result is returned.
+diff --git a/system/lib/pthread/library_pthread.c b/system/lib/pthread/library_pthread.c
+index 1111111..2222222 100644
+--- a/system/lib/pthread/library_pthread.c
++++ b/system/lib/pthread/library_pthread.c
+@@ -305,6 +305,18 @@ static void _do_call(void* arg) {
+         ((em_func_iiiiiiiiii)q->functionPtr)(q->args[0].i, q->args[1].i, q->args[2].i,
+           q->args[3].i, q->args[4].i, q->args[5].i, q->args[6].i, q->args[7].i, q->args[8].i);
+       break;
++    case EM_FUNC_SIG_JJI:
++      q->returnValue.i64 = ((em_func_jji)q->functionPtr)(q->args[0].i64, q->args[1].i);
++      break;
++    case EM_FUNC_SIG_JPJ:
++      q->returnValue.i64 = ((em_func_jpj)q->functionPtr)(
++#ifdef __wasm64__
++        (void*)q->args[0].i64,
++#else
++        (void*)q->args[0].i,
++#endif
++        q->args[1].i64);
++      break;
+     default:
+       assert(0 && "Invalid Emscripten pthread _do_call opcode!");
+   }
+diff --git a/system/lib/pthread/threading_internal.h b/system/lib/pthread/threading_internal.h
+index 1111111..2222222 100644
+--- a/system/lib/pthread/threading_internal.h
++++ b/system/lib/pthread/threading_internal.h
+@@ -71,6 +71,8 @@ typedef int (*em_func_iiiiiii)(int, int, int, int, int, int);
+ typedef int (*em_func_iiiiiiii)(int, int, int, int, int, int, int);
+ typedef int (*em_func_iiiiiiiii)(int, int, int, int, int, int, int, int);
+ typedef int (*em_func_iiiiiiiiii)(int, int, int, int, int, int, int, int, int);
++typedef int64_t (*em_func_jji)(int64_t, int);
++typedef int64_t (*em_func_jpj)(void *, int64_t);
+ 
+ #define EM_THREAD_NAME_MAX 32
+ 

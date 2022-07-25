@@ -10,9 +10,6 @@ RUN apt-get update \
     libtool \
     pkgconf \
     libglib2.0-dev \
-    # needed for building libvips from source
-    gtk-doc-tools \
-    gobject-introspection \
     # needed for Meson
     ninja-build \
     python3-pip \

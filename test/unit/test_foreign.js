@@ -730,10 +730,10 @@ describe('foreign', () => {
     let x1 = vips.Image.newFromFile(Helpers.gifAnimFile, { n: -1 });
     // our test gif has delay 0 for the first frame set in error
     expect(x1.getArrayInt('delay')).to.deep.equal([0, 50, 50, 50, 50]);
-    expect(x1.getInt('loop')).to.equal(32760);
+    expect(x1.getInt('loop')).to.equal(32761);
     expect(x1.getArrayDouble('background')).to.deep.equal([255.0, 255.0, 255.0]);
     // test deprecated fields too
-    expect(x1.getInt('gif-loop')).to.equal(32759);
+    expect(x1.getInt('gif-loop')).to.equal(32760);
     expect(x1.getInt('gif-delay')).to.equal(0);
 
     // test page handling

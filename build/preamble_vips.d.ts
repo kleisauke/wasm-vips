@@ -23,15 +23,22 @@ interface EmscriptenModule {
 
 declare module Vips {
     // Allow single pixels/images as input.
-    type Array<T> = T | T[];
+    type SingleOrArray<T> = T | T[];
 
     type Enum = string | number;
     type Flag = string | number;
     type Blob = string | ArrayBuffer | Uint8Array | Uint8ClampedArray | Int8Array;
-    type ArrayConstant = Array<number>;
-    type ArrayImage = Array<Image> | Vector<Image>;
+    type ArrayConstant = SingleOrArray<number>;
+    type ArrayImage = SingleOrArray<Image> | Vector<Image>;
+    type DeletionFuncs<T extends EmbindClassHandle<T>> = EmbindClassHandle<T>[];
 
     //#region Utility functions
+
+    /**
+     * Queue of handles to be deleted.
+     * This is filled when [[deleteLater]] is called on the handle.
+     */
+    const deletionQueue: DeletionFuncs<Image | Connection | Interpolate>;
 
     /**
      * Get the major, minor or patch version number of the libvips library.
@@ -67,6 +74,14 @@ declare module Vips {
      * Emscripten prevents the event loop from exiting.
      */
     function shutdown(): void;
+
+    /**
+     * Convert a bigint value (usually coming from Wasm->JS call) into an int53 JS Number.
+     * This is used when we have an incoming i64 that we know is a pointer or size_t and
+     * is expected to be withing the int53 range.
+     * @return The converted bigint value or NaN if the incoming bigint is outside the range.
+     */
+    function bigintToI53Checked(num: bigint): number;
 
     //#endregion
 
@@ -306,7 +321,7 @@ declare module Vips {
          * @param size The maximum number of bytes to be read.
          * @return The total number of bytes read into the buffer.
          */
-        onRead: (ptr: number, size: number) => number;
+        onRead: (ptr: number, size: bigint) => bigint;
 
         /**
          * Attach a seek handler.
@@ -316,7 +331,7 @@ declare module Vips {
          * @param size A value indicating the reference point used to obtain the new position.
          * @return The new position within the current source.
          */
-        onSeek: (offset: number, whence: number) => number;
+        onSeek: (offset: bigint, whence: number) => bigint;
     }
 
     /**
@@ -369,14 +384,34 @@ declare module Vips {
          * @param length The number of bytes to write.
          * @return The number of bytes that were written.
          */
-        onWrite: (ptr: number, size: number) => number;
+        onWrite: (ptr: number, size: bigint) => bigint;
+
+        /* libtiff needs to be able to seek and read on targets, unfortunately.
+         */
 
         /**
-         * Attach a finish handler.
+         * Attach a read handler.
+         * @param ptr A pointer to an array of bytes where the read content is stored.
+         * @param size The maximum number of bytes to be read.
+         * @return The total number of bytes read from the target.
+         */
+        onRead: (ptr: number, size: bigint) => bigint;
+
+        /**
+         * Attach a seek handler.
+         * @param offset A byte offset relative to the whence parameter.
+         * @param size A value indicating the reference point used to obtain the new position.
+         * @return The new position within the current target.
+         */
+        onSeek: (offset: bigint, whence: number) => bigint;
+
+        /**
+         * Attach an end handler.
          * This optional handler is called at the end of write. It should do any
          * cleaning up, if necessary.
+         * @return 0 on success, -1 on error.
          */
-        onFinish: () => void;
+        onEnd: () => number;
     }
 
     /**
@@ -1002,7 +1037,7 @@ declare module Vips {
          * @param options Optional options.
          * @return Blended image.
          */
-        static composite(_in: ArrayImage, mode: Array<Enum>, options?: {
+        static composite(_in: ArrayImage, mode: SingleOrArray<BlendMode>, options?: {
             /**
              * Array of x coordinates to join at.
              */
@@ -1028,7 +1063,7 @@ declare module Vips {
          * @param options Optional options.
          * @return Blended image.
          */
-        composite(overlay: ArrayImage, mode: Array<Enum>, options?: {
+        composite(overlay: ArrayImage, mode: SingleOrArray<BlendMode>, options?: {
             /**
              * Array of x coordinates to join at.
              */

@@ -55,11 +55,11 @@ class SourceCustom : public Source {
                          this);
     }
 
-    static gint64 read_handler(VipsSourceCustom *source, void *buffer,
-                               gint64 length, void *user);
+    static int64_t read_handler(VipsSourceCustom *source, void *buffer,
+                                int64_t length, void *user);
 
-    static gint64 seek_handler(VipsSourceCustom *source, gint64 pos, int whence,
-                               void *user);
+    static int64_t seek_handler(VipsSourceCustom *source, int64_t offset,
+                                int whence, void *user);
 
     void set_read_callback(emscripten::val js_func);
 
@@ -74,8 +74,10 @@ class SourceCustom : public Source {
     }
 
  private:
-    int (*read_callback)(void *data, int length) = nullptr;
-    int (*seek_callback)(int offset, int whence) = nullptr;
+    // sig = jpj
+    int64_t (*read_callback)(void *data, int64_t length) = nullptr;
+    // sig = jji
+    int64_t (*seek_callback)(int64_t offset, int whence) = nullptr;
 };
 
 class Target : public Connection {
@@ -111,18 +113,32 @@ class TargetCustom : public Target {
     explicit TargetCustom() : Target(VIPS_TARGET(vips_target_custom_new())) {
         g_signal_connect(get_target_custom(), "write",
                          G_CALLBACK(write_handler), this);
-        g_signal_connect(get_target_custom(), "finish",
-                         G_CALLBACK(finish_handler), this);
+        g_signal_connect(get_target_custom(), "read", G_CALLBACK(read_handler),
+                         this);
+        g_signal_connect(get_target_custom(), "seek", G_CALLBACK(seek_handler),
+                         this);
+        g_signal_connect(get_target_custom(), "end", G_CALLBACK(end_handler),
+                         this);
     }
 
-    static gint64 write_handler(VipsTargetCustom *target, const void *buffer,
-                                gint64 length, void *user);
+    static int64_t write_handler(VipsTargetCustom *target, const void *buffer,
+                                 int64_t length, void *user);
 
-    static void finish_handler(VipsTargetCustom *target, void *user);
+    static int64_t read_handler(VipsTargetCustom *target, void *buffer,
+                                int64_t length, void *user);
+
+    static int64_t seek_handler(VipsTargetCustom *target, int64_t offset,
+                                int whence, void *user);
+
+    static int end_handler(VipsTargetCustom *target, void *user);
 
     void set_write_callback(emscripten::val js_func);
 
-    void set_finish_callback(emscripten::val js_func);
+    void set_read_callback(emscripten::val js_func);
+
+    void set_seek_callback(emscripten::val js_func);
+
+    void set_end_callback(emscripten::val js_func);
 
     emscripten::val stub_getter() const {
         return emscripten::val::null();
@@ -133,8 +149,13 @@ class TargetCustom : public Target {
     }
 
  private:
-    int (*write_callback)(const void *data, int length) = nullptr;
-    void (*finish_callback)() = nullptr;
+    // sig = jpj
+    int64_t (*write_callback)(const void *data, int64_t length) = nullptr;
+    int64_t (*read_callback)(void *data, int64_t length) = nullptr;
+    // sig = jji
+    int64_t (*seek_callback)(int64_t offset, int whence) = nullptr;
+    // sig = i
+    int (*end_callback)() = nullptr;
 };
 
 }  // namespace vips

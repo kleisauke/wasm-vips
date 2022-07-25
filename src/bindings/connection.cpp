@@ -26,8 +26,8 @@ Source Source::new_from_memory(const std::string &memory) {
     return Source(input);
 }
 
-gint64 SourceCustom::read_handler(VipsSourceCustom *source, void *buffer,
-                                  gint64 length, void *user) {
+int64_t SourceCustom::read_handler(VipsSourceCustom *source, void *buffer,
+                                   int64_t length, void *user) {
     if (length <= 0)
         return 0;
 
@@ -37,32 +37,33 @@ gint64 SourceCustom::read_handler(VipsSourceCustom *source, void *buffer,
 
     // Ensure that we call the JS function on the main thread, see:
     // https://github.com/emscripten-core/emscripten/issues/11317
-    int bytes_read = emscripten_sync_run_in_main_runtime_thread(
-        EM_FUNC_SIG_III, self->read_callback, buffer, static_cast<int>(length));
-    return static_cast<gint64>(bytes_read);
+    int64_t bytes_read = emscripten_sync_run_in_main_runtime_thread(
+        EM_FUNC_SIG_JPJ, self->read_callback, buffer, length);
+    return bytes_read;
 }
 
-gint64 SourceCustom::seek_handler(VipsSourceCustom *source, gint64 pos,
-                                  int whence, void *user) {
+int64_t SourceCustom::seek_handler(VipsSourceCustom *source, int64_t offset,
+                                   int whence, void *user) {
     SourceCustom *self = reinterpret_cast<SourceCustom *>(user);
     if (self->seek_callback == nullptr)
         return -1;
 
-    int new_pos = emscripten_sync_run_in_main_runtime_thread(
-        EM_FUNC_SIG_III, self->seek_callback, static_cast<int>(pos), whence);
-    return static_cast<gint64>(new_pos);
+    int64_t new_pos = emscripten_sync_run_in_main_runtime_thread(
+        EM_FUNC_SIG_JJI, self->seek_callback, offset, whence);
+    return new_pos;
 }
 
 void SourceCustom::set_read_callback(emscripten::val js_func) {
     emscripten::val ptr = emscripten::val::module_property("addFunction")(
-        js_func, emscripten::val("iii"));
-    read_callback = reinterpret_cast<int (*)(void *, int)>(ptr.as<int>());
+        js_func, emscripten::val("jpj"));
+    read_callback =
+        reinterpret_cast<int64_t (*)(void *, int64_t)>(ptr.as<int>());
 }
 
 void SourceCustom::set_seek_callback(emscripten::val js_func) {
     emscripten::val ptr = emscripten::val::module_property("addFunction")(
-        js_func, emscripten::val("iii"));
-    seek_callback = reinterpret_cast<int (*)(int, int)>(ptr.as<int>());
+        js_func, emscripten::val("jji"));
+    seek_callback = reinterpret_cast<int64_t (*)(int64_t, int)>(ptr.as<int>());
 }
 
 Target Target::new_to_file(const std::string &filename) {
@@ -83,36 +84,75 @@ Target Target::new_to_memory() {
     return Target(output);
 }
 
-gint64 TargetCustom::write_handler(VipsTargetCustom *target, const void *buffer,
-                                   gint64 length, void *user) {
+int64_t TargetCustom::write_handler(VipsTargetCustom *target,
+                                    const void *buffer, int64_t length,
+                                    void *user) {
     TargetCustom *self = reinterpret_cast<TargetCustom *>(user);
     if (self->write_callback == nullptr)
         return -1;
 
-    int bytes_written = emscripten_sync_run_in_main_runtime_thread(
-        EM_FUNC_SIG_III, self->write_callback, buffer,
-        static_cast<int>(length));
-    return static_cast<gint64>(bytes_written);
+    int64_t bytes_written = emscripten_sync_run_in_main_runtime_thread(
+        EM_FUNC_SIG_JPJ, self->write_callback, buffer, length);
+    return bytes_written;
 }
 
-void TargetCustom::finish_handler(VipsTargetCustom *target, void *user) {
+int64_t TargetCustom::read_handler(VipsTargetCustom *target, void *buffer,
+                                   int64_t length, void *user) {
+    if (length <= 0)
+        return 0;
+
     TargetCustom *self = reinterpret_cast<TargetCustom *>(user);
-    if (self->finish_callback != nullptr)
-        emscripten_sync_run_in_main_runtime_thread(EM_FUNC_SIG_V,
-                                                   self->finish_callback);
+    if (self->read_callback == nullptr)
+        return -1;
+
+    int64_t bytes_read = emscripten_sync_run_in_main_runtime_thread(
+        EM_FUNC_SIG_JPJ, self->read_callback, buffer, length);
+    return bytes_read;
 }
 
+int64_t TargetCustom::seek_handler(VipsTargetCustom *target, int64_t offset,
+                                   int whence, void *user) {
+    TargetCustom *self = reinterpret_cast<TargetCustom *>(user);
+    if (self->seek_callback == nullptr)
+        return -1;
+
+    int64_t new_pos = emscripten_sync_run_in_main_runtime_thread(
+        EM_FUNC_SIG_JJI, self->seek_callback, offset, whence);
+    return new_pos;
+}
+
+int TargetCustom::end_handler(VipsTargetCustom *target, void *user) {
+    TargetCustom *self = reinterpret_cast<TargetCustom *>(user);
+    if (self->end_callback == nullptr)
+        return 0;
+
+    return emscripten_sync_run_in_main_runtime_thread(EM_FUNC_SIG_I,
+                                                      self->end_callback);
+}
 void TargetCustom::set_write_callback(emscripten::val js_func) {
     emscripten::val ptr = emscripten::val::module_property("addFunction")(
-        js_func, emscripten::val("iii"));
+        js_func, emscripten::val("jpj"));
     write_callback =
-        reinterpret_cast<int (*)(const void *, int)>(ptr.as<int>());
+        reinterpret_cast<int64_t (*)(const void *, int64_t)>(ptr.as<int>());
 }
 
-void TargetCustom::set_finish_callback(emscripten::val js_func) {
+void TargetCustom::set_read_callback(emscripten::val js_func) {
     emscripten::val ptr = emscripten::val::module_property("addFunction")(
-        js_func, emscripten::val("v"));
-    finish_callback = reinterpret_cast<void (*)()>(ptr.as<int>());
+        js_func, emscripten::val("jpj"));
+    read_callback =
+        reinterpret_cast<int64_t (*)(void *, int64_t)>(ptr.as<int>());
+}
+
+void TargetCustom::set_seek_callback(emscripten::val js_func) {
+    emscripten::val ptr = emscripten::val::module_property("addFunction")(
+        js_func, emscripten::val("jji"));
+    seek_callback = reinterpret_cast<int64_t (*)(int64_t, int)>(ptr.as<int>());
+}
+
+void TargetCustom::set_end_callback(emscripten::val js_func) {
+    emscripten::val ptr = emscripten::val::module_property("addFunction")(
+        js_func, emscripten::val("i"));
+    end_callback = reinterpret_cast<int (*)()>(ptr.as<int>());
 }
 
 }  // namespace vips

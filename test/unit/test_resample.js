@@ -133,10 +133,43 @@ describe('resample', () => {
 
     // test geometry rounding corner case
     im = vips.Image.black(100, 1);
-    const x = im.resize(0.5);
+    let x = im.resize(0.5);
 
     expect(x.width).to.equal(50);
     expect(x.height).to.equal(1);
+
+    // test whether we use double-precision calculations in reduce{h,v}
+    im = vips.Image.black(1600, 1000);
+    x = im.resize(10.0 / im.width);
+    expect(x.width).to.equal(10);
+    expect(x.height).to.equal(6);
+
+    // test round-up option of shrink
+    im = vips.Image.black(2049 - 2, 2047 - 2, {
+      bands: 3
+    });
+    im = im.embed(1, 1, 2049, 2047, {
+      extend: vips.Extend.background,
+      background: [255, 0, 0]
+    });
+
+    for (const scale of [8, 9.4, 16]) {
+      x = im.resize(1 / scale, {
+        vscale: 1 / scale
+      });
+
+      const points = [
+        [Math.round(x.width / 2), 0],
+        [x.width - 1, Math.round(x.height / 2)],
+        [Math.round(x.width / 2), x.height - 1],
+        [0, Math.round(x.height / 2)]
+      ];
+
+      for (const point of points) {
+        const y = x.getpoint(point[0], point[1])[0];
+        expect(y).to.not.equal(0);
+      }
+    }
   });
 
   it('shrink', function () {
@@ -279,7 +312,7 @@ describe('resample', () => {
     // distorted, but the rest should not be too bad
     const a = r.crop(50, 0, im.width - 50, im.height).gaussblur(2);
     const b = im.crop(50, 0, im.width - 50, im.height).gaussblur(2);
-    expect(a.subtract(b).abs().max()).to.be.below(40);
+    expect(a.subtract(b).abs().max()).to.be.below(50);
 
     // this was a bug at one point, strangely, if executed with debug
     // enabled

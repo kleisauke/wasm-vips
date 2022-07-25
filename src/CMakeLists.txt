@@ -134,7 +134,7 @@ set_target_properties(${TARGETS}
 -sASSERTIONS=0 \
 -sLEGACY_RUNTIME=0 \
 -sFORCE_FILESYSTEM \
--sEXPORTED_RUNTIME_METHODS=FS,ENV,deletionQueue,addFunction"
+-sEXPORTED_RUNTIME_METHODS=FS,ENV,deletionQueue,addFunction,bigintToI53Checked"
         )
 
 if ("node" IN_LIST ENVIRONMENT)

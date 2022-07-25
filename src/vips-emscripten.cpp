@@ -527,8 +527,12 @@ EMSCRIPTEN_BINDINGS(my_module) {
         // Handwritten setters
         .property("onWrite", &TargetCustom::stub_getter,
                   &TargetCustom::set_write_callback)
-        .property("onFinish", &TargetCustom::stub_getter,
-                  &TargetCustom::set_finish_callback);
+        .property("onRead", &TargetCustom::stub_getter,
+                  &TargetCustom::set_read_callback)
+        .property("onSeek", &TargetCustom::stub_getter,
+                  &TargetCustom::set_seek_callback)
+        .property("onEnd", &TargetCustom::stub_getter,
+                  &TargetCustom::set_end_callback);
 
     // Image class
     class_<Image, base<Object>>("Image")
@@ -1557,6 +1561,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("dzsaveBuffer", optional_override([](const Image &image) {
                       return image.dzsave_buffer();
                   }))
+        .function("dzsaveTarget", &Image::dzsave_target)
+        .function("dzsaveTarget", optional_override([](const Image &image, const Target &target) {
+                      image.dzsave_target(target);
+                  }))
         .function("embed", &Image::embed)
         .function("embed", optional_override([](const Image &image, int x, int y, int width, int height) {
                       return image.embed(x, y, width, height);
@@ -1907,8 +1915,17 @@ EMSCRIPTEN_BINDINGS(my_module) {
                       return image.sharpen();
                   }))
         .function("shrink", &Image::shrink)
+        .function("shrink", optional_override([](const Image &image, double hshrink, double vshrink) {
+                      return image.shrink(hshrink, vshrink);
+                  }))
         .function("shrinkh", &Image::shrinkh)
+        .function("shrinkh", optional_override([](const Image &image, int hshrink) {
+                      return image.shrinkh(hshrink);
+                  }))
         .function("shrinkv", &Image::shrinkv)
+        .function("shrinkv", optional_override([](const Image &image, int vshrink) {
+                      return image.shrinkv(vshrink);
+                  }))
         .function("sign", &Image::sign)
         .function("similarity", &Image::similarity)
         .function("similarity", optional_override([](const Image &image) {
@@ -1941,6 +1958,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("tiffsaveBuffer", &Image::tiffsave_buffer)
         .function("tiffsaveBuffer", optional_override([](const Image &image) {
                       return image.tiffsave_buffer();
+                  }))
+        .function("tiffsaveTarget", &Image::tiffsave_target)
+        .function("tiffsaveTarget", optional_override([](const Image &image, const Target &target) {
+                      image.tiffsave_target(target);
                   }))
         .function("tilecache", &Image::tilecache)
         .function("tilecache", optional_override([](const Image &image) {

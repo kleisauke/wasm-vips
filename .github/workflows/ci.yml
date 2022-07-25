@@ -1,6 +1,8 @@
 name: CI
 on:
   push:
+    branches: [ '**' ]
+    tags: [ 'v*.*.*' ]
   pull_request:
   workflow_dispatch:
     inputs:
@@ -66,7 +68,7 @@ jobs:
       - name: Test
         run: npm test
       - name: Publish
-        if: matrix.publish && startsWith(github.ref, 'refs/tags/v')
+        if: matrix.publish && github.ref_type == 'tag'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

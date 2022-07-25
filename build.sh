@@ -106,6 +106,9 @@ export EM_PKG_CONFIG_PATH="$PKG_CONFIG_PATH"
 export CHOST="wasm32-unknown-linux" # wasm32-unknown-emscripten
 export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 
+# Run as many parallel jobs as there are available CPU cores
+export MAKEFLAGS="-j$(nproc)"
+
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.6
 VERSION_FFI=3.4.2
@@ -118,7 +121,7 @@ VERSION_PNG16=1.6.37
 VERSION_SPNG=0.7.2
 VERSION_IMAGEQUANT=2.4.1
 VERSION_CGIF=0.3.0
-VERSION_WEBP=1.2.2
+VERSION_WEBP=1.2.3
 VERSION_TIFF=4.4.0
 VERSION_VIPS=8.12.2
 
@@ -143,9 +146,7 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-windows-path.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-implement-munmap.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-implement-fs-unlink.patch
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-mmap-avoid-set-allocated.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-mmap-shared.patch
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-fix-readfile.patch
 
   # The system headers require to be reinstalled, as some of
   # them have been changed with the patches above
@@ -220,7 +221,7 @@ test -f "$TARGET/lib/pkgconfig/expat.pc" || (
   cd $DEPS/expat
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --without-xmlwf --without-docbook --without-getrandom --without-sys-getrandom --without-examples --without-tests
-  make install
+  make install dist_cmake_DATA= nodist_cmake_DATA=
 )
 
 echo "============================================="
@@ -231,10 +232,8 @@ test -f "$TARGET/lib/pkgconfig/libexif.pc" || (
   curl -Ls https://github.com/libexif/libexif/releases/download/v$VERSION_EXIF/libexif-$VERSION_EXIF.tar.bz2 | tar xjC $DEPS/exif --strip-components=1
   cd $DEPS/exif
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-    --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix \
-    CPPFLAGS="-DNO_VERBOSE_TAG_DATA"
-  make -C 'libexif' install doc_DATA=
-  make install-pkgconfigDATA
+    --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix CPPFLAGS="-DNO_VERBOSE_TAG_DATA"
+  make install SUBDIRS='libexif' doc_DATA=
 )
 
 echo "============================================="
@@ -335,7 +334,7 @@ test -f "$TARGET/lib/pkgconfig/libwebp.pc" || (
     ${DISABLE_SIMD:+--disable-sse2 --disable-sse4.1} ${ENABLE_SIMD:+--enable-sse2 --enable-sse4.1} --disable-neon \
     --disable-gl --disable-sdl --disable-png --disable-jpeg --disable-tiff --disable-gif --disable-threading \
     --enable-libwebpmux --enable-libwebpdemux CPPFLAGS="-DWEBP_DISABLE_STATS"
-  make -C 'src' install
+  make install bin_PROGRAMS= noinst_PROGRAMS= man_MANS=
 )
 
 echo "============================================="
@@ -347,8 +346,7 @@ test -f "$TARGET/lib/pkgconfig/libtiff-4.pc" || (
   cd $DEPS/tiff
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-mdi --disable-pixarlog --disable-old-jpeg --disable-cxx
-  make -C 'libtiff' install noinst_PROGRAMS=
-  make install-pkgconfigDATA
+  make install SUBDIRS='libtiff' noinst_PROGRAMS= dist_doc_DATA=
 )
 
 echo "============================================="

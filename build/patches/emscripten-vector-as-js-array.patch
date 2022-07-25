@@ -167,7 +167,7 @@ index 1111111..2222222 100644
 +    var isUnsignedType = name.includes('unsigned');
      var checkAssertions = (value, toTypeName) => {
  #if ASSERTIONS
-         if (typeof value != "number" && typeof value != "boolean") {
+       if (typeof value != "number" && typeof value != "boolean") {
 @@ -613,7 +631,7 @@ var LibraryEmbind = {
  
      var shift = getShiftFromSize(size);

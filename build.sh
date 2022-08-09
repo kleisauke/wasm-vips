@@ -110,19 +110,19 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 export MAKEFLAGS="-j$(nproc)"
 
 # Dependency version numbers
-VERSION_ZLIBNG=2.0.6
-VERSION_FFI=3.4.2
-VERSION_GLIB=2.73.2
-VERSION_EXPAT=2.4.8
-VERSION_EXIF=0.6.24
-VERSION_LCMS2=2.13.1
-VERSION_JPEG=2.1.3
-VERSION_SPNG=0.7.2
-VERSION_IMAGEQUANT=2.4.1
-VERSION_CGIF=0.3.0
-VERSION_WEBP=1.2.3
-VERSION_TIFF=4.4.0
-VERSION_VIPS=8.13.0
+VERSION_ZLIBNG=2.0.6        # https://github.com/zlib-ng/zlib-ng/releases
+VERSION_FFI=3.4.2           # https://github.com/libffi/libffi/releases
+VERSION_GLIB=2.73.2         # https://download.gnome.org/sources/glib/
+VERSION_EXPAT=2.4.8         # https://github.com/libexpat/libexpat/releases/
+VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif/releases
+VERSION_LCMS2=2.13.1        # https://github.com/mm2/Little-CMS/releases
+VERSION_JPEG=2.1.3          # https://github.com/libjpeg-turbo/libjpeg-turbo/releases
+VERSION_SPNG=0.7.2          # https://github.com/randy408/libspng/releases
+VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant/tags
+VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif/releases
+VERSION_WEBP=1.2.3          # https://storage.googleapis.com/downloads.webmproject.org/releases/webp/index.html
+VERSION_TIFF=4.4.0          # https://download.osgeo.org/libtiff/
+VERSION_VIPS=8.13.0         # https://github.com/libvips/libvips/releases
 
 # Remove patch version component
 without_patch() {

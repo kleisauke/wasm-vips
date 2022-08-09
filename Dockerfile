@@ -1,4 +1,5 @@
-FROM emscripten/emsdk:3.1.18
+# https://hub.docker.com/r/emscripten/emsdk/tags
+FROM docker.io/emscripten/emsdk:3.1.18
 
 # Enable detection of running in a container
 ENV RUNNING_IN_CONTAINER=true

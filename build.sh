@@ -112,7 +112,7 @@ export MAKEFLAGS="-j$(nproc)"
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.6        # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.2           # https://github.com/libffi/libffi
-VERSION_GLIB=2.73.2         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.73.3         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.4.8         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.13.1        # https://github.com/mm2/Little-CMS

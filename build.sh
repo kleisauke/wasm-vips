@@ -120,7 +120,7 @@ VERSION_JPEG=5c6a0f0        # https://github.com/mozilla/mozjpeg
 VERSION_SPNG=0.7.2          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif
-VERSION_WEBP=1.2.3          # https://chromium.googlesource.com/webm/libwebp
+VERSION_WEBP=1.2.4          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.4.0          # https://gitlab.com/libtiff/libtiff
 VERSION_VIPS=8.13.0         # https://github.com/libvips/libvips
 

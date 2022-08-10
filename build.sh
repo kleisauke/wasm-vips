@@ -110,19 +110,19 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 export MAKEFLAGS="-j$(nproc)"
 
 # Dependency version numbers
-VERSION_ZLIBNG=2.0.6
-VERSION_FFI=3.4.2
-VERSION_GLIB=2.73.3
-VERSION_EXPAT=2.4.8
-VERSION_EXIF=0.6.24
-VERSION_LCMS2=2.13.1
+VERSION_ZLIBNG=2.0.6        # https://github.com/zlib-ng/zlib-ng
+VERSION_FFI=3.4.2           # https://github.com/libffi/libffi
+VERSION_GLIB=2.73.3         # https://gitlab.gnome.org/GNOME/glib
+VERSION_EXPAT=2.4.8         # https://github.com/libexpat/libexpat
+VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
+VERSION_LCMS2=2.13.1        # https://github.com/mm2/Little-CMS
 VERSION_JPEG=5c6a0f0        # https://github.com/mozilla/mozjpeg
-VERSION_SPNG=0.7.2
-VERSION_IMAGEQUANT=2.4.1
-VERSION_CGIF=0.3.0
-VERSION_WEBP=1.2.4
-VERSION_TIFF=4.4.0
-VERSION_VIPS=8.13.0
+VERSION_SPNG=0.7.2          # https://github.com/randy408/libspng
+VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
+VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif
+VERSION_WEBP=1.2.4          # https://chromium.googlesource.com/webm/libwebp
+VERSION_TIFF=4.4.0          # https://gitlab.com/libtiff/libtiff
+VERSION_VIPS=8.13.0         # https://github.com/libvips/libvips
 
 # Remove patch version component
 without_patch() {

@@ -12,7 +12,27 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -920,101 +920,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
+@@ -400,19 +400,6 @@ if host_system != 'windows'
+     contenttype_sources += files('gcontenttype.c')
+     appinfo_sources += files('gdesktopappinfo.c')
+     gio_unix_include_headers += files('gdesktopappinfo.h')
+-    launch_desktop_sources = files('gio-launch-desktop.c')
+-
+-    if host_system == 'linux'
+-      launch_desktop_sources += files('../glib/gjournal-private.c')
+-    endif
+-
+-    gio_launch_desktop = executable('gio-launch-desktop', launch_desktop_sources,
+-      include_directories : glibinc,
+-      install : true,
+-      install_dir : multiarch_libexecdir,
+-      c_args : gio_c_args,
+-      # intl.lib is not compatible with SAFESEH
+-      link_args : noseh_link_args)
+   endif
+ 
+   subdir('xdgmime')
+@@ -934,103 +921,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
      output : ['gconstructor_as_data.h'],
      command : [python, '@INPUT0@', '@INPUT1@', 'gconstructor_code', '@OUTPUT@'])
  
@@ -54,6 +74,7 @@ index 1111111..2222222 100644
 -
 -gio_querymodules = executable('gio-querymodules', 'gio-querymodules.c', 'giomodule-priv.c',
 -  install : true,
+-  install_dir : multiarch_bindir,
 -  c_args : gio_c_args,
 -  # intl.lib is not compatible with SAFESEH
 -  link_args : noseh_link_args,
@@ -62,6 +83,7 @@ index 1111111..2222222 100644
 -glib_compile_schemas = executable('glib-compile-schemas',
 -  ['glib-compile-schemas.c'],
 -  install : true,
+-  install_dir : multiarch_bindir,
 -  # intl.lib is not compatible with SAFESEH
 -  link_args : noseh_link_args,
 -  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep, gvdb_dep])
@@ -114,11 +136,37 @@ index 1111111..2222222 100644
  if enable_systemtap
    gio_stp = configure_file(input : 'gio.stp.in',
      output : '@0@.stp'.format(libgio.full_path().split('/').get(-1)),
+@@ -1039,25 +929,6 @@ if enable_systemtap
+   )
+ endif
+ 
+-if multiarch_bindir != get_option('bindir')
+-  foreach exe : ['gio-querymodules', 'glib-compile-schemas']
+-    if meson.version().version_compare('>=0.61.0')
+-      install_symlink(
+-        exe,
+-        install_dir : get_option('bindir'),
+-        pointing_to : get_option('prefix') / multiarch_bindir / exe,
+-      )
+-    else
+-      warning(
+-        'Please use Meson >= 0.61.0 or create a symlink @1@ -> @2@ in packaging'.format(
+-          get_option('prefix') / get_option('bindir') / exe,
+-          get_option('prefix') / multiarch_bindir / exe,
+-        )
+-      )
+-    endif
+-  endforeach
+-endif
+-
+ if build_tests
+     subdir('tests')
+ endif
 diff --git a/glib/meson.build b/glib/meson.build
 index 1111111..2222222 100644
 --- a/glib/meson.build
 +++ b/glib/meson.build
-@@ -428,7 +428,7 @@ if host_system == 'windows'
+@@ -432,7 +432,7 @@ if host_system == 'windows'
        include_directories : configinc,
        dependencies : [libglib_dep])
    endif
@@ -146,7 +194,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -2356,7 +2356,6 @@ subdir('gobject')
+@@ -2381,7 +2381,6 @@ subdir('gobject')
  subdir('gthread')
  subdir('gmodule')
  subdir('gio')

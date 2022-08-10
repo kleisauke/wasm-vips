@@ -317,7 +317,7 @@ index 1111111..2222222 100644
  
  G_DEFINE_TYPE_WITH_CODE (GDBusConnection, g_dbus_connection, G_TYPE_OBJECT,
                           G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, initable_iface_init)
-@@ -2660,7 +2662,8 @@ initable_init (GInitable     *initable,
+@@ -2661,7 +2663,8 @@ initable_init (GInitable     *initable,
  }
  
  static void
@@ -327,7 +327,7 @@ index 1111111..2222222 100644
  {
    initable_iface->init = initable_init;
  }
-@@ -2668,7 +2671,8 @@ initable_iface_init (GInitableIface *initable_iface)
+@@ -2669,7 +2672,8 @@ initable_iface_init (GInitableIface *initable_iface)
  /* ---------------------------------------------------------------------------------------------------- */
  
  static void
@@ -457,7 +457,7 @@ index 1111111..2222222 100644
  
  static void
 -initable_iface_init (GInitableIface *initable_iface)
-+initable_iface_init (GInitableIface *initable_iface, 
++initable_iface_init (GInitableIface *initable_iface,
 +                     gpointer        iface_data)
  {
    initable_iface->init = initable_init;
@@ -534,7 +534,7 @@ diff --git a/gio/gdesktopappinfo.c b/gio/gdesktopappinfo.c
 index 1111111..2222222 100644
 --- a/gio/gdesktopappinfo.c
 +++ b/gio/gdesktopappinfo.c
-@@ -88,7 +88,8 @@ enum {
+@@ -89,7 +89,8 @@ enum {
    PROP_FILENAME
  };
  
@@ -544,7 +544,7 @@ index 1111111..2222222 100644
  static gboolean g_desktop_app_info_ensure_saved       (GDesktopAppInfo  *info,
                                                         GError          **error);
  static gboolean g_desktop_app_info_load_file (GDesktopAppInfo *self);
-@@ -4279,7 +4280,8 @@ g_app_info_create_from_commandline (const char           *commandline,
+@@ -4278,7 +4279,8 @@ g_app_info_create_from_commandline (const char           *commandline,
  /* GAppInfo interface init */
  
  static void
@@ -1578,7 +1578,7 @@ index 1111111..2222222 100644
  
  static GFileAttributeInfoList *resource_writable_attributes = NULL;
  static GFileAttributeInfoList *resource_writable_namespaces = NULL;
-@@ -647,7 +648,8 @@ g_resource_file_monitor_file (GFile              *file,
+@@ -660,7 +661,8 @@ g_resource_file_set_display_name (GFile         *file,
  }
  
  static void
@@ -2138,7 +2138,7 @@ index 1111111..2222222 100644
  
  struct _GWin32AppInfo
  {
-@@ -5227,7 +5228,8 @@ g_app_info_create_from_commandline (const char           *commandline,
+@@ -5229,7 +5230,8 @@ g_app_info_create_from_commandline (const char           *commandline,
  /* GAppInfo interface init */
  
  static void

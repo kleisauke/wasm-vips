@@ -1,8 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:00:00 +0200
-Subject: [PATCH 1/8] Emscripten doesn't define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
- either
+Subject: [PATCH 1/8] Emscripten doesn't define
+ __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4 either
 
 https://bugs.llvm.org/show_bug.cgi?id=11174 might be relevant here.
 
@@ -12,7 +12,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1868,8 +1868,8 @@ atomicdefine = '''
+@@ -1893,8 +1893,8 @@ atomicdefine = '''
  # We know that we can always use real ("lock free") atomic operations with MSVC
  if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
    have_atomic_lock_free = true
@@ -35,7 +35,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -709,7 +709,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix: '#incl
+@@ -732,7 +732,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix: '#incl
  endif
  
  # Check that posix_spawn() is usable; must use header
@@ -55,12 +55,12 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -34,7 +34,7 @@ endif
+@@ -35,7 +35,7 @@ endif
  
  network_libs = [ ]
  network_args = [ ]
 -if host_system != 'windows'
-+if host_system != 'windows' and host_system != 'emscripten'
++if host_system not in ['windows', 'emscripten']
    # res_query()
    res_query_test = '''#include <resolv.h>
                        int main (int argc, char ** argv) {
@@ -76,7 +76,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -451,7 +451,7 @@ foreach m : struct_members
+@@ -472,7 +472,7 @@ foreach m : struct_members
  endforeach
  
  # Compiler flags
@@ -85,7 +85,7 @@ index 1111111..2222222 100644
    warning_common_args = [
      '-Wduplicated-branches',
      '-Wimplicit-fallthrough',
-@@ -1549,10 +1549,10 @@ g_sizet_compatibility = {
+@@ -1572,10 +1572,10 @@ g_sizet_compatibility = {
    'long long': sizet_size == long_long_size,
  }
  
@@ -118,7 +118,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1022,9 +1022,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
+@@ -1045,9 +1045,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
    glib_conf.set('HAVE_C99_SNPRINTF', false)
    glib_conf.set('HAVE_C99_VSNPRINTF', false)
    glib_conf.set('HAVE_UNIX98_PRINTF', false)
@@ -154,7 +154,7 @@ index 1111111..2222222 100644
  #include "gslice.h"
  #include "gstrfuncs.h"
  #include "gtestutils.h"
-@@ -1068,7 +1072,9 @@ g_thread_self (void)
+@@ -1070,7 +1074,9 @@ g_thread_self (void)
  guint
  g_get_num_processors (void)
  {

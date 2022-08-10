@@ -112,15 +112,15 @@ export MAKEFLAGS="-j$(nproc)"
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.6
 VERSION_FFI=3.4.2
-VERSION_GLIB=2.73.2
+VERSION_GLIB=2.73.3
 VERSION_EXPAT=2.4.8
 VERSION_EXIF=0.6.24
 VERSION_LCMS2=2.13.1
-VERSION_JPEG=5c6a0f0        # https://github.com/mozilla/mozjpeg/releases
+VERSION_JPEG=5c6a0f0        # https://github.com/mozilla/mozjpeg
 VERSION_SPNG=0.7.2
 VERSION_IMAGEQUANT=2.4.1
 VERSION_CGIF=0.3.0
-VERSION_WEBP=1.2.3
+VERSION_WEBP=1.2.4
 VERSION_TIFF=4.4.0
 VERSION_VIPS=8.13.0
 
@@ -318,7 +318,7 @@ test -f "$TARGET/lib/pkgconfig/libwebp.pc" || (
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     ${DISABLE_SIMD:+--disable-sse2 --disable-sse4.1} ${ENABLE_SIMD:+--enable-sse2 --enable-sse4.1} --disable-neon \
     --disable-gl --disable-sdl --disable-png --disable-jpeg --disable-tiff --disable-gif --disable-threading \
-    --enable-libwebpmux --enable-libwebpdemux CPPFLAGS="-DWEBP_DISABLE_STATS"
+    --enable-libwebpmux --enable-libwebpdemux CPPFLAGS="-DWEBP_DISABLE_STATS -DWEBP_REDUCE_CSP"
   make install bin_PROGRAMS= noinst_PROGRAMS= man_MANS=
 )
 

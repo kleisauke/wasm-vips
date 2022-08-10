@@ -24,7 +24,7 @@ jobs:
           else
             echo "::set-output name=key::${{ hashFiles('build/patches/**', 'lib/**', 'src/**', 'build.sh', 'Dockerfile') }}"
           fi
-      - uses: actions/cache@v3
+      - uses: actions/cache@v3.0.5
         id: cache
         with:
           path: lib
@@ -57,7 +57,7 @@ jobs:
       - name: Default to GNU tar on Windows
         if: runner.os == 'Windows'
         run: Add-Content $env:GITHUB_PATH "C:\Program Files\Git\usr\bin"
-      - uses: actions/cache@v3
+      - uses: actions/cache@v3.0.5
         with:
           path: lib
           key: ${{ needs.build.outputs.cache-key }}

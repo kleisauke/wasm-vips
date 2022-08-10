@@ -116,7 +116,7 @@ VERSION_GLIB=2.73.2
 VERSION_EXPAT=2.4.8
 VERSION_EXIF=0.6.24
 VERSION_LCMS2=2.13.1
-VERSION_JPEG=2.1.3
+VERSION_JPEG=5c6a0f0        # https://github.com/mozilla/mozjpeg/releases
 VERSION_SPNG=0.7.2
 VERSION_IMAGEQUANT=2.4.1
 VERSION_CGIF=0.3.0
@@ -255,11 +255,11 @@ echo "Compiling jpeg"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
   mkdir $DEPS/jpeg
-  curl -Ls https://github.com/libjpeg-turbo/libjpeg-turbo/archive/$VERSION_JPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
+  curl -Ls https://github.com/mozilla/mozjpeg/archive/$VERSION_JPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
   cd $DEPS/jpeg
   # https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250#issuecomment-407615180
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DENABLE_STATIC=TRUE \
-    -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE
+    -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE -DPNG_SUPPORTED=FALSE
   make -C _build install
 )
 

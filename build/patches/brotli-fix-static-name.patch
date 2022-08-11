@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Anton <dev@atjn.dk>
+Date: Thu Aug 11 17:17:52 2022 +0200
+Subject: [PATCH 1/1] Fix incorrect static lib names
+
+See: https://github.com/google/brotli/issues/795
+
+Upstream-Status: Inappropriate [hack]
+This is just a hack that only works for the emscripten build. Solving this issue properly requires substantial
+changes to the makefiles, which also means substantial testing to make sure it works with all build systems.
+
+diff --git a/scripts/libbrotlicommon.pc.in b/scripts/libbrotlicommon.pc.in
+index 1111111..2222222 100644
+--- a/scripts/libbrotlicommon.pc.in
++++ b/scripts/libbrotlicommon.pc.in
+@@ -7,5 +7,5 @@ Name: libbrotlicommon
+ URL: https://github.com/google/brotli
+ Description: Brotli common dictionary library
+ Version: @PACKAGE_VERSION@
+-Libs: -L${libdir} -lbrotlicommon
++Libs: -L${libdir} -lbrotlicommon-static
+ Cflags: -I${includedir}
+diff --git a/scripts/libbrotlidec.pc.in b/scripts/libbrotlidec.pc.in
+index 1111111..2222222 100644
+--- a/scripts/libbrotlidec.pc.in
++++ b/scripts/libbrotlidec.pc.in
+@@ -7,6 +7,6 @@ Name: libbrotlidec
+ URL: https://github.com/google/brotli
+ Description: Brotli decoder library
+ Version: @PACKAGE_VERSION@
+-Libs: -L${libdir} -lbrotlidec
++Libs: -L${libdir} -lbrotlidec-static
+ Requires.private: libbrotlicommon >= 1.0.2
+ Cflags: -I${includedir}
+diff --git a/scripts/libbrotlienc.pc.in b/scripts/libbrotlienc.pc.in
+index 1111111..2222222 100644
+--- a/scripts/libbrotlienc.pc.in
++++ b/scripts/libbrotlienc.pc.in
+@@ -7,6 +7,6 @@ Name: libbrotlienc
+ URL: https://github.com/google/brotli
+ Description: Brotli encoder library
+ Version: @PACKAGE_VERSION@
+-Libs: -L${libdir} -lbrotlienc
++Libs: -L${libdir} -lbrotlienc-static
+ Requires.private: libbrotlicommon >= 1.0.2
+ Cflags: -I${includedir}

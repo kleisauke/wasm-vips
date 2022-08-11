@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Anton <dev@atjn.dk>
+Date: Thu Aug 11 08:15:47 2022 +0200
+Subject: [PATCH 1/1] Alter how libjxl downloads dependencies
+
+Upstream-Status: Pending
+
+diff --git a/deps.sh b/deps.sh
+index 1111111..2222222 100644
+--- a/deps.sh
++++ b/deps.sh
+@@ -59,7 +59,7 @@ download_github() {
+
+
+ main() {
+-  if git -C "${MYDIR}" rev-parse; then
++  if false && git -C "${MYDIR}" rev-parse; then
+     cat >&2 <<EOF
+ Current directory is a git repository, downloading dependencies via git:
+
+@@ -73,7 +73,7 @@ EOF
+   # Sources downloaded from a tarball.
+   download_github third_party/brotli google/brotli
+   download_github third_party/highway google/highway
+-  download_github third_party/sjpeg webmproject/sjpeg
++  # download_github third_party/sjpeg webmproject/sjpeg
+   download_github third_party/skcms \
+     "https://skia.googlesource.com/skcms/+archive/"
+   download_github third_party/zlib madler/zlib

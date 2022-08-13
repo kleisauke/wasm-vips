@@ -274,7 +274,9 @@ test -f "$TARGET/lib/pkgconfig/libbrotlicommon.pc" || (
   cd $DEPS/brotli
   # https://github.com/google/brotli/pull/655
   patch -p1 <$SOURCE_DIR/build/patches/brotli-655.patch
-  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET
+  # Exclude Brotli's internal dictionary, see: https://github.com/emscripten-core/emscripten/issues/9960
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET \
+    -DCMAKE_C_FLAGS="$CFLAGS -DBROTLI_EXTERNAL_DICTIONARY_DATA" -DCMAKE_CXX_FLAGS="$CXXFLAGS -DBROTLI_EXTERNAL_DICTIONARY_DATA"
   make -C _build install
 )
 

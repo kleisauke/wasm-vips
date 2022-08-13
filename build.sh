@@ -272,7 +272,8 @@ test -f "$TARGET/lib/pkgconfig/libbrotlicommon.pc" || (
   mkdir $DEPS/brotli
   curl -Ls https://github.com/google/brotli/archive/$VERSION_BROTLI.tar.gz | tar xzC $DEPS/brotli --strip-components=1
   cd $DEPS/brotli
-  patch -p1 <$SOURCE_DIR/build/patches/brotli-fix-static-name.patch
+  # https://github.com/google/brotli/pull/655
+  patch -p1 <$SOURCE_DIR/build/patches/brotli-655.patch
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET
   make -C _build install
 )

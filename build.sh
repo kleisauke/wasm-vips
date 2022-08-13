@@ -119,7 +119,7 @@ VERSION_LCMS2=2.13.1        # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.0.0           # https://github.com/google/highway
 VERSION_BROTLI=f4153a       # https://github.com/google/brotli
 VERSION_JPEG=5c6a0f0        # https://github.com/mozilla/mozjpeg
-VERSION_JXL=a4ad91a         # https://github.com/libjxl/libjxl
+VERSION_JXL=0.7rc           # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.2          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif
@@ -261,7 +261,7 @@ test -f "$TARGET/lib/pkgconfig/libhwy.pc" || (
   curl -Ls https://github.com/google/highway/archive/$VERSION_HWY.tar.gz | tar xzC $DEPS/hwy --strip-components=1
   cd $DEPS/hwy
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DHWY_FORCE_STATIC_LIBS=TRUE \
-   -DBUILD_TESTING=FALSE -DHWY_ENABLE_CONTRIB=FALSE -DHWY_ENABLE_EXAMPLES=FALSE
+    -DBUILD_TESTING=FALSE -DHWY_ENABLE_CONTRIB=FALSE -DHWY_ENABLE_EXAMPLES=FALSE
   make -C _build install
 )
 
@@ -298,7 +298,7 @@ echo "Compiling jxl"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/libjxl.pc" || (
   mkdir $DEPS/jxl
-  curl -Ls https://github.com/libjxl/libjxl/archive/$VERSION_JXL.tar.gz | tar xzC $DEPS/jxl --strip-components=1
+  curl -Ls https://github.com/libjxl/libjxl/archive/refs/tags/v$VERSION_JXL.tar.gz | tar xzC $DEPS/jxl --strip-components=1
   cd $DEPS/jxl
   patch -p1 <$SOURCE_DIR/build/patches/libjxl-deps.patch
   # Download dependencies for internal linking. When this lib stabilizes, these deps should be compiled externally to avoid bloat.

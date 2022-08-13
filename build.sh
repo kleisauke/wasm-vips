@@ -300,13 +300,15 @@ test -f "$TARGET/lib/pkgconfig/libjxl.pc" || (
   mkdir $DEPS/jxl
   curl -Ls https://github.com/libjxl/libjxl/archive/refs/tags/v$VERSION_JXL.tar.gz | tar xzC $DEPS/jxl --strip-components=1
   cd $DEPS/jxl
-  patch -p1 <$SOURCE_DIR/build/patches/libjxl-deps.patch
-  # Download dependencies for internal linking. When this lib stabilizes, these deps should be compiled externally to avoid bloat.
-  ./deps.sh
-  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_TESTING=OFF -DJPEGXL_STATIC=TRUE \
-   -DJPEGXL_ENABLE_FUZZERS=FALSE -DJPEGXL_ENABLE_DOXYGEN=FALSE \
-   -DJPEGXL_ENABLE_MANPAGES=FALSE -DJPEGXL_ENABLE_BENCHMARK=FALSE -DJPEGXL_ENABLE_EXAMPLES=FALSE -DJPEGXL_ENABLE_JNI=FALSE \
-   -DJPEGXL_ENABLE_SJPEG=FALSE -DJPEGXL_ENABLE_OPENEXR=FALSE #-DJPEGXL_FORCE_SYSTEM_HWY=TRUE -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE
+  # Avoid bundling libpng
+  sed -i 's/JPEGXL_EMSCRIPTEN/& AND JPEGXL_BUNDLE_LIBPNG/' third_party/CMakeLists.txt
+  # CMake < 3.19 workaround, see: https://github.com/libjxl/libjxl/issues/1425
+  sed -i 's/lcms2,INCLUDE_DIRECTORIES/lcms2,INTERFACE_INCLUDE_DIRECTORIES/' lib/jxl.cmake
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DJPEGXL_STATIC=TRUE -DBUILD_TESTING=FALSE \
+    -DJPEGXL_ENABLE_TOOLS=FALSE -DJPEGXL_ENABLE_DOXYGEN=FALSE -DJPEGXL_ENABLE_MANPAGES=FALSE -DJPEGXL_ENABLE_BENCHMARK=FALSE \
+    -DJPEGXL_ENABLE_EXAMPLES=FALSE -DJPEGXL_ENABLE_SJPEG=FALSE -DJPEGXL_ENABLE_OPENEXR=FALSE -DJPEGXL_ENABLE_SKCMS=FALSE \
+    -DJPEGXL_BUNDLE_LIBPNG=FALSE -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE -DJPEGXL_FORCE_SYSTEM_LCMS2=TRUE -DJPEGXL_FORCE_SYSTEM_HWY=TRUE \
+    -DCMAKE_FIND_ROOT_PATH=$TARGET
   make -C _build install
 )
 
@@ -348,7 +350,7 @@ test -f "$TARGET/lib/pkgconfig/cgif.pc" || (
   curl -Ls https://github.com/dloebl/cgif/archive/V$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
   cd $DEPS/cgif
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Dtests=false 
+    -Dtests=false
   ninja -C _build install
 )
 

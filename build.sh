@@ -258,7 +258,7 @@ echo "Compiling hwy"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/libhwy.pc" || (
   mkdir $DEPS/hwy
-  curl -Ls https://github.com/google/highway/archive/$VERSION_HWY.tar.gz | tar xzC $DEPS/hwy --strip-components=1
+  curl -Ls https://github.com/google/highway/archive/refs/tags/$VERSION_HWY.tar.gz | tar xzC $DEPS/hwy --strip-components=1
   cd $DEPS/hwy
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DHWY_FORCE_STATIC_LIBS=TRUE \
     -DBUILD_TESTING=FALSE -DHWY_ENABLE_CONTRIB=FALSE -DHWY_ENABLE_EXAMPLES=FALSE

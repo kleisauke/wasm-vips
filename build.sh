@@ -274,7 +274,7 @@ test -f "$TARGET/lib/pkgconfig/libbrotlicommon.pc" || (
   cd $DEPS/brotli
   # https://github.com/google/brotli/pull/655
   patch -p1 <$SOURCE_DIR/build/patches/brotli-655.patch
-  # Exclude Brotli's internal dictionary, see: https://github.com/emscripten-core/emscripten/issues/9960
+  # Exclude internal dictionary, see: https://github.com/emscripten-core/emscripten/issues/9960
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBROTLI_DISABLE_TESTS=TRUE \
     -DCMAKE_C_FLAGS="$CFLAGS -DBROTLI_EXTERNAL_DICTIONARY_DATA"
   make -C _build install
@@ -287,7 +287,7 @@ test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
   mkdir $DEPS/jpeg
   curl -Ls https://github.com/mozilla/mozjpeg/archive/$VERSION_JPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
   cd $DEPS/jpeg
-  # https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250#issuecomment-407615180
+  # Compile without SIMD support, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250
   # Disable environment variables usage, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/600
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DENABLE_STATIC=TRUE \
     -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE -DPNG_SUPPORTED=FALSE \

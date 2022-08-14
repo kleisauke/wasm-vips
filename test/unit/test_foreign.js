@@ -860,7 +860,7 @@ describe('foreign', () => {
 
   it('jxlsave', function () {
     // Needs libjxl support
-    // FIXME(kleisauke): Enable this
+    // FIXME(kleisauke): Fix jxlsave compatibility with libjxl 0.7
     if (!Helpers.have('jxlsave') || !0) {
       return this.skip();
     }

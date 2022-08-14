@@ -395,6 +395,7 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   # Emscripten specific patches
   patch -p1 <$SOURCE_DIR/build/patches/vips-remove-orc.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
+  patch -p1 <$SOURCE_DIR/build/patches/vips-libjxl-disable-concurrency.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
   # Disable building C++ bindings, man pages, gettext po files, tools, and (fuzz-)tests
   sed -i'.bak' "/subdir('cplusplus')/{N;N;N;N;N;d;}" meson.build

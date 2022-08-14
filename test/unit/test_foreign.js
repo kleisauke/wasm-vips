@@ -859,9 +859,8 @@ describe('foreign', () => {
   });
 
   it('jxlsave', function () {
-    // Needs libjxl support
-    // FIXME(kleisauke): Fix jxlsave compatibility with libjxl 0.7
-    if (!Helpers.have('jxlsave') || !0) {
+    // Needs JPEG XL support
+    if (!Helpers.have('jxlsave')) {
       return this.skip();
     }
 

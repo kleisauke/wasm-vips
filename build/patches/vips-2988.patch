@@ -8,7 +8,7 @@ know what the last frame is, resulting in an improper codestream.
 
 Resolves: #2987.
 
-Upstream-Status: Submitted [https://github.com/libvips/libvips/pull/2988]
+Upstream-Status: Accepted [https://github.com/libvips/libvips/commit/34427d83a028690b098fd1f67e956f78bc724e22]
 
 diff --git a/libvips/foreign/jxlsave.c b/libvips/foreign/jxlsave.c
 index 1111111..2222222 100644

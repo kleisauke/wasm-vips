@@ -163,7 +163,7 @@ echo "Compiling zlib-ng"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/zlib.pc" || (
   mkdir $DEPS/zlib-ng
-  curl -Ls https://github.com/zlib-ng/zlib-ng/archive/$VERSION_ZLIBNG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
+  curl -Ls https://github.com/zlib-ng/zlib-ng/archive/refs/tags/$VERSION_ZLIBNG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
   cd $DEPS/zlib-ng
   # SSE intrinsics needs to be checked for wasm32
   sed -i 's/|\s*x86_64/& | wasm32/g' configure
@@ -255,11 +255,13 @@ echo "Compiling jpeg"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
   mkdir $DEPS/jpeg
-  curl -Ls https://github.com/mozilla/mozjpeg/archive/v$VERSION_JPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
+  curl -Ls https://github.com/mozilla/mozjpeg/archive/refs/tags/v$VERSION_JPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
   cd $DEPS/jpeg
-  # https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250#issuecomment-407615180
+  # Compile without SIMD support, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250
+  # Disable environment variables usage, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/600
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DENABLE_STATIC=TRUE \
-    -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE -DPNG_SUPPORTED=FALSE
+    -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE -DPNG_SUPPORTED=FALSE \
+    -DCMAKE_C_FLAGS="$CFLAGS -DNO_GETENV -DNO_PUTENV"
   make -C _build install
 )
 
@@ -268,7 +270,7 @@ echo "Compiling spng"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/spng.pc" || (
   mkdir $DEPS/spng
-  curl -Ls https://github.com/randy408/libspng/archive/v$VERSION_SPNG.tar.gz | tar xzC $DEPS/spng --strip-components=1
+  curl -Ls https://github.com/randy408/libspng/archive/refs/tags/v$VERSION_SPNG.tar.gz | tar xzC $DEPS/spng --strip-components=1
   cd $DEPS/spng
   # TODO(kleisauke): Discuss this patch upstream
   patch -p1 <$SOURCE_DIR/build/patches/libspng-emscripten.patch
@@ -284,7 +286,7 @@ echo "Compiling imagequant"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/imagequant.pc" || (
   mkdir $DEPS/imagequant
-  curl -Ls https://github.com/lovell/libimagequant/archive/v$VERSION_IMAGEQUANT.tar.gz | tar xzC $DEPS/imagequant --strip-components=1
+  curl -Ls https://github.com/lovell/libimagequant/archive/refs/tags/v$VERSION_IMAGEQUANT.tar.gz | tar xzC $DEPS/imagequant --strip-components=1
   cd $DEPS/imagequant
   # TODO(kleisauke): Discuss this patch upstream
   patch -p1 <$SOURCE_DIR/build/patches/imagequant-emscripten.patch
@@ -298,10 +300,10 @@ echo "Compiling cgif"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/cgif.pc" || (
   mkdir $DEPS/cgif
-  curl -Ls https://github.com/dloebl/cgif/archive/V$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
+  curl -Ls https://github.com/dloebl/cgif/archive/refs/tags/V$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
   cd $DEPS/cgif
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Dtests=false 
+    -Dtests=false
   ninja -C _build install
 )
 

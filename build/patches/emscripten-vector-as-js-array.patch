@@ -11,7 +11,7 @@ diff --git a/src/embind/embind.js b/src/embind/embind.js
 index 1111111..2222222 100644
 --- a/src/embind/embind.js
 +++ b/src/embind/embind.js
-@@ -413,6 +413,36 @@ var LibraryEmbind = {
+@@ -412,6 +412,36 @@ var LibraryEmbind = {
      return array;
    },
  
@@ -48,7 +48,7 @@ index 1111111..2222222 100644
    $requireRegisteredType__deps: [
      '$registeredTypes', '$getTypeName', '$throwBindingError'],
    $requireRegisteredType: function(rawType, humanName) {
-@@ -443,7 +473,7 @@ var LibraryEmbind = {
+@@ -442,7 +472,7 @@ var LibraryEmbind = {
  
    _embind_register_bool__sig: 'vpppii',
    _embind_register_bool__deps: [
@@ -57,7 +57,7 @@ index 1111111..2222222 100644
    _embind_register_bool: function(rawType, name, size, trueValue, falseValue) {
      var shift = getShiftFromSize(size);
  
-@@ -461,16 +491,7 @@ var LibraryEmbind = {
+@@ -460,16 +490,7 @@ var LibraryEmbind = {
          'argPackAdvance': 8,
          'readValueFromPointer': function(pointer) {
              // TODO: if heap is fixed (like in asm.js) this could be executed outside
@@ -75,7 +75,7 @@ index 1111111..2222222 100644
              return this['fromWireType'](heap[pointer >> shift]);
          },
          destructorFunction: null, // This type does not need a destructor
-@@ -489,60 +510,57 @@ var LibraryEmbind = {
+@@ -488,60 +509,57 @@ var LibraryEmbind = {
      }
    },
  
@@ -159,7 +159,7 @@ index 1111111..2222222 100644
      }
    },
  
-@@ -569,7 +587,7 @@ var LibraryEmbind = {
+@@ -568,7 +586,7 @@ var LibraryEmbind = {
          fromWireType = (value) => (value << bitshift) >>> bitshift;
      }
  
@@ -168,7 +168,7 @@ index 1111111..2222222 100644
      var checkAssertions = (value, toTypeName) => {
  #if ASSERTIONS
        if (typeof value != "number" && typeof value != "boolean") {
-@@ -613,7 +631,7 @@ var LibraryEmbind = {
+@@ -612,7 +630,7 @@ var LibraryEmbind = {
  
      var shift = getShiftFromSize(size);
  
@@ -177,7 +177,7 @@ index 1111111..2222222 100644
  
      // maxRange comes through as -1 for uint64_t (see issue 13902). Work around that temporarily
      if (isUnsignedType) {
-@@ -785,6 +803,7 @@ var LibraryEmbind = {
+@@ -784,6 +802,7 @@ var LibraryEmbind = {
    _embind_register_std_wstring__sig: 'vppp',
    _embind_register_std_wstring__deps: [
      '$readLatin1String', '$registerType', '$simpleReadValueFromPointer',
@@ -185,7 +185,7 @@ index 1111111..2222222 100644
      '$UTF16ToString', '$stringToUTF16', '$lengthBytesUTF16',
      '$UTF32ToString', '$stringToUTF32', '$lengthBytesUTF32',
      ],
-@@ -790,18 +809,16 @@ var LibraryEmbind = {
+@@ -789,18 +808,16 @@ var LibraryEmbind = {
      ],
    _embind_register_std_wstring: function(rawType, charSize, name) {
      name = readLatin1String(name);
@@ -205,7 +205,7 @@ index 1111111..2222222 100644
        shift = 2;
      }
      registerType(rawType, {
-@@ -809,7 +826,7 @@ var LibraryEmbind = {
+@@ -808,7 +825,7 @@ var LibraryEmbind = {
        'fromWireType': function(value) {
          // Code mostly taken from _embind_register_std_string fromWireType
          var length = HEAPU32[value >> 2];
@@ -214,7 +214,7 @@ index 1111111..2222222 100644
          var str;
  
          var decodeStartPtr = value + 4;
-@@ -884,6 +901,71 @@ var LibraryEmbind = {
+@@ -883,6 +900,71 @@ var LibraryEmbind = {
      });
    },
  

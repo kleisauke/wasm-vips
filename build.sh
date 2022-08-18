@@ -118,7 +118,7 @@ VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.13.1        # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.0.0           # https://github.com/google/highway
 VERSION_BROTLI=f4153a       # https://github.com/google/brotli
-VERSION_JPEG=5c6a0f0        # https://github.com/mozilla/mozjpeg
+VERSION_JPEG=4.1.1          # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.7rc           # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.2          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
@@ -166,7 +166,7 @@ echo "Compiling zlib-ng"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/zlib.pc" || (
   mkdir $DEPS/zlib-ng
-  curl -Ls https://github.com/zlib-ng/zlib-ng/archive/$VERSION_ZLIBNG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
+  curl -Ls https://github.com/zlib-ng/zlib-ng/archive/refs/tags/$VERSION_ZLIBNG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
   cd $DEPS/zlib-ng
   # SSE intrinsics needs to be checked for wasm32
   sed -i 's/|\s*x86_64/& | wasm32/g' configure
@@ -285,7 +285,7 @@ echo "Compiling jpeg"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
   mkdir $DEPS/jpeg
-  curl -Ls https://github.com/mozilla/mozjpeg/archive/$VERSION_JPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
+  curl -Ls https://github.com/mozilla/mozjpeg/archive/refs/tags/v$VERSION_JPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
   cd $DEPS/jpeg
   # Compile without SIMD support, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250
   # Disable environment variables usage, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/600
@@ -319,7 +319,7 @@ echo "Compiling spng"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/spng.pc" || (
   mkdir $DEPS/spng
-  curl -Ls https://github.com/randy408/libspng/archive/v$VERSION_SPNG.tar.gz | tar xzC $DEPS/spng --strip-components=1
+  curl -Ls https://github.com/randy408/libspng/archive/refs/tags/v$VERSION_SPNG.tar.gz | tar xzC $DEPS/spng --strip-components=1
   cd $DEPS/spng
   # TODO(kleisauke): Discuss this patch upstream
   patch -p1 <$SOURCE_DIR/build/patches/libspng-emscripten.patch
@@ -335,7 +335,7 @@ echo "Compiling imagequant"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/imagequant.pc" || (
   mkdir $DEPS/imagequant
-  curl -Ls https://github.com/lovell/libimagequant/archive/v$VERSION_IMAGEQUANT.tar.gz | tar xzC $DEPS/imagequant --strip-components=1
+  curl -Ls https://github.com/lovell/libimagequant/archive/refs/tags/v$VERSION_IMAGEQUANT.tar.gz | tar xzC $DEPS/imagequant --strip-components=1
   cd $DEPS/imagequant
   # TODO(kleisauke): Discuss this patch upstream
   patch -p1 <$SOURCE_DIR/build/patches/imagequant-emscripten.patch
@@ -349,7 +349,7 @@ echo "Compiling cgif"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/cgif.pc" || (
   mkdir $DEPS/cgif
-  curl -Ls https://github.com/dloebl/cgif/archive/V$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
+  curl -Ls https://github.com/dloebl/cgif/archive/refs/tags/V$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
   cd $DEPS/cgif
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Dtests=false

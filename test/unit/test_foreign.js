@@ -876,7 +876,6 @@ describe('foreign', () => {
 
     fileLoader('jxlload', Helpers.jxlFile, jxlValid);
     bufferLoader('jxlload_buffer', Helpers.jxlFile, jxlValid);
-
   });
 
   it('jxlsave', function () {

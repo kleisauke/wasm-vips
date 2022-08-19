@@ -15,6 +15,11 @@ vips copy owl.jpg owl.tif[compression=jpeg,strip=true]
 vips copy owl.jpg owl.webp[strip=true]
 ```
 
+[`owl.jxl`](owl.jxl):
+```bash
+vips copy owl.jpg owl.jxl
+```
+
 [`transparency_demo.png`](transparency_demo.png):
 ```
 https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png

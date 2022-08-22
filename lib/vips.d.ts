@@ -76,6 +76,15 @@ declare module Vips {
     function blockUntrusted(state: boolean): void;
 
     /**
+     * Block a specific operation from running.
+     * For example, you can disable all foreign loaders with ('VipsForeignLoad', true)
+     * and then only reenable the png loader with ('VipsForeignLoadPng', false).
+     * @param name The name of the operation or class of operations.
+     * @param state Set to true to block the operation, set to false to reenable it.
+     */
+    function operationBlock(name: string, state: boolean): void;
+
+    /**
      * Call this to shutdown libvips and the runtime of Emscripten.
      * This is only needed on Node.js, as the thread pool of
      * Emscripten prevents the event loop from exiting.

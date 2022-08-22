@@ -435,6 +435,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
                  return vips::replace_all(VIPS_CONFIG, ", ", "\n");
              }));
     function("blockUntrusted", &vips::block_untrusted_set);
+    function("operationBlock", &vips::operation_block_set);
 
     // Helper for Node.js to shutdown libvips and the runtime of Emscripten
     function("shutdown", &shutdown_js);

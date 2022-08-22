@@ -3,6 +3,7 @@
 export const jpegFile = getPath('sample.jpg');
 export const truncatedFile = getPath('truncated.jpg');
 export const pngFile = getPath('sample.png');
+export const vipsFile = getPath('sample.vips');
 export const tifFile = getPath('sample.tif');
 export const tif1File = getPath('1bit.tif');
 export const tif2File = getPath('2bit.tif');
@@ -26,6 +27,7 @@ export const testFiles = [
   jpegFile,
   truncatedFile,
   pngFile,
+  vipsFile,
   tifFile,
   tif1File,
   tif2File,
@@ -224,4 +226,16 @@ export function imageToString (im) {
 
 export function makeRepeated (arr, repeats) {
   return [].concat(...Array.from({ length: repeats }, () => arr));
+}
+
+// allows temporary disabling of cache, which can be enabled again
+// with  enableCache()
+export function disableCache () {
+  globalThis.cachePreviousMax = vips.Cache.max();
+  vips.Cache.max(0);
+}
+
+// enables the cache again after it has been disabled with disableCache()
+export function enableCache () {
+  vips.Cache.max(globalThis.cachePreviousMax);
 }

@@ -1,5 +1,6 @@
 #include "bindings/connection.h"
 #include "bindings/image.h"
+#include "bindings/init.h"
 #include "bindings/interpolate.h"
 #include "bindings/object.h"
 #include "bindings/utils.h"
@@ -433,6 +434,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
     function("config", optional_override([]() {
                  return vips::replace_all(VIPS_CONFIG, ", ", "\n");
              }));
+    function("blockUntrusted", &vips::block_untrusted_set);
 
     // Helper for Node.js to shutdown libvips and the runtime of Emscripten
     function("shutdown", &shutdown_js);

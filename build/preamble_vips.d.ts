@@ -69,6 +69,13 @@ declare module Vips {
     function concurrency(concurrency?: number): void | number;
 
     /**
+     * Block operations that should not be used on untrusted input.
+     * This blocks many ForeignLoad operations, including vipsload.
+     * @param state Set to true to block the operations, set to false to reenable them.
+     */
+    function blockUntrusted(state: boolean): void;
+
+    /**
      * Call this to shutdown libvips and the runtime of Emscripten.
      * This is only needed on Node.js, as the thread pool of
      * Emscripten prevents the event loop from exiting.

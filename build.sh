@@ -204,6 +204,7 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   cd $DEPS/glib
   patch -p1 <$SOURCE_DIR/build/patches/glib-without-tools.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-without-gregex.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-disable-nls.patch
   # TODO(kleisauke): Discuss these patches upstream
   patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-function-pointers.patch
@@ -346,6 +347,7 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   # Emscripten specific patches
   patch -p1 <$SOURCE_DIR/build/patches/vips-remove-orc.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
+  patch -p1 <$SOURCE_DIR/build/patches/vips-disable-nls.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
   # Disable building C++ bindings, man pages, gettext po files, tools, and (fuzz-)tests
   sed -i'.bak' "/subdir('cplusplus')/{N;N;N;N;N;d;}" meson.build

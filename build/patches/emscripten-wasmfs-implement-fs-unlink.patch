@@ -9,7 +9,7 @@ diff --git a/emcc.py b/emcc.py
 index 1111111..2222222 100644
 --- a/emcc.py
 +++ b/emcc.py
-@@ -2093,6 +2093,7 @@ def phase_linker_setup(options, state, newargs, user_settings):
+@@ -2097,6 +2097,7 @@ def phase_linker_setup(options, state, newargs, user_settings):
        settings.REQUIRED_EXPORTS += [
          '_wasmfs_write_file',
          '_wasmfs_mkdir',
@@ -39,7 +39,7 @@ diff --git a/system/lib/wasmfs/js_api.cpp b/system/lib/wasmfs/js_api.cpp
 index 1111111..2222222 100644
 --- a/system/lib/wasmfs/js_api.cpp
 +++ b/system/lib/wasmfs/js_api.cpp
-@@ -98,6 +98,10 @@ int _wasmfs_mkdir(char* path, int mode) {
+@@ -100,6 +100,10 @@ int _wasmfs_mkdir(char* path, int mode) {
    return __syscall_mkdirat(AT_FDCWD, (intptr_t)path, mode);
  }
  

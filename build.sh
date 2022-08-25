@@ -206,7 +206,8 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/glib-without-gregex.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-disable-nls.patch
   # TODO(kleisauke): Discuss these patches upstream
-  patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten-build.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten-impl.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-function-pointers.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     --force-fallback-for=gvdb -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \

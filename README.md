@@ -15,12 +15,13 @@ and because it doesn't need to keep entire images in memory, it's light.
 ## Engine support
 
 An engine that [supports WebAssembly SIMD](https://webassembly.org/roadmap/).
-This is present on most major browser engines. Node.js >= 16.4.0 is required
-to match the final SIMD opcodes.
+This is present on most major browser engines. For non-browser use, at least
+Node.js v16.4.0 or Deno v1.9.0 is required to match the final SIMD opcodes
+in V8.
 
-| ![Chrome](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome_32x32.png)<br>Chrome | ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_32x32.png)<br>Firefox | ![Edge](https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_32x32.png)<br>Edge | ![Node.js](https://raw.githubusercontent.com/nodejs/nodejs.org/master/static/images/favicons/favicon-32x32.png)<br>Node.js |
-|:---:|:---:|:---:|:---:|
-| :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 89+](https://bugzilla.mozilla.org/show_bug.cgi?id=1695585) | :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 16.4+](https://github.com/nodejs/node/pull/38273) |
+| ![Chrome](https://github.com/alrra/browser-logos/raw/main/src/chrome/chrome_32x32.png)<br>Chrome | ![Firefox](https://github.com/alrra/browser-logos/raw/main/src/firefox/firefox_32x32.png)<br>Firefox | ![Edge](https://github.com/alrra/browser-logos/raw/main/src/edge/edge_32x32.png)<br>Edge | ![Node.js](https://github.com/alrra/browser-logos/raw/main/src/node.js/node.js_32x32.png)<br>Node.js | ![Deno](https://github.com/alrra/browser-logos/raw/main/src/deno/deno_32x32.png)<br>Deno |
+|:---:|:---:|:---:|:---:|:---:|
+| :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 89+](https://bugzilla.mozilla.org/show_bug.cgi?id=1695585) | :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 16.4+](https://github.com/nodejs/node/pull/38273) | :heavy_check_mark:<br>[version 1.9+](https://github.com/denoland/deno/pull/10152) |
 
 ## Installation
 
@@ -95,6 +96,17 @@ const vips = await Vips();
 Vips().then(vips => {
   // Code here
 });
+```
+
+### Deno
+
+On Deno, the web ES6 module can be reused and imported from a CDN such as
+[jsDelivr](https://www.jsdelivr.com/):
+
+```js
+import Vips from 'https://cdn.jsdelivr.net/npm/wasm-vips/lib/vips-es6.js';
+
+const vips = await Vips();
 ```
 
 ## Example

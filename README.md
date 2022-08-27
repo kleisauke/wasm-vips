@@ -18,11 +18,11 @@ https://github.com/kleisauke/wasm-vips/issues/1).
 An engine that [supports WebAssembly SIMD](https://webassembly.org/roadmap/).
 This is present on most major browser engines.
 
-For V8-based engines, it requires at least version 9.1.54 to match the final
+For V8-based engines, at least version 9.1.54 is required to match the final
 SIMD opcodes, this corresponds to Chrome 91, Node.js 16.4.0 and Deno 1.9.0.
 
 For Spidermonkey-based engines, the JavaScript engine used in Mozilla Firefox
-and whose version numbers are aligned, it requires at least version 89.
+and whose version numbers are aligned, at least version 89 is required.
 
 JavaScriptCore-based (e.g. Safari, Bun) engines are currently not supported,
 you can follow the status in [this tracking bug](

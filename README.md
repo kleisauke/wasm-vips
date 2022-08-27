@@ -10,18 +10,27 @@ pipeline executes at once, streaming the image in parallel from source to
 destination a section at a time. Because wasm-vips is parallel, it's quick,
 and because it doesn't need to keep entire images in memory, it's light.
 
-> **Note**: This library is still under early development. See: [#1](https://github.com/kleisauke/wasm-vips/issues/1).
+> **Note**: This library is still under early development. See: [#1](
+https://github.com/kleisauke/wasm-vips/issues/1).
 
 ## Engine support
 
 An engine that [supports WebAssembly SIMD](https://webassembly.org/roadmap/).
-This is present on most major browser engines. For non-browser use, at least
-Node.js v16.4.0 or Deno v1.9.0 is required to match the final SIMD opcodes
-in V8.
+This is present on most major browser engines.
 
-| ![Chrome](https://github.com/alrra/browser-logos/raw/main/src/chrome/chrome_32x32.png)<br>Chrome | ![Firefox](https://github.com/alrra/browser-logos/raw/main/src/firefox/firefox_32x32.png)<br>Firefox | ![Edge](https://github.com/alrra/browser-logos/raw/main/src/edge/edge_32x32.png)<br>Edge | ![Node.js](https://github.com/alrra/browser-logos/raw/main/src/node.js/node.js_32x32.png)<br>Node.js | ![Deno](https://github.com/alrra/browser-logos/raw/main/src/deno/deno_32x32.png)<br>Deno |
-|:---:|:---:|:---:|:---:|:---:|
-| :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 89+](https://bugzilla.mozilla.org/show_bug.cgi?id=1695585) | :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 16.4+](https://github.com/nodejs/node/pull/38273) | :heavy_check_mark:<br>[version 1.9+](https://github.com/denoland/deno/pull/10152) |
+For V8-based engines, it requires at least version 9.1.54 to match the final
+SIMD opcodes, this corresponds to Chrome 91, Node.js 16.4.0 and Deno 1.9.0.
+
+For Spidermonkey-based engines, the JavaScript engine used in Mozilla Firefox
+and whose version numbers are aligned, it requires at least version 89.
+
+JavaScriptCore-based (e.g. Safari, Bun) engines are currently not supported,
+you can follow the status in [this tracking bug](
+https://bugs.webkit.org/show_bug.cgi?id=222382).
+
+| ![Chrome](https://github.com/alrra/browser-logos/raw/main/src/chrome/chrome_32x32.png)<br>Chrome | ![Firefox](https://github.com/alrra/browser-logos/raw/main/src/firefox/firefox_32x32.png)<br>Firefox | ![Safari](https://github.com/alrra/browser-logos/raw/main/src/safari/safari_32x32.png)<br>Safari | ![Edge](https://github.com/alrra/browser-logos/raw/main/src/edge/edge_32x32.png)<br>Edge | ![Node.js](https://github.com/alrra/browser-logos/raw/main/src/node.js/node.js_32x32.png)<br>Node.js | ![Deno](https://github.com/alrra/browser-logos/raw/main/src/deno/deno_32x32.png)<br>Deno |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 89+](https://bugzilla.mozilla.org/show_bug.cgi?id=1695585) | :x:<br>[Tracking bug](https://bugs.webkit.org/show_bug.cgi?id=222382) | :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 16.4+](https://github.com/nodejs/node/pull/38273) | :heavy_check_mark:<br>[version 1.9+](https://github.com/denoland/deno/pull/10152) |
 
 ## Installation
 

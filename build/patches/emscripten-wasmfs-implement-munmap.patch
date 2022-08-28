@@ -9,7 +9,7 @@ diff --git a/src/library_syscall.js b/src/library_syscall.js
 index 1111111..2222222 100644
 --- a/src/library_syscall.js
 +++ b/src/library_syscall.js
-@@ -138,7 +138,7 @@ var SyscallsLibrary = {
+@@ -137,7 +137,7 @@ var SyscallsLibrary = {
      '$FS',
  #endif
    ],
@@ -18,10 +18,10 @@ index 1111111..2222222 100644
    _munmap_js: function(addr, len, prot, flags, fd, offset) {
  #if CAN_ADDRESS_2GB
      addr >>>= 0;
-@@ -151,6 +151,7 @@ var SyscallsLibrary = {
-       }
-       FS.munmap(stream);
+@@ -148,6 +148,7 @@ var SyscallsLibrary = {
+       SYSCALLS.doMsync(addr, stream, len, flags, offset);
      }
+     FS.munmap(stream);
 +    // implicitly return 0
  #endif
    },

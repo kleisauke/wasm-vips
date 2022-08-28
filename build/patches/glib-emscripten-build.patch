@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:00:00 +0200
-Subject: [PATCH 1/8] Emscripten doesn't define
+Subject: [PATCH 1/7] Emscripten doesn't define
  __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4 either
 
 https://bugs.llvm.org/show_bug.cgi?id=11174 might be relevant here.
@@ -27,7 +27,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:20:00 +0200
-Subject: [PATCH 2/8] posix_spawn isn't usable in WASM
+Subject: [PATCH 2/7] posix_spawn isn't usable in WASM
 
 Upstream-Status: Pending
 
@@ -47,7 +47,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 18 Sep 2019 15:40:00 +0200
-Subject: [PATCH 3/8] Network libs are not available in WASM
+Subject: [PATCH 3/7] Network libs are not available in WASM
 
 Upstream-Status: Pending
 
@@ -68,7 +68,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Wed, 22 Apr 2020 12:11:28 +0200
-Subject: [PATCH 4/8] Ensure separate checks are also done for Emscripten
+Subject: [PATCH 4/7] Ensure separate checks are also done for Emscripten
 
 Upstream-Status: Pending
 
@@ -103,7 +103,7 @@ index 1111111..2222222 100644
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Tue, 13 Apr 2021 15:30:00 +0200
-Subject: [PATCH 5/8] Use vsnpintf/snprintf/printf from musl libc
+Subject: [PATCH 5/7] Use vsnpintf/snprintf/printf from musl libc
 
 The C99 semantics of these functions is well supported in musl libc.
 
@@ -131,59 +131,3 @@ index 1111111..2222222 100644
    glib_conf.set('HAVE_C99_SNPRINTF', true)
    glib_conf.set('HAVE_C99_VSNPRINTF', true)
    glib_conf.set('HAVE_UNIX98_PRINTF', true)
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Kleis Auke Wolthuizen <github@kleisauke.nl>
-Date: Fri, 15 Nov 2019 11:00:00 +0100
-Subject: [PATCH 6/8] Implement g_get_num_processors for Emscripten
-
-Upstream-Status: Pending
-
-diff --git a/glib/gthread.c b/glib/gthread.c
-index 1111111..2222222 100644
---- a/glib/gthread.c
-+++ b/glib/gthread.c
-@@ -56,6 +56,10 @@
- #include <windows.h>
- #endif /* G_OS_WIN32 */
- 
-+#ifdef __EMSCRIPTEN__
-+#include <emscripten/threading.h>
-+#endif /*__EMSCRIPTEN__*/
-+
- #include "gslice.h"
- #include "gstrfuncs.h"
- #include "gtestutils.h"
-@@ -1070,7 +1074,9 @@ g_thread_self (void)
- guint
- g_get_num_processors (void)
- {
--#ifdef G_OS_WIN32
-+#ifdef __EMSCRIPTEN__
-+  return emscripten_num_logical_cores();
-+#elif defined G_OS_WIN32
-   unsigned int count;
-   SYSTEM_INFO sysinfo;
-   DWORD_PTR process_cpus;
-
-From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Kleis Auke Wolthuizen <github@kleisauke.nl>
-Date: Tue, 25 May 2021 11:00:00 +0200
-Subject: [PATCH 7/8] Disable GModule implementation on Emscripten
-
-Upstream-Status: Pending
-
-diff --git a/gmodule/meson.build b/gmodule/meson.build
-index 1111111..2222222 100644
---- a/gmodule/meson.build
-+++ b/gmodule/meson.build
-@@ -13,7 +13,8 @@ if host_system == 'windows'
- # dlopen() filepath must be of the form /path/libname.a(libname.so)
- elif host_system == 'aix'
-   g_module_impl = 'G_MODULE_IMPL_AR'
--elif have_dlopen_dlsym
-+# Static linking should be preferred on Emscripten whenever possible
-+elif have_dlopen_dlsym and host_system != 'emscripten'
-   g_module_impl = 'G_MODULE_IMPL_DL'
- endif
- 

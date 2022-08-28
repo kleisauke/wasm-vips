@@ -207,8 +207,10 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   cd $DEPS/glib
   patch -p1 <$SOURCE_DIR/build/patches/glib-without-tools.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-without-gregex.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-disable-nls.patch
   # TODO(kleisauke): Discuss these patches upstream
-  patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten-build.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten-impl.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-function-pointers.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     --force-fallback-for=gvdb -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
@@ -395,6 +397,7 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   # Emscripten specific patches
   patch -p1 <$SOURCE_DIR/build/patches/vips-remove-orc.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
+  patch -p1 <$SOURCE_DIR/build/patches/vips-disable-nls.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-libjxl-disable-concurrency.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-2988.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch

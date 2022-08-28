@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.10)
+# target_link_options requires CMake 3.13
+cmake_minimum_required(VERSION 3.13)
 
 project(wasm-vips
         VERSION 0.0.3

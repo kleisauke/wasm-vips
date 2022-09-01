@@ -116,7 +116,10 @@ VERSION_GLIB=2.73.3         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.4.8         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.13.1        # https://github.com/mm2/Little-CMS
+VERSION_HWY=1.0.1           # https://github.com/google/highway
+VERSION_BROTLI=f4153a       # https://github.com/google/brotli
 VERSION_JPEG=4.1.1          # https://github.com/mozilla/mozjpeg
+VERSION_JXL=0.7rc           # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.2          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif
@@ -253,6 +256,33 @@ test -f "$TARGET/lib/pkgconfig/lcms2.pc" || (
 )
 
 echo "============================================="
+echo "Compiling hwy"
+echo "============================================="
+test -f "$TARGET/lib/pkgconfig/libhwy.pc" || (
+  mkdir $DEPS/hwy
+  curl -Ls https://github.com/google/highway/archive/refs/tags/$VERSION_HWY.tar.gz | tar xzC $DEPS/hwy --strip-components=1
+  cd $DEPS/hwy
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=FALSE \
+    -DBUILD_TESTING=FALSE -DHWY_ENABLE_CONTRIB=FALSE -DHWY_ENABLE_EXAMPLES=FALSE
+  make -C _build install
+)
+
+echo "============================================="
+echo "Compiling brotli"
+echo "============================================="
+test -f "$TARGET/lib/pkgconfig/libbrotlicommon.pc" || (
+  mkdir $DEPS/brotli
+  curl -Ls https://github.com/google/brotli/archive/$VERSION_BROTLI.tar.gz | tar xzC $DEPS/brotli --strip-components=1
+  cd $DEPS/brotli
+  # https://github.com/google/brotli/pull/655
+  patch -p1 <$SOURCE_DIR/build/patches/brotli-655.patch
+  # Exclude internal dictionary, see: https://github.com/emscripten-core/emscripten/issues/9960
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBROTLI_DISABLE_TESTS=TRUE \
+    -DCMAKE_C_FLAGS="$CFLAGS -DBROTLI_EXTERNAL_DICTIONARY_DATA"
+  make -C _build install
+)
+
+echo "============================================="
 echo "Compiling jpeg"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
@@ -264,6 +294,24 @@ test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DENABLE_STATIC=TRUE \
     -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE -DPNG_SUPPORTED=FALSE \
     -DCMAKE_C_FLAGS="$CFLAGS -DNO_GETENV -DNO_PUTENV"
+  make -C _build install
+)
+
+echo "============================================="
+echo "Compiling jxl"
+echo "============================================="
+test -f "$TARGET/lib/pkgconfig/libjxl.pc" || (
+  mkdir $DEPS/jxl
+  curl -Ls https://github.com/libjxl/libjxl/archive/refs/tags/v$VERSION_JXL.tar.gz | tar xzC $DEPS/jxl --strip-components=1
+  cd $DEPS/jxl
+  # Avoid bundling libpng
+  sed -i 's/JPEGXL_EMSCRIPTEN/& AND JPEGXL_BUNDLE_LIBPNG/' third_party/CMakeLists.txt
+  # CMake < 3.19 workaround, see: https://github.com/libjxl/libjxl/issues/1425
+  sed -i 's/lcms2,INCLUDE_DIRECTORIES/lcms2,INTERFACE_INCLUDE_DIRECTORIES/' lib/jxl.cmake
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
+    -DBUILD_SHARED_LIBS=FALSE -DBUILD_TESTING=FALSE -DJPEGXL_ENABLE_TOOLS=FALSE -DJPEGXL_ENABLE_DOXYGEN=FALSE \
+    -DJPEGXL_ENABLE_MANPAGES=FALSE -DJPEGXL_ENABLE_EXAMPLES=FALSE -DJPEGXL_ENABLE_SJPEG=FALSE -DJPEGXL_ENABLE_SKCMS=FALSE \
+    -DJPEGXL_BUNDLE_LIBPNG=FALSE -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE -DJPEGXL_FORCE_SYSTEM_LCMS2=TRUE -DJPEGXL_FORCE_SYSTEM_HWY=TRUE
   make -C _build install
 )
 
@@ -349,12 +397,14 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/vips-remove-orc.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-disable-nls.patch
+  patch -p1 <$SOURCE_DIR/build/patches/vips-libjxl-disable-concurrency.patch
+  patch -p1 <$SOURCE_DIR/build/patches/vips-2988.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
   # Disable building C++ bindings, man pages, gettext po files, tools, and (fuzz-)tests
   sed -i'.bak' "/subdir('cplusplus')/{N;N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled -Dcgif=enabled -Dexif=enabled \
-    -Dimagequant=enabled -Djpeg=enabled -Dlcms=enabled -Dspng=enabled -Dtiff=enabled -Dwebp=enabled \
+    -Dimagequant=enabled -Djpeg=enabled -Djpeg-xl=enabled -Dlcms=enabled -Dspng=enabled -Dtiff=enabled -Dwebp=enabled \
     -Dnsgif=true -Dppm=true -Danalyze=true -Dradiance=true
   ninja -C _build install
 )

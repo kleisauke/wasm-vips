@@ -1,6 +1,7 @@
 'use strict';
 
 export const jpegFile = getPath('sample.jpg');
+export const jxlFile = getPath('sample.jxl');
 export const truncatedFile = getPath('truncated.jpg');
 export const pngFile = getPath('sample.png');
 export const tifFile = getPath('sample.tif');
@@ -24,6 +25,7 @@ export const mosaicFiles = [
 ];
 export const testFiles = [
   jpegFile,
+  jxlFile,
   truncatedFile,
   pngFile,
   tifFile,

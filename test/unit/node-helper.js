@@ -9,6 +9,8 @@ globalThis.expect = expect;
 
 export async function mochaGlobalSetup () {
   const options = {
+    // Uncomment to disable dynamic modules
+    // dynamicLibraries: [],
     preRun: (module) => {
       module.setAutoDeleteLater(true);
       module.setDelayFunction(fn => {

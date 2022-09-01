@@ -93,6 +93,10 @@ if ("web" IN_LIST ENVIRONMENT)
     list(APPEND TARGETS ${PROJECT_NAME}-web ${PROJECT_NAME}-web-es6)
 endif()
 
+set(MAIN_COMPILE_OPTIONS
+        -sMAIN_MODULE=2
+        )
+
 # Handy for debugging
 # --threadprofiler \
 # -sSAFE_HEAP \
@@ -102,6 +106,7 @@ endif()
 # -sPTHREADS_DEBUG \
 # -sLIBRARY_DEBUG \
 # -sSYSCALL_DEBUG \
+# -sDYLINK_DEBUG \
 
 # note 1: `ALLOW_MEMORY_GROWTH` may run non-wasm code slowly. See: https://github.com/WebAssembly/design/issues/1271.
 # note 2: Browsers appear to limit the maximum initial memory size to 1GB, set `INITIAL_MEMORY` accordingly.
@@ -117,6 +122,8 @@ set(MAIN_LINK_OPTIONS
         --closure=1
         --closure-args='--externs=${CMAKE_CURRENT_SOURCE_DIR}/closure-externs/wasm-vips.js'
         -lembind
+        -sMAIN_MODULE=2
+        -sAUTOLOAD_DYLIBS=0
         -sMODULARIZE
         -sEXPORT_NAME='Vips'
         -sEXIT_RUNTIME
@@ -134,10 +141,14 @@ set(MAIN_LINK_OPTIONS
 set_target_properties(${TARGETS}
         PROPERTIES
             OUTPUT_NAME "vips"
+            COMPILE_OPTIONS "${MAIN_COMPILE_OPTIONS}"
             LINK_OPTIONS "${MAIN_LINK_OPTIONS}"
         )
 
 if ("node" IN_LIST ENVIRONMENT)
+    set(NODE_MODULES_PRE
+            --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-node-pre.js
+            )
     set(NODE_LINK_OPTIONS
             -sENVIRONMENT=node,worker
             -sNODERAWFS
@@ -147,11 +158,13 @@ if ("node" IN_LIST ENVIRONMENT)
 
     target_link_options(${PROJECT_NAME}-node-es6
             PUBLIC
+                ${NODE_MODULES_PRE}
                 ${NODE_LINK_OPTIONS}
                 -sEXPORT_ES6
             )
     target_link_options(${PROJECT_NAME}-node-commonjs
             PUBLIC
+                ${NODE_MODULES_PRE}
                 ${NODE_LINK_OPTIONS}
             )
 endif()
@@ -159,6 +172,9 @@ endif()
 if ("web" IN_LIST ENVIRONMENT)
     set(WEB_CORS_WORKAROUND
             --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/locatefile-cors-pre.js
+            )
+    set(WEB_MODULES_PRE
+            --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-web-pre.js
             )
     set(WEB_MIN_TARGETS 
             -sMIN_FIREFOX_VERSION=89
@@ -174,11 +190,13 @@ if ("web" IN_LIST ENVIRONMENT)
     target_link_options(${PROJECT_NAME}-web
             PUBLIC
                 ${WEB_CORS_WORKAROUND}
+                ${WEB_MODULES_PRE}
                 ${WEB_LINK_OPTIONS}
             )
     target_link_options(${PROJECT_NAME}-web-es6
             PUBLIC
                 # Note: we don't apply the CORS workaround since module scripts don't support `importScripts()`.
+                ${WEB_MODULES_PRE}
                 ${WEB_LINK_OPTIONS}
                 -sEXPORT_ES6
             )

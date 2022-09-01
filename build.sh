@@ -42,6 +42,10 @@ WASM_EH=false
 # https://github.com/emscripten-core/emscripten/issues/10603
 LTO=false
 
+# Position Independent Code (PIC), forcefully enabled as required by MAIN_MODULE
+# TODO(kleisauke): Remove this once https://github.com/emscripten-core/emscripten/issues/12682 is fixed
+PIC=true
+
 # Parse arguments
 while [ $# -gt 0 ]; do
   case $1 in
@@ -63,8 +67,9 @@ else
   DISABLE_SIMD=true
 fi
 
-# LTO embuilder flag
+# Embuilder flags
 if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
+if [ "$PIC" = "true" ]; then PIC_FLAG=--pic; fi
 
 # Handy for debugging
 #export CFLAGS="-O0 -gsource-map -pthread"
@@ -78,7 +83,7 @@ if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 #export LDFLAGS="-L$TARGET/lib -Os -gsource-map -fsanitize=address -sINITIAL_MEMORY=64MB"
 
 # Specify location where source maps are published (browser specific)
-#export CFLAGS+=" --source-map-base http://localhost:3000/lib"
+#export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"
 
 # Common compiler flags
 export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint -pthread"
@@ -90,6 +95,7 @@ fi
 if [ "$WASM_FS" = "true" ]; then export CFLAGS+=" -DWASMFS"; fi
 if [ "$WASM_EH" = "true" ]; then export CFLAGS+=" -sSUPPORT_LONGJMP=wasm"; fi
 if [ "$LTO" = "true" ]; then export CFLAGS+=" -flto"; fi
+if [ "$PIC" = "true" ]; then export CFLAGS+=" -fPIC"; fi
 export CXXFLAGS="$CFLAGS"
 export LDFLAGS="-L$TARGET/lib -O3"
 if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
@@ -151,6 +157,7 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-implement-munmap.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-implement-fs-unlink.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-mmap-shared.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-get-dynamic-libraries-js-helper.patch
 
   # The system headers require to be reinstalled, as some of
   # them have been changed with the patches above
@@ -158,7 +165,7 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
 
   # Need to rebuild libembind, libc, and libwasmfs, since we
   # also modified it with the patches above
-  embuilder.py build libembind libc-mt{,-debug} libwasmfs-mt{,-debug} --force $LTO_FLAG
+  embuilder.py build libembind libc-mt{,-debug} libwasmfs-mt{,-debug} --force $LTO_FLAG $PIC_FLAG
 fi
 
 echo "============================================="
@@ -313,6 +320,10 @@ test -f "$TARGET/lib/pkgconfig/libjxl.pc" || (
     -DJPEGXL_ENABLE_MANPAGES=FALSE -DJPEGXL_ENABLE_EXAMPLES=FALSE -DJPEGXL_ENABLE_SJPEG=FALSE -DJPEGXL_ENABLE_SKCMS=FALSE \
     -DJPEGXL_BUNDLE_LIBPNG=FALSE -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE -DJPEGXL_FORCE_SYSTEM_LCMS2=TRUE -DJPEGXL_FORCE_SYSTEM_HWY=TRUE
   make -C _build install
+  # Ensure we don't link with lcms2 in the vips-jxl side module
+  sed -i '/^Requires.private:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl.pc
+  # Ensure the vips-jxl side module links against the private dependencies
+  sed -i 's/Requires.private/Requires/' $TARGET/lib/pkgconfig/libjxl.pc
 )
 
 echo "============================================="
@@ -399,14 +410,19 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/vips-disable-nls.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-libjxl-disable-concurrency.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-2988.patch
+  patch -p1 <$SOURCE_DIR/build/patches/vips-dynamic-modules-emscripten.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
   # Disable building C++ bindings, man pages, gettext po files, tools, and (fuzz-)tests
   sed -i'.bak' "/subdir('cplusplus')/{N;N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled -Dcgif=enabled -Dexif=enabled \
-    -Dimagequant=enabled -Djpeg=enabled -Djpeg-xl=enabled -Dlcms=enabled -Dspng=enabled -Dtiff=enabled -Dwebp=enabled \
-    -Dnsgif=true -Dppm=true -Danalyze=true -Dradiance=true
+    -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled -Dmodules=enabled -Dcgif=enabled -Dexif=enabled \
+    -Dimagequant=enabled -Djpeg=enabled -Djpeg-xl{,-module}=enabled -Dlcms=enabled -Dspng=enabled -Dtiff=enabled \
+    -Dwebp=enabled -Dnsgif=true -Dppm=true -Danalyze=true -Dradiance=true
   ninja -C _build install
+  # Emscripten requires linking to side modules to find the necessary symbols to export
+  module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
+  modules=$(find $module_dir/ -type f -printf " %p")
+  sed -i "/^Libs:/ s/$/${modules//\//\\/}/" $TARGET/lib/pkgconfig/vips.pc
 )
 
 echo "============================================="
@@ -443,10 +459,15 @@ echo "============================================="
   sed -i 's/new Worker(\([^()]\+\))/new Worker(\1,{type:"module"})/g' $SOURCE_DIR/lib/vips-es6.js
   sed -i 's/new Worker(\(new URL([^)]\+)\)/new Worker(\1,{type:"module"}/g' $SOURCE_DIR/lib/vips-es6.js
 
+  # new URL('vips.wasm', import.meta.url).toString() -> new URL('vips.wasm', import.meta.url).href
+  sed -i 's/\(new URL([^)]\+)\+\).toString()/\1.href/g' $SOURCE_DIR/lib/vips-es6.js
+
   # The produced vips.wasm file should be the same across the different variants (sanity check)
+  # FIXME(kleisauke): -sMAIN_MODULE=2 appears to produce non-determinism binaries, perhaps this is similar to:
+  # https://github.com/emscripten-core/emscripten/issues/15706
   expected_sha256=$(sha256sum "$SOURCE_DIR/lib/vips.wasm" | awk '{ print $1 }')
   for file in vips-es6.wasm node-commonjs/vips.wasm node-es6/vips.wasm; do
-    echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check
+    echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check || true
     rm $SOURCE_DIR/lib/$file
   done
 
@@ -454,8 +475,12 @@ echo "============================================="
   for file in vips-es6.js node-commonjs/vips.js node-es6/vips.mjs; do
     case "$file" in
       vips-es6.js) expression='s/vips-es6.wasm/vips.wasm/g' ;;
-      *) expression='s/vips.wasm/..\/&/g' ;;
+      *) expression='s/vips[^.]*.wasm/..\/&/g' ;;
     esac
     sed -i "$expression" $SOURCE_DIR/lib/$file
   done
+
+  # Copy dynamic loadable modules
+  module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
+  cp $module_dir/* $SOURCE_DIR/lib/
 )

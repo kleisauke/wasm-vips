@@ -32,7 +32,8 @@
     "lib/node-es6/*.mjs",
     "lib/*.js",
     "lib/vips.d.ts",
-    "lib/vips.wasm"
+    "lib/vips.wasm",
+    "lib/vips-jxl.wasm"
   ],
   "scripts": {
     "build": "docker build -t wasm-vips . && docker run --rm -v $(pwd):/src wasm-vips ./build.sh",
@@ -60,6 +61,8 @@
     "ignore": [
       "src/closure-externs/wasm-vips.js",
       "src/locatefile-cors-pre.js",
+      "src/modules-node-pre.js",
+      "src/modules-web-pre.js",
       "test/bench/perf.js"
     ],
     "env": [

@@ -1214,7 +1214,7 @@ index 1111111..2222222 100644
        G_LOCK (tz_default);
 -#ifdef G_OS_UNIX
 +#ifdef G_PLATFORM_WASM
-+      resolved_identifier = "UTC0";
++      resolved_identifier = g_strdup ("UTC0");
 +#elif defined (G_OS_UNIX)
        resolved_identifier = zone_identifier_unix ();
  #elif defined (G_OS_WIN32)

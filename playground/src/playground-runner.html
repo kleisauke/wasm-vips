@@ -15,7 +15,7 @@
   </style>
 </head>
 <body>
-<script src="../lib/vips.js?<%= __webpack_hash__ %>"></script>
+<script src="/lib/vips.js?<%= __webpack_hash__ %>"></script>
 <script type="module">
   let loadedElements = [];
 
@@ -58,7 +58,7 @@
     print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
     locateFile: (fileName, scriptDirectory) => scriptDirectory + fileName + '?<%= __webpack_hash__ %>',
     preRun: (module) => {
-      module.setAutoDeleteLater(!document.referrer.includes("disableAutoDelete"));
+      module.setAutoDeleteLater(!document.referrer.includes('disableAutoDelete'));
       module.setDelayFunction(fn => {
         globalThis.cleanup = fn;
       });
@@ -67,6 +67,7 @@
       // module.ENV.VIPS_INFO = '1';
       // module.ENV.VIPS_LEAK = '1';
 
+      // Preload playground files
       for (const image of ['owl.jpg', 'owl.tif', 'owl.webp', 'owl.jxl', 'banana.webp', 'banana.gif', 'transparency_demo.png'])
         module.FS.createPreloadedFile('/', image, 'assets/images/' + image, true, false);
     },
@@ -101,6 +102,11 @@
       console.log('Text rendering support:'.padEnd(pad), have('text') ? 'yes' : 'no');
     }
   };
+
+  // Disable dynamic modules whenever the ?disableModules query string is passed
+  if (document.referrer.includes('disableModules')) {
+    options.dynamicLibraries = [];
+  }
 
   globalThis.vips = await Vips(options);
   window.parent.postMessage('vipsInitialized', '*');

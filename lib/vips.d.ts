@@ -6,6 +6,8 @@ interface EmscriptenModule {
     print(str: string): void;
     printErr(str: string): void;
 
+    dynamicLibraries: string[];
+
     preInit: ModuleCallback | ModuleCallback[];
     preRun: ModuleCallback | ModuleCallback[];
     postRun: ModuleCallback | ModuleCallback[];

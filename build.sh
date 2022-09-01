@@ -116,7 +116,7 @@ VERSION_GLIB=2.73.3         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.4.8         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.13.1        # https://github.com/mm2/Little-CMS
-VERSION_HWY=1.0.0           # https://github.com/google/highway
+VERSION_HWY=1.0.1           # https://github.com/google/highway
 VERSION_BROTLI=f4153a       # https://github.com/google/brotli
 VERSION_JPEG=4.1.1          # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.7rc           # https://github.com/libjxl/libjxl
@@ -262,7 +262,7 @@ test -f "$TARGET/lib/pkgconfig/libhwy.pc" || (
   mkdir $DEPS/hwy
   curl -Ls https://github.com/google/highway/archive/refs/tags/$VERSION_HWY.tar.gz | tar xzC $DEPS/hwy --strip-components=1
   cd $DEPS/hwy
-  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DHWY_FORCE_STATIC_LIBS=TRUE \
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=FALSE \
     -DBUILD_TESTING=FALSE -DHWY_ENABLE_CONTRIB=FALSE -DHWY_ENABLE_EXAMPLES=FALSE
   make -C _build install
 )
@@ -308,11 +308,10 @@ test -f "$TARGET/lib/pkgconfig/libjxl.pc" || (
   sed -i 's/JPEGXL_EMSCRIPTEN/& AND JPEGXL_BUNDLE_LIBPNG/' third_party/CMakeLists.txt
   # CMake < 3.19 workaround, see: https://github.com/libjxl/libjxl/issues/1425
   sed -i 's/lcms2,INCLUDE_DIRECTORIES/lcms2,INTERFACE_INCLUDE_DIRECTORIES/' lib/jxl.cmake
-  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DJPEGXL_STATIC=TRUE -DBUILD_TESTING=FALSE \
-    -DJPEGXL_ENABLE_TOOLS=FALSE -DJPEGXL_ENABLE_DOXYGEN=FALSE -DJPEGXL_ENABLE_MANPAGES=FALSE -DJPEGXL_ENABLE_BENCHMARK=FALSE \
-    -DJPEGXL_ENABLE_EXAMPLES=FALSE -DJPEGXL_ENABLE_SJPEG=FALSE -DJPEGXL_ENABLE_OPENEXR=FALSE -DJPEGXL_ENABLE_SKCMS=FALSE \
-    -DJPEGXL_BUNDLE_LIBPNG=FALSE -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE -DJPEGXL_FORCE_SYSTEM_LCMS2=TRUE -DJPEGXL_FORCE_SYSTEM_HWY=TRUE \
-    -DCMAKE_FIND_ROOT_PATH=$TARGET
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
+    -DBUILD_SHARED_LIBS=FALSE -DBUILD_TESTING=FALSE -DJPEGXL_ENABLE_TOOLS=FALSE -DJPEGXL_ENABLE_DOXYGEN=FALSE \
+    -DJPEGXL_ENABLE_MANPAGES=FALSE -DJPEGXL_ENABLE_EXAMPLES=FALSE -DJPEGXL_ENABLE_SJPEG=FALSE -DJPEGXL_ENABLE_SKCMS=FALSE \
+    -DJPEGXL_BUNDLE_LIBPNG=FALSE -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE -DJPEGXL_FORCE_SYSTEM_LCMS2=TRUE -DJPEGXL_FORCE_SYSTEM_HWY=TRUE
   make -C _build install
 )
 

@@ -858,7 +858,7 @@ describe('foreign', () => {
     saveBufferTempfile('radsave_buffer', '.hdr', rad, 0);
   });
 
-  it('jxl', function () {
+  it('jxlload', function () {
     // Needs JPEG XL support
     if (!Helpers.have('jxlload')) {
       return this.skip();

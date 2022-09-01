@@ -7,6 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 Uses libvips v8.13.0, compiled with Emscripten v3.1.20.
 
+### Added
+
+- Support for JPEG XL images.
+  [#21](https://github.com/kleisauke/wasm-vips/pull/21)
+  [@atjn](https://github.com/atjn)
+
 ### Changed
 
 - Switch from libjpeg-turbo to mozjpeg.

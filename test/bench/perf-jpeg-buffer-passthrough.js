@@ -11,6 +11,8 @@ const defaultJpegSaveOptions = {
 }
 
 const vips = await Vips({
+  // Disable dynamic modules
+  dynamicLibraries: [],
   preRun: (module) => {
     // Enable SIMD usage in libjpeg-turbo
     module.ENV.JSIMD_FORCENEON = '1';

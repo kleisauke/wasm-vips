@@ -46,6 +46,9 @@ LTO=false
 # TODO(kleisauke): Remove this once https://github.com/emscripten-core/emscripten/issues/12682 is fixed
 PIC=true
 
+# Dynamic loadable modules, enabled by default
+MODULES=true
+
 # Parse arguments
 while [ $# -gt 0 ]; do
   case $1 in
@@ -54,17 +57,26 @@ while [ $# -gt 0 ]; do
     --enable-wasm-eh) WASM_EH=true ;;
     --disable-simd) SIMD=false ;;
     --disable-wasm-bigint) WASM_BIGINT=false ;;
+    --disable-modules)
+      PIC=false
+      MODULES=false
+      ;;
     -e|--environment) ENVIRONMENT="$2"; shift ;;
     *) echo "ERROR: Unknown parameter: $1" >&2; exit 1 ;;
   esac
   shift
 done
 
-# SIMD configure flags helpers
+# Configure flags helpers
 if [ "$SIMD" = "true" ]; then
   ENABLE_SIMD=true
 else
   DISABLE_SIMD=true
+fi
+if [ "$MODULES" = "true" ]; then
+  ENABLE_MODULES=true
+else
+  DISABLE_MODULES=true
 fi
 
 # Embuilder flags
@@ -410,18 +422,18 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/vips-disable-nls.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-libjxl-disable-concurrency.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-2988.patch
-  patch -p1 <$SOURCE_DIR/build/patches/vips-dynamic-modules-emscripten.patch
+  [ -n "$ENABLE_MODULES" ] && patch -p1 <$SOURCE_DIR/build/patches/vips-dynamic-modules-emscripten.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
   # Disable building C++ bindings, man pages, gettext po files, tools, and (fuzz-)tests
   sed -i'.bak' "/subdir('cplusplus')/{N;N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled -Dmodules=enabled -Dcgif=enabled -Dexif=enabled \
-    -Dimagequant=enabled -Djpeg=enabled -Djpeg-xl{,-module}=enabled -Dlcms=enabled -Dspng=enabled -Dtiff=enabled \
-    -Dwebp=enabled -Dnsgif=true -Dppm=true -Danalyze=true -Dradiance=true
+    -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled ${ENABLE_MODULES:+-Dmodules=enabled} \
+    -Dcgif=enabled -Dexif=enabled -Dimagequant=enabled -Djpeg=enabled -Djpeg-xl{,-module}=enabled -Dlcms=enabled \
+    -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true -Dppm=true -Danalyze=true -Dradiance=true
   ninja -C _build install
   # Emscripten requires linking to side modules to find the necessary symbols to export
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
-  modules=$(find $module_dir/ -type f -printf " %p")
+  [ -d "$module_dir" ] && modules=$(find $module_dir/ -type f -printf " %p")
   sed -i "/^Libs:/ s/$/${modules//\//\\/}/" $TARGET/lib/pkgconfig/vips.pc
 )
 
@@ -432,7 +444,7 @@ echo "============================================="
   mkdir $DEPS/wasm-vips
   cd $DEPS/wasm-vips
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" \
-    -DENVIRONMENT=${ENVIRONMENT//,/;}
+    -DENVIRONMENT=${ENVIRONMENT//,/;} -DENABLE_MODULES=$MODULES
   make
 )
 
@@ -482,5 +494,5 @@ echo "============================================="
 
   # Copy dynamic loadable modules
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
-  cp $module_dir/* $SOURCE_DIR/lib/
+  [ -d "$module_dir" ] && cp $module_dir/* $SOURCE_DIR/lib/
 )

@@ -94,7 +94,7 @@ if ("web" IN_LIST ENVIRONMENT)
 endif()
 
 set(MAIN_COMPILE_OPTIONS
-        -sMAIN_MODULE=2
+        $<$<BOOL:${ENABLE_MODULES}>:-sMAIN_MODULE=2>
         )
 
 # Handy for debugging
@@ -122,7 +122,7 @@ set(MAIN_LINK_OPTIONS
         --closure=1
         --closure-args='--externs=${CMAKE_CURRENT_SOURCE_DIR}/closure-externs/wasm-vips.js'
         -lembind
-        -sMAIN_MODULE=2
+        $<$<BOOL:${ENABLE_MODULES}>:-sMAIN_MODULE=2>
         -sAUTOLOAD_DYLIBS=0
         -sMODULARIZE
         -sEXPORT_NAME='Vips'
@@ -158,13 +158,13 @@ if ("node" IN_LIST ENVIRONMENT)
 
     target_link_options(${PROJECT_NAME}-node-es6
             PUBLIC
-                ${NODE_MODULES_PRE}
+                $<$<BOOL:${ENABLE_MODULES}>:${NODE_MODULES_PRE}>
                 ${NODE_LINK_OPTIONS}
                 -sEXPORT_ES6
             )
     target_link_options(${PROJECT_NAME}-node-commonjs
             PUBLIC
-                ${NODE_MODULES_PRE}
+                $<$<BOOL:${ENABLE_MODULES}>:${NODE_MODULES_PRE}>
                 ${NODE_LINK_OPTIONS}
             )
 endif()
@@ -190,13 +190,13 @@ if ("web" IN_LIST ENVIRONMENT)
     target_link_options(${PROJECT_NAME}-web
             PUBLIC
                 ${WEB_CORS_WORKAROUND}
-                ${WEB_MODULES_PRE}
+                $<$<BOOL:${ENABLE_MODULES}>:${WEB_MODULES_PRE}>
                 ${WEB_LINK_OPTIONS}
             )
     target_link_options(${PROJECT_NAME}-web-es6
             PUBLIC
                 # Note: we don't apply the CORS workaround since module scripts don't support `importScripts()`.
-                ${WEB_MODULES_PRE}
+                $<$<BOOL:${ENABLE_MODULES}>:${WEB_MODULES_PRE}>
                 ${WEB_LINK_OPTIONS}
                 -sEXPORT_ES6
             )

@@ -63,7 +63,7 @@ node_modules/
 ### CMake ###
 *.cbp
 bin/*
-lib/
+lib/*
 cmake-build-debug/
 cmake-build-release/
 CMakeFiles/
@@ -84,3 +84,6 @@ build/functions.cpp
 build/properties.cpp
 build/vips.d.ts
 test/bench/images/output*
+
+# Include type definitions
+!lib/vips.d.ts

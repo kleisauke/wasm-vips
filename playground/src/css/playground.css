@@ -90,7 +90,7 @@ select {
 }
 
 .playground-page .action.share::before {
-    content: '\1F30D️';
+    content: '\1F30D';
 }
 
 .playground-page .editor-container {

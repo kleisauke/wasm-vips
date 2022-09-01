@@ -291,7 +291,7 @@ static Image mask_butterworth(int width, int height, double order, double freque
  * @param order Filter order.
  * @param frequency_cutoff_x Frequency cutoff x.
  * @param frequency_cutoff_y Frequency cutoff y.
- * @param radius radius of circle.
+ * @param radius Radius of circle.
  * @param amplitude_cutoff Amplitude cutoff.
  * @param js_options Optional options.
  * @return Output image.
@@ -338,7 +338,7 @@ static Image mask_gaussian(int width, int height, double frequency_cutoff, doubl
  * @param height Image height in pixels.
  * @param frequency_cutoff_x Frequency cutoff x.
  * @param frequency_cutoff_y Frequency cutoff y.
- * @param radius radius of circle.
+ * @param radius Radius of circle.
  * @param amplitude_cutoff Amplitude cutoff.
  * @param js_options Optional options.
  * @return Output image.
@@ -373,7 +373,7 @@ static Image mask_ideal(int width, int height, double frequency_cutoff, emscript
  * @param height Image height in pixels.
  * @param frequency_cutoff_x Frequency cutoff x.
  * @param frequency_cutoff_y Frequency cutoff y.
- * @param radius radius of circle.
+ * @param radius Radius of circle.
  * @param js_options Optional options.
  * @return Output image.
  */
@@ -901,7 +901,7 @@ double avg() const;
 
 /**
  * Boolean operation across image bands.
- * @param boolean boolean to perform.
+ * @param boolean Boolean to perform.
  * @return Output image.
  */
 Image bandbool(emscripten::val boolean) const;
@@ -928,7 +928,7 @@ Image bandunfold(emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Boolean operations against a constant.
- * @param boolean boolean to perform.
+ * @param boolean Boolean to perform.
  * @param c Array of constants.
  * @return Output image.
  */
@@ -993,7 +993,7 @@ Image compass(emscripten::val mask, emscripten::val js_options = emscripten::val
 
 /**
  * Perform a complex operation on an image.
- * @param cmplx complex to perform.
+ * @param cmplx Complex to perform.
  * @return Output image.
  */
 Image complex(emscripten::val cmplx) const;
@@ -1001,7 +1001,7 @@ Image complex(emscripten::val cmplx) const;
 /**
  * Complex binary operations on two images.
  * @param right Right-hand image argument.
- * @param cmplx binary complex operation to perform.
+ * @param cmplx Binary complex operation to perform.
  * @return Output image.
  */
 Image complex2(emscripten::val right, emscripten::val cmplx) const;
@@ -1015,7 +1015,7 @@ Image complexform(emscripten::val right) const;
 
 /**
  * Get a component from a complex image.
- * @param get complex to perform.
+ * @param get Complex to perform.
  * @return Output image.
  */
 Image complexget(emscripten::val get) const;
@@ -1222,6 +1222,13 @@ void dzsave(const std::string &filename, emscripten::val js_options = emscripten
 emscripten::val dzsave_buffer(emscripten::val js_options = emscripten::val::null()) const;
 
 /**
+ * Save image to deepzoom target.
+ * @param target Target to save to.
+ * @param js_options Optional options.
+ */
+void dzsave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
+
+/**
  * Embed an image in a larger image.
  * @param x Left edge of input in output.
  * @param y Top edge of input in output.
@@ -1373,7 +1380,7 @@ Image globalbalance(emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Place an image within a larger image with a certain gravity.
- * @param direction direction to place image within width/height.
+ * @param direction Direction to place image within width/height.
  * @param width Image width in pixels.
  * @param height Image height in pixels.
  * @param js_options Optional options.
@@ -1383,9 +1390,9 @@ Image gravity(emscripten::val direction, int width, int height, emscripten::val 
 
 /**
  * Grid an image.
- * @param tile_height chop into tiles this high.
- * @param across number of tiles across.
- * @param down number of tiles down.
+ * @param tile_height Chop into tiles this high.
+ * @param across Number of tiles across.
+ * @param down Number of tiles down.
  * @return Output image.
  */
 Image grid(int tile_height, int across, int down) const;
@@ -1701,14 +1708,14 @@ Image match(emscripten::val sec, int xr1, int yr1, int xs1, int ys1, int xr2, in
 
 /**
  * Apply a math operation to an image.
- * @param math math to perform.
+ * @param math Math to perform.
  * @return Output image.
  */
 Image math(emscripten::val math) const;
 
 /**
  * Binary math operations with a constant.
- * @param math2 math to perform.
+ * @param math2 Math to perform.
  * @param c Array of constants.
  * @return Output image.
  */
@@ -1841,14 +1848,14 @@ int percent(double percent) const;
 Image phasecor(emscripten::val in2) const;
 
 /**
- * Save image to png file.
+ * Save image to file as png.
  * @param filename Filename to save to.
  * @param js_options Optional options.
  */
 void pngsave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
- * Save image to png buffer.
+ * Save image to buffer as png.
  * @param js_options Optional options.
  * @return Buffer to save to.
  */
@@ -1956,7 +1963,7 @@ void rawsave_fd(int fd, emscripten::val js_options = emscripten::val::null()) co
 
 /**
  * Linear recombination with matrix.
- * @param m matrix of coefficients.
+ * @param m Matrix of coefficients.
  * @return Output image.
  */
 Image recomb(emscripten::val m) const;
@@ -1988,7 +1995,7 @@ Image reducev(double vshrink, emscripten::val js_options = emscripten::val::null
 
 /**
  * Relational operations against a constant.
- * @param relational relational to perform.
+ * @param relational Relational to perform.
  * @param c Array of constants.
  * @return Output image.
  */
@@ -2041,7 +2048,7 @@ Image rotate(double angle, emscripten::val js_options = emscripten::val::null())
 
 /**
  * Perform a round function on an image.
- * @param round rounding operation to perform.
+ * @param round Rounding operation to perform.
  * @return Output image.
  */
 Image round(emscripten::val round) const;
@@ -2103,23 +2110,26 @@ Image sharpen(emscripten::val js_options = emscripten::val::null()) const;
  * Shrink an image.
  * @param hshrink Horizontal shrink factor.
  * @param vshrink Vertical shrink factor.
+ * @param js_options Optional options.
  * @return Output image.
  */
-Image shrink(double hshrink, double vshrink) const;
+Image shrink(double hshrink, double vshrink, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Shrink an image horizontally.
  * @param hshrink Horizontal shrink factor.
+ * @param js_options Optional options.
  * @return Output image.
  */
-Image shrinkh(int hshrink) const;
+Image shrinkh(int hshrink, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Shrink an image vertically.
  * @param vshrink Vertical shrink factor.
+ * @param js_options Optional options.
  * @return Output image.
  */
-Image shrinkv(int vshrink) const;
+Image shrinkv(int vshrink, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Unit vector of pixel.
@@ -2207,6 +2217,13 @@ void tiffsave(const std::string &filename, emscripten::val js_options = emscript
  * @return Buffer to save to.
  */
 emscripten::val tiffsave_buffer(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image to tiff target.
+ * @param target Target to save to.
+ * @param js_options Optional options.
+ */
+void tiffsave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Cache an image as a set of tiles.

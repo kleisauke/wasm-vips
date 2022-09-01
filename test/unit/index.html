@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <title>wasm-vips testsuite</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/9.2.2/mocha.min.css" crossorigin="anonymous"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/10.0.0/mocha.min.css" crossorigin="anonymous">
   <style>
     html,
     body {
@@ -66,7 +67,7 @@
 </head>
 <body>
 <div id="mocha"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/9.2.2/mocha.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/10.0.0/mocha.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.3.6/chai.min.js" crossorigin="anonymous"></script>
 <script class="mocha-init">
   mocha.setup({
@@ -93,11 +94,16 @@
   // Global variables used throughout the unit tests
   globalThis.expect = chai.expect;
 
+  // Uncomment to test the web ES6 module
+  // import Vips from './lib/vips-es6.js';
+
   import * as Helpers from './helpers.js';
 
   const options = {
     print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
     locateFile: (fileName, scriptDirectory) => scriptDirectory + fileName,
+    // Uncomment to disable dynamic modules
+    // dynamicLibraries: [],
     preRun: (module) => {
       module.setAutoDeleteLater(true);
       module.setDelayFunction(fn => {
@@ -108,6 +114,7 @@
       // module.ENV.VIPS_INFO = '1';
       // module.ENV.VIPS_LEAK = '1';
 
+      // Preload test files
       for (const file of Helpers.testFiles)
         module.FS.createPreloadedFile('/', file.split('/').pop(), 'test/unit/images/' + file, true, false);
     },
@@ -131,6 +138,7 @@
       console.log('Open files:'.padEnd(pad), module.Stats.files());
 
       console.log('JPEG support:'.padEnd(pad), have('jpegload') ? 'yes' : 'no');
+      console.log('JPEG XL support:'.padEnd(pad), have('jxlload') ? 'yes' : 'no');
       console.log('PNG support:'.padEnd(pad), have('pngload') ? 'yes' : 'no');
       console.log('TIFF support:'.padEnd(pad), have('tiffload') ? 'yes' : 'no');
       console.log('WebP support:'.padEnd(pad), have('webpload') ? 'yes' : 'no');

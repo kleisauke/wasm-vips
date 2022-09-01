@@ -1,13 +1,46 @@
-declare namespace vips {
+declare function Vips(config?: Partial<EmscriptenModule>): Promise<NonNullable<typeof Vips>>;
 
+type ModuleCallback = { (module?: any): void };
+
+interface EmscriptenModule {
+    print(str: string): void;
+    printErr(str: string): void;
+
+    dynamicLibraries: string[];
+
+    preInit: ModuleCallback | ModuleCallback[];
+    preRun: ModuleCallback | ModuleCallback[];
+    postRun: ModuleCallback | ModuleCallback[];
+
+    onAbort: { (what: any): void };
+    onRuntimeInitialized: { (): void };
+
+    instantiateWasm(
+        imports: WebAssembly.Imports,
+        successCallback: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void
+    ): WebAssembly.Exports;
+    locateFile(url: string, scriptDirectory: string): string;
+    mainScriptUrlOrBlob: Blob | File | string;
+}
+
+declare module Vips {
     // Allow single pixels/images as input.
-    type Array<T> = T | T[];
+    type SingleOrArray<T> = T | T[];
 
     type Enum = string | number;
     type Flag = string | number;
     type Blob = string | ArrayBuffer | Uint8Array | Uint8ClampedArray | Int8Array;
-    type ArrayConstant = Array<number>;
-    type ArrayImage = Array<Image> | Vector<Image>;
+    type ArrayConstant = SingleOrArray<number>;
+    type ArrayImage = SingleOrArray<Image> | Vector<Image>;
+    type DeletionFuncs<T extends EmbindClassHandle<T>> = EmbindClassHandle<T>[];
+
+    //#region Utility functions
+
+    /**
+     * Queue of handles to be deleted.
+     * This is filled when [[deleteLater]] is called on the handle.
+     */
+    const deletionQueue: DeletionFuncs<Image | Connection | Interpolate>;
 
     /**
      * Get the major, minor or patch version number of the libvips library.
@@ -45,9 +78,56 @@ declare namespace vips {
     function shutdown(): void;
 
     /**
+     * Convert a bigint value (usually coming from Wasm->JS call) into an int53 JS Number.
+     * This is used when we have an incoming i64 that we know is a pointer or size_t and
+     * is expected to be withing the int53 range.
+     * @return The converted bigint value or NaN if the incoming bigint is outside the range.
+     */
+    function bigintToI53Checked(num: bigint): number;
+
+    //#endregion
+
+    //#region APIs
+
+    /**
+     * Embind adds the following methods to all its exposed classes.
+     */
+    abstract class EmbindClassHandle<T extends EmbindClassHandle<T>> {
+        /**
+         * Returns a new handle. It must eventually also be disposed with [[delete]] or
+         * [[deleteLater]].
+         * @return A new handle.
+         */
+        clone(): T;
+
+        /**
+         * Signal that a C++ object is no longer needed and can be deleted.
+         */
+        delete(): void;
+
+        /**
+         * Signal that a C++ object is no longer needed and can be deleted later.
+         */
+        deleteLater(): void;
+
+        /**
+         * Check whether two Embind handles point to the same underlying object.
+         * @param other Embind handle for comparison.
+         * @return `true` if the handles point to the same underlying object.
+         */
+        isAliasOf(other: any): boolean;
+
+        /**
+         * Check whether this handle is deleted.
+         * @return `true` if this handle is deleted.
+         */
+        isDeleted(): boolean;
+    }
+
+    /**
      * A sequence container representing an array that can change in size.
      */
-    export interface Vector<T> {
+    interface Vector<T> extends EmbindClassHandle<Vector<T>> {
         /**
          * Adds a new element at the end of the vector, after its current last element.
          * @param val The value to be appended at the end of the container.
@@ -84,9 +164,9 @@ declare namespace vips {
     }
 
     /**
-     * A class around libvips' operation cache.
+     * An abstract class around libvips' operation cache.
      */
-    export class Cache {
+    abstract class Cache {
         /**
          * Gets or, when a parameter is provided, sets the maximum number of operations libvips keeps in cache.
          * @param max Maximum number of operations.
@@ -116,11 +196,11 @@ declare namespace vips {
     }
 
     /**
-     * A class that provides the statistics of memory usage and opened files.
+     * An abstract class that provides the statistics of memory usage and opened files.
      * libvips watches the total amount of live tracked memory and
      * uses this information to decide when to trim caches.
      */
-    export class Stats {
+    abstract class Stats {
         /**
          * Get the number of active allocations.
          * @return The number of active allocations.
@@ -149,9 +229,9 @@ declare namespace vips {
     }
 
     /**
-     * A class for error messages and error handling.
+     * An abstract class for error messages and error handling.
      */
-    export class Error {
+    abstract class Error {
         /**
          * Get the error buffer as a string.
          * @return The error buffer as a string.
@@ -168,7 +248,7 @@ declare namespace vips {
     /**
      * Handy utilities.
      */
-    export class Utils {
+    abstract class Utils {
         /**
          * Get the GType for a name.
          * Looks up the GType for a nickname. Types below basename in the type hierarchy are searched.
@@ -189,7 +269,7 @@ declare namespace vips {
     /**
      * The abstract base Connection class.
      */
-    export class Connection {
+    abstract class Connection extends EmbindClassHandle<Connection> {
         /**
          * Get the filename associated with a connection.
          */
@@ -204,7 +284,7 @@ declare namespace vips {
     /**
      * An input connection.
      */
-    export class Source extends Connection {
+    class Source extends Connection {
         /**
          * Make a new source from a file.
          *
@@ -236,14 +316,14 @@ declare namespace vips {
     /**
      * A source that can be attached to callbacks to implement behavior.
      */
-    export class SourceCustom extends Source {
+    class SourceCustom extends Source {
         /**
          * Attach a read handler.
          * @param ptr A pointer to an array of bytes where the read content is stored.
          * @param size The maximum number of bytes to be read.
          * @return The total number of bytes read into the buffer.
          */
-        onRead: (ptr: number, size: number) => number;
+        onRead: (ptr: number, size: bigint) => bigint;
 
         /**
          * Attach a seek handler.
@@ -253,13 +333,13 @@ declare namespace vips {
          * @param size A value indicating the reference point used to obtain the new position.
          * @return The new position within the current source.
          */
-        onSeek: (offset: number, whence: number) => number;
+        onSeek: (offset: bigint, whence: number) => bigint;
     }
 
     /**
      * An output connection.
      */
-    export class Target extends Connection {
+    class Target extends Connection {
         /**
          * Make a new target to write to a file.
          *
@@ -299,28 +379,48 @@ declare namespace vips {
     /**
      * A target that can be attached to callbacks to implement behavior.
      */
-    export class TargetCustom extends Target {
+    class TargetCustom extends Target {
         /**
          * Attach a write handler.
          * @param ptr A pointer to an array of bytes which will be written to.
          * @param length The number of bytes to write.
          * @return The number of bytes that were written.
          */
-        onWrite: (ptr: number, size: number) => number;
+        onWrite: (ptr: number, size: bigint) => bigint;
+
+        /* libtiff needs to be able to seek and read on targets, unfortunately.
+         */
 
         /**
-         * Attach a finish handler.
+         * Attach a read handler.
+         * @param ptr A pointer to an array of bytes where the read content is stored.
+         * @param size The maximum number of bytes to be read.
+         * @return The total number of bytes read from the target.
+         */
+        onRead: (ptr: number, size: bigint) => bigint;
+
+        /**
+         * Attach a seek handler.
+         * @param offset A byte offset relative to the whence parameter.
+         * @param size A value indicating the reference point used to obtain the new position.
+         * @return The new position within the current target.
+         */
+        onSeek: (offset: bigint, whence: number) => bigint;
+
+        /**
+         * Attach an end handler.
          * This optional handler is called at the end of write. It should do any
          * cleaning up, if necessary.
+         * @return 0 on success, -1 on error.
          */
-        onFinish: () => void;
+        onEnd: () => number;
     }
 
     /**
      * A class to build various interpolators.
      * For e.g. nearest, bilinear, and some non-linear.
      */
-    export class Interpolate {
+    class Interpolate extends EmbindClassHandle<Interpolate> {
         /**
          * Look up an interpolator from a nickname and make one.
          * @param nickname Nickname for interpolator.
@@ -332,7 +432,7 @@ declare namespace vips {
     /**
      * An image class.
      */
-    export class Image extends ImageAutoGen {
+    class Image extends ImageAutoGen {
         /**
          * Image width in pixels.
          */
@@ -388,7 +488,7 @@ declare namespace vips {
          */
         readonly filename: string;
 
-        // constructors
+        //#region Constructor functions
 
         /**
          * Creates a new image which, when written to, will create a memory image.
@@ -450,13 +550,14 @@ declare namespace vips {
              */
             memory?: boolean
             /**
-             * Hint the expected access pattern for the image
+             * Hint the expected access pattern for the image.
              */
             access?: Access | Enum
             /**
-             * Fail on first error.
+             * The type of error that will cause load to fail. By default,
+             * loaders are permissive, that is, [[FailOn.none]].
              */
-            fail?: boolean
+            fail_on?: FailOn | Enum
         }): Image;
 
         /**
@@ -514,13 +615,14 @@ declare namespace vips {
          */
         static newFromBuffer(data: Blob, strOptions?: string, options?: {
             /**
-             * Hint the expected access pattern for the image
+             * Hint the expected access pattern for the image.
              */
             access?: Access | Enum
             /**
-             * Fail on first error.
+             * The type of error that will cause load to fail. By default,
+             * loaders are permissive, that is, [[FailOn.none]].
              */
-            fail?: boolean
+            fail_on?: FailOn | Enum
         }): Image;
 
         /**
@@ -535,20 +637,21 @@ declare namespace vips {
          */
         static newFromSource(source: Source, strOptions?: string, options?: {
             /**
-             * Hint the expected access pattern for the image
+             * Hint the expected access pattern for the image.
              */
             access?: Access | Enum
             /**
-             * Fail on first error.
+             * The type of error that will cause load to fail. By default,
+             * loaders are permissive, that is, [[FailOn.none]].
              */
-            fail?: boolean
+            fail_on?: FailOn | Enum
         }): Image;
 
         /**
          * Create an image from a 1D array.
          *
          * A new one-band image with [[BandFormat.double]] pixels is
-         * created from the array. These image are useful with the libvips
+         * created from the array. These images are useful with the libvips
          * convolution operator [[conv]].
          * @param width Image width.
          * @param height Image height.
@@ -561,7 +664,7 @@ declare namespace vips {
          * Create an image from a 2D array.
          *
          * A new one-band image with [[BandFormat.double]] pixels is
-         * created from the array. These image are useful with the libvips
+         * created from the array. These images are useful with the libvips
          * convolution operator [[conv]].
          * @param array Create the image from these values.
          * @param scale Default to 1.0. What to divide each pixel by after
@@ -593,7 +696,9 @@ declare namespace vips {
          */
         copyMemory(): Image;
 
-        // writers
+        //#endregion
+
+        //#region Writer functions
 
         /**
          * Write an image to another image.
@@ -693,7 +798,9 @@ declare namespace vips {
          */
         writeToMemory(): Uint8Array;
 
-        // get/set metadata
+        //#endregion
+
+        //#region get/set metadata
 
         /**
          * Set an integer on an image as metadata.
@@ -809,7 +916,9 @@ declare namespace vips {
          */
         remove(name: string): string;
 
-        // handwritten functions
+        //#endregion
+
+        //#region Handwritten functions
 
         /**
          * Does this image have an alpha channel?
@@ -899,6 +1008,10 @@ declare namespace vips {
          */
         bandsplit(): Vector<Image>;
 
+        //#endregion
+
+        //#region Instance overloads
+
         /**
          * Append a set of images or constants bandwise
          * @param _in Array of input images.
@@ -926,7 +1039,7 @@ declare namespace vips {
          * @param options Optional options.
          * @return Blended image.
          */
-        static composite(_in: ArrayImage, mode: Array<Enum>, options?: {
+        static composite(_in: ArrayImage, mode: SingleOrArray<BlendMode>, options?: {
             /**
              * Array of x coordinates to join at.
              */
@@ -952,7 +1065,7 @@ declare namespace vips {
          * @param options Optional options.
          * @return Blended image.
          */
-        composite(overlay: ArrayImage, mode: Array<Enum>, options?: {
+        composite(overlay: ArrayImage, mode: SingleOrArray<BlendMode>, options?: {
             /**
              * Array of x coordinates to join at.
              */
@@ -971,6 +1084,10 @@ declare namespace vips {
             premultiplied?: boolean
         }): Image;
 
+        //#endregion
+
+        //#region Extra utility functions
+
         /**
          * Return the coordinates of the image maximum.
          * @return Array of output values.
@@ -982,6 +1099,10 @@ declare namespace vips {
          * @return Array of output values.
          */
         minPos(): number[];
+
+        //#endregion
+
+        //#region Enum overloads
 
         /**
          * Flip an image horizontally.
@@ -1182,6 +1303,10 @@ declare namespace vips {
          */
         exp10(): Image;
 
+        //#endregion
+
+        //#region Constant/image overloads
+
         /**
          * Erode with a structuring element.
          * @param mask Input matrix image.
@@ -1293,5 +1418,9 @@ declare namespace vips {
          * @return Output image.
          */
         notEq(right: Image | ArrayConstant): Image;
+
+        //#endregion
     }
+
+    //#endregion
 

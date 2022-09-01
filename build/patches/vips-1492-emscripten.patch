@@ -13,8 +13,8 @@ diff --git a/libvips/include/vips/private.h b/libvips/include/vips/private.h
 index 1111111..2222222 100644
 --- a/libvips/include/vips/private.h
 +++ b/libvips/include/vips/private.h
-@@ -124,8 +124,6 @@ VipsBuffer *vips_buffer_unref_ref( VipsBuffer *buffer,
- 	struct _VipsImage *im, VipsRect *area );
+@@ -134,8 +134,6 @@ VipsBuffer *vips_buffer_unref_ref( VipsBuffer *buffer,
+ VIPS_API
  void vips_buffer_print( VipsBuffer *buffer );
  
 -void vips__render_shutdown( void );
@@ -26,23 +26,25 @@ diff --git a/libvips/include/vips/thread.h b/libvips/include/vips/thread.h
 index 1111111..2222222 100644
 --- a/libvips/include/vips/thread.h
 +++ b/libvips/include/vips/thread.h
-@@ -47,11 +47,6 @@ void vips_g_mutex_free( GMutex * );
- GCond *vips_g_cond_new( void );
+@@ -51,13 +51,6 @@ void vips_g_mutex_free( GMutex * );
+ VIPS_API
  void vips_g_cond_free( GCond * );
  
 -/* ... and for GThread.
 - */
+-VIPS_API
 -GThread *vips_g_thread_new( const char *, GThreadFunc, gpointer );
+-VIPS_API
 -void *vips_g_thread_join( GThread *thread );
 -
+ VIPS_API
  gboolean vips_thread_isworker( void );
  
- #ifdef __cplusplus
 diff --git a/libvips/iofuncs/init.c b/libvips/iofuncs/init.c
 index 1111111..2222222 100644
 --- a/libvips/iofuncs/init.c
 +++ b/libvips/iofuncs/init.c
-@@ -460,7 +460,6 @@ vips_init( const char *argv0 )
+@@ -436,7 +436,6 @@ vips_init( const char *argv0 )
  	extern GType vips_system_get_type( void );
  	extern GType write_thread_state_get_type( void );
  	extern GType sink_memory_thread_state_get_type( void ); 
@@ -50,7 +52,7 @@ index 1111111..2222222 100644
  	extern GType vips_source_get_type( void ); 
  	extern GType vips_source_custom_get_type( void ); 
  	extern GType vips_target_get_type( void ); 
-@@ -573,7 +572,6 @@ vips_init( const char *argv0 )
+@@ -564,7 +563,6 @@ vips_init( const char *argv0 )
  	(void) vips_region_get_type();
  	(void) write_thread_state_get_type();
  	(void) sink_memory_thread_state_get_type(); 
@@ -58,7 +60,7 @@ index 1111111..2222222 100644
  	(void) vips_source_get_type(); 
  	(void) vips_source_custom_get_type(); 
  	(void) vips_target_get_type(); 
-@@ -764,7 +762,6 @@ vips_shutdown( void )
+@@ -751,7 +749,6 @@ vips_shutdown( void )
  		vips__thread_gate_stop( "init: main" ); 
  }
  
@@ -685,8 +687,12 @@ index 1111111..2222222 100644
   *
   * See also: vips_tilecache(), vips_region_prepare(), 
   * vips_sink_disc(), vips_sink().
-@@ -1123,7 +700,8 @@ vips_sink_screen( VipsImage *in, VipsImage *out, VipsImage *mask,
- 
+@@ -1119,11 +696,10 @@ vips_sink_screen( VipsImage *in, VipsImage *out, VipsImage *mask,
+ 	int priority,
+ 	VipsSinkNotify notify_fn, void *a )
+ {
+-	static GOnce once = G_ONCE_INIT;
+-
  	Render *render;
  
 -	VIPS_ONCE( &once, vips__sink_screen_once, NULL );

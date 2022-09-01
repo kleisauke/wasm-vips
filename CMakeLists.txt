@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
+# target_link_options requires CMake 3.13
+cmake_minimum_required(VERSION 3.13)
 
 project(wasm-vips
-        VERSION 0.0.1
+        VERSION 0.0.3
         DESCRIPTION "libvips for the browser and Node.js, compiled to WebAssembly with Emscripten"
         LANGUAGES
             CXX
@@ -21,9 +22,10 @@ set_property(CACHE ENVIRONMENT PROPERTY STRINGS ${ENVIRONMENT_VALUES})
 # Let's enable C++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Find libvips (required)
 find_package(PkgConfig)
-pkg_check_modules(VIPS vips>=8.12 REQUIRED)
+pkg_check_modules(VIPS vips>=8.13 REQUIRED)
 
 add_subdirectory(src)

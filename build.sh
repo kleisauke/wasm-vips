@@ -42,6 +42,10 @@ WASM_EH=false
 # https://github.com/emscripten-core/emscripten/issues/10603
 LTO=false
 
+# Position Independent Code (PIC), forcefully enabled as required by MAIN_MODULE
+# TODO(kleisauke): Remove this once https://github.com/emscripten-core/emscripten/issues/12682 is fixed
+PIC=true
+
 # Parse arguments
 while [ $# -gt 0 ]; do
   case $1 in
@@ -63,25 +67,26 @@ else
   DISABLE_SIMD=true
 fi
 
-# LTO embuilder flag
+# Embuilder flags
 if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
+if [ "$PIC" = "true" ]; then PIC_FLAG=--pic; fi
 
 # Handy for debugging
-#export CFLAGS="-O0 -gsource-map"
+#export CFLAGS="-O0 -gsource-map -pthread"
 #export CXXFLAGS="$CFLAGS"
 #export LDFLAGS="-L$TARGET/lib -O0 -gsource-map"
 #export EMCC_DEBUG=1
 
 # Handy for catching bugs
-#export CFLAGS="-Os -gsource-map -fsanitize=address -sINITIAL_MEMORY=64MB"
+#export CFLAGS="-Os -gsource-map -fsanitize=address -pthread"
 #export CXXFLAGS="$CFLAGS"
-#export LDFLAGS="-L$TARGET/lib -Os -gsource-map -fsanitize=address"
+#export LDFLAGS="-L$TARGET/lib -Os -gsource-map -fsanitize=address -sINITIAL_MEMORY=64MB"
 
 # Specify location where source maps are published (browser specific)
-#export CFLAGS+=" --source-map-base http://localhost:3000/lib"
+#export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"
 
 # Common compiler flags
-export CFLAGS="-O0 -gsource-map -fno-rtti -fno-exceptions -mnontrapping-fptoint"
+export CFLAGS="-O0 -gsource-map -fno-rtti -fno-exceptions -mnontrapping-fptoint -pthread"
 if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"; fi
 if [ "$WASM_BIGINT" = "true" ]; then
   # libffi needs to detect WASM_BIGINT support at compile time
@@ -90,6 +95,7 @@ fi
 if [ "$WASM_FS" = "true" ]; then export CFLAGS+=" -DWASMFS"; fi
 if [ "$WASM_EH" = "true" ]; then export CFLAGS+=" -sSUPPORT_LONGJMP=wasm"; fi
 if [ "$LTO" = "true" ]; then export CFLAGS+=" -flto"; fi
+if [ "$PIC" = "true" ]; then export CFLAGS+=" -fPIC"; fi
 export CXXFLAGS="$CFLAGS"
 export LDFLAGS="-L$TARGET/lib -O0 -gsource-map"
 if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
@@ -106,21 +112,26 @@ export EM_PKG_CONFIG_PATH="$PKG_CONFIG_PATH"
 export CHOST="wasm32-unknown-linux" # wasm32-unknown-emscripten
 export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 
+# Run as many parallel jobs as there are available CPU cores
+export MAKEFLAGS="-j$(nproc)"
+
 # Dependency version numbers
-VERSION_ZLIBNG=2.0.6
-VERSION_FFI=3.4.2
-VERSION_GLIB=2.72.0
-VERSION_EXPAT=2.4.7
-VERSION_EXIF=0.6.24
-VERSION_LCMS2=2.13.1
-VERSION_JPEG=2.1.3
-VERSION_PNG16=1.6.37
-VERSION_SPNG=0.7.2
-VERSION_IMAGEQUANT=2.4.1
-VERSION_CGIF=0.2.1
-VERSION_WEBP=1.2.2
-VERSION_TIFF=4.3.0
-VERSION_VIPS=8.12.2
+VERSION_ZLIBNG=2.0.6        # https://github.com/zlib-ng/zlib-ng
+VERSION_FFI=3.4.2           # https://github.com/libffi/libffi
+VERSION_GLIB=2.73.3         # https://gitlab.gnome.org/GNOME/glib
+VERSION_EXPAT=2.4.8         # https://github.com/libexpat/libexpat
+VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
+VERSION_LCMS2=2.13.1        # https://github.com/mm2/Little-CMS
+VERSION_HWY=1.0.1           # https://github.com/google/highway
+VERSION_BROTLI=f4153a       # https://github.com/google/brotli
+VERSION_JPEG=4.1.1          # https://github.com/mozilla/mozjpeg
+VERSION_JXL=0.7rc           # https://github.com/libjxl/libjxl
+VERSION_SPNG=0.7.2          # https://github.com/randy408/libspng
+VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
+VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif
+VERSION_WEBP=1.2.4          # https://chromium.googlesource.com/webm/libwebp
+VERSION_TIFF=4.4.0          # https://gitlab.com/libtiff/libtiff
+VERSION_VIPS=8.13.0         # https://github.com/libvips/libvips
 
 # Remove patch version component
 without_patch() {
@@ -136,18 +147,25 @@ cd $(dirname $(which emcc))
 
 # Assumes that the patches have already been applied when not running in a container
 if [ "$RUNNING_IN_CONTAINER" = true ]; then
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-missing-proxy-signatures.patch
+
   # TODO(kleisauke): Discuss these patches upstream
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-auto-deletelater.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-vector-as-js-array.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-allow-block-main-thread.patch
-
-  # Need to rebuild libembind and libc, since we modified it
-  # with the patches above
-  embuilder.py build libembind libc-mt --force $LTO_FLAG
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-windows-path.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-implement-munmap.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-implement-fs-unlink.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-mmap-shared.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-get-dynamic-libraries-js-helper.patch
 
   # The system headers require to be reinstalled, as some of
-  # them have also been changed with the patches above
+  # them have been changed with the patches above
   embuilder.py build sysroot --force
+
+  # Need to rebuild libembind, libc, and libwasmfs, since we
+  # also modified it with the patches above
+  embuilder.py build libembind libc-mt{,-debug} libwasmfs-mt{,-debug} --force $LTO_FLAG $PIC_FLAG
 fi
 
 echo "============================================="
@@ -155,7 +173,7 @@ echo "Compiling zlib-ng"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/zlib.pc" || (
   mkdir $DEPS/zlib-ng
-  curl -Ls https://github.com/zlib-ng/zlib-ng/archive/$VERSION_ZLIBNG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
+  curl -Ls https://github.com/zlib-ng/zlib-ng/archive/refs/tags/$VERSION_ZLIBNG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
   cd $DEPS/zlib-ng
   # SSE intrinsics needs to be checked for wasm32
   sed -i 's/|\s*x86_64/& | wasm32/g' configure
@@ -177,6 +195,7 @@ test -f "$TARGET/lib/pkgconfig/libffi.pc" || (
   mkdir $DEPS/ffi
   curl -Ls https://github.com/libffi/libffi/releases/download/v$VERSION_FFI/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
   cd $DEPS/ffi
+  # TODO(kleisauke): https://github.com/hoodmane/libffi-emscripten/issues/16
   patch -p1 <$SOURCE_DIR/build/patches/libffi-emscripten.patch
   autoreconf -fiv
   # Compile without -fexceptions
@@ -193,10 +212,15 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   mkdir $DEPS/glib
   curl -Lks https://download.gnome.org/sources/glib/$(without_patch $VERSION_GLIB)/glib-$VERSION_GLIB.tar.xz | tar xJC $DEPS/glib --strip-components=1
   cd $DEPS/glib
-  patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-without-tools.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-without-gregex.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-disable-nls.patch
+  # TODO(kleisauke): Discuss these patches upstream
+  patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten-build.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten-impl.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-function-pointers.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    --force-fallback-for=libpcre -Diconv="libc" -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
+    --force-fallback-for=gvdb -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
     -Dtests=false -Dglib_assert=false -Dglib_checks=false
   ninja -C _build install
 )
@@ -210,7 +234,7 @@ test -f "$TARGET/lib/pkgconfig/expat.pc" || (
   cd $DEPS/expat
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --without-xmlwf --without-docbook --without-getrandom --without-sys-getrandom --without-examples --without-tests
-  make install
+  make install dist_cmake_DATA= nodist_cmake_DATA=
 )
 
 echo "============================================="
@@ -221,10 +245,8 @@ test -f "$TARGET/lib/pkgconfig/libexif.pc" || (
   curl -Ls https://github.com/libexif/libexif/releases/download/v$VERSION_EXIF/libexif-$VERSION_EXIF.tar.bz2 | tar xjC $DEPS/exif --strip-components=1
   cd $DEPS/exif
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-    --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix \
-    CPPFLAGS="-DNO_VERBOSE_TAG_DATA"
-  make -C 'libexif' install doc_DATA=
-  make install-pkgconfigDATA
+    --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix CPPFLAGS="-DNO_VERBOSE_TAG_DATA"
+  make install SUBDIRS='libexif' doc_DATA=
 )
 
 echo "============================================="
@@ -241,38 +263,70 @@ test -f "$TARGET/lib/pkgconfig/lcms2.pc" || (
 )
 
 echo "============================================="
-echo "Compiling jpeg"
+echo "Compiling hwy"
 echo "============================================="
-test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
-  mkdir $DEPS/jpeg
-  curl -Ls https://github.com/libjpeg-turbo/libjpeg-turbo/archive/$VERSION_JPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
-  cd $DEPS/jpeg
-  # TODO(kleisauke): Discuss this patch upstream
-  patch -p1 <$SOURCE_DIR/build/patches/libjpeg-turbo-emscripten.patch
-  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DENABLE_STATIC=TRUE \
-    -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_TURBOJPEG=FALSE \
-    ${DISABLE_SIMD:+-DWITH_SIMD=FALSE} ${ENABLE_SIMD:+-DWITH_SIMD=TRUE}
+test -f "$TARGET/lib/pkgconfig/libhwy.pc" || (
+  mkdir $DEPS/hwy
+  curl -Ls https://github.com/google/highway/archive/refs/tags/$VERSION_HWY.tar.gz | tar xzC $DEPS/hwy --strip-components=1
+  cd $DEPS/hwy
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=FALSE \
+    -DBUILD_TESTING=FALSE -DHWY_ENABLE_CONTRIB=FALSE -DHWY_ENABLE_EXAMPLES=FALSE
   make -C _build install
 )
 
 echo "============================================="
-echo "Compiling png16"
+echo "Compiling brotli"
 echo "============================================="
-test -f "$TARGET/lib/pkgconfig/libpng16.pc" || (
-  mkdir $DEPS/png16
-  curl -Ls https://downloads.sourceforge.net/project/libpng/libpng16/$VERSION_PNG16/libpng-$VERSION_PNG16.tar.xz | tar xJC $DEPS/png16 --strip-components=1
-  cd $DEPS/png16
-  # Switch the default zlib compression strategy to Z_RLE, as this is especially suitable for PNG images
-  sed -i 's/Z_FILTERED/Z_RLE/g' scripts/pnglibconf.dfa
-  # libpng's user limits can be set for both reading and writing PNG images
-  sed -i '/^option USER_LIMITS/s/requires READ//' scripts/pnglibconf.dfa
-  # The hardware optimizations in libpng are only used for reading PNG images, since we use libspng
-  # for that we can safely pass --disable-hardware-optimizations and compile with -DPNG_NO_READ
-  # Need to compile with -pthread after https://reviews.llvm.org/D120013 as png.c uses setjmp/longjmp
-  CFLAGS="$CFLAGS -pthread" \
-  emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-    --disable-hardware-optimizations --disable-unversioned-libpng-config --without-binconfigs CPPFLAGS="-DPNG_NO_READ"
-  make install dist_man_MANS= bin_PROGRAMS=
+test -f "$TARGET/lib/pkgconfig/libbrotlicommon.pc" || (
+  mkdir $DEPS/brotli
+  curl -Ls https://github.com/google/brotli/archive/$VERSION_BROTLI.tar.gz | tar xzC $DEPS/brotli --strip-components=1
+  cd $DEPS/brotli
+  # https://github.com/google/brotli/pull/655
+  patch -p1 <$SOURCE_DIR/build/patches/brotli-655.patch
+  # Exclude internal dictionary, see: https://github.com/emscripten-core/emscripten/issues/9960
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBROTLI_DISABLE_TESTS=TRUE \
+    -DCMAKE_C_FLAGS="$CFLAGS -DBROTLI_EXTERNAL_DICTIONARY_DATA"
+  make -C _build install
+)
+
+echo "============================================="
+echo "Compiling jpeg"
+echo "============================================="
+test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
+  mkdir $DEPS/jpeg
+  curl -Ls https://github.com/mozilla/mozjpeg/archive/refs/tags/v$VERSION_JPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
+  cd $DEPS/jpeg
+  # TODO(kleisauke): Discuss this patch upstream
+  patch -p1 <$SOURCE_DIR/build/patches/libjpeg-turbo-emscripten.patch
+  # Disable environment variables usage, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/600
+  # FIXME(kleisauke): The JSIMD_FORCENEON env requires building without -DNO_GETENV
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DENABLE_STATIC=TRUE \
+    -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_TURBOJPEG=FALSE -DPNG_SUPPORTED=FALSE \
+    ${DISABLE_SIMD:+-DWITH_SIMD=FALSE} ${ENABLE_SIMD:+-DWITH_SIMD=TRUE} \
+    -DCMAKE_C_FLAGS="$CFLAGS -DNO_PUTENV"
+  make -C _build install
+)
+
+echo "============================================="
+echo "Compiling jxl"
+echo "============================================="
+test -f "$TARGET/lib/pkgconfig/libjxl.pc" || (
+  mkdir $DEPS/jxl
+  curl -Ls https://github.com/libjxl/libjxl/archive/refs/tags/v$VERSION_JXL.tar.gz | tar xzC $DEPS/jxl --strip-components=1
+  cd $DEPS/jxl
+  # Avoid bundling libpng
+  sed -i 's/JPEGXL_EMSCRIPTEN/& AND JPEGXL_BUNDLE_LIBPNG/' third_party/CMakeLists.txt
+  # CMake < 3.19 workaround, see: https://github.com/libjxl/libjxl/issues/1425
+  sed -i 's/lcms2,INCLUDE_DIRECTORIES/lcms2,INTERFACE_INCLUDE_DIRECTORIES/' lib/jxl.cmake
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
+    -DBUILD_SHARED_LIBS=FALSE -DBUILD_TESTING=FALSE -DJPEGXL_ENABLE_TOOLS=FALSE -DJPEGXL_ENABLE_DOXYGEN=FALSE \
+    -DJPEGXL_ENABLE_MANPAGES=FALSE -DJPEGXL_ENABLE_EXAMPLES=FALSE -DJPEGXL_ENABLE_SJPEG=FALSE -DJPEGXL_ENABLE_SKCMS=FALSE \
+    -DJPEGXL_BUNDLE_LIBPNG=FALSE -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE -DJPEGXL_FORCE_SYSTEM_LCMS2=TRUE -DJPEGXL_FORCE_SYSTEM_HWY=TRUE
+  make -C _build install
+  # Ensure we don't link with lcms2 in the vips-jxl side module
+  sed -i '/^Requires.private:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl.pc
+  # Ensure the vips-jxl side module links against the private dependencies
+  sed -i 's/Requires.private/Requires/' $TARGET/lib/pkgconfig/libjxl.pc
 )
 
 echo "============================================="
@@ -280,10 +334,12 @@ echo "Compiling spng"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/spng.pc" || (
   mkdir $DEPS/spng
-  curl -Ls https://github.com/randy408/libspng/archive/v$VERSION_SPNG.tar.gz | tar xzC $DEPS/spng --strip-components=1
+  curl -Ls https://github.com/randy408/libspng/archive/refs/tags/v$VERSION_SPNG.tar.gz | tar xzC $DEPS/spng --strip-components=1
   cd $DEPS/spng
   # TODO(kleisauke): Discuss this patch upstream
   patch -p1 <$SOURCE_DIR/build/patches/libspng-emscripten.patch
+  # Switch the default zlib compression strategy to Z_RLE, as this is especially suitable for PNG images
+  sed -i 's/Z_FILTERED/Z_RLE/g' spng/spng.c
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Dbuild_examples=false -Dstatic_zlib=true ${DISABLE_SIMD:+-Denable_opt=false} ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse4.1 -DSPNG_SSE=4"}
   ninja -C _build install
@@ -294,7 +350,7 @@ echo "Compiling imagequant"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/imagequant.pc" || (
   mkdir $DEPS/imagequant
-  curl -Ls https://github.com/lovell/libimagequant/archive/v$VERSION_IMAGEQUANT.tar.gz | tar xzC $DEPS/imagequant --strip-components=1
+  curl -Ls https://github.com/lovell/libimagequant/archive/refs/tags/v$VERSION_IMAGEQUANT.tar.gz | tar xzC $DEPS/imagequant --strip-components=1
   cd $DEPS/imagequant
   # TODO(kleisauke): Discuss this patch upstream
   patch -p1 <$SOURCE_DIR/build/patches/imagequant-emscripten.patch
@@ -308,10 +364,10 @@ echo "Compiling cgif"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/cgif.pc" || (
   mkdir $DEPS/cgif
-  curl -Ls https://github.com/dloebl/cgif/archive/V$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
+  curl -Ls https://github.com/dloebl/cgif/archive/refs/tags/V$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
   cd $DEPS/cgif
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Dtests=false 
+    -Dtests=false
   ninja -C _build install
 )
 
@@ -328,8 +384,8 @@ test -f "$TARGET/lib/pkgconfig/libwebp.pc" || (
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     ${DISABLE_SIMD:+--disable-sse2 --disable-sse4.1} ${ENABLE_SIMD:+--enable-sse2 --enable-sse4.1} --disable-neon \
     --disable-gl --disable-sdl --disable-png --disable-jpeg --disable-tiff --disable-gif --disable-threading \
-    --enable-libwebpmux --enable-libwebpdemux CPPFLAGS="-DWEBP_DISABLE_STATS"
-  make -C 'src' install
+    --enable-libwebpmux --enable-libwebpdemux CPPFLAGS="-DWEBP_DISABLE_STATS -DWEBP_REDUCE_CSP"
+  make install bin_PROGRAMS= noinst_PROGRAMS= man_MANS=
 )
 
 echo "============================================="
@@ -339,12 +395,9 @@ test -f "$TARGET/lib/pkgconfig/libtiff-4.pc" || (
   mkdir $DEPS/tiff
   curl -Ls https://download.osgeo.org/libtiff/tiff-$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1
   cd $DEPS/tiff
-  # Need to compile with -pthread after https://reviews.llvm.org/D120013 as tif_jpeg.c uses setjmp/longjmp
-  CFLAGS="$CFLAGS -pthread" \
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-mdi --disable-pixarlog --disable-old-jpeg --disable-cxx
-  make -C 'libtiff' install noinst_PROGRAMS=
-  make install-pkgconfigDATA
+  make install SUBDIRS='libtiff' noinst_PROGRAMS= dist_doc_DATA=
 )
 
 echo "============================================="
@@ -353,20 +406,26 @@ echo "============================================="
 test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   mkdir $DEPS/vips
   curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$VERSION_VIPS.tar.gz | tar xzC $DEPS/vips --strip-components=1
-  #curl -Ls https://github.com/libvips/libvips/archive/$VERSION_VIPS.tar.gz | tar xzC $DEPS/vips --strip-components=1
   cd $DEPS/vips
   # Emscripten specific patches
   patch -p1 <$SOURCE_DIR/build/patches/vips-remove-orc.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
+  patch -p1 <$SOURCE_DIR/build/patches/vips-disable-nls.patch
+  patch -p1 <$SOURCE_DIR/build/patches/vips-libjxl-disable-concurrency.patch
+  patch -p1 <$SOURCE_DIR/build/patches/vips-2988.patch
+  patch -p1 <$SOURCE_DIR/build/patches/vips-dynamic-modules-emscripten.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
-  emconfigure ./autogen.sh --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-    --disable-debug --disable-introspection --disable-deprecated --disable-modules --with-radiance --with-analyze --with-ppm \
-    --with-imagequant --with-nsgif --with-cgif --with-lcms --with-zlib --with-libexif --with-jpeg --with-libspng --with-png \
-    --with-tiff --with-libwebp --without-fftw --without-pangocairo --without-fontconfig --without-gsf --without-heif \
-    --without-pdfium --without-poppler --without-rsvg --without-OpenEXR --without-libjxl --without-libopenjp2 --without-openslide \
-    --without-matio --without-nifti --without-cfitsio --without-magick
-  make -C 'libvips' install
-  make install-pkgconfigDATA
+  # Disable building C++ bindings, man pages, gettext po files, tools, and (fuzz-)tests
+  sed -i'.bak' "/subdir('cplusplus')/{N;N;N;N;N;d;}" meson.build
+  meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
+    -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled -Dmodules=enabled -Dcgif=enabled -Dexif=enabled \
+    -Dimagequant=enabled -Djpeg=enabled -Djpeg-xl{,-module}=enabled -Dlcms=enabled -Dspng=enabled -Dtiff=enabled \
+    -Dwebp=enabled -Dnsgif=true -Dppm=true -Danalyze=true -Dradiance=true
+  ninja -C _build install
+  # Emscripten requires linking to side modules to find the necessary symbols to export
+  module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
+  modules=$(find $module_dir/ -type f -printf " %p")
+  sed -i "/^Libs:/ s/$/${modules//\//\\/}/" $TARGET/lib/pkgconfig/vips.pc
 )
 
 echo "============================================="
@@ -383,7 +442,7 @@ echo "============================================="
 echo "============================================="
 echo "Prepare NPM package"
 echo "============================================="
-[ "$ENVIRONMENT" = "web,node" ] && (
+[ "$ENVIRONMENT" != "web,node" ] || (
   # Building for both Node.js and web, prepare NPM package
   # FIXME(kleisauke): Workaround for https://github.com/emscripten-core/emscripten/issues/11792
   sed -i '1iimport { dirname } from "path";' $SOURCE_DIR/lib/node-es6/vips.mjs
@@ -403,10 +462,15 @@ echo "============================================="
   sed -i 's/new Worker(\([^()]\+\))/new Worker(\1,{type:"module"})/g' $SOURCE_DIR/lib/vips-es6.js
   sed -i 's/new Worker(\(new URL([^)]\+)\)/new Worker(\1,{type:"module"}/g' $SOURCE_DIR/lib/vips-es6.js
 
+  # new URL('vips.wasm', import.meta.url).toString() -> new URL('vips.wasm', import.meta.url).href
+  sed -i 's/\(new URL([^)]\+)\+\).toString()/\1.href/g' $SOURCE_DIR/lib/vips-es6.js
+
   # The produced vips.wasm file should be the same across the different variants (sanity check)
+  # FIXME(kleisauke): -sMAIN_MODULE=2 appears to produce non-determinism binaries, perhaps this is similar to:
+  # https://github.com/emscripten-core/emscripten/issues/15706
   expected_sha256=$(sha256sum "$SOURCE_DIR/lib/vips.wasm" | awk '{ print $1 }')
   for file in vips-es6.wasm node-commonjs/vips.wasm node-es6/vips.wasm; do
-    echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check
+    echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check || true
     rm $SOURCE_DIR/lib/$file
   done
 
@@ -414,8 +478,12 @@ echo "============================================="
   for file in vips-es6.js node-commonjs/vips.js node-es6/vips.mjs; do
     case "$file" in
       vips-es6.js) expression='s/vips-es6.wasm/vips.wasm/g' ;;
-      *) expression='s/vips.wasm/..\/&/g' ;;
+      *) expression='s/vips[^.]*.wasm/..\/&/g' ;;
     esac
     sed -i "$expression" $SOURCE_DIR/lib/$file
   done
+
+  # Copy dynamic loadable modules
+  module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
+  cp $module_dir/* $SOURCE_DIR/lib/
 )

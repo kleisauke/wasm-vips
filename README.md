@@ -10,17 +10,27 @@ pipeline executes at once, streaming the image in parallel from source to
 destination a section at a time. Because wasm-vips is parallel, it's quick,
 and because it doesn't need to keep entire images in memory, it's light.
 
-> Note: This library is still under early development. See: [#1](https://github.com/kleisauke/wasm-vips/issues/1).
+> **Note**: This library is still under early development. See: [#1](
+https://github.com/kleisauke/wasm-vips/issues/1).
 
 ## Engine support
 
 An engine that [supports WebAssembly SIMD](https://webassembly.org/roadmap/).
-This is present on most major browser engines. Node.js >= 16.4.0 is required
-to match the final SIMD opcodes.
+This is present on most major browser engines.
 
-| ![Chrome](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome_32x32.png)<br>Chrome | ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_32x32.png)<br>Firefox | ![Edge](https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_32x32.png)<br>Edge | ![Node.js](https://raw.githubusercontent.com/nodejs/nodejs.org/master/static/images/favicons/favicon-32x32.png)<br>Node.js |
-|:---:|:---:|:---:|:---:|
-| :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 89+](https://bugzilla.mozilla.org/show_bug.cgi?id=1695585) | :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 16.4+](https://github.com/nodejs/node/pull/38273) |
+For V8-based engines, at least version 9.1.54 is required to match the final
+SIMD opcodes, this corresponds to Chrome 91, Node.js 16.4.0 and Deno 1.9.0.
+
+For Spidermonkey-based engines, the JavaScript engine used in Mozilla Firefox
+and whose version numbers are aligned, at least version 89 is required.
+
+JavaScriptCore-based (e.g. Safari, Bun) engines are currently not supported,
+you can follow the status in [this tracking bug](
+https://bugs.webkit.org/show_bug.cgi?id=222382).
+
+| ![Chrome](https://github.com/alrra/browser-logos/raw/main/src/chrome/chrome_32x32.png)<br>Chrome | ![Firefox](https://github.com/alrra/browser-logos/raw/main/src/firefox/firefox_32x32.png)<br>Firefox | ![Safari](https://github.com/alrra/browser-logos/raw/main/src/safari/safari_32x32.png)<br>Safari | ![Edge](https://github.com/alrra/browser-logos/raw/main/src/edge/edge_32x32.png)<br>Edge | ![Node.js](https://github.com/alrra/browser-logos/raw/main/src/node.js/node.js_32x32.png)<br>Node.js | ![Deno](https://github.com/alrra/browser-logos/raw/main/src/deno/deno_32x32.png)<br>Deno |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 89+](https://bugzilla.mozilla.org/show_bug.cgi?id=1695585) | :x:<br>[Tracking bug](https://bugs.webkit.org/show_bug.cgi?id=222382) | :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 16.4+](https://github.com/nodejs/node/pull/38273) | :heavy_check_mark:<br>[version 1.9+](https://github.com/denoland/deno/pull/10152) |
 
 ## Installation
 
@@ -95,6 +105,17 @@ const vips = await Vips();
 Vips().then(vips => {
   // Code here
 });
+```
+
+### Deno
+
+On Deno, the web ES6 module can be reused and imported from a CDN such as
+[jsDelivr](https://www.jsdelivr.com/):
+
+```js
+import Vips from 'https://cdn.jsdelivr.net/npm/wasm-vips/lib/vips-es6.js';
+
+const vips = await Vips();
 ```
 
 ## Example

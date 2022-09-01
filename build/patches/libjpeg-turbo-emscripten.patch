@@ -9,7 +9,7 @@ diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 1111111..2222222 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -65,7 +65,13 @@ foreach(ARCH ${CMAKE_OSX_ARCHITECTURES})
+@@ -64,7 +64,13 @@ foreach(ARCH ${CMAKE_OSX_ARCHITECTURES})
    endif()
    math(EXPR COUNT "${COUNT}+1")
  endforeach()

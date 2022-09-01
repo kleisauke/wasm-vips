@@ -1,6 +1,7 @@
 import './images/owl.webp';
 import './images/owl.tif';
 import './images/owl.jpg';
+import './images/owl.jxl';
 import './images/banana.webp';
 import './images/banana.gif';
 import './images/transparency_demo.png';

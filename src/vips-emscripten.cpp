@@ -27,17 +27,11 @@ using vips::TargetCustom;
 
 #ifdef WASMFS
 EM_JS(bool, is_node, (), { return ENVIRONMENT_IS_NODE; });
-
-static backend_t get_backend() {
-    return is_node() ? wasmfs_create_node_backend(".")  // WASMFS_NODE_BACKEND
-                     : nullptr;                         // WASMFS_MEMORY_BACKEND
-}
 #endif
 
 int main() {
-    if (vips_init("wasm-vips") != 0) {
+    if (vips_init("wasm-vips") != 0)
         vips_error_exit("unable to start up libvips");
-    }
 
     // By default, libvips' operation cache will (at its maximum):
     //  - cache 100 operations;
@@ -48,8 +42,13 @@ int main() {
     vips_cache_set_max_files(20);
 
 #ifdef WASMFS
-    int err = wasmfs_create_directory("/root", 0777, get_backend());
-    g_assert(err == 0);
+    if (is_node()) {
+        int err = wasmfs_create_directory("root", 0777,
+                                          wasmfs_create_node_backend("."));
+        g_assert(err == 0);
+        err = chdir("root");
+        g_assert(err == 0);
+    }
 #endif
 
     // Handy for debugging.
@@ -436,7 +435,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
              }));
 
     // Helper for Node.js to shutdown libvips and the runtime of Emscripten
-    function("shutdown", &shutdown_js);
+    function("shutdown", optional_override([]() {
+                 shutdown_js();
+             }));
 
     // Cache class
     class_<Cache>("Cache")
@@ -528,8 +529,12 @@ EMSCRIPTEN_BINDINGS(my_module) {
         // Handwritten setters
         .property("onWrite", &TargetCustom::stub_getter,
                   &TargetCustom::set_write_callback)
-        .property("onFinish", &TargetCustom::stub_getter,
-                  &TargetCustom::set_finish_callback);
+        .property("onRead", &TargetCustom::stub_getter,
+                  &TargetCustom::set_read_callback)
+        .property("onSeek", &TargetCustom::stub_getter,
+                  &TargetCustom::set_seek_callback)
+        .property("onEnd", &TargetCustom::stub_getter,
+                  &TargetCustom::set_end_callback);
 
     // Image class
     class_<Image, base<Object>>("Image")
@@ -1558,6 +1563,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("dzsaveBuffer", optional_override([](const Image &image) {
                       return image.dzsave_buffer();
                   }))
+        .function("dzsaveTarget", &Image::dzsave_target)
+        .function("dzsaveTarget", optional_override([](const Image &image, const Target &target) {
+                      image.dzsave_target(target);
+                  }))
         .function("embed", &Image::embed)
         .function("embed", optional_override([](const Image &image, int x, int y, int width, int height) {
                       return image.embed(x, y, width, height);
@@ -1908,8 +1917,17 @@ EMSCRIPTEN_BINDINGS(my_module) {
                       return image.sharpen();
                   }))
         .function("shrink", &Image::shrink)
+        .function("shrink", optional_override([](const Image &image, double hshrink, double vshrink) {
+                      return image.shrink(hshrink, vshrink);
+                  }))
         .function("shrinkh", &Image::shrinkh)
+        .function("shrinkh", optional_override([](const Image &image, int hshrink) {
+                      return image.shrinkh(hshrink);
+                  }))
         .function("shrinkv", &Image::shrinkv)
+        .function("shrinkv", optional_override([](const Image &image, int vshrink) {
+                      return image.shrinkv(vshrink);
+                  }))
         .function("sign", &Image::sign)
         .function("similarity", &Image::similarity)
         .function("similarity", optional_override([](const Image &image) {
@@ -1942,6 +1960,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("tiffsaveBuffer", &Image::tiffsave_buffer)
         .function("tiffsaveBuffer", optional_override([](const Image &image) {
                       return image.tiffsave_buffer();
+                  }))
+        .function("tiffsaveTarget", &Image::tiffsave_target)
+        .function("tiffsaveTarget", optional_override([](const Image &image, const Target &target) {
+                      image.tiffsave_target(target);
                   }))
         .function("tilecache", &Image::tilecache)
         .function("tilecache", optional_override([](const Image &image) {

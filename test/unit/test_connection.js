@@ -78,13 +78,18 @@ describe('connection', () => {
         expect(y.height).to.equal(442);
       });
       it('custom', function () {
+        // Needs FS.open support, not yet available in the JS API of WasmFS.
+        if (typeof vips.FS.open !== 'function') {
+          return this.skip();
+        }
+
         const stream = vips.FS.open(Helpers.jpegFile, 'r');
 
         const source = new vips.SourceCustom();
         source.onRead = (ptr, size) =>
-          vips.FS.read(stream, vips.HEAPU8, ptr, size);
+          BigInt(vips.FS.read(stream, vips.HEAPU8, ptr, vips.bigintToI53Checked(size)));
         source.onSeek = (offset, whence) =>
-          vips.FS.llseek(stream, offset, whence);
+          BigInt(vips.FS.llseek(stream, vips.bigintToI53Checked(offset), whence));
 
         const image = vips.Image.newFromSource(source, '', {
           access: 'sequential'
@@ -121,18 +126,30 @@ describe('connection', () => {
         expect(x.getBlob()).to.deep.equal(y);
       });
       it('custom', function () {
+        // Needs FS.open support, not yet available in the JS API of WasmFS.
+        if (typeof vips.FS.open !== 'function') {
+          return this.skip();
+        }
+
         const filename = vips.Utils.tempName('%s.png');
         const stream = vips.FS.open(filename, 'w');
 
+        let onEndCalled = false;
+
         const target = new vips.TargetCustom();
         target.onWrite = (ptr, size) =>
-          vips.FS.write(stream, vips.HEAPU8, ptr, size);
-        target.onFinish = () => vips.FS.close(stream);
+          BigInt(vips.FS.write(stream, vips.HEAPU8, ptr, vips.bigintToI53Checked(size)));
+        target.onEnd = () => {
+          vips.FS.close(stream);
+          onEndCalled = true;
+          return 0;
+        };
 
         let image = vips.Image.newFromFile(Helpers.jpegFile, {
           access: 'sequential'
         });
         image.writeToTarget(target, '.png');
+        expect(onEndCalled).to.equal(true);
 
         image = vips.Image.newFromFile(Helpers.jpegFile, {
           access: 'sequential'

@@ -1,0 +1,77 @@
+name: CI
+on:
+  push:
+    branches: [ '**' ]
+    tags: [ 'v*.*.*' ]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      force-rebuild:
+        type: boolean
+        required: false
+        description: Force rebuild
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    outputs:
+      cache-key: ${{ steps.gen-cache-key.outputs.key }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: gen-cache-key
+        run: |
+          if [ "${{ inputs.force-rebuild }}" = true ]; then
+            echo "::set-output name=key::$(date +%s)"
+          else
+            echo "::set-output name=key::${{ hashFiles('build/patches/**', 'lib/**', 'src/**', 'build.sh', 'Dockerfile') }}"
+          fi
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path: lib
+          key: ${{ steps.gen-cache-key.outputs.key }}
+      - name: Build
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm run build
+  CI:
+    runs-on: ${{ matrix.os }}
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            nodejs_version: 16
+            publish: true
+          - os: macos-11
+            nodejs_version: 16
+          - os: windows-2022
+            nodejs_version: 16
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.nodejs_version }}
+          registry-url: 'https://registry.npmjs.org'
+      # https://github.com/actions/cache/issues/576
+      - name: Default to GNU tar on Windows
+        if: runner.os == 'Windows'
+        run: Add-Content $env:GITHUB_PATH "C:\Program Files\Git\usr\bin"
+      - uses: actions/cache@v3
+        with:
+          path: lib
+          key: ${{ needs.build.outputs.cache-key }}
+      - name: Install dependencies
+        run: npm install
+      - name: Install test dependencies
+        run: npm --prefix test/unit install
+      - name: Test
+        run: npm test
+      - name: Publish
+        if: matrix.publish && github.ref_type == 'tag'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm publish
+          gh release create ${{ github.ref_name }} --target ${{ github.sha }}

@@ -12,7 +12,7 @@ diff --git a/README.md b/README.md
 index 1111111..2222222 100644
 --- a/README.md
 +++ b/README.md
-@@ -249,11 +249,6 @@ enabling a package with such a large attack surface.
+@@ -226,11 +226,6 @@ enabling a package with such a large attack surface.
  If available, libvips adds support for text rendering. You need the
  package pangocairo in `pkg-config --list-all`.
  
@@ -28,7 +28,7 @@ diff --git a/configure.ac b/configure.ac
 index 1111111..2222222 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -726,45 +726,6 @@ AS_IF([test x"$with_magick_module" = x"yes"],
+@@ -731,45 +731,6 @@ AS_IF([test x"$with_magick_module" = x"yes"],
     VIPS_LIBS="$VIPS_LIBS $MAGICK_LIBS"])
  AM_CONDITIONAL(MAGICK_MODULE, [test x"$with_magick_module" = x"yes"])
  
@@ -74,7 +74,7 @@ index 1111111..2222222 100644
  # lcms ... refuse to use lcms1
  AC_ARG_WITH([lcms], 
    AS_HELP_STRING([--without-lcms], [build without lcms (default: test)]))
-@@ -1492,7 +1453,6 @@ enable debug: $enable_debug, \
+@@ -1548,7 +1509,6 @@ enable debug: $enable_debug, \
  enable deprecated library components: $enable_deprecated, \
  enable modules: $gmodule_supported_flag, \
  use fftw3 for FFT: $with_fftw, \
@@ -82,7 +82,7 @@ index 1111111..2222222 100644
  ICC profile support with lcms: $with_lcms, \
  zlib: $with_zlib, \
  text rendering with pangocairo: $with_pangocairo, \
-@@ -1600,8 +1560,6 @@ GIF load:                               $with_nsgif
+@@ -1656,8 +1616,6 @@ GIF load:                               $with_nsgif
  
  ## Optional dependencies
  use fftw3 for FFT:                      $with_fftw
@@ -187,7 +187,7 @@ diff --git a/libvips/arithmetic/arithmetic.c b/libvips/arithmetic/arithmetic.c
 index 1111111..2222222 100644
 --- a/libvips/arithmetic/arithmetic.c
 +++ b/libvips/arithmetic/arithmetic.c
-@@ -738,83 +738,6 @@ vips_arithmetic_set_format_table( VipsArithmeticClass *class,
+@@ -752,83 +752,6 @@ vips_arithmetic_set_format_table( VipsArithmeticClass *class,
  	class->format_table = format_table;
  }
  
@@ -1261,8 +1261,11 @@ index 1111111..2222222 100644
  		return( -1 );
  
  	convolution->out->Xoffset = -M->Xsize / 2;
-@@ -1093,8 +503,6 @@ vips_convi_class_init( VipsConviClass *class )
- 	GObjectClass *gobject_class = G_OBJECT_CLASS( class );
+@@ -1090,11 +1090,8 @@ vips_convi_build( VipsObject *object )
+ static void
+ vips_convi_class_init( VipsConviClass *class )
+ {
+-	GObjectClass *gobject_class = G_OBJECT_CLASS( class );
  	VipsObjectClass *object_class = (VipsObjectClass *) class;
  
 -	gobject_class->dispose = vips_convi_dispose;
@@ -1399,7 +1402,7 @@ diff --git a/libvips/include/vips/Makefile.am b/libvips/include/vips/Makefile.am
 index 1111111..2222222 100644
 --- a/libvips/include/vips/Makefile.am
 +++ b/libvips/include/vips/Makefile.am
-@@ -44,7 +44,6 @@ pkginclude_HEADERS = \
+@@ -43,7 +43,6 @@ pkginclude_HEADERS = \
  	thread.h \
  	transform.h \
  	util.h \
@@ -1407,12 +1410,32 @@ index 1111111..2222222 100644
  	vips7compat.h \
  	vips.h
  
+diff --git a/libvips/include/vips/meson.build b/libvips/include/vips/meson.build
+index 1111111..2222222 100644
+--- a/libvips/include/vips/meson.build
++++ b/libvips/include/vips/meson.build
+@@ -13,7 +13,6 @@ public_other_headers = files(
+     'threadpool.h',
+     'transform.h',
+     'util.h',
+-    'vector.h',
+ )
+ 
+ public_deprecated_headers = files(
+@@ -88,7 +87,6 @@ vips_verbose_config += 'enable debug: @0@'.format(get_option('debug'))
+ vips_verbose_config += 'enable deprecated library components: @0@'.format(get_option('deprecated'))
+ vips_verbose_config += 'enable modules: @0@'.format(modules_enabled)
+ vips_verbose_config += 'use fftw3 for FFT: @0@'.format(fftw_dep.found())
+-vips_verbose_config += 'accelerate loops with orc: @0@'.format(orc_dep.found())
+ vips_verbose_config += 'ICC profile support with lcms: @0@'.format(lcms_dep.found())
+ vips_verbose_config += 'zlib: @0@'.format(zlib_dep.found())
+ vips_verbose_config += 'text rendering with pangocairo: @0@'.format(pangocairo_dep.found())
 diff --git a/libvips/include/vips/vector.h b/libvips/include/vips/vector.h
 deleted file mode 100644
 index 1111111..00000000
 --- a/libvips/include/vips/vector.h
 +++ /dev/null
-@@ -1,160 +0,0 @@
+@@ -1,183 +0,0 @@
 -/* helper stuff for Orc
 - *
 - * 29/10/10
@@ -1531,41 +1554,64 @@ index 1111111..00000000
 - */
 -extern gboolean vips__vector_enabled;
 -
+-VIPS_API
 -void vips_vector_init( void );
+-VIPS_API
 -gboolean vips_vector_isenabled( void );
+-VIPS_API
 -void vips_vector_set_enabled( gboolean enabled );
 -
+-VIPS_API
 -void vips_vector_free( VipsVector *vector );
+-VIPS_API
 -VipsVector *vips_vector_new( const char *name, int dsize );
 -
+-VIPS_API
 -void vips_vector_constant( VipsVector *vector, 
 -	char *name, int value, int size );
+-VIPS_API
 -void vips_vector_source_scanline( VipsVector *vector, 
 -	char *name, int line, int size );
+-VIPS_API
 -int vips_vector_source_name( VipsVector *vector, const char *name, int size );
+-VIPS_API
 -void vips_vector_temporary( VipsVector *vector, const char *name, int size );
+-VIPS_API
 -int vips_vector_parameter( VipsVector *vector, const char *name, int size );
+-VIPS_API
 -int vips_vector_destination( VipsVector *vector, const char *name, int size );
+-VIPS_API
 -void vips_vector_asm2( VipsVector *vector, 
 -	const char *op, const char *a, const char *b );
+-VIPS_API
 -void vips_vector_asm3( VipsVector *vector, 
 -	const char *op, const char *a, const char *b, const char *c );
+-VIPS_API
 -gboolean vips_vector_full( VipsVector *vector );
 -
+-VIPS_API
 -gboolean vips_vector_compile( VipsVector *vector );
 -
+-VIPS_API
 -void vips_vector_print( VipsVector *vector );
 -
+-VIPS_API
 -void vips_executor_set_program( VipsExecutor *executor, 
 -	VipsVector *vector, int n );
+-VIPS_API
 -void vips_executor_set_scanline( VipsExecutor *executor, 
 -	VipsRegion *ir, int x, int y );
+-VIPS_API
 -void vips_executor_set_destination( VipsExecutor *executor, void *value );
+-VIPS_API
 -void vips_executor_set_parameter( VipsExecutor *executor, int var, int value );
+-VIPS_API
 -void vips_executor_set_array( VipsExecutor *executor, int var, void *value );
 -
+-VIPS_API
 -void vips_executor_run( VipsExecutor *executor ); 
 -
+-VIPS_API
 -void vips_vector_to_fixed_point( double *in, int *out, int n, int scale );
 -
 -#ifdef __cplusplus
@@ -1589,7 +1635,7 @@ diff --git a/libvips/iofuncs/init.c b/libvips/iofuncs/init.c
 index 1111111..2222222 100644
 --- a/libvips/iofuncs/init.c
 +++ b/libvips/iofuncs/init.c
-@@ -107,7 +107,6 @@
+@@ -108,7 +108,6 @@
  #include <vips/vips.h>
  #include <vips/thread.h>
  #include <vips/internal.h>
@@ -1597,9 +1643,9 @@ index 1111111..2222222 100644
  
  #if ENABLE_DEPRECATED
  #include <vips/vips7compat.h>
-@@ -648,10 +647,6 @@ vips_init( const char *argv0 )
- 	}
- #endif
+@@ -639,10 +638,6 @@ vips_init( const char *argv0 )
+ #endif /*ENABLE_DEPRECATED*/
+ #endif /*ENABLE_MODULES*/
  
 -	/* Get the run-time compiler going.
 -	 */
@@ -1608,7 +1654,7 @@ index 1111111..2222222 100644
  #ifdef HAVE_GSF
  	/* Use this for structured file write.
  	 */
-@@ -918,9 +913,6 @@ static GOptionEntry option_entries[] = {
+@@ -904,9 +899,6 @@ static GOptionEntry option_entries[] = {
  	{ "vips-disc-threshold", 0, 0, 
  		G_OPTION_ARG_STRING, &vips__disc_threshold, 
  		N_( "images larger than N are decompressed to disc" ), "N" },
@@ -1618,6 +1664,18 @@ index 1111111..2222222 100644
  	{ "vips-cache-max", 0, 0, 
  		G_OPTION_ARG_CALLBACK, (gpointer) &vips_cache_max_cb,
  		N_( "cache at most N operations" ), "N" },
+diff --git a/libvips/iofuncs/meson.build b/libvips/iofuncs/meson.build
+index 1111111..2222222 100644
+--- a/libvips/iofuncs/meson.build
++++ b/libvips/iofuncs/meson.build
+@@ -33,7 +33,6 @@ iofuncs_sources = files(
+     'init.c',
+     'buf.c',
+     'window.c',
+-    'vector.c',
+     'system.c',
+     'buffer.c',
+ )
 diff --git a/libvips/iofuncs/vector.c b/libvips/iofuncs/vector.c
 deleted file mode 100644
 index 1111111..00000000
@@ -1681,7 +1739,7 @@ index 1111111..00000000
 -#include <config.h>
 -#endif /*HAVE_CONFIG_H*/
 -
--#include <vips/intl.h>
+-#include <glib/gi18n-lib.h>
 -
 -#include <stdlib.h>
 -
@@ -1695,7 +1753,7 @@ index 1111111..00000000
 - */
 -gboolean vips__vector_enabled = TRUE;
 -
--void
+-static void
 -vips_vector_error( VipsVector *vector )
 -{
 -#ifdef HAVE_ORC
@@ -2651,7 +2709,7 @@ diff --git a/libvips/resample/reduceh.cpp b/libvips/resample/reduceh.cpp
 index 1111111..2222222 100644
 --- a/libvips/resample/reduceh.cpp
 +++ b/libvips/resample/reduceh.cpp
-@@ -179,7 +179,7 @@ reduceh_unsigned_int_tab( VipsReduceh *reduceh,
+@@ -182,7 +182,7 @@ reduceh_unsigned_int_tab( VipsReduceh *reduceh,
  
  	for( int z = 0; z < bands; z++ ) {
  		int sum;
@@ -2660,7 +2718,7 @@ index 1111111..2222222 100644
  		sum = reduce_sum<T, int>( in + z, bands, cx, n );
  		sum = unsigned_fixed_round( sum ); 
  		sum = VIPS_CLIP( 0, sum, max_value ); 
-@@ -260,8 +260,7 @@ reduceh_signed_int32_tab( VipsReduceh *reduceh,
+@@ -263,8 +263,7 @@ reduceh_signed_int32_tab( VipsReduceh *reduceh,
  		double sum;
  
  		sum = reduce_sum<T, double>( in + z, bands, cx, n );
@@ -2670,7 +2728,7 @@ index 1111111..2222222 100644
  	}
  }
  
-@@ -289,10 +288,6 @@ reduceh_notab( VipsReduceh *reduceh,
+@@ -292,10 +291,6 @@ reduceh_notab( VipsReduceh *reduceh,
  	}
  }
  
@@ -2681,30 +2739,11 @@ index 1111111..2222222 100644
  static int
  vips_reduceh_gen( VipsRegion *out_region, void *seq, 
  	void *a, void *b, gboolean *stop )
-@@ -438,7 +433,8 @@ vips_reduceh_build( VipsObject *object )
- 		vips_object_local_array( object, 2 );
- 
- 	VipsImage *in;
--	double width, extra_pixels;
-+	int width;
-+	double extra_pixels;
- 
- 	if( VIPS_OBJECT_CLASS( vips_reduceh_parent_class )->build( object ) )
- 		return( -1 );
-@@ -447,7 +443,7 @@ vips_reduceh_build( VipsObject *object )
- 
- 	if( reduceh->hshrink < 1 ) { 
- 		vips_error( object_class->nickname, 
--			"%s", _( "reduce factors should be >= 1" ) );
-+			"%s", _( "reduce factor should be >= 1" ) );
- 		return( -1 );
- 	}
- 
 diff --git a/libvips/resample/reducev.cpp b/libvips/resample/reducev.cpp
 index 1111111..2222222 100644
 --- a/libvips/resample/reducev.cpp
 +++ b/libvips/resample/reducev.cpp
-@@ -51,8 +51,6 @@
+@@ -53,8 +53,6 @@
   */
  
  /*
@@ -2713,7 +2752,7 @@ index 1111111..2222222 100644
  #define DEBUG
   */
  
-@@ -68,41 +66,14 @@
+@@ -70,37 +68,10 @@
  #include <vips/vips.h>
  #include <vips/debug.h>
  #include <vips/internal.h>
@@ -2751,12 +2790,7 @@ index 1111111..2222222 100644
  typedef struct _VipsReducev {
  	VipsResample parent_instance;
  
--	double vshrink;		/* Shrink factor */
-+	double vshrink;		/* Reduce factor */
- 
- 	/* The thing we use to make the kernel.
- 	 */
-@@ -123,15 +94,6 @@ typedef struct _VipsReducev {
+@@ -126,15 +97,6 @@ typedef struct _VipsReducev {
  	int *matrixi[VIPS_TRANSFORM_SCALE + 1];
  	double *matrixf[VIPS_TRANSFORM_SCALE + 1];
  
@@ -2772,7 +2806,7 @@ index 1111111..2222222 100644
  	/* Deprecated.
  	 */
  	gboolean centre;
-@@ -146,249 +108,6 @@ extern "C" {
+@@ -149,249 +111,6 @@ extern "C" {
  G_DEFINE_TYPE( VipsReducev, vips_reducev, VIPS_TYPE_RESAMPLE );
  }
  
@@ -3022,7 +3056,7 @@ index 1111111..2222222 100644
  /* You'd think this would vectorise, but gcc hates mixed types in nested loops
   * :-(
   */
-@@ -520,13 +239,12 @@ reducev_notab( VipsReducev *reducev,
+@@ -523,13 +242,12 @@ reducev_notab( VipsReducev *reducev,
  }
  
  static int
@@ -3038,7 +3072,7 @@ index 1111111..2222222 100644
  	VipsRect *r = &out_region->valid;
  
  	/* Double bands for complex.
-@@ -636,182 +354,18 @@ vips_reducev_gen( VipsRegion *out_region, void *vseq,
+@@ -639,175 +357,14 @@ vips_reducev_gen( VipsRegion *out_region, void *vseq,
  	return( 0 );
  }
  
@@ -3140,10 +3174,10 @@ index 1111111..2222222 100644
 -}
 -
 -static int
--vips_reducev_raw( VipsReducev *reducev, VipsImage *in, VipsImage **out ) 
+-vips_reducev_raw( VipsReducev *reducev, VipsImage *in, int height, 
+-		VipsImage **out ) 
 -{
 -	VipsObjectClass *object_class = VIPS_OBJECT_GET_CLASS( reducev );
--	VipsResample *resample = VIPS_RESAMPLE( reducev );
 -
 -	VipsGenerateFn generate;
 -
@@ -3177,15 +3211,11 @@ index 1111111..2222222 100644
 -		VIPS_DEMAND_STYLE_THINSTRIP, in, (void *) NULL ) )
 -		return( -1 );
 -
--	/* Size output. We need to always round to nearest, so round(), not
--	 * rint().
--	 *
--	 * Don't change xres/yres, leave that to the application layer. For
+-	/* Don't change xres/yres, leave that to the application layer. For
 -	 * example, vipsthumbnail knows the true reduce factor (including the
 -	 * fractional part), we just see the integer part here.
 -	 */
--	(*out)->Ysize = VIPS_ROUND_UINT( 
--		resample->in->Ysize / reducev->vshrink );
+-	(*out)->Ysize = height;
 -	if( (*out)->Ysize <= 0 ) { 
 -		vips_error( object_class->nickname, 
 -			"%s", _( "image has shrunk to nothing" ) );
@@ -3214,18 +3244,13 @@ index 1111111..2222222 100644
  	VipsObjectClass *object_class = VIPS_OBJECT_GET_CLASS( object );
  	VipsResample *resample = VIPS_RESAMPLE( object );
  	VipsReducev *reducev = (VipsReducev *) object;
--	VipsImage **t = (VipsImage **) vips_object_local_array( object, 4 );
+-	VipsImage **t = (VipsImage **) vips_object_local_array( object, 5 );
 +	VipsImage **t = (VipsImage **) 
-+		vips_object_local_array( object, 4 );
++		vips_object_local_array( object, 5 );
  
  	VipsImage *in;
--	double height, extra_pixels;
-+	int height;
-+	double extra_pixels;
- 
- 	if( VIPS_OBJECT_CLASS( vips_reducev_parent_class )->build( object ) )
- 		return( -1 );
-@@ -859,9 +413,9 @@ vips_reducev_build( VipsObject *object )
+ 	int height;
+@@ -885,9 +442,9 @@ vips_reducev_build( VipsObject *object )
  	 */
  	for( int y = 0; y < VIPS_TRANSFORM_SCALE + 1; y++ ) {
  		reducev->matrixf[y] = 
@@ -3237,13 +3262,13 @@ index 1111111..2222222 100644
  		if( !reducev->matrixf[y] ||
  			!reducev->matrixi[y] )
  			return( -1 ); 
-@@ -898,10 +452,40 @@ vips_reducev_build( VipsObject *object )
+@@ -924,10 +481,40 @@ vips_reducev_build( VipsObject *object )
  		return( -1 );
- 	in = t[1];
+ 	in = t[2];
  
--	if( vips_reducev_raw( reducev, in, &t[2] ) )
-+	t[2] = vips_image_new();
-+	if( vips_image_pipelinev( t[2], 
+-	if( vips_reducev_raw( reducev, in, height, &t[3] ) )
++	t[3] = vips_image_new();
++	if( vips_image_pipelinev( t[3], 
 +		VIPS_DEMAND_STYLE_THINSTRIP, in, (void *) NULL ) )
  		return( -1 );
 +
@@ -3254,8 +3279,8 @@ index 1111111..2222222 100644
 +	 * example, vipsthumbnail knows the true reduce factor (including the
 +	 * fractional part), we just see the integer part here.
 +	 */
-+	t[2]->Ysize = height;
-+	if( t[2]->Ysize <= 0 ) { 
++	t[3]->Ysize = height;
++	if( t[3]->Ysize <= 0 ) { 
 +		vips_error( object_class->nickname, 
 +			"%s", _( "image has shrunk to nothing" ) );
 +		return( -1 );
@@ -3264,22 +3289,22 @@ index 1111111..2222222 100644
 +#ifdef DEBUG
 +	printf( "vips_reducev_build: reducing %d x %d image to %d x %d\n", 
 +		in->Xsize, in->Ysize, 
-+		t[2]->Xsize, t[2]->Ysize );
++		t[3]->Xsize, t[3]->Ysize );
 +#endif /*DEBUG*/
 +
-+	if( vips_image_generate( t[2],
++	if( vips_image_generate( t[3],
 +		vips_start_one, vips_reducev_gen, vips_stop_one, 
 +		in, reducev ) )
 +		return( -1 );
 +
- 	in = t[2];
+ 	in = t[3];
  
 +	vips_reorder_margin_hint( in, reducev->n_point );
 +
  	/* Large reducev will throw off sequential mode. Suppose thread1 is
  	 * generating tile (0, 0), but stalls. thread2 generates tile
  	 * (0, 1), 128 lines further down the output. After it has done,
-@@ -912,7 +496,7 @@ vips_reducev_build( VipsObject *object )
+@@ -938,7 +525,7 @@ vips_reducev_build( VipsObject *object )
  	 * always have the previous XX lines of the shrunk image, and we won't
  	 * fetch out of order. 
  	 */
@@ -3287,8 +3312,8 @@ index 1111111..2222222 100644
 +	if( vips_image_is_sequential( in ) ) { 
  		g_info( "reducev sequential line cache" ); 
  
- 		if( vips_sequential( in, &t[3], 
-@@ -939,7 +523,6 @@ vips_reducev_class_init( VipsReducevClass *reducev_class )
+ 		if( vips_sequential( in, &t[4], 
+@@ -965,7 +552,6 @@ vips_reducev_class_init( VipsReducevClass *reducev_class )
  
  	VIPS_DEBUG_MSG( "vips_reducev_class_init\n" );
  
@@ -3296,6 +3321,48 @@ index 1111111..2222222 100644
  	gobject_class->set_property = vips_object_set_property;
  	gobject_class->get_property = vips_object_get_property;
  
+diff --git a/meson.build b/meson.build
+index 1111111..2222222 100644
+--- a/meson.build
++++ b/meson.build
+@@ -400,21 +400,6 @@ if libopenjp2_dep.found()
+     cfg_var.set('HAVE_LIBOPENJP2', '1')
+ endif
+ 
+-# we use loadpw etc.
+-orc_dep = dependency('orc-0.4', version: '>=0.4.11', required: get_option('orc'))
+-if orc_dep.found()
+-    libvips_deps += orc_dep
+-    cfg_var.set('HAVE_ORC', '1')
+-    # orc 0.4.30+ works with cf-protection, but 0.4.30 has a bug with multiple
+-    # definitions of OrcTargetPowerPCFlags, so insist on 0.4.31
+-    if orc_dep.version().version_compare('>=0.4.31')
+-        cfg_var.set('HAVE_ORC_CF_PROTECTION', '1')
+-    endif
+-    if cc.has_function('orc_program_get_error', prefix: '#include <orc/orc.h>', dependencies: orc_dep)
+-        cfg_var.set('HAVE_ORC_PROGRAM_GET_ERROR', '1')
+-    endif
+-endif
+-
+ # pick 4200 as the starting version number ... no reason, really, it'd
+ # probably work with much older versions
+ pdfium_dep = dependency('pdfium', version: '>=4200', required: get_option('pdfium'))
+diff --git a/meson_options.txt b/meson_options.txt
+index 1111111..2222222 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -153,11 +153,6 @@ option('openslide-module',
+   value: 'auto',
+   description: 'Build OpenSlide as module')
+ 
+-option('orc',
+-  type: 'feature',
+-  value: 'auto',
+-  description: 'Build with orc-0.4')
+-
+ option('pangocairo',
+   type: 'feature',
+   value: 'auto',
 diff --git a/po/POTFILES.in b/po/POTFILES.in
 index 1111111..2222222 100644
 --- a/po/POTFILES.in
@@ -3305,10 +3372,10 @@ index 1111111..2222222 100644
  libvips/include/vips/type.h
  libvips/include/vips/util.h
 -libvips/include/vips/vector.h
- libvips/include/vips/version.h
  libvips/include/vips/video.h
  libvips/include/vips/vips7compat.h
-@@ -346,7 +345,6 @@ libvips/iofuncs/targetcustom.c
+ libvips/include/vips/vips.h
+@@ -345,7 +344,6 @@ libvips/iofuncs/targetcustom.c
  libvips/iofuncs/threadpool.c
  libvips/iofuncs/type.c
  libvips/iofuncs/util.c

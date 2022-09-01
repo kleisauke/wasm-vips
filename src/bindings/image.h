@@ -308,22 +308,18 @@ class Image : public Object {
         bool th_image = vips::is_image(th);
         bool el_image = vips::is_image(el);
 
-        if (th_image) {
+        if (th_image)
             _then = th.as<Image>();
-        }
-        if (el_image) {
+        if (el_image)
             _else = el.as<Image>();
-        }
 
         // we need `then` and `else` to match each other first,
         // and only if they are both constants do we match
         // to `image`.
-        if (!th_image) {
+        if (!th_image)
             _then = (el_image ? _else : *this).imageize(th);
-        }
-        if (!el_image) {
+        if (!el_image)
             _else = (th_image ? _then : *this).imageize(el);
-        }
 
         Image out;
 

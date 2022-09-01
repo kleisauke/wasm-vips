@@ -2043,6 +2043,15 @@ emscripten::val Image::dzsave_buffer(emscripten::val js_options) const
     return result;
 }
 
+void Image::dzsave_target(const Target &target, emscripten::val js_options) const
+{
+    this->call("dzsave_target",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("target", target),
+               js_options);
+}
+
 Image Image::embed(int x, int y, int width, int height, emscripten::val js_options) const
 {
     Image out;
@@ -3563,7 +3572,7 @@ Image Image::sharpen(emscripten::val js_options) const
     return out;
 }
 
-Image Image::shrink(double hshrink, double vshrink) const
+Image Image::shrink(double hshrink, double vshrink, emscripten::val js_options) const
 {
     Image out;
 
@@ -3572,12 +3581,13 @@ Image Image::shrink(double hshrink, double vshrink) const
                    ->set("in", *this)
                    ->set("out", &out)
                    ->set("hshrink", hshrink)
-                   ->set("vshrink", vshrink));
+                   ->set("vshrink", vshrink),
+               js_options);
 
     return out;
 }
 
-Image Image::shrinkh(int hshrink) const
+Image Image::shrinkh(int hshrink, emscripten::val js_options) const
 {
     Image out;
 
@@ -3585,12 +3595,13 @@ Image Image::shrinkh(int hshrink) const
                (new Option)
                    ->set("in", *this)
                    ->set("out", &out)
-                   ->set("hshrink", hshrink));
+                   ->set("hshrink", hshrink),
+               js_options);
 
     return out;
 }
 
-Image Image::shrinkv(int vshrink) const
+Image Image::shrinkv(int vshrink, emscripten::val js_options) const
 {
     Image out;
 
@@ -3598,7 +3609,8 @@ Image Image::shrinkv(int vshrink) const
                (new Option)
                    ->set("in", *this)
                    ->set("out", &out)
-                   ->set("vshrink", vshrink));
+                   ->set("vshrink", vshrink),
+               js_options);
 
     return out;
 }
@@ -3761,6 +3773,15 @@ emscripten::val Image::tiffsave_buffer(emscripten::val js_options) const
     vips_area_unref(VIPS_AREA(buffer));
 
     return result;
+}
+
+void Image::tiffsave_target(const Target &target, emscripten::val js_options) const
+{
+    this->call("tiffsave_target",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("target", target),
+               js_options);
 }
 
 Image Image::tilecache(emscripten::val js_options) const

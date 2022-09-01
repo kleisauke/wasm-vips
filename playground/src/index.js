@@ -409,7 +409,11 @@ function xhr (url) {
 
 window.onload = function () {
   xhr('../lib/vips.d.ts').then(function (response) {
-    monaco.languages.typescript.javascriptDefaults.addExtraLib(response.responseText, 'ts:vips.d.ts');
+    monaco.languages.typescript.javascriptDefaults.addExtraLib(
+      response.responseText.replace(
+        'export = Vips',
+        'declare global { var vips: typeof Vips; }\nexport default global'),
+      'ts:vips.d.ts');
   });
 
   load();

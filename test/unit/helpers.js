@@ -1,6 +1,7 @@
 'use strict';
 
 export const jpegFile = getPath('sample.jpg');
+export const jxlFile = getPath('sample.jxl');
 export const truncatedFile = getPath('truncated.jpg');
 export const pngFile = getPath('sample.png');
 export const tifFile = getPath('sample.tif');
@@ -24,6 +25,7 @@ export const mosaicFiles = [
 ];
 export const testFiles = [
   jpegFile,
+  jxlFile,
   truncatedFile,
   pngFile,
   tifFile,
@@ -103,8 +105,7 @@ export const rotAngleBonds = ['d0'].concat(rotAngles.slice(1).reverse());
 export function getPath (filename) {
   return typeof window === 'undefined'
     // Node.js
-    // ? '/root/images/' + filename // WasmFS
-    ? path.join(path.dirname(url.fileURLToPath(import.meta.url)), 'images', filename) // eslint-disable-line no-undef
+    ? './images/' + filename
     // Browser
     : filename;
 }

@@ -1,4 +1,5 @@
-FROM emscripten/emsdk:3.1.8
+# https://github.com/emscripten-core/emsdk
+FROM docker.io/emscripten/emsdk:3.1.20
 
 # Enable detection of running in a container
 ENV RUNNING_IN_CONTAINER=true
@@ -10,9 +11,6 @@ RUN apt-get update \
     libtool \
     pkgconf \
     libglib2.0-dev \
-    # needed for building libvips from source
-    gtk-doc-tools \
-    gobject-introspection \
     # needed for Meson
     ninja-build \
     python3-pip \

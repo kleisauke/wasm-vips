@@ -442,7 +442,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
              }));
 
     // Helper for Node.js to shutdown libvips and the runtime of Emscripten
-    function("shutdown", &shutdown_js);
+    function("shutdown", optional_override([]() {
+                 shutdown_js();
+             }));
 
     // Cache class
     class_<Cache>("Cache")

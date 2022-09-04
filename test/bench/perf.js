@@ -15,6 +15,8 @@ const pngOut = getPath('output.png');
 const webpOut = getPath('output.webp');
 
 const vips = await Vips({
+  // Disable dynamic modules
+  dynamicLibraries: [],
   preRun: (module) => {
     // libvips stores temporary files by default in `/tmp`;
     // set the TMPDIR env variable to override this directory

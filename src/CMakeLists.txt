@@ -20,14 +20,9 @@ set(SOURCES
 
 add_library(${PROJECT_NAME} OBJECT ${HEADERS} ${SOURCES})
 
-set_target_properties(${PROJECT_NAME}
-        PROPERTIES
-            COMPILE_FLAGS "-DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0"
-            LINK_FLAGS "-lembind"
-        )
-
 target_compile_definitions(${PROJECT_NAME}
         PUBLIC
+            EMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0
             $<$<CONFIG:Release>:G_DISABLE_CAST_CHECK G_DISABLE_CHECKS G_DISABLE_ASSERT>
         )
 
@@ -37,6 +32,8 @@ target_include_directories(${PROJECT_NAME}
         )
 
 target_link_libraries(${PROJECT_NAME}
+        PUBLIC
+            embind
         PRIVATE
             ${VIPS_STATIC_LDFLAGS}
         )
@@ -96,6 +93,10 @@ if ("web" IN_LIST ENVIRONMENT)
     list(APPEND TARGETS ${PROJECT_NAME}-web ${PROJECT_NAME}-web-es6)
 endif()
 
+set(MAIN_COMPILE_OPTIONS
+        $<$<BOOL:${ENABLE_MODULES}>:-sMAIN_MODULE=2>
+        )
+
 # Handy for debugging
 # --threadprofiler \
 # -sSAFE_HEAP \
@@ -105,6 +106,7 @@ endif()
 # -sPTHREADS_DEBUG \
 # -sLIBRARY_DEBUG \
 # -sSYSCALL_DEBUG \
+# -sDYLINK_DEBUG \
 
 # note 1: `ALLOW_MEMORY_GROWTH` may run non-wasm code slowly. See: https://github.com/WebAssembly/design/issues/1271.
 # note 2: Browsers appear to limit the maximum initial memory size to 1GB, set `INITIAL_MEMORY` accordingly.
@@ -116,55 +118,86 @@ endif()
 # note 5: Build with `-sPTHREAD_POOL_SIZE="_emscripten_num_logical_cores() + 3"` since `vips_sink_disc` could run 3
 #         additional background threads in the pool.
 # note 6: Build with `-sALLOW_TABLE_GROWTH` so that we can store the read, seek, write and finish signals.
+set(MAIN_LINK_OPTIONS
+        --closure=1
+        --closure-args='--externs=${CMAKE_CURRENT_SOURCE_DIR}/closure-externs/wasm-vips.js'
+        -lembind
+        $<$<BOOL:${ENABLE_MODULES}>:-sMAIN_MODULE=2>
+        -sAUTOLOAD_DYLIBS=0
+        -sMODULARIZE
+        -sEXPORT_NAME='Vips'
+        -sEXIT_RUNTIME
+        -sPTHREAD_POOL_SIZE='_emscripten_num_logical_cores\(\)+3'
+        -sINITIAL_MEMORY=1GB
+        -sALLOW_TABLE_GROWTH
+        -sALLOW_BLOCKING_ON_MAIN_THREAD
+        -sTEXTDECODER=2
+        -sASSERTIONS=0
+        -sLEGACY_RUNTIME=0
+        -sFORCE_FILESYSTEM
+        -sEXPORTED_RUNTIME_METHODS=FS,ENV,deletionQueue,addFunction,bigintToI53Checked
+        )
+
 set_target_properties(${TARGETS}
         PROPERTIES
             OUTPUT_NAME "vips"
-            LINK_FLAGS "\
---closure=1 \
---closure-args=\"--externs ${CMAKE_CURRENT_SOURCE_DIR}/closure-externs/wasm-vips.js\" \
--lembind \
--sMODULARIZE \
--sEXPORT_NAME='Vips' \
--sEXIT_RUNTIME \
--sPTHREAD_POOL_SIZE=\"_emscripten_num_logical_cores() + 3\" \
--sINITIAL_MEMORY=1GB \
--sALLOW_TABLE_GROWTH \
--sALLOW_BLOCKING_ON_MAIN_THREAD \
--sTEXTDECODER=2 \
--sASSERTIONS=0 \
--sLEGACY_RUNTIME=0 \
--sFORCE_FILESYSTEM \
--sEXPORTED_RUNTIME_METHODS=FS,ENV,deletionQueue,addFunction,bigintToI53Checked"
+            COMPILE_OPTIONS "${MAIN_COMPILE_OPTIONS}"
+            LINK_OPTIONS "${MAIN_LINK_OPTIONS}"
         )
 
 if ("node" IN_LIST ENVIRONMENT)
-    set(NODE_LINK_FLAGS "-sENVIRONMENT=node,worker -sNODERAWFS -sNODEJS_CATCH_EXIT=0 -sNODEJS_CATCH_REJECTION=0")
-    set_property(
-            TARGET ${PROJECT_NAME}-node-es6
-            APPEND_STRING PROPERTY
-            LINK_FLAGS " ${NODE_LINK_FLAGS} -sEXPORT_ES6"
-    )
-    set_property(
-            TARGET ${PROJECT_NAME}-node-commonjs
-            APPEND_STRING PROPERTY
-            LINK_FLAGS " ${NODE_LINK_FLAGS}"
+    set(NODE_MODULES_PRE
+            --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-node-pre.js
+            )
+    set(NODE_LINK_OPTIONS
+            -sENVIRONMENT=node,worker
+            -sNODERAWFS
+            -sNODEJS_CATCH_EXIT=0
+            -sNODEJS_CATCH_REJECTION=0
+            )
+
+    target_link_options(${PROJECT_NAME}-node-es6
+            PUBLIC
+                $<$<BOOL:${ENABLE_MODULES}>:${NODE_MODULES_PRE}>
+                ${NODE_LINK_OPTIONS}
+                -sEXPORT_ES6
+            )
+    target_link_options(${PROJECT_NAME}-node-commonjs
+            PUBLIC
+                $<$<BOOL:${ENABLE_MODULES}>:${NODE_MODULES_PRE}>
+                ${NODE_LINK_OPTIONS}
             )
 endif()
 
 if ("web" IN_LIST ENVIRONMENT)
-    set(WEB_CORS_WORKAROUND "--pre-js=${CMAKE_CURRENT_SOURCE_DIR}/locatefile-cors-pre.js")
-    set(WEB_MIN_TARGETS "-sMIN_FIREFOX_VERSION=89 -sMIN_EDGE_VERSION=91 -sMIN_CHROME_VERSION=91")
-    set(WEB_LINK_FLAGS "-sENVIRONMENT=web,worker -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$Browser ${WEB_MIN_TARGETS}")
-
-    set_property(
-            TARGET ${PROJECT_NAME}-web
-            APPEND_STRING PROPERTY
-            LINK_FLAGS " ${WEB_CORS_WORKAROUND} ${WEB_LINK_FLAGS}"
+    set(WEB_CORS_WORKAROUND
+            --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/locatefile-cors-pre.js
             )
-    set_property(
-            TARGET ${PROJECT_NAME}-web-es6
-            APPEND_STRING PROPERTY
-            # Note: we don't apply the CORS workaround since module scripts don't support `importScripts()`.
-            LINK_FLAGS " ${WEB_LINK_FLAGS} -sEXPORT_ES6"
-    )
+    set(WEB_MODULES_PRE
+            --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-web-pre.js
+            )
+    set(WEB_MIN_TARGETS 
+            -sMIN_FIREFOX_VERSION=89
+            -sMIN_EDGE_VERSION=91
+            -sMIN_CHROME_VERSION=91
+            )
+    set(WEB_LINK_OPTIONS
+            --use-preload-plugins
+            -sENVIRONMENT=web,worker
+            ${WEB_MIN_TARGETS}
+            )
+
+    target_link_options(${PROJECT_NAME}-web
+            PUBLIC
+                ${WEB_CORS_WORKAROUND}
+                $<$<BOOL:${ENABLE_MODULES}>:${WEB_MODULES_PRE}>
+                ${WEB_LINK_OPTIONS}
+            )
+    target_link_options(${PROJECT_NAME}-web-es6
+            PUBLIC
+                # Note: we don't apply the CORS workaround since module scripts don't support `importScripts()`.
+                $<$<BOOL:${ENABLE_MODULES}>:${WEB_MODULES_PRE}>
+                ${WEB_LINK_OPTIONS}
+                -sEXPORT_ES6
+            )
 endif()

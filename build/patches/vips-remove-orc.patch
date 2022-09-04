@@ -74,7 +74,7 @@ index 1111111..2222222 100644
  # lcms ... refuse to use lcms1
  AC_ARG_WITH([lcms], 
    AS_HELP_STRING([--without-lcms], [build without lcms (default: test)]))
-@@ -1548,7 +1509,6 @@ enable debug: $enable_debug, \
+@@ -1555,7 +1516,6 @@ enable debug: $enable_debug, \
  enable deprecated library components: $enable_deprecated, \
  enable modules: $gmodule_supported_flag, \
  use fftw3 for FFT: $with_fftw, \
@@ -82,7 +82,7 @@ index 1111111..2222222 100644
  ICC profile support with lcms: $with_lcms, \
  zlib: $with_zlib, \
  text rendering with pangocairo: $with_pangocairo, \
-@@ -1656,8 +1616,6 @@ GIF load:                               $with_nsgif
+@@ -1663,8 +1623,6 @@ GIF load:                               $with_nsgif
  
  ## Optional dependencies
  use fftw3 for FFT:                      $with_fftw
@@ -1422,14 +1422,6 @@ index 1111111..2222222 100644
  )
  
  public_deprecated_headers = files(
-@@ -88,7 +87,6 @@ vips_verbose_config += 'enable debug: @0@'.format(get_option('debug'))
- vips_verbose_config += 'enable deprecated library components: @0@'.format(get_option('deprecated'))
- vips_verbose_config += 'enable modules: @0@'.format(modules_enabled)
- vips_verbose_config += 'use fftw3 for FFT: @0@'.format(fftw_dep.found())
--vips_verbose_config += 'accelerate loops with orc: @0@'.format(orc_dep.found())
- vips_verbose_config += 'ICC profile support with lcms: @0@'.format(lcms_dep.found())
- vips_verbose_config += 'zlib: @0@'.format(zlib_dep.found())
- vips_verbose_config += 'text rendering with pangocairo: @0@'.format(pangocairo_dep.found())
 diff --git a/libvips/include/vips/vector.h b/libvips/include/vips/vector.h
 deleted file mode 100644
 index 1111111..00000000
@@ -3325,7 +3317,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -400,21 +400,6 @@ if libopenjp2_dep.found()
+@@ -413,21 +413,6 @@ if libopenjp2_dep.found()
      cfg_var.set('HAVE_LIBOPENJP2', '1')
  endif
  
@@ -3347,6 +3339,14 @@ index 1111111..2222222 100644
  # pick 4200 as the starting version number ... no reason, really, it'd
  # probably work with much older versions
  pdfium_dep = dependency('pdfium', version: '>=4200', required: get_option('pdfium'))
+@@ -643,7 +628,6 @@ build_summary = {
+     },
+   'Optional external packages':
+     {'use fftw for FFTs': [fftw_dep.found()],
+-     'accelerate loops with ORC': [orc_dep.found()],
+      'ICC profile support with lcms': [lcms_dep.found()],
+      'zlib': [zlib_dep.found()],
+      'text rendering with pangocairo': [pangocairo_dep.found()],
 diff --git a/meson_options.txt b/meson_options.txt
 index 1111111..2222222 100644
 --- a/meson_options.txt

@@ -6,6 +6,8 @@ interface EmscriptenModule {
     print(str: string): void;
     printErr(str: string): void;
 
+    dynamicLibraries: string[];
+
     preInit: ModuleCallback | ModuleCallback[];
     preRun: ModuleCallback | ModuleCallback[];
     postRun: ModuleCallback | ModuleCallback[];
@@ -365,7 +367,7 @@ declare module Vips {
         /**
          * Make a new target to write to a file.
          *
-         * Make a new target that will write to the named file. For example::
+         * Make a new target that will write to the named file. For example:
          * ```js
          * const target = vips.Target.newToFile('myfile.jpg');
          * ```
@@ -3404,6 +3406,10 @@ declare module Vips {
              */
             autorotate?: boolean
             /**
+             * Remove all denial of service limits.
+             */
+            unlimited?: boolean
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -3437,6 +3443,10 @@ declare module Vips {
              */
             autorotate?: boolean
             /**
+             * Remove all denial of service limits.
+             */
+            unlimited?: boolean
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -3469,6 +3479,10 @@ declare module Vips {
              * Rotate image using exif orientation.
              */
             autorotate?: boolean
+            /**
+             * Remove all denial of service limits.
+             */
+            unlimited?: boolean
             /**
              * Force open via memory.
              */

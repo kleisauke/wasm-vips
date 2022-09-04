@@ -14,6 +14,7 @@ describe('foreign', () => {
 
   const fileLoaders = {
     jpegload: file => vips.Image.jpegload(file),
+    jxlload: file => vips.Image.jxlload(file),
     pngload: file => vips.Image.pngload(file),
     webpload: file => vips.Image.webpload(file),
     tiffload: file => vips.Image.tiffload(file),
@@ -23,6 +24,7 @@ describe('foreign', () => {
 
   const bufferLoaders = {
     jpegload_buffer: buffer => vips.Image.jpegloadBuffer(buffer),
+    jxlload_buffer: buffer => vips.Image.jxlloadBuffer(buffer),
     pngload_buffer: buffer => vips.Image.pngloadBuffer(buffer),
     webpload_buffer: buffer => vips.Image.webploadBuffer(buffer),
     tiffload_buffer: buffer => vips.Image.tiffloadBuffer(buffer),
@@ -31,6 +33,7 @@ describe('foreign', () => {
 
   const bufferSavers = {
     jpegsave_buffer: (im, opts) => im.jpegsaveBuffer(opts),
+    jxlsave_buffer: (im, opts) => im.jxlsaveBuffer(opts),
     pngsave_buffer: (im, opts) => im.pngsaveBuffer(opts),
     tiffsave_buffer: (im, opts) => im.tiffsaveBuffer(opts),
     webpsave_buffer: (im, opts) => im.webpsaveBuffer(opts),
@@ -853,6 +856,74 @@ describe('foreign', () => {
 
     saveLoad('%s.hdr', colour);
     saveBufferTempfile('radsave_buffer', '.hdr', rad, 0);
+  });
+
+  it('jxlload', function () {
+    // Needs JPEG XL support
+    if (!Helpers.have('jxlload')) {
+      return this.skip();
+    }
+
+    const jxlValid = (im) => {
+      const a = im.getpoint(10, 10);
+      // the delta might need to be adjusted up as new
+      // libjxl versions are released
+      Helpers.assertAlmostEqualObjects(a, [157, 129, 90], 0);
+      expect(im.width).to.equal(290);
+      expect(im.height).to.equal(442);
+      expect(im.bands).to.equal(4);
+    };
+
+    fileLoader('jxlload', Helpers.jxlFile, jxlValid);
+    bufferLoader('jxlload_buffer', Helpers.jxlFile, jxlValid);
+  });
+
+  it('jxlsave', function () {
+    // Needs JPEG XL support
+    if (!Helpers.have('jxlsave')) {
+      return this.skip();
+    }
+
+    // save and load with an icc profile
+    saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',
+      colour, 120);
+
+    // with no icc profile
+    const noProfile = colour.copy();
+    noProfile.remove('icc-profile-data');
+    saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',
+      noProfile, 120);
+
+    // scrgb mode
+    const scrgb = colour.colourspace('scrgb');
+    saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',
+      scrgb, 120);
+
+    // scrgb mode, no profile
+    const scrgbNoProfile = scrgb.copy();
+    scrgbNoProfile.remove('icc-profile-data');
+    saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',
+      scrgbNoProfile, 120);
+
+    // 16-bit mode
+    const rgb16 = colour.colourspace('rgb16');
+    saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',
+      rgb16, 30000);
+
+    // repeat for lossless mode
+    saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',
+      colour, 0, { lossless: true });
+    saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',
+      noProfile, 0, { lossless: true });
+    saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',
+      scrgb, 0, { lossless: true });
+    saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',
+      scrgbNoProfile, 0, { lossless: true });
+
+    // lossy should be much smaller than lossless
+    const lossy = colour.jxlsaveBuffer();
+    const lossless = colour.jxlsaveBuffer({ lossless: true });
+    expect(lossy.byteLength).to.be.below(lossless.byteLength / 5);
   });
 
   it('fail_on', function () {

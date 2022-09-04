@@ -42,6 +42,13 @@ WASM_EH=false
 # https://github.com/emscripten-core/emscripten/issues/10603
 LTO=false
 
+# Position Independent Code (PIC), forcefully enabled as required by MAIN_MODULE
+# TODO(kleisauke): Remove this once https://github.com/emscripten-core/emscripten/issues/12682 is fixed
+PIC=true
+
+# Dynamic loadable modules, enabled by default
+MODULES=true
+
 # Parse arguments
 while [ $# -gt 0 ]; do
   case $1 in
@@ -50,21 +57,31 @@ while [ $# -gt 0 ]; do
     --enable-wasm-eh) WASM_EH=true ;;
     --disable-simd) SIMD=false ;;
     --disable-wasm-bigint) WASM_BIGINT=false ;;
+    --disable-modules)
+      PIC=false
+      MODULES=false
+      ;;
     -e|--environment) ENVIRONMENT="$2"; shift ;;
     *) echo "ERROR: Unknown parameter: $1" >&2; exit 1 ;;
   esac
   shift
 done
 
-# SIMD configure flags helpers
+# Configure flags helpers
 if [ "$SIMD" = "true" ]; then
   ENABLE_SIMD=true
 else
   DISABLE_SIMD=true
 fi
+if [ "$MODULES" = "true" ]; then
+  ENABLE_MODULES=true
+else
+  DISABLE_MODULES=true
+fi
 
-# LTO embuilder flag
+# Embuilder flags
 if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
+if [ "$PIC" = "true" ]; then PIC_FLAG=--pic; fi
 
 # Handy for debugging
 #export CFLAGS="-O0 -gsource-map -pthread"
@@ -78,7 +95,7 @@ if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
 #export LDFLAGS="-L$TARGET/lib -Os -gsource-map -fsanitize=address -sINITIAL_MEMORY=64MB"
 
 # Specify location where source maps are published (browser specific)
-#export CFLAGS+=" --source-map-base http://localhost:3000/lib"
+#export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"
 
 # Common compiler flags
 export CFLAGS="-O3 -fno-rtti -fno-exceptions -mnontrapping-fptoint -pthread"
@@ -90,6 +107,7 @@ fi
 if [ "$WASM_FS" = "true" ]; then export CFLAGS+=" -DWASMFS"; fi
 if [ "$WASM_EH" = "true" ]; then export CFLAGS+=" -sSUPPORT_LONGJMP=wasm"; fi
 if [ "$LTO" = "true" ]; then export CFLAGS+=" -flto"; fi
+if [ "$PIC" = "true" ]; then export CFLAGS+=" -fPIC"; fi
 export CXXFLAGS="$CFLAGS"
 export LDFLAGS="-L$TARGET/lib -O3"
 if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
@@ -116,13 +134,16 @@ VERSION_GLIB=2.73.3         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.4.8         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.13.1        # https://github.com/mm2/Little-CMS
+VERSION_HWY=1.0.1           # https://github.com/google/highway
+VERSION_BROTLI=f4153a       # https://github.com/google/brotli
 VERSION_JPEG=4.1.1          # https://github.com/mozilla/mozjpeg
+VERSION_JXL=0.7rc           # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.2          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.2.4          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.4.0          # https://gitlab.com/libtiff/libtiff
-VERSION_VIPS=8.13.0         # https://github.com/libvips/libvips
+VERSION_VIPS=8.13.1         # https://github.com/libvips/libvips
 
 # Remove patch version component
 without_patch() {
@@ -148,6 +169,7 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-implement-munmap.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-implement-fs-unlink.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-mmap-shared.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-get-dynamic-libraries-js-helper.patch
 
   # The system headers require to be reinstalled, as some of
   # them have been changed with the patches above
@@ -155,7 +177,7 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
 
   # Need to rebuild libembind, libc, and libwasmfs, since we
   # also modified it with the patches above
-  embuilder.py build libembind libc-mt{,-debug} libwasmfs-mt{,-debug} --force $LTO_FLAG
+  embuilder.py build libembind libc-mt{,-debug} libwasmfs-mt{,-debug} --force $LTO_FLAG $PIC_FLAG
 fi
 
 echo "============================================="
@@ -204,8 +226,10 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   cd $DEPS/glib
   patch -p1 <$SOURCE_DIR/build/patches/glib-without-tools.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-without-gregex.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-disable-nls.patch
   # TODO(kleisauke): Discuss these patches upstream
-  patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten-build.patch
+  patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten-impl.patch
   patch -p1 <$SOURCE_DIR/build/patches/glib-function-pointers.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     --force-fallback-for=gvdb -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
@@ -251,6 +275,33 @@ test -f "$TARGET/lib/pkgconfig/lcms2.pc" || (
 )
 
 echo "============================================="
+echo "Compiling hwy"
+echo "============================================="
+test -f "$TARGET/lib/pkgconfig/libhwy.pc" || (
+  mkdir $DEPS/hwy
+  curl -Ls https://github.com/google/highway/archive/refs/tags/$VERSION_HWY.tar.gz | tar xzC $DEPS/hwy --strip-components=1
+  cd $DEPS/hwy
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=FALSE \
+    -DBUILD_TESTING=FALSE -DHWY_ENABLE_CONTRIB=FALSE -DHWY_ENABLE_EXAMPLES=FALSE
+  make -C _build install
+)
+
+echo "============================================="
+echo "Compiling brotli"
+echo "============================================="
+test -f "$TARGET/lib/pkgconfig/libbrotlicommon.pc" || (
+  mkdir $DEPS/brotli
+  curl -Ls https://github.com/google/brotli/archive/$VERSION_BROTLI.tar.gz | tar xzC $DEPS/brotli --strip-components=1
+  cd $DEPS/brotli
+  # https://github.com/google/brotli/pull/655
+  patch -p1 <$SOURCE_DIR/build/patches/brotli-655.patch
+  # Exclude internal dictionary, see: https://github.com/emscripten-core/emscripten/issues/9960
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBROTLI_DISABLE_TESTS=TRUE \
+    -DCMAKE_C_FLAGS="$CFLAGS -DBROTLI_EXTERNAL_DICTIONARY_DATA"
+  make -C _build install
+)
+
+echo "============================================="
 echo "Compiling jpeg"
 echo "============================================="
 test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
@@ -263,6 +314,28 @@ test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
     -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE -DPNG_SUPPORTED=FALSE \
     -DCMAKE_C_FLAGS="$CFLAGS -DNO_GETENV -DNO_PUTENV"
   make -C _build install
+)
+
+echo "============================================="
+echo "Compiling jxl"
+echo "============================================="
+test -f "$TARGET/lib/pkgconfig/libjxl.pc" || (
+  mkdir $DEPS/jxl
+  curl -Ls https://github.com/libjxl/libjxl/archive/refs/tags/v$VERSION_JXL.tar.gz | tar xzC $DEPS/jxl --strip-components=1
+  cd $DEPS/jxl
+  # Avoid bundling libpng
+  sed -i 's/JPEGXL_EMSCRIPTEN/& AND JPEGXL_BUNDLE_LIBPNG/' third_party/CMakeLists.txt
+  # CMake < 3.19 workaround, see: https://github.com/libjxl/libjxl/issues/1425
+  sed -i 's/lcms2,INCLUDE_DIRECTORIES/lcms2,INTERFACE_INCLUDE_DIRECTORIES/' lib/jxl.cmake
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
+    -DBUILD_SHARED_LIBS=FALSE -DBUILD_TESTING=FALSE -DJPEGXL_ENABLE_TOOLS=FALSE -DJPEGXL_ENABLE_DOXYGEN=FALSE \
+    -DJPEGXL_ENABLE_MANPAGES=FALSE -DJPEGXL_ENABLE_EXAMPLES=FALSE -DJPEGXL_ENABLE_SJPEG=FALSE -DJPEGXL_ENABLE_SKCMS=FALSE \
+    -DJPEGXL_BUNDLE_LIBPNG=FALSE -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE -DJPEGXL_FORCE_SYSTEM_LCMS2=TRUE -DJPEGXL_FORCE_SYSTEM_HWY=TRUE
+  make -C _build install
+  # Ensure we don't link with lcms2 in the vips-jxl side module
+  sed -i '/^Requires.private:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl.pc
+  # Ensure the vips-jxl side module links against the private dependencies
+  sed -i 's/Requires.private/Requires/' $TARGET/lib/pkgconfig/libjxl.pc
 )
 
 echo "============================================="
@@ -346,14 +419,21 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   # Emscripten specific patches
   patch -p1 <$SOURCE_DIR/build/patches/vips-remove-orc.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
+  patch -p1 <$SOURCE_DIR/build/patches/vips-disable-nls.patch
+  patch -p1 <$SOURCE_DIR/build/patches/vips-libjxl-disable-concurrency.patch
+  [ -n "$ENABLE_MODULES" ] && patch -p1 <$SOURCE_DIR/build/patches/vips-dynamic-modules-emscripten.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
   # Disable building C++ bindings, man pages, gettext po files, tools, and (fuzz-)tests
   sed -i'.bak' "/subdir('cplusplus')/{N;N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled -Dcgif=enabled -Dexif=enabled \
-    -Dimagequant=enabled -Djpeg=enabled -Dlcms=enabled -Dspng=enabled -Dtiff=enabled -Dwebp=enabled \
-    -Dnsgif=true -Dppm=true -Danalyze=true -Dradiance=true
+    -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled ${ENABLE_MODULES:+-Dmodules=enabled} \
+    -Dcgif=enabled -Dexif=enabled -Dimagequant=enabled -Djpeg=enabled -Djpeg-xl{,-module}=enabled -Dlcms=enabled \
+    -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true -Dppm=true -Danalyze=true -Dradiance=true
   ninja -C _build install
+  # Emscripten requires linking to side modules to find the necessary symbols to export
+  module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
+  [ -d "$module_dir" ] && modules=$(find $module_dir/ -type f -printf " %p")
+  sed -i "/^Libs:/ s/$/${modules//\//\\/}/" $TARGET/lib/pkgconfig/vips.pc
 )
 
 echo "============================================="
@@ -363,7 +443,7 @@ echo "============================================="
   mkdir $DEPS/wasm-vips
   cd $DEPS/wasm-vips
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" \
-    -DENVIRONMENT=${ENVIRONMENT//,/;}
+    -DENVIRONMENT=${ENVIRONMENT//,/;} -DENABLE_MODULES=$MODULES
   make
 )
 
@@ -390,10 +470,15 @@ echo "============================================="
   sed -i 's/new Worker(\([^()]\+\))/new Worker(\1,{type:"module"})/g' $SOURCE_DIR/lib/vips-es6.js
   sed -i 's/new Worker(\(new URL([^)]\+)\)/new Worker(\1,{type:"module"}/g' $SOURCE_DIR/lib/vips-es6.js
 
+  # new URL('vips.wasm', import.meta.url).toString() -> new URL('vips.wasm', import.meta.url).href
+  sed -i 's/\(new URL([^)]\+)\+\).toString()/\1.href/g' $SOURCE_DIR/lib/vips-es6.js
+
   # The produced vips.wasm file should be the same across the different variants (sanity check)
+  # FIXME(kleisauke): -sMAIN_MODULE=2 appears to produce non-determinism binaries, perhaps this is similar to:
+  # https://github.com/emscripten-core/emscripten/issues/15706
   expected_sha256=$(sha256sum "$SOURCE_DIR/lib/vips.wasm" | awk '{ print $1 }')
   for file in vips-es6.wasm node-commonjs/vips.wasm node-es6/vips.wasm; do
-    echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check
+    echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check || true
     rm $SOURCE_DIR/lib/$file
   done
 
@@ -401,8 +486,12 @@ echo "============================================="
   for file in vips-es6.js node-commonjs/vips.js node-es6/vips.mjs; do
     case "$file" in
       vips-es6.js) expression='s/vips-es6.wasm/vips.wasm/g' ;;
-      *) expression='s/vips.wasm/..\/&/g' ;;
+      *) expression='s/vips[^.]*.wasm/..\/&/g' ;;
     esac
     sed -i "$expression" $SOURCE_DIR/lib/$file
   done
+
+  # Copy dynamic loadable modules
+  module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
+  [ -d "$module_dir" ] && cp $module_dir/* $SOURCE_DIR/lib/
 )

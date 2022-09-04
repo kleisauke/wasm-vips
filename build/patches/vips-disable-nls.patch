@@ -10,7 +10,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -547,20 +547,6 @@ gettext_domain = 'vips@0@.@1@'.format(version_major, version_minor)
+@@ -573,20 +573,6 @@ gettext_domain = 'vips@0@.@1@'.format(version_major, version_minor)
  cfg_var.set_quoted('GETTEXT_PACKAGE', gettext_domain)
  cfg_var.set_quoted('VIPS_PREFIX', prefix_dir)
  cfg_var.set_quoted('VIPS_LIBDIR', lib_dir)

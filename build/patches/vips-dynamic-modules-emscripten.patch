@@ -25,7 +25,7 @@ index 1111111..2222222 100644
 +    module_link_args = [module_c_args, '-sEXPORTED_FUNCTIONS=_g_module_check_init']
 +endif
 +
- if magick_dep.found() and not get_option('magick-module').disabled()
+ if magick_module
      shared_module('vips-magick',
          'module/magick.c',
          magick_module_sources,
@@ -35,7 +35,7 @@ index 1111111..2222222 100644
          name_prefix: '',
          name_suffix: module_suffix,
          dependencies: [libvips_dep, magick_dep],
-@@ -96,6 +110,8 @@ if libjxl_dep.found() and not get_option('jpeg-xl-module').disabled()
+@@ -96,6 +110,8 @@ if libjxl_module
      shared_module('vips-jxl',
          'module/jxl.c',
          jpeg_xl_module_sources,
@@ -44,7 +44,7 @@ index 1111111..2222222 100644
          name_prefix: '',
          name_suffix: module_suffix,
          dependencies: [libvips_dep, libjxl_dep, libjxl_threads_dep],
-@@ -108,6 +124,8 @@ if libheif_dep.found() and not get_option('heif-module').disabled()
+@@ -108,6 +124,8 @@ if libheif_module
      shared_module('vips-heif',
          'module/heif.c',
          heif_module_sources,
@@ -53,7 +53,7 @@ index 1111111..2222222 100644
          name_prefix: '',
          name_suffix: module_suffix,
          dependencies: [libvips_dep, libheif_dep],
-@@ -120,6 +138,8 @@ if libpoppler_dep.found() and not get_option('poppler-module').disabled()
+@@ -120,6 +138,8 @@ if libpoppler_module
      shared_module('vips-poppler',
          'module/poppler.c',
          poppler_module_sources,
@@ -62,7 +62,7 @@ index 1111111..2222222 100644
          name_prefix: '',
          name_suffix: module_suffix,
          dependencies: [libvips_dep, libpoppler_dep, cairo_dep],
-@@ -132,6 +152,8 @@ if openslide_dep.found() and not get_option('openslide-module').disabled()
+@@ -132,6 +152,8 @@ if openslide_module
      shared_module('vips-openslide',
          'module/openslide.c',
          openslide_module_sources,
@@ -83,7 +83,7 @@ diff --git a/libvips/meson.build b/libvips/meson.build
 index 1111111..2222222 100644
 --- a/libvips/meson.build
 +++ b/libvips/meson.build
-@@ -101,6 +101,7 @@ if magick_dep.found() and not get_option('magick-module').disabled()
+@@ -101,6 +101,7 @@ if magick_module
          name_prefix: '',
          name_suffix: module_suffix,
          dependencies: [libvips_dep, magick_dep],
@@ -91,7 +91,7 @@ index 1111111..2222222 100644
          install: true,
          install_dir: module_dir
      )
-@@ -115,6 +116,7 @@ if libjxl_dep.found() and not get_option('jpeg-xl-module').disabled()
+@@ -115,6 +116,7 @@ if libjxl_module
          name_prefix: '',
          name_suffix: module_suffix,
          dependencies: [libvips_dep, libjxl_dep, libjxl_threads_dep],
@@ -99,7 +99,7 @@ index 1111111..2222222 100644
          install: true,
          install_dir: module_dir
      )
-@@ -129,6 +131,7 @@ if libheif_dep.found() and not get_option('heif-module').disabled()
+@@ -129,6 +131,7 @@ if libheif_module
          name_prefix: '',
          name_suffix: module_suffix,
          dependencies: [libvips_dep, libheif_dep],
@@ -107,7 +107,7 @@ index 1111111..2222222 100644
          install: true,
          install_dir: module_dir
      )
-@@ -143,6 +146,7 @@ if libpoppler_dep.found() and not get_option('poppler-module').disabled()
+@@ -143,6 +146,7 @@ if libpoppler_module
          name_prefix: '',
          name_suffix: module_suffix,
          dependencies: [libvips_dep, libpoppler_dep, cairo_dep],
@@ -115,7 +115,7 @@ index 1111111..2222222 100644
          install: true,
          install_dir: module_dir
      )
-@@ -157,6 +161,7 @@ if openslide_dep.found() and not get_option('openslide-module').disabled()
+@@ -157,6 +161,7 @@ if openslide_module
          name_prefix: '',
          name_suffix: module_suffix,
          dependencies: [libvips_dep, openslide_dep],
@@ -148,7 +148,7 @@ index 1111111..2222222 100644
  )
  
  pkg.generate(
-@@ -100,7 +99,7 @@ if magick_dep.found() and not get_option('magick-module').disabled()
+@@ -100,7 +99,7 @@ if magick_module
          link_args: module_link_args,
          name_prefix: '',
          name_suffix: module_suffix,
@@ -157,7 +157,7 @@ index 1111111..2222222 100644
          gnu_symbol_visibility: 'hidden',
          install: true,
          install_dir: module_dir
-@@ -115,7 +114,7 @@ if libjxl_dep.found() and not get_option('jpeg-xl-module').disabled()
+@@ -115,7 +114,7 @@ if libjxl_module
          link_args: module_link_args,
          name_prefix: '',
          name_suffix: module_suffix,
@@ -166,7 +166,7 @@ index 1111111..2222222 100644
          gnu_symbol_visibility: 'hidden',
          install: true,
          install_dir: module_dir
-@@ -130,7 +129,7 @@ if libheif_dep.found() and not get_option('heif-module').disabled()
+@@ -130,7 +129,7 @@ if libheif_module
          link_args: module_link_args,
          name_prefix: '',
          name_suffix: module_suffix,
@@ -175,7 +175,7 @@ index 1111111..2222222 100644
          gnu_symbol_visibility: 'hidden',
          install: true,
          install_dir: module_dir
-@@ -145,7 +144,7 @@ if libpoppler_dep.found() and not get_option('poppler-module').disabled()
+@@ -145,7 +144,7 @@ if libpoppler_module
          link_args: module_link_args,
          name_prefix: '',
          name_suffix: module_suffix,
@@ -184,7 +184,7 @@ index 1111111..2222222 100644
          gnu_symbol_visibility: 'hidden',
          install: true,
          install_dir: module_dir
-@@ -160,7 +159,7 @@ if openslide_dep.found() and not get_option('openslide-module').disabled()
+@@ -160,7 +159,7 @@ if openslide_module
          link_args: module_link_args,
          name_prefix: '',
          name_suffix: module_suffix,

@@ -15,14 +15,14 @@ index 1111111..2222222 100644
  	jxl->runner = JxlThreadParallelRunnerCreate( NULL, 
 -		vips_concurrency_get() );
 +		0 );
- 	jxl->decoder = JxlDecoderCreate( NULL );
  
- 	if( JxlDecoderSubscribeEvents( jxl->decoder, 
+ 	if( VIPS_OBJECT_CLASS( vips_foreign_load_jxl_parent_class )->
+ 		build( object ) )
 diff --git a/libvips/foreign/jxlsave.c b/libvips/foreign/jxlsave.c
 index 1111111..2222222 100644
 --- a/libvips/foreign/jxlsave.c
 +++ b/libvips/foreign/jxlsave.c
-@@ -253,7 +253,7 @@ vips_foreign_save_jxl_build( VipsObject *object )
+@@ -257,7 +257,7 @@ vips_foreign_save_jxl_build( VipsObject *object )
  		jxl->lossless = TRUE;
  
  	jxl->runner = JxlThreadParallelRunnerCreate( NULL, 

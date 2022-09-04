@@ -76,11 +76,19 @@ declare module Vips {
     function blockUntrusted(state: boolean): void;
 
     /**
-     * Block a specific operation from running.
-     * For example, you can disable all foreign loaders with ('VipsForeignLoad', true)
-     * and then only reenable the png loader with ('VipsForeignLoadPng', false).
-     * @param name The name of the operation or class of operations.
-     * @param state Set to true to block the operation, set to false to reenable it.
+     * Block a specific operation in the libvips class hierarchy from running.
+     * For example:
+     * ```js
+     * vips.operationBlock('VipsForeignLoad', true);
+     * vips.operationBlock('VipsForeignLoadJpeg', false);
+     * ```
+     * Will block all load operations, except JPEG. Use:
+     * ```bash
+     * $ vips -l
+     * ```
+     * at the command-line to see the class hierarchy.
+     * @param name The name of the operation in the libvips class hierarchy.
+     * @param state Set to `true` to block the operation, set to `false` to re-enable it.
      */
      function operationBlock(name: string, state: boolean): void;
 

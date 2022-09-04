@@ -12,6 +12,10 @@ Uses libvips v8.13.1, compiled with Emscripten v3.1.20.
 - Support for JPEG XL images.
   [#21](https://github.com/kleisauke/wasm-vips/pull/21)
   [@atjn](https://github.com/atjn)
+- Add `vips.blockUntrusted()` and `vips.operationBlock()` for blocking
+  operations at runtime.
+  [#24](https://github.com/kleisauke/wasm-vips/pull/24)
+  [@atjn](https://github.com/atjn)
 
 ### Changed
 

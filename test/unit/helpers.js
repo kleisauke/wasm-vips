@@ -227,15 +227,3 @@ export function imageToString (im) {
 export function makeRepeated (arr, repeats) {
   return [].concat(...Array.from({ length: repeats }, () => arr));
 }
-
-// allows temporary disabling of cache, which can be enabled again
-// with  enableCache()
-export function disableCache () {
-  globalThis.cachePreviousMax = vips.Cache.max();
-  vips.Cache.max(0);
-}
-
-// enables the cache again after it has been disabled with disableCache()
-export function enableCache () {
-  vips.Cache.max(globalThis.cachePreviousMax);
-}

@@ -71,6 +71,38 @@ declare module Vips {
     function concurrency(concurrency?: number): void | number;
 
     /**
+     * Set the block state on all untrusted operations.
+     * For example:
+     * ```js
+     * vips.blockUntrusted(true);
+     * ```
+     * Will block all untrusted operations from running. Use:
+     * ```bash
+     * $ vips -l | grep untrusted
+     * ```
+     * at the command-line to see which operations are marked as untrusted.
+     * @param state Set to `true` to block the operations, set to `false` to re-enable them.
+     */
+    function blockUntrusted(state: boolean): void;
+
+    /**
+     * Set the block state on all operations in the libvips class hierarchy.
+     * For example:
+     * ```js
+     * vips.operationBlock('VipsForeignLoad', true);
+     * vips.operationBlock('VipsForeignLoadJpeg', false);
+     * ```
+     * Will block all load operations, except JPEG. Use:
+     * ```bash
+     * $ vips -l
+     * ```
+     * at the command-line to see the class hierarchy.
+     * @param name The name of the operation in the libvips class hierarchy.
+     * @param state Set to `true` to block the operation, set to `false` to re-enable it.
+     */
+    function operationBlock(name: string, state: boolean): void;
+
+    /**
      * Call this to shutdown libvips and the runtime of Emscripten.
      * This is only needed on Node.js, as the thread pool of
      * Emscripten prevents the event loop from exiting.

@@ -4,6 +4,7 @@ export const jpegFile = getPath('sample.jpg');
 export const jxlFile = getPath('sample.jxl');
 export const truncatedFile = getPath('truncated.jpg');
 export const pngFile = getPath('sample.png');
+export const vipsFile = getPath('sample.vips');
 export const tifFile = getPath('sample.tif');
 export const tif1File = getPath('1bit.tif');
 export const tif2File = getPath('2bit.tif');
@@ -28,6 +29,7 @@ export const testFiles = [
   jxlFile,
   truncatedFile,
   pngFile,
+  vipsFile,
   tifFile,
   tif1File,
   tif2File,

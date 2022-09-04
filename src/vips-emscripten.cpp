@@ -433,6 +433,13 @@ EMSCRIPTEN_BINDINGS(my_module) {
     function("config", optional_override([]() {
                  return vips::replace_all(VIPS_CONFIG, ", ", "\n");
              }));
+    function("blockUntrusted", optional_override([](bool state) {
+                vips_block_untrusted_set(state ? 1 : 0);
+            }));
+    function("operationBlock",
+             optional_override([](const std::string &name, bool state) {
+                 vips_operation_block_set(name.c_str(), state ? 1 : 0);
+             }));
 
     // Helper for Node.js to shutdown libvips and the runtime of Emscripten
     function("shutdown", optional_override([]() {

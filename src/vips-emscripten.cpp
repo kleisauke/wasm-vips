@@ -419,7 +419,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
 
     function("concurrency", &vips_concurrency_set);
     function("concurrency", &vips_concurrency_get);
-    function("version", vips_version);
+    function("version", &vips_version);
     function("version", optional_override([]() {
                  return std::string(VIPS_VERSION);
              }));

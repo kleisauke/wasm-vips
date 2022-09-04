@@ -29,7 +29,7 @@ describe('block', () => {
     Helpers.enableCache();
   });
 
-  it('operation_block', function () {
+  it('operationBlock', function () {
     // Needs JPEG and PNG file load support
     if (!Helpers.have('jpegload') || !Helpers.have('pngload')) {
       return this.skip();

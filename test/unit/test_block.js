@@ -2,43 +2,47 @@
 
 import * as Helpers from './helpers.js';
 
-let cachePreviousMax;
-
-before(function () {
-  // Temporarily disable the operation cache of libvips to avoid caching blocked operations
-  cachePreviousMax = vips.Cache.max();
-  vips.Cache.max(0);
-});
-
-after(function () {
-  // Re-enable the operation cache of libvips
-  vips.Cache.max(cachePreviousMax);
-});
-
-afterEach(function () {
-  // Not really necessary, but helps in debugging ref leaks and ensures that the images are properly cleaned up after every test
-  cleanup();
-});
-
 describe('block', () => {
+  let cachePreviousMax;
+
+  before(function () {
+    // FIXME: temporarily disable the operation cache of libvips to avoid caching issues
+    cachePreviousMax = vips.Cache.max();
+    vips.Cache.max(0);
+  });
+
+  after(function () {
+    // Re-enable the operation cache of libvips
+    vips.Cache.max(cachePreviousMax);
+  });
+
+  afterEach(function () {
+    // Not really necessary, but helps debugging ref leaks and ensures that the images are properly
+    // cleaned up after every test
+    cleanup();
+  });
+
   it('blockUntrusted', function () {
     // Needs VIPS file load support
     if (!Helpers.have('vipsload')) {
       return this.skip();
     }
 
-    // vipsload is an untrusted operation, and should be blocked when blockUntrusted is true
-
-    vips.blockUntrusted(true);
-    expect(() => vips.Image.vipsload(Helpers.vipsFile)).to.throw(/operation is blocked/);
-
-    vips.blockUntrusted(false);
+    // By default, libvips doesn't block untrusted operations
     expect(() => vips.Image.vipsload(Helpers.vipsFile)).to.not.throw();
 
+    // However, if the environment variable `VIPS_BLOCK_UNTRUSTED` is set,
+    // or `vips_block_untrusted_set( TRUE );` is called, any operations
+    // that are tagged as untrusted will be prevented from running
     vips.blockUntrusted(true);
+
+    // For example, `vipsload` is an untrusted operation, and would throw
+    // an error when untrusted operations are blocked
+    // FIXME: Though, the first `vipsload` call will store the operation
+    // in cache, so subsequent calls will originate from their
     expect(() => vips.Image.vipsload(Helpers.vipsFile)).to.throw(/operation is blocked/);
 
-    // make sure no operations are blocked when the rest of the tests run
+    // Ensure no operations are blocked when the rest of the tests are run
     vips.blockUntrusted(false);
   });
 
@@ -62,7 +66,7 @@ describe('block', () => {
     vips.operationBlock('VipsForeignLoadPng', false);
     expect(() => vips.Image.pngload(Helpers.pngFile)).to.not.throw();
 
-    // make sure no operations are blocked when the rest of the tests run
+    // Ensure no operations are blocked when the rest of the tests are run
     vips.operationBlock('VipsForeignLoad', false);
   });
 });

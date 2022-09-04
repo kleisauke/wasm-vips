@@ -73,7 +73,7 @@ declare module Vips {
     /**
      * Block operations that should not be used on untrusted input.
      * This blocks many load operations, including [[Image.vipsload]].
-     * @param state Set to true to block the operations, set to false to re-enable them.
+     * @param state Set to `true` to block the operations, set to `false` to re-enable them.
      */
     function blockUntrusted(state: boolean): void;
 

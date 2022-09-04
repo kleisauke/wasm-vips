@@ -3,19 +3,6 @@
 import * as Helpers from './helpers.js';
 
 describe('block', () => {
-  let cachePreviousMax;
-
-  before(function () {
-    // FIXME: temporarily disable the operation cache of libvips to avoid caching issues
-    cachePreviousMax = vips.Cache.max();
-    vips.Cache.max(0);
-  });
-
-  after(function () {
-    // Re-enable the operation cache of libvips
-    vips.Cache.max(cachePreviousMax);
-  });
-
   afterEach(function () {
     // Not really necessary, but helps debugging ref leaks and ensures that the images are properly
     // cleaned up after every test
@@ -38,8 +25,6 @@ describe('block', () => {
 
     // For example, `vipsload` is an untrusted operation, and would throw
     // an error when untrusted operations are blocked
-    // FIXME: Though, the first `vipsload` call will store the operation
-    // in cache, so subsequent calls will originate from their
     expect(() => vips.Image.vipsload(Helpers.vipsFile)).to.throw(/operation is blocked/);
 
     // Ensure no operations are blocked when the rest of the tests are run

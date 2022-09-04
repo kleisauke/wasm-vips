@@ -421,6 +421,7 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-disable-nls.patch
   patch -p1 <$SOURCE_DIR/build/patches/vips-libjxl-disable-concurrency.patch
+  patch -p1 <$SOURCE_DIR/build/patches/vips-operation-block-cache-invalidate.patch
   [ -n "$ENABLE_MODULES" ] && patch -p1 <$SOURCE_DIR/build/patches/vips-dynamic-modules-emscripten.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
   # Disable building C++ bindings, man pages, gettext po files, tools, and (fuzz-)tests

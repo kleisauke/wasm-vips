@@ -71,14 +71,22 @@ declare module Vips {
     function concurrency(concurrency?: number): void | number;
 
     /**
-     * Block operations that should not be used on untrusted input.
-     * This blocks many load operations, including [[Image.vipsload]].
+     * Set the block state on all untrusted operations.
+     * For example:
+     * ```js
+     * vips.blockUntrusted(true);
+     * ```
+     * Will block all untrusted operations from running. Use:
+     * ```bash
+     * $ vips -l | grep untrusted
+     * ```
+     * at the command-line to see which operations are marked as untrusted.
      * @param state Set to `true` to block the operations, set to `false` to re-enable them.
      */
     function blockUntrusted(state: boolean): void;
 
     /**
-     * Block a specific operation in the libvips class hierarchy from running.
+     * Set the block state on all operations in the libvips class hierarchy.
      * For example:
      * ```js
      * vips.operationBlock('VipsForeignLoad', true);

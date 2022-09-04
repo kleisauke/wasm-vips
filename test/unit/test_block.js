@@ -3,7 +3,7 @@
 import * as Helpers from './helpers.js';
 
 describe('block', () => {
-  it('block_untrusted', function () {
+  it('blockUntrusted', function () {
     // Needs VIPS file load support
     if (!Helpers.have('vipsload')) {
       return this.skip();

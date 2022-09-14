@@ -9,7 +9,7 @@ diff --git a/system/lib/wasmfs/syscalls.cpp b/system/lib/wasmfs/syscalls.cpp
 index 1111111..2222222 100644
 --- a/system/lib/wasmfs/syscalls.cpp
 +++ b/system/lib/wasmfs/syscalls.cpp
-@@ -1524,12 +1524,6 @@ intptr_t _mmap_js(
+@@ -1561,12 +1561,6 @@ intptr_t _mmap_js(
      return -ENODEV;
    }
  

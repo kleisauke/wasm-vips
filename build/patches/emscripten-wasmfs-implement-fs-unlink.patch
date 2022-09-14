@@ -9,7 +9,7 @@ diff --git a/emcc.py b/emcc.py
 index 1111111..2222222 100644
 --- a/emcc.py
 +++ b/emcc.py
-@@ -2097,6 +2097,7 @@ def phase_linker_setup(options, state, newargs, user_settings):
+@@ -2096,6 +2096,7 @@ def phase_linker_setup(options, state, newargs, user_settings):
        settings.REQUIRED_EXPORTS += [
          '_wasmfs_write_file',
          '_wasmfs_mkdir',

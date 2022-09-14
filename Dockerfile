@@ -1,5 +1,5 @@
 # https://github.com/emscripten-core/emsdk
-FROM docker.io/emscripten/emsdk:3.1.20
+FROM docker.io/emscripten/emsdk:3.1.21
 
 # Enable detection of running in a container
 ENV RUNNING_IN_CONTAINER=true

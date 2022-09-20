@@ -17,7 +17,7 @@ diff --git a/gio/gappinfo.c b/gio/gappinfo.c
 index 1111111..2222222 100644
 --- a/gio/gappinfo.c
 +++ b/gio/gappinfo.c
-@@ -1014,7 +1014,7 @@ g_app_info_launch_default_for_uri (const char         *uri,
+@@ -1016,7 +1016,7 @@ g_app_info_launch_default_for_uri (const char         *uri,
        g_object_unref (app_info);
      }
  
@@ -26,7 +26,7 @@ index 1111111..2222222 100644
    if (!res && glib_should_use_portal ())
      {
        const char *parent_window = NULL;
-@@ -1066,7 +1066,7 @@ launch_default_for_uri_portal_open_uri_cb (GObject      *object,
+@@ -1068,7 +1068,7 @@ launch_default_for_uri_portal_open_uri_cb (GObject      *object,
  static void
  launch_default_for_uri_portal_open_uri (GTask *task, GError *error)
  {
@@ -72,7 +72,7 @@ index 1111111..2222222 100644
  #include "gdocumentportal.h"
  #endif
  
-@@ -3178,7 +3178,7 @@ g_desktop_app_info_launch_uris_with_dbus (GDesktopAppInfo    *info,
+@@ -3181,7 +3181,7 @@ g_desktop_app_info_launch_uris_with_dbus (GDesktopAppInfo    *info,
  
    g_return_val_if_fail (info != NULL, FALSE);
  

@@ -129,8 +129,8 @@ export MAKEFLAGS="-j$(nproc)"
 
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.6        # https://github.com/zlib-ng/zlib-ng
-VERSION_FFI=3.4.2           # https://github.com/libffi/libffi
-VERSION_GLIB=2.73.3         # https://gitlab.gnome.org/GNOME/glib
+VERSION_FFI=3.4.3           # https://github.com/libffi/libffi
+VERSION_GLIB=2.74.0         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.4.8         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.13.1        # https://github.com/mm2/Little-CMS
@@ -209,7 +209,6 @@ test -f "$TARGET/lib/pkgconfig/libffi.pc" || (
   cd $DEPS/ffi
   # TODO(kleisauke): https://github.com/hoodmane/libffi-emscripten/issues/16
   patch -p1 <$SOURCE_DIR/build/patches/libffi-emscripten.patch
-  autoreconf -fiv
   # Compile without -fexceptions
   sed -i 's/ -fexceptions//g' configure
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
@@ -234,7 +233,8 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     --force-fallback-for=gvdb -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
     -Dtests=false -Dglib_assert=false -Dglib_checks=false
-  ninja -C _build install
+  # TODO(kleisauke): Use --tag devel - see: https://gitlab.gnome.org/GNOME/glib/-/merge_requests/2905
+  meson install -C _build
 )
 
 echo "============================================="
@@ -323,7 +323,7 @@ test -f "$TARGET/lib/pkgconfig/libjxl.pc" || (
   mkdir $DEPS/jxl
   curl -Ls https://github.com/libjxl/libjxl/archive/refs/tags/v$VERSION_JXL.tar.gz | tar xzC $DEPS/jxl --strip-components=1
   cd $DEPS/jxl
-  # Avoid bundling libpng
+  # Avoid bundling libpng, see: https://github.com/libjxl/libjxl/pull/1726
   sed -i 's/JPEGXL_EMSCRIPTEN/& AND JPEGXL_BUNDLE_LIBPNG/' third_party/CMakeLists.txt
   # CMake < 3.19 workaround, see: https://github.com/libjxl/libjxl/issues/1425
   sed -i 's/lcms2,INCLUDE_DIRECTORIES/lcms2,INTERFACE_INCLUDE_DIRECTORIES/' lib/jxl.cmake
@@ -351,7 +351,7 @@ test -f "$TARGET/lib/pkgconfig/spng.pc" || (
   sed -i 's/Z_FILTERED/Z_RLE/g' spng/spng.c
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Dbuild_examples=false -Dstatic_zlib=true ${DISABLE_SIMD:+-Denable_opt=false} ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse4.1 -DSPNG_SSE=4"}
-  ninja -C _build install
+  meson install -C _build --tag devel
 )
 
 echo "============================================="
@@ -365,7 +365,7 @@ test -f "$TARGET/lib/pkgconfig/imagequant.pc" || (
   patch -p1 <$SOURCE_DIR/build/patches/imagequant-emscripten.patch
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse -DUSE_SSE=1"}
-  ninja -C _build install
+  meson install -C _build --tag devel
 )
 
 echo "============================================="
@@ -377,7 +377,7 @@ test -f "$TARGET/lib/pkgconfig/cgif.pc" || (
   cd $DEPS/cgif
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Dtests=false
-  ninja -C _build install
+  meson install -C _build --tag devel
 )
 
 echo "============================================="
@@ -425,12 +425,13 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   [ -n "$ENABLE_MODULES" ] && patch -p1 <$SOURCE_DIR/build/patches/vips-dynamic-modules-emscripten.patch
   #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
   # Disable building C++ bindings, man pages, gettext po files, tools, and (fuzz-)tests
-  sed -i'.bak' "/subdir('cplusplus')/{N;N;N;N;N;d;}" meson.build
+  sed -i "/subdir('cplusplus')/{N;N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled ${ENABLE_MODULES:+-Dmodules=enabled} \
     -Dcgif=enabled -Dexif=enabled -Dimagequant=enabled -Djpeg=enabled -Djpeg-xl{,-module}=enabled -Dlcms=enabled \
     -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true -Dppm=true -Danalyze=true -Dradiance=true
-  ninja -C _build install
+  # TODO(kleisauke): Use --tag runtime,devel - see: https://github.com/mesonbuild/meson/pull/10826
+  meson install -C _build
   # Emscripten requires linking to side modules to find the necessary symbols to export
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
   [ -d "$module_dir" ] && modules=$(find $module_dir/ -type f -printf " %p")

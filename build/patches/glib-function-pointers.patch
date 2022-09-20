@@ -544,7 +544,7 @@ index 1111111..2222222 100644
  static gboolean g_desktop_app_info_ensure_saved       (GDesktopAppInfo  *info,
                                                         GError          **error);
  static gboolean g_desktop_app_info_load_file (GDesktopAppInfo *self);
-@@ -4278,7 +4279,8 @@ g_app_info_create_from_commandline (const char           *commandline,
+@@ -4284,7 +4285,8 @@ g_app_info_create_from_commandline (const char           *commandline,
  /* GAppInfo interface init */
  
  static void
@@ -2138,7 +2138,7 @@ index 1111111..2222222 100644
  
  struct _GWin32AppInfo
  {
-@@ -5229,7 +5230,8 @@ g_app_info_create_from_commandline (const char           *commandline,
+@@ -5594,7 +5595,8 @@ g_app_info_create_from_commandline (const char           *commandline,
  /* GAppInfo interface init */
  
  static void

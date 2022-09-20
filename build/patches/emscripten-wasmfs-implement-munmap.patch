@@ -9,7 +9,7 @@ diff --git a/src/library_syscall.js b/src/library_syscall.js
 index 1111111..2222222 100644
 --- a/src/library_syscall.js
 +++ b/src/library_syscall.js
-@@ -147,7 +147,7 @@ var SyscallsLibrary = {
+@@ -148,7 +148,7 @@ var SyscallsLibrary = {
      '$FS',
  #endif
    ],
@@ -18,7 +18,7 @@ index 1111111..2222222 100644
    _munmap_js: function(addr, len, prot, flags, fd, offset) {
  #if FILESYSTEM && SYSCALLS_REQUIRE_FILESYSTEM
      var stream = SYSCALLS.getStreamFromFD(fd);
-@@ -155,6 +155,7 @@ var SyscallsLibrary = {
+@@ -156,6 +156,7 @@ var SyscallsLibrary = {
        SYSCALLS.doMsync(addr, stream, len, flags, offset);
      }
      FS.munmap(stream);
@@ -30,8 +30,8 @@ diff --git a/system/lib/wasmfs/syscalls.cpp b/system/lib/wasmfs/syscalls.cpp
 index 1111111..2222222 100644
 --- a/system/lib/wasmfs/syscalls.cpp
 +++ b/system/lib/wasmfs/syscalls.cpp
-@@ -1595,6 +1595,13 @@ intptr_t _mmap_js(
-   return (intptr_t)ptr;
+@@ -1601,6 +1601,13 @@ int _mmap_js(size_t length,
+   return 0;
  }
  
 +int _munmap_js(

@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Tue, 29 Jun 2021 15:20:00 +0200
-Subject: [PATCH 1/1] WebAssembly support for libffi
+Subject: [PATCH 1/2] WebAssembly support for libffi
 
 Based on:
 https://github.com/brion/libffi/commits/emscripten-work
@@ -27,15 +27,15 @@ diff --git a/Makefile.am b/Makefile.am
 index 1111111..2222222 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -61,6 +61,7 @@ noinst_HEADERS = src/aarch64/ffitarget.h src/aarch64/internal.h		\
+@@ -62,6 +62,7 @@ noinst_HEADERS = src/aarch64/ffitarget.h src/aarch64/internal.h		\
  	src/s390/ffitarget.h src/s390/internal.h src/sh/ffitarget.h	\
  	src/sh64/ffitarget.h src/sparc/ffitarget.h			\
  	src/sparc/internal.h src/tile/ffitarget.h src/vax/ffitarget.h	\
 +	src/wasm32/ffitarget.h \
  	src/x86/ffitarget.h src/x86/internal.h src/x86/internal64.h	\
  	src/x86/asmnames.h src/xtensa/ffitarget.h src/dlmalloc.c	\
- 	src/kvx/ffitarget.h
-@@ -90,6 +91,7 @@ EXTRA_libffi_la_SOURCES = src/aarch64/ffi.c src/aarch64/sysv.S		\
+ 	src/kvx/ffitarget.h src/kvx/asm.h				\
+@@ -92,6 +93,7 @@ EXTRA_libffi_la_SOURCES = src/aarch64/ffi.c src/aarch64/sysv.S		\
  	src/sh64/sysv.S src/sparc/ffi.c src/sparc/ffi64.c		\
  	src/sparc/v8.S src/sparc/v9.S src/tile/ffi.c src/tile/tile.S	\
  	src/vax/ffi.c src/vax/elfbsd.S src/x86/ffi.c src/x86/sysv.S	\
@@ -47,7 +47,7 @@ diff --git a/configure.host b/configure.host
 index 1111111..2222222 100644
 --- a/configure.host
 +++ b/configure.host
-@@ -257,6 +257,11 @@ case "${host}" in
+@@ -264,6 +264,11 @@ case "${host}" in
  	SOURCES="ffi.c elfbsd.S"
  	;;
  
@@ -72,7 +72,7 @@ index 1111111..2222222 100644
  #include <fficonfig.h>
  #include <ffi.h>
  #include <ffi_common.h>
-@@ -1067,3 +1069,4 @@ ffi_tramp_is_present (__attribute__((unused)) void *ptr)
+@@ -1098,3 +1100,4 @@ ffi_tramp_is_present (__attribute__((unused)) void *ptr)
  #endif /* FFI_CLOSURES */
  
  #endif /* NetBSD with PROT_MPROTECT */
@@ -865,7 +865,7 @@ index 1111111..2222222 100644
  	    # This is the only place where we care if an executable was
  	    # created or not.  If it was, dg.exp will try to run it.
  	    remote_file build delete $output_file;
-@@ -407,6 +414,12 @@ proc libffi_target_compile { source dest type options } {
+@@ -413,6 +420,12 @@ proc libffi_target_compile { source dest type options } {
  	lappend options "libs= -lpthread"
      }
  
@@ -878,3 +878,114 @@ index 1111111..2222222 100644
      verbose "options: $options"
      return [target_compile $source $dest $type $options]
  }
+
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Kleis Auke Wolthuizen <github@kleisauke.nl>
+Date: Tue, 20 Sep 2022 10:24:44 +0200
+Subject: [PATCH 2/2] Regenerate Makefile.in
+
+
+diff --git a/Makefile.in b/Makefile.in
+index 1111111..2222222 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -242,12 +242,12 @@ am__depfiles_remade = src/$(DEPDIR)/closures.Plo \
+ 	src/sparc/$(DEPDIR)/ffi64.Plo src/sparc/$(DEPDIR)/v8.Plo \
+ 	src/sparc/$(DEPDIR)/v9.Plo src/tile/$(DEPDIR)/ffi.Plo \
+ 	src/tile/$(DEPDIR)/tile.Plo src/vax/$(DEPDIR)/elfbsd.Plo \
+-	src/vax/$(DEPDIR)/ffi.Plo src/x86/$(DEPDIR)/ffi.Plo \
+-	src/x86/$(DEPDIR)/ffi64.Plo src/x86/$(DEPDIR)/ffiw64.Plo \
+-	src/x86/$(DEPDIR)/sysv.Plo src/x86/$(DEPDIR)/sysv_intel.Plo \
+-	src/x86/$(DEPDIR)/unix64.Plo src/x86/$(DEPDIR)/win64.Plo \
+-	src/x86/$(DEPDIR)/win64_intel.Plo src/xtensa/$(DEPDIR)/ffi.Plo \
+-	src/xtensa/$(DEPDIR)/sysv.Plo
++	src/vax/$(DEPDIR)/ffi.Plo src/wasm32/$(DEPDIR)/ffi.Plo \
++	src/x86/$(DEPDIR)/ffi.Plo src/x86/$(DEPDIR)/ffi64.Plo \
++	src/x86/$(DEPDIR)/ffiw64.Plo src/x86/$(DEPDIR)/sysv.Plo \
++	src/x86/$(DEPDIR)/sysv_intel.Plo src/x86/$(DEPDIR)/unix64.Plo \
++	src/x86/$(DEPDIR)/win64.Plo src/x86/$(DEPDIR)/win64_intel.Plo \
++	src/xtensa/$(DEPDIR)/ffi.Plo src/xtensa/$(DEPDIR)/sysv.Plo
+ am__mv = mv -f
+ CPPASCOMPILE = $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+ 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS)
+@@ -566,6 +566,7 @@ noinst_HEADERS = src/aarch64/ffitarget.h src/aarch64/internal.h		\
+ 	src/s390/ffitarget.h src/s390/internal.h src/sh/ffitarget.h	\
+ 	src/sh64/ffitarget.h src/sparc/ffitarget.h			\
+ 	src/sparc/internal.h src/tile/ffitarget.h src/vax/ffitarget.h	\
++	src/wasm32/ffitarget.h \
+ 	src/x86/ffitarget.h src/x86/internal.h src/x86/internal64.h	\
+ 	src/x86/asmnames.h src/xtensa/ffitarget.h src/dlmalloc.c	\
+ 	src/kvx/ffitarget.h src/kvx/asm.h				\
+@@ -596,6 +597,7 @@ EXTRA_libffi_la_SOURCES = src/aarch64/ffi.c src/aarch64/sysv.S		\
+ 	src/sh64/sysv.S src/sparc/ffi.c src/sparc/ffi64.c		\
+ 	src/sparc/v8.S src/sparc/v9.S src/tile/ffi.c src/tile/tile.S	\
+ 	src/vax/ffi.c src/vax/elfbsd.S src/x86/ffi.c src/x86/sysv.S	\
++	src/wasm32/ffi.c \
+ 	src/x86/ffiw64.c src/x86/win64.S src/x86/ffi64.c		\
+ 	src/x86/unix64.S src/x86/sysv_intel.S src/x86/win64_intel.S	\
+ 	src/xtensa/ffi.c src/xtensa/sysv.S src/kvx/ffi.c		\
+@@ -1054,6 +1056,14 @@ src/x86/ffi.lo: src/x86/$(am__dirstamp) \
+ 	src/x86/$(DEPDIR)/$(am__dirstamp)
+ src/x86/sysv.lo: src/x86/$(am__dirstamp) \
+ 	src/x86/$(DEPDIR)/$(am__dirstamp)
++src/wasm32/$(am__dirstamp):
++	@$(MKDIR_P) src/wasm32
++	@: > src/wasm32/$(am__dirstamp)
++src/wasm32/$(DEPDIR)/$(am__dirstamp):
++	@$(MKDIR_P) src/wasm32/$(DEPDIR)
++	@: > src/wasm32/$(DEPDIR)/$(am__dirstamp)
++src/wasm32/ffi.lo: src/wasm32/$(am__dirstamp) \
++	src/wasm32/$(DEPDIR)/$(am__dirstamp)
+ src/x86/ffiw64.lo: src/x86/$(am__dirstamp) \
+ 	src/x86/$(DEPDIR)/$(am__dirstamp)
+ src/x86/win64.lo: src/x86/$(am__dirstamp) \
+@@ -1167,6 +1177,8 @@ mostlyclean-compile:
+ 	-rm -f src/tile/*.lo
+ 	-rm -f src/vax/*.$(OBJEXT)
+ 	-rm -f src/vax/*.lo
++	-rm -f src/wasm32/*.$(OBJEXT)
++	-rm -f src/wasm32/*.lo
+ 	-rm -f src/x86/*.$(OBJEXT)
+ 	-rm -f src/x86/*.lo
+ 	-rm -f src/xtensa/*.$(OBJEXT)
+@@ -1258,6 +1270,7 @@ distclean-compile:
+ @AMDEP_TRUE@@am__include@ @am__quote@src/tile/$(DEPDIR)/tile.Plo@am__quote@ # am--include-marker
+ @AMDEP_TRUE@@am__include@ @am__quote@src/vax/$(DEPDIR)/elfbsd.Plo@am__quote@ # am--include-marker
+ @AMDEP_TRUE@@am__include@ @am__quote@src/vax/$(DEPDIR)/ffi.Plo@am__quote@ # am--include-marker
++@AMDEP_TRUE@@am__include@ @am__quote@src/wasm32/$(DEPDIR)/ffi.Plo@am__quote@ # am--include-marker
+ @AMDEP_TRUE@@am__include@ @am__quote@src/x86/$(DEPDIR)/ffi.Plo@am__quote@ # am--include-marker
+ @AMDEP_TRUE@@am__include@ @am__quote@src/x86/$(DEPDIR)/ffi64.Plo@am__quote@ # am--include-marker
+ @AMDEP_TRUE@@am__include@ @am__quote@src/x86/$(DEPDIR)/ffiw64.Plo@am__quote@ # am--include-marker
+@@ -1359,6 +1372,7 @@ clean-libtool:
+ 	-rm -rf src/sparc/.libs src/sparc/_libs
+ 	-rm -rf src/tile/.libs src/tile/_libs
+ 	-rm -rf src/vax/.libs src/vax/_libs
++	-rm -rf src/wasm32/.libs src/wasm32/_libs
+ 	-rm -rf src/x86/.libs src/x86/_libs
+ 	-rm -rf src/xtensa/.libs src/xtensa/_libs
+ 
+@@ -1787,6 +1801,8 @@ distclean-generic:
+ 	-rm -f src/tile/$(am__dirstamp)
+ 	-rm -f src/vax/$(DEPDIR)/$(am__dirstamp)
+ 	-rm -f src/vax/$(am__dirstamp)
++	-rm -f src/wasm32/$(DEPDIR)/$(am__dirstamp)
++	-rm -f src/wasm32/$(am__dirstamp)
+ 	-rm -f src/x86/$(DEPDIR)/$(am__dirstamp)
+ 	-rm -f src/x86/$(am__dirstamp)
+ 	-rm -f src/xtensa/$(DEPDIR)/$(am__dirstamp)
+@@ -1886,6 +1902,7 @@ distclean: distclean-recursive
+ 	-rm -f src/tile/$(DEPDIR)/tile.Plo
+ 	-rm -f src/vax/$(DEPDIR)/elfbsd.Plo
+ 	-rm -f src/vax/$(DEPDIR)/ffi.Plo
++	-rm -f src/wasm32/$(DEPDIR)/ffi.Plo
+ 	-rm -f src/x86/$(DEPDIR)/ffi.Plo
+ 	-rm -f src/x86/$(DEPDIR)/ffi64.Plo
+ 	-rm -f src/x86/$(DEPDIR)/ffiw64.Plo
+@@ -2026,6 +2043,7 @@ maintainer-clean: maintainer-clean-recursive
+ 	-rm -f src/tile/$(DEPDIR)/tile.Plo
+ 	-rm -f src/vax/$(DEPDIR)/elfbsd.Plo
+ 	-rm -f src/vax/$(DEPDIR)/ffi.Plo
++	-rm -f src/wasm32/$(DEPDIR)/ffi.Plo
+ 	-rm -f src/x86/$(DEPDIR)/ffi.Plo
+ 	-rm -f src/x86/$(DEPDIR)/ffi64.Plo
+ 	-rm -f src/x86/$(DEPDIR)/ffiw64.Plo

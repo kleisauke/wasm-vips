@@ -12,7 +12,7 @@ diff --git a/gio/meson.build b/gio/meson.build
 index 1111111..2222222 100644
 --- a/gio/meson.build
 +++ b/gio/meson.build
-@@ -400,19 +400,6 @@ if host_system != 'windows'
+@@ -400,20 +400,6 @@ if host_system != 'windows'
      contenttype_sources += files('gcontenttype.c')
      appinfo_sources += files('gdesktopappinfo.c')
      gio_unix_include_headers += files('gdesktopappinfo.h')
@@ -26,13 +26,14 @@ index 1111111..2222222 100644
 -      include_directories : glibinc,
 -      install : true,
 -      install_dir : multiarch_libexecdir,
+-      install_tag : 'bin',
 -      c_args : gio_c_args,
 -      # intl.lib is not compatible with SAFESEH
 -      link_args : noseh_link_args)
    endif
  
    subdir('xdgmime')
-@@ -934,103 +921,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
+@@ -935,111 +921,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
      output : ['gconstructor_as_data.h'],
      command : [python, '@INPUT0@', '@INPUT1@', 'gconstructor_code', '@OUTPUT@'])
  
@@ -61,6 +62,7 @@ index 1111111..2222222 100644
 -
 -executable('gio', gio_tool_sources,
 -  install : true,
+-  install_tag : 'bin',
 -  c_args : gio_c_args,
 -  # intl.lib is not compatible with SAFESEH
 -  link_args : noseh_link_args,
@@ -68,6 +70,7 @@ index 1111111..2222222 100644
 -
 -executable('gresource', 'gresource-tool.c',
 -  install : true,
+-  install_tag : 'bin',
 -  # intl.lib is not compatible with SAFESEH
 -  link_args : noseh_link_args,
 -  dependencies : [libelf, libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
@@ -75,6 +78,7 @@ index 1111111..2222222 100644
 -gio_querymodules = executable('gio-querymodules', 'gio-querymodules.c', 'giomodule-priv.c',
 -  install : true,
 -  install_dir : multiarch_bindir,
+-  install_tag : 'bin',
 -  c_args : gio_c_args,
 -  # intl.lib is not compatible with SAFESEH
 -  link_args : noseh_link_args,
@@ -84,6 +88,7 @@ index 1111111..2222222 100644
 -  ['glib-compile-schemas.c'],
 -  install : true,
 -  install_dir : multiarch_bindir,
+-  install_tag : 'bin',
 -  # intl.lib is not compatible with SAFESEH
 -  link_args : noseh_link_args,
 -  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep, gvdb_dep])
@@ -91,6 +96,7 @@ index 1111111..2222222 100644
 -glib_compile_resources = executable('glib-compile-resources',
 -  [gconstructor_as_data_h, 'glib-compile-resources.c'],
 -  install : true,
+-  install_tag : 'bin-devel',
 -  c_args : gio_c_args,
 -  # intl.lib is not compatible with SAFESEH
 -  link_args : noseh_link_args,
@@ -107,6 +113,7 @@ index 1111111..2222222 100644
 -
 -executable('gsettings', 'gsettings-tool.c',
 -  install : true,
+-  install_tag : 'bin',
 -  c_args : gio_c_args,
 -  # intl.lib is not compatible with SAFESEH
 -  link_args : noseh_link_args,
@@ -119,6 +126,7 @@ index 1111111..2222222 100644
 -
 -executable('gdbus', 'gdbus-tool.c',
 -  install : true,
+-  install_tag : 'bin',
 -  c_args : gio_c_args,
 -  # intl.lib is not compatible with SAFESEH
 -  link_args : noseh_link_args,
@@ -127,6 +135,7 @@ index 1111111..2222222 100644
 -if host_system != 'windows' and not glib_have_cocoa
 -  executable('gapplication', 'gapplication-tool.c',
 -    install : true,
+-    install_tag : 'bin',
 -    c_args : gio_c_args,
 -    # intl.lib is not compatible with SAFESEH
 -    link_args : noseh_link_args,
@@ -136,7 +145,7 @@ index 1111111..2222222 100644
  if enable_systemtap
    gio_stp = configure_file(input : 'gio.stp.in',
      output : '@0@.stp'.format(libgio.full_path().split('/').get(-1)),
-@@ -1039,25 +929,6 @@ if enable_systemtap
+@@ -1048,25 +929,6 @@ if enable_systemtap
    )
  endif
  
@@ -174,17 +183,18 @@ index 1111111..2222222 100644
 +elif host_system != 'emscripten'
    gtester = executable('gtester', 'gtester.c',
      install : true,
-     c_args : ['-UG_DISABLE_ASSERT'],
+     install_tag : 'bin-devel',
 diff --git a/gobject/meson.build b/gobject/meson.build
 index 1111111..2222222 100644
 --- a/gobject/meson.build
 +++ b/gobject/meson.build
-@@ -152,10 +152,6 @@ libgobject_dep = declare_dependency(link_with : libgobject,
+@@ -153,11 +153,6 @@ libgobject_dep = declare_dependency(link_with : libgobject,
    dependencies : [libglib_dep, glib_enumtypes_dep])
  meson.override_dependency('gobject-2.0', libgobject_dep)
  
 -executable('gobject-query', 'gobject-query.c',
 -  install : true,
+-  install_tag : 'bin-devel',
 -  dependencies : [libglib_dep, libgobject_dep])
 -
  install_data('gobject_gdb.py', install_dir : join_paths(glib_pkgdatadir, 'gdb'))

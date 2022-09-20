@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [v0.0.4] - TBD
 
-Uses libvips v8.13.1, compiled with Emscripten v3.1.21.
+Uses libvips v8.13.1, compiled with Emscripten v3.1.22.
 
 ### Added
 

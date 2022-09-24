@@ -73,12 +73,12 @@ if ("web" IN_LIST ENVIRONMENT)
 
     set_target_properties(${PROJECT_NAME}-web
             PROPERTIES
-                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
             )
     set_target_properties(${PROJECT_NAME}-web-es6
             PROPERTIES
-                 SUFFIX "-es6.js"
-                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+                SUFFIX "-es6.js"
+                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
             )
 
     target_link_libraries(${PROJECT_NAME}-web
@@ -133,7 +133,6 @@ set(MAIN_LINK_OPTIONS
         -sALLOW_BLOCKING_ON_MAIN_THREAD
         -sTEXTDECODER=2
         -sASSERTIONS=0
-        -sLEGACY_RUNTIME=0
         -sFORCE_FILESYSTEM
         -sEXPORTED_RUNTIME_METHODS=FS,ENV,deletionQueue,addFunction,bigintToI53Checked
         )
@@ -176,7 +175,7 @@ if ("web" IN_LIST ENVIRONMENT)
     set(WEB_MODULES_PRE
             --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-web-pre.js
             )
-    set(WEB_MIN_TARGETS 
+    set(WEB_MIN_TARGETS
             -sMIN_FIREFOX_VERSION=89
             -sMIN_EDGE_VERSION=91
             -sMIN_CHROME_VERSION=91

@@ -137,7 +137,7 @@ VERSION_LCMS2=2.13.1        # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.0.1           # https://github.com/google/highway
 VERSION_BROTLI=f4153a       # https://github.com/google/brotli
 VERSION_JPEG=4.1.1          # https://github.com/mozilla/mozjpeg
-VERSION_JXL=0.7rc           # https://github.com/libjxl/libjxl
+VERSION_JXL=0.7.0           # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.2          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif
@@ -166,10 +166,10 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-vector-as-js-array.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-allow-block-main-thread.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-windows-path.patch
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-implement-munmap.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-fix-signature-munmap.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-implement-fs-unlink.patch
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-mmap-shared.patch
   patch -p1 <$SOURCE_DIR/build/patches/emscripten-get-dynamic-libraries-js-helper.patch
+  patch -p1 <$SOURCE_DIR/build/patches/emscripten-es6-node.patch
 
   # The system headers require to be reinstalled, as some of
   # them have been changed with the patches above
@@ -454,26 +454,12 @@ echo "Prepare NPM package"
 echo "============================================="
 [ "$ENVIRONMENT" != "web,node" ] || (
   # Building for both Node.js and web, prepare NPM package
-  # FIXME(kleisauke): Workaround for https://github.com/emscripten-core/emscripten/issues/11792
-  sed -i '1iimport { dirname } from "path";' $SOURCE_DIR/lib/node-es6/vips.mjs
-  sed -i '2iimport { fileURLToPath } from "url";' $SOURCE_DIR/lib/node-es6/vips.mjs
-  sed -i '3iimport { createRequire } from "module";' $SOURCE_DIR/lib/node-es6/vips.mjs
-  sed -i '4iconst require = createRequire(import.meta.url);' $SOURCE_DIR/lib/node-es6/vips.mjs
+  sed -i "1cimport { dirname } from 'path';" $SOURCE_DIR/lib/node-es6/vips.mjs
   sed -i 's/__dirname/dirname(fileURLToPath(import.meta.url))/g' $SOURCE_DIR/lib/node-es6/vips.mjs
-  sed -i 's/\(new URL([^)]\+)\+\).toString()/fileURLToPath(\1)/g' $SOURCE_DIR/lib/node-es6/vips.mjs
-  sed -i 's/vips.worker.js/vips.worker.mjs/g' $SOURCE_DIR/lib/node-es6/vips.mjs
-  mv $SOURCE_DIR/lib/node-es6/vips.worker.js $SOURCE_DIR/lib/node-es6/vips.worker.mjs
-  sed -i 's/var Module/import { fileURLToPath } from "url";&/' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
-  sed -i 's/var Module/import { createRequire } from "module";&/' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
-  sed -i 's/var Module/const require = createRequire(import.meta.url);&/' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
-  sed -i 's/__filename/fileURLToPath(import.meta.url)/g' $SOURCE_DIR/lib/node-es6/vips.worker.mjs
 
   # Ensure compatibility with Deno (classic workers are not supported)
   sed -i 's/new Worker(\([^()]\+\))/new Worker(\1,{type:"module"})/g' $SOURCE_DIR/lib/vips-es6.js
   sed -i 's/new Worker(\(new URL([^)]\+)\)/new Worker(\1,{type:"module"}/g' $SOURCE_DIR/lib/vips-es6.js
-
-  # new URL('vips.wasm', import.meta.url).toString() -> new URL('vips.wasm', import.meta.url).href
-  sed -i 's/\(new URL([^)]\+)\+\).toString()/\1.href/g' $SOURCE_DIR/lib/vips-es6.js
 
   # The produced vips.wasm file should be the same across the different variants (sanity check)
   # FIXME(kleisauke): -sMAIN_MODULE=2 appears to produce non-determinism binaries, perhaps this is similar to:

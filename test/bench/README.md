@@ -14,7 +14,7 @@ https://sharp.pixelplumbing.com/performance
 ## Test images
 
 | Image                                                                                   | Dimensions |
-| :-------------------------------------------------------------------------------------- | :--------: |
+|:----------------------------------------------------------------------------------------|:----------:|
 | [`2569067123_aca715a2ee_o.jpg`](images/2569067123_aca715a2ee_o.jpg)                     | 2725×2225  |
 | [`alpha-premultiply-2048x1536-paper.png`](images/alpha-premultiply-2048x1536-paper.png) | 2048×1536  |
 | [`4.webp`](images/4.webp)                                                               |  1024×772  |
@@ -31,7 +31,7 @@ images. For PNG images a zlib compression level of 6 is used.
 ## Results
 
 | Module             | Format | Input  | Output | Ops/sec | Speed-up |
-| :----------------- | :----- | :----- | :----- | ------: | -------: |
+|:-------------------|:-------|:-------|:-------|--------:|---------:|
 | jimp               | JPEG   | buffer | buffer |    0.99 |      1.0 |
 | squoosh-cli        | JPEG   | file   | file   |    1.50 |      1.5 |
 | squoosh-lib        | JPEG   | buffer | buffer |    2.49 |      2.5 |

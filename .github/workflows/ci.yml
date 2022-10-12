@@ -20,10 +20,11 @@ jobs:
       - id: gen-cache-key
         run: |
           if [ "${{ inputs.force-rebuild }}" = true ]; then
-            echo "::set-output name=key::$(date +%s)"
+            key=$(date +%s)
           else
-            echo "::set-output name=key::${{ hashFiles('build/patches/**', 'lib/**', 'src/**', 'build.sh', 'Dockerfile') }}"
+            key=${{ hashFiles('build/patches/**', 'lib/**', 'src/**', 'build.sh', 'Dockerfile') }}
           fi
+          echo "key=$key" >> $GITHUB_OUTPUT
       - uses: actions/cache@v3
         id: cache
         with:

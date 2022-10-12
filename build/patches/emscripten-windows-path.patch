@@ -13,7 +13,7 @@ diff --git a/src/library_async.js b/src/library_async.js
 index 1111111..2222222 100644
 --- a/src/library_async.js
 +++ b/src/library_async.js
-@@ -461,7 +461,7 @@ mergeInto(LibraryManager.library, {
+@@ -456,7 +456,7 @@ mergeInto(LibraryManager.library, {
      return Asyncify.handleSleep((wakeUp) => {
        var _url = UTF8ToString(url);
        var _file = UTF8ToString(file);
@@ -26,7 +26,7 @@ diff --git a/src/library_fs.js b/src/library_fs.js
 index 1111111..2222222 100644
 --- a/src/library_fs.js
 +++ b/src/library_fs.js
-@@ -116,7 +116,7 @@ FS.staticInit();` +
+@@ -119,7 +119,7 @@ FS.staticInit();` +
      // paths
      //
      lookupPath: (path, opts = {}) => {
@@ -35,7 +35,7 @@ index 1111111..2222222 100644
  
        if (!path) return { path: '', node: null };
  
-@@ -130,8 +130,8 @@ FS.staticInit();` +
+@@ -133,8 +133,8 @@ FS.staticInit();` +
          throw new FS.ErrnoError({{{ cDefine('ELOOP') }}});
        }
  

@@ -9,7 +9,7 @@ diff --git a/emcc.py b/emcc.py
 index 1111111..2222222 100644
 --- a/emcc.py
 +++ b/emcc.py
-@@ -3035,6 +3035,7 @@ def phase_final_emitting(options, state, target, wasm_target, memfile):
+@@ -3010,6 +3010,7 @@ def phase_final_emitting(options, state, target, wasm_target, memfile):
      src = read_file(final_js)
      final_js += '.esmeta.js'
      write_file(final_js, src.replace('EMSCRIPTEN$IMPORT$META', 'import.meta'))
@@ -17,7 +17,7 @@ index 1111111..2222222 100644
      save_intermediate('es6-import-meta')
  
    # Apply pre and postjs files
-@@ -3601,6 +3602,35 @@ def phase_binaryen(target, options, wasm_target):
+@@ -3576,6 +3577,35 @@ def phase_binaryen(target, options, wasm_target):
      write_file(final_js, js)
  
  
@@ -53,7 +53,7 @@ index 1111111..2222222 100644
  def modularize():
    global final_js
    logger.debug(f'Modularizing, assigning to var {settings.EXPORT_NAME}')
-@@ -3631,24 +3661,25 @@ function(%(EXPORT_NAME)s) {
+@@ -3606,24 +3636,25 @@ function(%(EXPORT_NAME)s) {
      # document.currentScript, so a simple export declaration is enough.
      src = 'var %s=%s' % (settings.EXPORT_NAME, src)
    else:

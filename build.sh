@@ -158,6 +158,8 @@ export LDFLAGS="$COMMON_FLAGS -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_
 if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
 if [ "$WASM_FS" = "true" ]; then export LDFLAGS+=" -sWASMFS"; fi
 
+export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+mutable-globals,+nontrapping-fptoint"
+
 # Build paths
 export CPATH="$TARGET/include"
 export PKG_CONFIG_PATH="$TARGET/lib/pkgconfig"
@@ -188,6 +190,7 @@ VERSION_WEBP=1.2.4          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.5.0          # https://gitlab.com/libtiff/libtiff
 VERSION_AOM=3.5.0           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.14.2         # https://github.com/strukturag/libheif
+VERSION_RESVG=0.28.0        # https://github.com/RazrFalcon/resvg
 VERSION_VIPS=8.13.3         # https://github.com/libvips/libvips
 
 # Remove patch version component
@@ -403,6 +406,22 @@ node --version
   make install SUBDIRS='libtiff' noinst_PROGRAMS= dist_doc_DATA=
 )
 
+[ -f "$TARGET/lib/libresvg.a" ] || (
+  stage "Compiling resvg"
+  mkdir -p $DEPS/resvg
+  curl -Ls https://github.com/RazrFalcon/resvg/releases/download/v$VERSION_RESVG/resvg-$VERSION_RESVG.tar.xz | tar xJC $DEPS/resvg --strip-components=1
+  cd $DEPS/resvg/c-api
+  # Vendor dir doesn't work with -Zbuild-std right now due to https://github.com/rust-lang/wg-cargo-std-aware/issues/23
+  # Just delete the config so that all deps are downloaded off the internet.
+  rm ../.cargo/config
+  # We don't want to build the shared library
+  sed -i 's/crate-type = .*/crate-type = ["staticlib"]/' Cargo.toml
+  # Note: --release dosn't work right now due to https://github.com/rust-lang/rust/issues/91628
+  RUSTFLAGS="$RUSTFLAGS -Clink-args=--no-entry" cargo build --target wasm32-unknown-emscripten --locked -Zbuild-std=panic_abort,std --no-default-features --features filter
+  cp $DEPS/resvg/target/wasm32-unknown-emscripten/debug/libresvg.a $TARGET/lib/
+  cp $DEPS/resvg/c-api/resvg.h $TARGET/include/
+)
+
 [ -f "$TARGET/lib/pkgconfig/aom.pc" ] || [ -n "$DISABLE_AVIF" ] || (
   stage "Compiling aom"
   mkdir $DEPS/aom
@@ -458,7 +477,8 @@ node --version
     -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled ${ENABLE_MODULES:+-Dmodules=enabled} \
     -Dcgif=enabled -Dexif=enabled -Dimagequant=enabled -Djpeg=enabled ${ENABLE_JXL:+-Djpeg-xl=enabled} \
     -Djpeg-xl-module=enabled -Dlcms=enabled -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true \
-    -Dppm=true -Danalyze=true -Dradiance=true ${ENABLE_AVIF:+-Dheif=enabled} -Dheif-module=enabled
+    -Dppm=true -Danalyze=true -Dradiance=true \
+    -Dresvg=enabled ${ENABLE_AVIF:+-Dheif=enabled} -Dheif-module=enabled
   meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)

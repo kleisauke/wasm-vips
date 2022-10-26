@@ -154,6 +154,7 @@ echo "============================================="
 echo "Environment"
 echo "============================================="
 emcc --version
+node --version
 
 cd $(dirname $(which emcc))
 

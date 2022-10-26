@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>wasm-vips testsuite</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/10.0.0/mocha.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/10.1.0/mocha.min.css" crossorigin="anonymous">
   <style>
     html,
     body {
@@ -53,7 +53,7 @@
     #mocha .test.pending::before {
       content: '\25CF';
       font-size: initial;
-      color: #0b97c4;
+      color: var(--mocha-test-pending-color);
     }
 
     #mocha .test.pending:hover h2::after {
@@ -67,7 +67,7 @@
 </head>
 <body>
 <div id="mocha"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/10.0.0/mocha.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/10.1.0/mocha.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.3.6/chai.min.js" crossorigin="anonymous"></script>
 <script class="mocha-init">
   mocha.setup({

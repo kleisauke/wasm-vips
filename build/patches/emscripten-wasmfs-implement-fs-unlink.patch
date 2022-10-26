@@ -6,7 +6,7 @@ Subject: [PATCH 1/1] [WasmFS] Implement FS.unlink
 Upstream-Status: Pending
 
 diff --git a/emcc.py b/emcc.py
-index 1111111..2222222 100644
+index 1111111..2222222 100755
 --- a/emcc.py
 +++ b/emcc.py
 @@ -2089,6 +2089,7 @@ def phase_linker_setup(options, state, newargs, user_settings):

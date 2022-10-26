@@ -1,12 +1,14 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Kleis Auke Wolthuizen <github@kleisauke.nl>
 Date: Thu, 22 Sep 2022 20:20:37 +0200
-Subject: [PATCH 1/1] Fix `EXPORT_ES6` on Node.js
+Subject: [PATCH 1/1] Add support for `-sEXPORT_ES6`/`*.mjs` on Node.js
+
+See: #11792.
 
 Upstream-Status: Submitted [https://github.com/emscripten-core/emscripten/pull/17915]
 
 diff --git a/emcc.py b/emcc.py
-index 1111111..2222222 100644
+index 1111111..2222222 100755
 --- a/emcc.py
 +++ b/emcc.py
 @@ -3010,6 +3010,7 @@ def phase_final_emitting(options, state, target, wasm_target, memfile):
@@ -17,7 +19,7 @@ index 1111111..2222222 100644
      save_intermediate('es6-import-meta')
  
    # Apply pre and postjs files
-@@ -3576,6 +3577,35 @@ def phase_binaryen(target, options, wasm_target):
+@@ -3576,6 +3577,35 @@ def preprocess_wasm2js_script():
      write_file(final_js, js)
  
  
@@ -53,7 +55,7 @@ index 1111111..2222222 100644
  def modularize():
    global final_js
    logger.debug(f'Modularizing, assigning to var {settings.EXPORT_NAME}')
-@@ -3606,24 +3636,25 @@ function(%(EXPORT_NAME)s) {
+@@ -3606,24 +3636,25 @@ def modularize():
      # document.currentScript, so a simple export declaration is enough.
      src = 'var %s=%s' % (settings.EXPORT_NAME, src)
    else:
@@ -149,10 +151,12 @@ diff --git a/src/shell.js b/src/shell.js
 index 1111111..2222222 100644
 --- a/src/shell.js
 +++ b/src/shell.js
-@@ -193,11 +193,20 @@ if (ENVIRONMENT_IS_NODE) {
+@@ -193,11 +193,25 @@ if (ENVIRONMENT_IS_NODE) {
    if (typeof process == 'undefined' || !process.release || process.release.name !== 'node') throw new Error('not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)');
  #endif
  #endif
++  // These modules will usually be used on Node.js. Load them eagerly to avoid
++  // the complexity of lazy-loading.
 +  var fs = require('fs');
 +  var nodePath = require('path');
 +
@@ -162,6 +166,9 @@ index 1111111..2222222 100644
    } else {
 -    scriptDirectory = __dirname + '/';
 +#if EXPORT_ES6
++    // FIXME: How about the -sUSE_ES6_IMPORT_META=0 case? Is there a way of
++    // getting the current absolute path of the module when support for
++    // `import.meta.url` is not available?
 +    scriptDirectory = nodePath.dirname(fileURLToPath(import.meta.url));
 +#else
 +    scriptDirectory = __dirname;

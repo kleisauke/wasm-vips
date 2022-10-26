@@ -105,7 +105,7 @@ diff --git a/glib/meson.build b/glib/meson.build
 index 1111111..2222222 100644
 --- a/glib/meson.build
 +++ b/glib/meson.build
-@@ -184,7 +184,6 @@ glib_sub_headers = files(
+@@ -185,7 +185,6 @@ glib_sub_headers = files(
    'grcbox.h',
    'grefcount.h',
    'grefstring.h',
@@ -113,7 +113,7 @@ index 1111111..2222222 100644
    'gscanner.h',
    'gsequence.h',
    'gshell.h',
-@@ -272,7 +271,6 @@ glib_sources = files(
+@@ -273,7 +272,6 @@ glib_sources = files(
    'grcbox.c',
    'grefcount.c',
    'grefstring.c',
@@ -121,7 +121,7 @@ index 1111111..2222222 100644
    'gscanner.c',
    'gsequence.c',
    'gshell.c',
-@@ -361,13 +359,7 @@ else
+@@ -362,13 +360,7 @@ else
    glib_dtrace_hdr = []
  endif
  
@@ -136,7 +136,7 @@ index 1111111..2222222 100644
  libglib = library('glib-2.0',
    glib_dtrace_obj, glib_dtrace_hdr,
    sources : [deprecated_sources, glib_sources],
-@@ -379,7 +371,7 @@ libglib = library('glib-2.0',
+@@ -380,7 +372,7 @@ libglib = library('glib-2.0',
    link_args : [noseh_link_args, glib_link_flags, win32_ldflags],
    include_directories : configinc,
    link_with: [charset_lib, gnulib_lib],
@@ -183,7 +183,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -2043,40 +2043,6 @@ else
+@@ -2051,40 +2051,6 @@ else
    libiconv = dependency('iconv')
  endif
  

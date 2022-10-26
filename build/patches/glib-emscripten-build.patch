@@ -12,7 +12,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1893,8 +1893,8 @@ atomicdefine = '''
+@@ -1901,8 +1901,8 @@ atomicdefine = '''
  # We know that we can always use real ("lock free") atomic operations with MSVC
  if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl' or cc.links(atomictest, name : 'atomic ops')
    have_atomic_lock_free = true
@@ -35,7 +35,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -732,7 +732,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix: '#incl
+@@ -740,7 +740,7 @@ if host_system != 'windows' and cc.has_function('posix_memalign', prefix: '#incl
  endif
  
  # Check that posix_spawn() is usable; must use header
@@ -76,7 +76,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -472,7 +472,7 @@ foreach m : struct_members
+@@ -480,7 +480,7 @@ foreach m : struct_members
  endforeach
  
  # Compiler flags
@@ -85,7 +85,7 @@ index 1111111..2222222 100644
    warning_common_args = [
      '-Wduplicated-branches',
      '-Wimplicit-fallthrough',
-@@ -1572,10 +1572,10 @@ g_sizet_compatibility = {
+@@ -1580,10 +1580,10 @@ g_sizet_compatibility = {
    'long long': sizet_size == long_long_size,
  }
  
@@ -118,7 +118,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -1045,9 +1045,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
+@@ -1053,9 +1053,9 @@ if host_system == 'windows' and (cc.get_id() == 'msvc' or cc.get_id() == 'clang-
    glib_conf.set('HAVE_C99_SNPRINTF', false)
    glib_conf.set('HAVE_C99_VSNPRINTF', false)
    glib_conf.set('HAVE_UNIX98_PRINTF', false)

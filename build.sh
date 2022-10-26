@@ -129,9 +129,9 @@ export MAKEFLAGS="-j$(nproc)"
 
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.6        # https://github.com/zlib-ng/zlib-ng
-VERSION_FFI=3.4.3           # https://github.com/libffi/libffi
-VERSION_GLIB=2.74.0         # https://gitlab.gnome.org/GNOME/glib
-VERSION_EXPAT=2.4.9         # https://github.com/libexpat/libexpat
+VERSION_FFI=3.4.4           # https://github.com/libffi/libffi
+VERSION_GLIB=2.74.1         # https://gitlab.gnome.org/GNOME/glib
+VERSION_EXPAT=2.5.0         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.13.1        # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.0.1           # https://github.com/google/highway
@@ -232,7 +232,7 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     --force-fallback-for=gvdb -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
     -Dtests=false -Dglib_assert=false -Dglib_checks=false
-  # TODO(kleisauke): Use --tag devel - see: https://gitlab.gnome.org/GNOME/glib/-/merge_requests/2905
+  # TODO(kleisauke): Use --tag devel - see: https://gitlab.gnome.org/GNOME/glib/-/merge_requests/2905#note_1582637
   meson install -C _build
 )
 

@@ -33,7 +33,7 @@ index 1111111..2222222 100644
    endif
  
    subdir('xdgmime')
-@@ -935,111 +921,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
+@@ -937,115 +923,6 @@ gconstructor_as_data_h = custom_target('gconstructor_as_data.h',
      output : ['gconstructor_as_data.h'],
      command : [python, '@INPUT0@', '@INPUT1@', 'gconstructor_code', '@OUTPUT@'])
  
@@ -119,10 +119,14 @@ index 1111111..2222222 100644
 -  link_args : noseh_link_args,
 -  dependencies : [libgio_dep, libgobject_dep, libgmodule_dep, libglib_dep])
 -install_data('gschema.dtd',
--  install_dir : join_paths(get_option('datadir'), schemas_subdir))
+-  install_dir : get_option('datadir') / schemas_subdir,
+-  install_tag : 'devel',
+-)
 -
 -install_data(['gschema.loc', 'gschema.its'],
--  install_dir : join_paths(get_option('datadir'), 'gettext/its'))
+-  install_dir : get_option('datadir') / 'gettext' / 'its',
+-  install_tag : 'devel',
+-)
 -
 -executable('gdbus', 'gdbus-tool.c',
 -  install : true,
@@ -145,7 +149,7 @@ index 1111111..2222222 100644
  if enable_systemtap
    gio_stp = configure_file(input : 'gio.stp.in',
      output : '@0@.stp'.format(libgio.full_path().split('/').get(-1)),
-@@ -1048,25 +929,6 @@ if enable_systemtap
+@@ -1054,25 +931,6 @@ if enable_systemtap
    )
  endif
  
@@ -175,7 +179,7 @@ diff --git a/glib/meson.build b/glib/meson.build
 index 1111111..2222222 100644
 --- a/glib/meson.build
 +++ b/glib/meson.build
-@@ -432,7 +432,7 @@ if host_system == 'windows'
+@@ -433,7 +433,7 @@ if host_system == 'windows'
        include_directories : configinc,
        dependencies : [libglib_dep])
    endif
@@ -197,14 +201,14 @@ index 1111111..2222222 100644
 -  install_tag : 'bin-devel',
 -  dependencies : [libglib_dep, libgobject_dep])
 -
- install_data('gobject_gdb.py', install_dir : join_paths(glib_pkgdatadir, 'gdb'))
- gdb_conf = configuration_data()
- gdb_conf.set('datadir', glib_datadir)
+ install_data('gobject_gdb.py',
+   install_dir : glib_pkgdatadir / 'gdb',
+   install_tag : 'devel',
 diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -2381,7 +2381,6 @@ subdir('gobject')
+@@ -2389,7 +2389,6 @@ subdir('gobject')
  subdir('gthread')
  subdir('gmodule')
  subdir('gio')

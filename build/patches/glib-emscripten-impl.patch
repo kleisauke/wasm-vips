@@ -165,7 +165,7 @@ index 1111111..2222222 100644
  
  #include "glib-private.h"
  
-@@ -1947,7 +1949,7 @@ _g_local_file_info_get (const char             *basename,
+@@ -1941,7 +1943,7 @@ _g_local_file_info_get (const char             *basename,
    if (stat_ok)
      set_info_from_stat (info, &statbuf, attribute_matcher);
  
@@ -310,7 +310,7 @@ index 1111111..2222222 100644
  /* Macro to check if struct iovec and GOutputVector have the same ABI */
  #define G_OUTPUT_VECTOR_IS_IOVEC (sizeof (struct iovec) == sizeof (GOutputVector) && \
        G_SIZEOF_MEMBER (struct iovec, iov_base) == G_SIZEOF_MEMBER (GOutputVector, buffer) && \
-@@ -1332,7 +1334,7 @@ _g_local_file_output_stream_get_fd (GLocalFileOutputStream *stream)
+@@ -1333,7 +1335,7 @@ _g_local_file_output_stream_get_fd (GLocalFileOutputStream *stream)
    return stream->priv->fd;
  }
  
@@ -796,7 +796,7 @@ index 1111111..2222222 100644
    appinfo_sources += files('gwin32appinfo.c')
    contenttype_sources += files('gcontenttype-win32.c')
    platform_deps += [cc.find_library('shlwapi'),
-@@ -872,7 +872,7 @@ if host_system == 'windows'
+@@ -874,7 +874,7 @@ if host_system == 'windows'
      description : 'Windows specific headers for glib I/O library',
    )
    meson.override_dependency('gio-windows-2.0', libgio_dep)
@@ -1181,7 +1181,7 @@ diff --git a/glib/gtimezone.c b/glib/gtimezone.c
 index 1111111..2222222 100644
 --- a/glib/gtimezone.c
 +++ b/glib/gtimezone.c
-@@ -207,7 +207,7 @@ static GTimeZone *tz_local = NULL;
+@@ -211,7 +211,7 @@ static GTimeZone *tz_local = NULL;
                             there's no point in getting carried
                             away. */
  
@@ -1190,7 +1190,7 @@ index 1111111..2222222 100644
  static GTimeZone *parse_footertz (const gchar *, size_t);
  #endif
  
-@@ -441,7 +441,7 @@ zone_for_constant_offset (GTimeZone *gtz, const gchar *name)
+@@ -445,7 +445,7 @@ zone_for_constant_offset (GTimeZone *gtz, const gchar *name)
    gtz->transitions = NULL;
  }
  
@@ -1199,7 +1199,7 @@ index 1111111..2222222 100644
  
  #if defined(__sun) && defined(__SVR4)
  /*
-@@ -1666,7 +1666,7 @@ rules_from_identifier (const gchar   *identifier,
+@@ -1704,7 +1704,7 @@ rules_from_identifier (const gchar   *identifier,
    return create_ruleset_from_rule (rules, &tzr);
  }
  
@@ -1208,7 +1208,7 @@ index 1111111..2222222 100644
  static GTimeZone *
  parse_footertz (const gchar *footer, size_t footerlen)
  {
-@@ -1825,7 +1825,9 @@ g_time_zone_new_identifier (const gchar *identifier)
+@@ -1863,7 +1863,9 @@ g_time_zone_new_identifier (const gchar *identifier)
    else
      {
        G_LOCK (tz_default);
@@ -1219,7 +1219,7 @@ index 1111111..2222222 100644
        resolved_identifier = zone_identifier_unix ();
  #elif defined (G_OS_WIN32)
        resolved_identifier = windows_default_tzname ();
-@@ -1865,7 +1867,7 @@ g_time_zone_new_identifier (const gchar *identifier)
+@@ -1903,7 +1905,7 @@ g_time_zone_new_identifier (const gchar *identifier)
  
    if (tz->t_info == NULL)
      {
@@ -1368,7 +1368,7 @@ diff --git a/glib/meson.build b/glib/meson.build
 index 1111111..2222222 100644
 --- a/glib/meson.build
 +++ b/glib/meson.build
-@@ -329,9 +329,10 @@ if host_system == 'windows'
+@@ -330,9 +330,10 @@ if host_system == 'windows'
    if cc.get_id() == 'msvc' or cc.get_id() == 'clang-cl'
      glib_sources += files('dirent/wdirent.c')
    endif
@@ -1448,7 +1448,7 @@ diff --git a/meson.build b/meson.build
 index 1111111..2222222 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -276,6 +276,9 @@ if host_system == 'windows'
+@@ -284,6 +284,9 @@ if host_system == 'windows'
  elif host_system == 'cygwin'
    glib_os = '''#define G_OS_UNIX
  #define G_WITH_CYGWIN'''
@@ -1458,7 +1458,7 @@ index 1111111..2222222 100644
  else
    glib_os = '#define G_OS_UNIX'
  endif
-@@ -1660,6 +1663,8 @@ glibconfig_conf.set('gssizebits', ssizet_size * 8)
+@@ -1668,6 +1671,8 @@ glibconfig_conf.set('gssizebits', ssizet_size * 8)
  # XXX: https://gitlab.gnome.org/GNOME/glib/issues/1413
  if host_system == 'windows'
    g_module_suffix = 'dll'

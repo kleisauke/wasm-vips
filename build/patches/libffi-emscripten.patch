@@ -865,8 +865,8 @@ index 1111111..2222222 100644
  	    # This is the only place where we care if an executable was
  	    # created or not.  If it was, dg.exp will try to run it.
  	    remote_file build delete $output_file;
-@@ -413,6 +420,12 @@ proc libffi_target_compile { source dest type options } {
- 	lappend options "libs= -lpthread"
+@@ -416,6 +423,12 @@ proc libffi_target_compile { source dest type options } {
+         }
      }
  
 +    # emscripten emits this warning while building the feature test
@@ -889,7 +889,7 @@ diff --git a/Makefile.in b/Makefile.in
 index 1111111..2222222 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -242,12 +242,12 @@ am__depfiles_remade = src/$(DEPDIR)/closures.Plo \
+@@ -243,12 +243,12 @@ am__depfiles_remade = src/$(DEPDIR)/closures.Plo \
  	src/sparc/$(DEPDIR)/ffi64.Plo src/sparc/$(DEPDIR)/v8.Plo \
  	src/sparc/$(DEPDIR)/v9.Plo src/tile/$(DEPDIR)/ffi.Plo \
  	src/tile/$(DEPDIR)/tile.Plo src/vax/$(DEPDIR)/elfbsd.Plo \
@@ -908,7 +908,7 @@ index 1111111..2222222 100644
  am__mv = mv -f
  CPPASCOMPILE = $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
  	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS)
-@@ -566,6 +566,7 @@ noinst_HEADERS = src/aarch64/ffitarget.h src/aarch64/internal.h		\
+@@ -567,6 +567,7 @@ noinst_HEADERS = src/aarch64/ffitarget.h src/aarch64/internal.h		\
  	src/s390/ffitarget.h src/s390/internal.h src/sh/ffitarget.h	\
  	src/sh64/ffitarget.h src/sparc/ffitarget.h			\
  	src/sparc/internal.h src/tile/ffitarget.h src/vax/ffitarget.h	\
@@ -916,7 +916,7 @@ index 1111111..2222222 100644
  	src/x86/ffitarget.h src/x86/internal.h src/x86/internal64.h	\
  	src/x86/asmnames.h src/xtensa/ffitarget.h src/dlmalloc.c	\
  	src/kvx/ffitarget.h src/kvx/asm.h				\
-@@ -596,6 +597,7 @@ EXTRA_libffi_la_SOURCES = src/aarch64/ffi.c src/aarch64/sysv.S		\
+@@ -597,6 +598,7 @@ EXTRA_libffi_la_SOURCES = src/aarch64/ffi.c src/aarch64/sysv.S		\
  	src/sh64/sysv.S src/sparc/ffi.c src/sparc/ffi64.c		\
  	src/sparc/v8.S src/sparc/v9.S src/tile/ffi.c src/tile/tile.S	\
  	src/vax/ffi.c src/vax/elfbsd.S src/x86/ffi.c src/x86/sysv.S	\
@@ -924,7 +924,7 @@ index 1111111..2222222 100644
  	src/x86/ffiw64.c src/x86/win64.S src/x86/ffi64.c		\
  	src/x86/unix64.S src/x86/sysv_intel.S src/x86/win64_intel.S	\
  	src/xtensa/ffi.c src/xtensa/sysv.S src/kvx/ffi.c		\
-@@ -1054,6 +1056,14 @@ src/x86/ffi.lo: src/x86/$(am__dirstamp) \
+@@ -1055,6 +1057,14 @@ src/x86/ffi.lo: src/x86/$(am__dirstamp) \
  	src/x86/$(DEPDIR)/$(am__dirstamp)
  src/x86/sysv.lo: src/x86/$(am__dirstamp) \
  	src/x86/$(DEPDIR)/$(am__dirstamp)
@@ -939,7 +939,7 @@ index 1111111..2222222 100644
  src/x86/ffiw64.lo: src/x86/$(am__dirstamp) \
  	src/x86/$(DEPDIR)/$(am__dirstamp)
  src/x86/win64.lo: src/x86/$(am__dirstamp) \
-@@ -1167,6 +1177,8 @@ mostlyclean-compile:
+@@ -1168,6 +1178,8 @@ mostlyclean-compile:
  	-rm -f src/tile/*.lo
  	-rm -f src/vax/*.$(OBJEXT)
  	-rm -f src/vax/*.lo
@@ -948,7 +948,7 @@ index 1111111..2222222 100644
  	-rm -f src/x86/*.$(OBJEXT)
  	-rm -f src/x86/*.lo
  	-rm -f src/xtensa/*.$(OBJEXT)
-@@ -1258,6 +1270,7 @@ distclean-compile:
+@@ -1259,6 +1271,7 @@ distclean-compile:
  @AMDEP_TRUE@@am__include@ @am__quote@src/tile/$(DEPDIR)/tile.Plo@am__quote@ # am--include-marker
  @AMDEP_TRUE@@am__include@ @am__quote@src/vax/$(DEPDIR)/elfbsd.Plo@am__quote@ # am--include-marker
  @AMDEP_TRUE@@am__include@ @am__quote@src/vax/$(DEPDIR)/ffi.Plo@am__quote@ # am--include-marker
@@ -956,7 +956,7 @@ index 1111111..2222222 100644
  @AMDEP_TRUE@@am__include@ @am__quote@src/x86/$(DEPDIR)/ffi.Plo@am__quote@ # am--include-marker
  @AMDEP_TRUE@@am__include@ @am__quote@src/x86/$(DEPDIR)/ffi64.Plo@am__quote@ # am--include-marker
  @AMDEP_TRUE@@am__include@ @am__quote@src/x86/$(DEPDIR)/ffiw64.Plo@am__quote@ # am--include-marker
-@@ -1359,6 +1372,7 @@ clean-libtool:
+@@ -1360,6 +1373,7 @@ clean-libtool:
  	-rm -rf src/sparc/.libs src/sparc/_libs
  	-rm -rf src/tile/.libs src/tile/_libs
  	-rm -rf src/vax/.libs src/vax/_libs
@@ -964,7 +964,7 @@ index 1111111..2222222 100644
  	-rm -rf src/x86/.libs src/x86/_libs
  	-rm -rf src/xtensa/.libs src/xtensa/_libs
  
-@@ -1787,6 +1801,8 @@ distclean-generic:
+@@ -1788,6 +1802,8 @@ distclean-generic:
  	-rm -f src/tile/$(am__dirstamp)
  	-rm -f src/vax/$(DEPDIR)/$(am__dirstamp)
  	-rm -f src/vax/$(am__dirstamp)
@@ -973,7 +973,7 @@ index 1111111..2222222 100644
  	-rm -f src/x86/$(DEPDIR)/$(am__dirstamp)
  	-rm -f src/x86/$(am__dirstamp)
  	-rm -f src/xtensa/$(DEPDIR)/$(am__dirstamp)
-@@ -1886,6 +1902,7 @@ distclean: distclean-recursive
+@@ -1887,6 +1903,7 @@ distclean: distclean-recursive
  	-rm -f src/tile/$(DEPDIR)/tile.Plo
  	-rm -f src/vax/$(DEPDIR)/elfbsd.Plo
  	-rm -f src/vax/$(DEPDIR)/ffi.Plo
@@ -981,7 +981,7 @@ index 1111111..2222222 100644
  	-rm -f src/x86/$(DEPDIR)/ffi.Plo
  	-rm -f src/x86/$(DEPDIR)/ffi64.Plo
  	-rm -f src/x86/$(DEPDIR)/ffiw64.Plo
-@@ -2026,6 +2043,7 @@ maintainer-clean: maintainer-clean-recursive
+@@ -2027,6 +2044,7 @@ maintainer-clean: maintainer-clean-recursive
  	-rm -f src/tile/$(DEPDIR)/tile.Plo
  	-rm -f src/vax/$(DEPDIR)/elfbsd.Plo
  	-rm -f src/vax/$(DEPDIR)/ffi.Plo

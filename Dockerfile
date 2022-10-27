@@ -18,10 +18,6 @@ RUN apt-get update \
     # needed for Meson
     ninja-build \
     python3-pip \
-  && pip3 install meson \
+  && pip3 install git+https://github.com/kleisauke/meson@wasm-vips \
   # Prefer the default system-installed version of Node.js
   && echo "NODE_JS = '$(which node)'" >> $EMSDK/.emscripten
-
-ARG MESON_PATCH=https://github.com/kleisauke/wasm-vips/raw/master/build/patches/meson-emscripten.patch
-RUN cd $(dirname `python3 -c "import mesonbuild as _; print(_.__path__[0])"`) \
-  && curl -Ls $MESON_PATCH | patch -p1

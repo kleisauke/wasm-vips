@@ -160,16 +160,8 @@ cd $(dirname $(which emcc))
 
 # Assumes that the patches have already been applied when not running in a container
 if [ "$RUNNING_IN_CONTAINER" = true ]; then
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-missing-proxy-signatures.patch
-
   # TODO(kleisauke): Discuss these patches upstream
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-auto-deletelater.patch
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-vector-as-js-array.patch
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-allow-block-main-thread.patch
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-windows-path.patch
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-wasmfs-implement-fs-unlink.patch
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-get-dynamic-libraries-js-helper.patch
-  patch -p1 <$SOURCE_DIR/build/patches/emscripten-es6-node.patch
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.24...kleisauke:wasm-vips.patch | patch -p1
 
   # The system headers require to be reinstalled, as some of
   # them have been changed with the patches above
@@ -208,7 +200,8 @@ test -f "$TARGET/lib/pkgconfig/libffi.pc" || (
   curl -Ls https://github.com/libffi/libffi/releases/download/v$VERSION_FFI/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
   cd $DEPS/ffi
   # TODO(kleisauke): https://github.com/hoodmane/libffi-emscripten/issues/16
-  patch -p1 <$SOURCE_DIR/build/patches/libffi-emscripten.patch
+  curl -Ls https://github.com/libffi/libffi/compare/v$VERSION_FFI...kleisauke:wasm-vips.patch | patch -p1
+  autoreconf -fiv
   # Compile without -fexceptions
   sed -i 's/ -fexceptions//g' configure
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
@@ -223,13 +216,8 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   mkdir $DEPS/glib
   curl -Lks https://download.gnome.org/sources/glib/$(without_patch $VERSION_GLIB)/glib-$VERSION_GLIB.tar.xz | tar xJC $DEPS/glib --strip-components=1
   cd $DEPS/glib
-  patch -p1 <$SOURCE_DIR/build/patches/glib-without-tools.patch
-  patch -p1 <$SOURCE_DIR/build/patches/glib-without-gregex.patch
-  patch -p1 <$SOURCE_DIR/build/patches/glib-disable-nls.patch
   # TODO(kleisauke): Discuss these patches upstream
-  patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten-build.patch
-  patch -p1 <$SOURCE_DIR/build/patches/glib-emscripten-impl.patch
-  patch -p1 <$SOURCE_DIR/build/patches/glib-function-pointers.patch
+  curl -Ls https://github.com/GNOME/glib/compare/$VERSION_GLIB...kleisauke:wasm-vips.patch | patch -p1
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     --force-fallback-for=gvdb -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
     -Dtests=false -Dglib_assert=false -Dglib_checks=false
@@ -346,7 +334,7 @@ test -f "$TARGET/lib/pkgconfig/spng.pc" || (
   curl -Ls https://github.com/randy408/libspng/archive/refs/tags/v$VERSION_SPNG.tar.gz | tar xzC $DEPS/spng --strip-components=1
   cd $DEPS/spng
   # TODO(kleisauke): Discuss this patch upstream
-  patch -p1 <$SOURCE_DIR/build/patches/libspng-emscripten.patch
+  curl -Ls https://github.com/randy408/libspng/compare/v$VERSION_SPNG...kleisauke:wasm-vips.patch | patch -p1
   # Switch the default zlib compression strategy to Z_RLE, as this is especially suitable for PNG images
   sed -i 's/Z_FILTERED/Z_RLE/g' spng/spng.c
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
@@ -362,7 +350,7 @@ test -f "$TARGET/lib/pkgconfig/imagequant.pc" || (
   curl -Ls https://github.com/lovell/libimagequant/archive/refs/tags/v$VERSION_IMAGEQUANT.tar.gz | tar xzC $DEPS/imagequant --strip-components=1
   cd $DEPS/imagequant
   # TODO(kleisauke): Discuss this patch upstream
-  patch -p1 <$SOURCE_DIR/build/patches/imagequant-emscripten.patch
+  curl -Ls https://github.com/lovell/libimagequant/compare/v$VERSION_IMAGEQUANT...kleisauke:wasm-vips.patch | patch -p1
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse -DUSE_SSE=1"}
   meson install -C _build --tag devel
@@ -416,14 +404,10 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   mkdir $DEPS/vips
   curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$VERSION_VIPS.tar.gz | tar xzC $DEPS/vips --strip-components=1
   cd $DEPS/vips
+  # Backport commit libvips/libvips@702ed82
+  curl -Ls https://github.com/libvips/libvips/commit/702ed8298f45d7ba342ebf5bae612d159e9cec6f.patch | patch -p1
   # Emscripten specific patches
-  patch -p1 <$SOURCE_DIR/build/patches/vips-remove-orc.patch
-  patch -p1 <$SOURCE_DIR/build/patches/vips-1492-emscripten.patch
-  patch -p1 <$SOURCE_DIR/build/patches/vips-disable-nls.patch
-  patch -p1 <$SOURCE_DIR/build/patches/vips-libjxl-disable-concurrency.patch
-  patch -p1 <$SOURCE_DIR/build/patches/vips-operation-block-cache-invalidate.patch
-  [ -n "$ENABLE_MODULES" ] && patch -p1 <$SOURCE_DIR/build/patches/vips-dynamic-modules-emscripten.patch
-  #patch -p1 <$SOURCE_DIR/build/patches/vips-1492-profiler.patch
+  curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips.patch | patch -p1
   # Disable building C++ bindings, man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('cplusplus')/{N;N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \

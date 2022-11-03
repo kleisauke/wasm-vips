@@ -1,6 +1,6 @@
 {
   "name": "wasm-vips-test",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "description": "Unit tests for wasm-vips",
   "homepage": "https://github.com/kleisauke/wasm-vips/tree/master/test/unit",

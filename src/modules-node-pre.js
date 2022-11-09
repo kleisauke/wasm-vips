@@ -1,5 +1,3 @@
-// Load vips-jxl.wasm by default
-Module['dynamicLibraries'] = Module['dynamicLibraries'] || ['vips-jxl.wasm'].map(m => {
-  var scriptDir = __dirname + '/';
-  return Module['locateFile'] ? Module['locateFile'](m, scriptDir) : scriptDir + m;
-});
+// Load vips-jxl.wasm by default on Node.js
+// FIXME(kleisauke): https://github.com/emscripten-core/emscripten/issues/16240#issuecomment-1308610797
+Module['dynamicLibraries'] = Module['dynamicLibraries'] || ['vips-jxl.wasm'].map(m => locateFile(m));

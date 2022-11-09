@@ -161,7 +161,7 @@ cd $(dirname $(which emcc))
 # Assumes that the patches have already been applied when not running in a container
 if [ "$RUNNING_IN_CONTAINER" = true ]; then
   # TODO(kleisauke): Discuss these patches upstream
-  curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.24...kleisauke:wasm-vips.patch | patch -p1
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.25...kleisauke:wasm-vips-3.1.25.patch | patch -p1
 
   # The system headers require to be reinstalled, as some of
   # them have been changed with the patches above
@@ -439,10 +439,9 @@ echo "Prepare NPM package"
 echo "============================================="
 [ "$ENVIRONMENT" != "web,node" ] || (
   # Building for both Node.js and web, prepare NPM package
-  sed -i "1cimport { dirname } from 'path';" $SOURCE_DIR/lib/node-es6/vips.mjs
-  sed -i 's/__dirname/dirname(fileURLToPath(import.meta.url))/g' $SOURCE_DIR/lib/node-es6/vips.mjs
 
   # Ensure compatibility with Deno (classic workers are not supported)
+  # FIXME(kleisauke): This should ideally be handled in Emscripten itself for -sEXPORT_ES6
   sed -i 's/new Worker(\([^()]\+\))/new Worker(\1,{type:"module"})/g' $SOURCE_DIR/lib/vips-es6.js
   sed -i 's/new Worker(\(new URL([^)]\+)\)/new Worker(\1,{type:"module"}/g' $SOURCE_DIR/lib/vips-es6.js
 

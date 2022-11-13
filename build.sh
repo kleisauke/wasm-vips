@@ -139,7 +139,7 @@ export MAKEFLAGS="-j$(nproc)"
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.6        # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.4           # https://github.com/libffi/libffi
-VERSION_GLIB=2.74.1         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.75.0         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.5.0         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.14          # https://github.com/mm2/Little-CMS
@@ -229,12 +229,11 @@ fi
   curl -Lks https://download.gnome.org/sources/glib/$(without_patch $VERSION_GLIB)/glib-$VERSION_GLIB.tar.xz | tar xJC $DEPS/glib --strip-components=1
   cd $DEPS/glib
   # TODO(kleisauke): Discuss these patches upstream
-  curl -Ls https://github.com/GNOME/glib/compare/$VERSION_GLIB...kleisauke:wasm-vips.patch | patch -p1
+  curl -Ls https://github.com/GNOME/glib/compare/$VERSION_GLIB...kleisauke:wasm-vips-$VERSION_GLIB.patch | patch -p1
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     --force-fallback-for=gvdb -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dnls=disabled \
     -Dtests=false -Dglib_assert=false -Dglib_checks=false
-  # TODO(kleisauke): Use --tag devel - see: https://gitlab.gnome.org/GNOME/glib/-/merge_requests/2905#note_1582637
-  meson install -C _build
+  meson install -C _build --tag devel
 )
 
 [ -f "$TARGET/lib/pkgconfig/expat.pc" ] || (
@@ -404,8 +403,7 @@ fi
     -Dcgif=enabled -Dexif=enabled -Dimagequant=enabled -Djpeg=enabled ${ENABLE_JXL:+-Djpeg-xl=enabled} \
     -Djpeg-xl-module=enabled -Dlcms=enabled -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true \
     -Dppm=true -Danalyze=true -Dradiance=true
-  # TODO(kleisauke): Use --tag runtime,devel - see: https://github.com/mesonbuild/meson/pull/10826
-  meson install -C _build
+  meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
   [ -d "$module_dir" ] && modules=$(find $module_dir/ -type f -printf " %p")

@@ -49,6 +49,9 @@ PIC=true
 # Dynamic loadable modules, enabled by default
 MODULES=true
 
+# Support for JPEG XL images, enabled by default
+JXL=true
+
 # Parse arguments
 while [ $# -gt 0 ]; do
   case $1 in
@@ -57,6 +60,7 @@ while [ $# -gt 0 ]; do
     --enable-wasm-eh) WASM_EH=true ;;
     --disable-simd) SIMD=false ;;
     --disable-wasm-bigint) WASM_BIGINT=false ;;
+    --disable-jxl) JXL=false ;;
     --disable-modules)
       PIC=false
       MODULES=false
@@ -77,6 +81,11 @@ if [ "$MODULES" = "true" ]; then
   ENABLE_MODULES=true
 else
   DISABLE_MODULES=true
+fi
+if [ "$JXL" = "true" ]; then
+  ENABLE_JXL=true
+else
+  DISABLE_JXL=true
 fi
 
 # Embuilder flags
@@ -265,7 +274,7 @@ test -f "$TARGET/lib/pkgconfig/lcms2.pc" || (
 echo "============================================="
 echo "Compiling hwy"
 echo "============================================="
-test -f "$TARGET/lib/pkgconfig/libhwy.pc" || (
+test -f "$TARGET/lib/pkgconfig/libhwy.pc" || [ -n "$DISABLE_JXL" ] || (
   mkdir $DEPS/hwy
   curl -Ls https://github.com/google/highway/archive/refs/tags/$VERSION_HWY.tar.gz | tar xzC $DEPS/hwy --strip-components=1
   cd $DEPS/hwy
@@ -277,7 +286,7 @@ test -f "$TARGET/lib/pkgconfig/libhwy.pc" || (
 echo "============================================="
 echo "Compiling brotli"
 echo "============================================="
-test -f "$TARGET/lib/pkgconfig/libbrotlicommon.pc" || (
+test -f "$TARGET/lib/pkgconfig/libbrotlicommon.pc" || [ -n "$DISABLE_JXL" ] || (
   mkdir $DEPS/brotli
   curl -Ls https://github.com/google/brotli/archive/$VERSION_BROTLI.tar.gz | tar xzC $DEPS/brotli --strip-components=1
   cd $DEPS/brotli
@@ -307,7 +316,7 @@ test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
 echo "============================================="
 echo "Compiling jxl"
 echo "============================================="
-test -f "$TARGET/lib/pkgconfig/libjxl.pc" || (
+test -f "$TARGET/lib/pkgconfig/libjxl.pc" || [ -n "$DISABLE_JXL" ] || (
   mkdir $DEPS/jxl
   curl -Ls https://github.com/libjxl/libjxl/archive/refs/tags/v$VERSION_JXL.tar.gz | tar xzC $DEPS/jxl --strip-components=1
   cd $DEPS/jxl
@@ -321,10 +330,12 @@ test -f "$TARGET/lib/pkgconfig/libjxl.pc" || (
     -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE -DJPEGXL_FORCE_SYSTEM_LCMS2=TRUE -DJPEGXL_FORCE_SYSTEM_HWY=TRUE \
     -DCMAKE_C_FLAGS="$CFLAGS -DJXL_DEBUG_ON_ABORT=0" -DCMAKE_CXX_FLAGS="$CXXFLAGS -DJXL_DEBUG_ON_ABORT=0"
   make -C _build install
-  # Ensure we don't link with lcms2 in the vips-jxl side module
-  sed -i '/^Requires.private:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl.pc
-  # Ensure the vips-jxl side module links against the private dependencies
-  sed -i 's/Requires.private/Requires/' $TARGET/lib/pkgconfig/libjxl.pc
+  if [ -n "$ENABLE_MODULES" ]; then
+    # Ensure we don't link with lcms2 in the vips-jxl side module
+    sed -i '/^Requires.private:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl.pc
+    # Ensure the vips-jxl side module links against the private dependencies
+    sed -i 's/Requires.private/Requires/' $TARGET/lib/pkgconfig/libjxl.pc
+  fi
 )
 
 echo "============================================="
@@ -413,8 +424,9 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   sed -i "/subdir('cplusplus')/{N;N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled ${ENABLE_MODULES:+-Dmodules=enabled} \
-    -Dcgif=enabled -Dexif=enabled -Dimagequant=enabled -Djpeg=enabled -Djpeg-xl{,-module}=enabled -Dlcms=enabled \
-    -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true -Dppm=true -Danalyze=true -Dradiance=true
+    -Dcgif=enabled -Dexif=enabled -Dimagequant=enabled -Djpeg=enabled ${ENABLE_JXL:+-Djpeg-xl=enabled} \
+    -Djpeg-xl-module=enabled -Dlcms=enabled -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true \
+    -Dppm=true -Danalyze=true -Dradiance=true
   # TODO(kleisauke): Use --tag runtime,devel - see: https://github.com/mesonbuild/meson/pull/10826
   meson install -C _build
   # Emscripten requires linking to side modules to find the necessary symbols to export

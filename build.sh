@@ -159,9 +159,18 @@ without_patch() {
   echo "${1%.[[:digit:]]*}"
 }
 
-echo "============================================="
-echo "Environment"
-echo "============================================="
+title() {
+  echo -ne "\e]0;$1\a"
+}
+
+stage() {
+  title "$1"
+  echo -e "\e[1;32m============================================="
+  echo "$1"
+  echo -e "=============================================\e[0m"
+}
+
+stage "Set-up environment"
 emcc --version
 node --version
 
@@ -181,10 +190,8 @@ if [ "$RUNNING_IN_CONTAINER" = true ]; then
   embuilder.py build libembind libc-mt{,-debug} libwasmfs-mt{,-debug} --force $LTO_FLAG $PIC_FLAG
 fi
 
-echo "============================================="
-echo "Compiling zlib-ng"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/zlib.pc" || (
+[ -f "$TARGET/lib/pkgconfig/zlib.pc" ] || (
+  stage "Compiling zlib-ng"
   mkdir $DEPS/zlib-ng
   curl -Ls https://github.com/zlib-ng/zlib-ng/archive/refs/tags/$VERSION_ZLIBNG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
   cd $DEPS/zlib-ng
@@ -201,10 +208,8 @@ test -f "$TARGET/lib/pkgconfig/zlib.pc" || (
   make install
 )
 
-echo "============================================="
-echo "Compiling ffi"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/libffi.pc" || (
+[ -f "$TARGET/lib/pkgconfig/libffi.pc" ] || (
+  stage "Compiling ffi"
   mkdir $DEPS/ffi
   curl -Ls https://github.com/libffi/libffi/releases/download/v$VERSION_FFI/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
   cd $DEPS/ffi
@@ -218,10 +223,8 @@ test -f "$TARGET/lib/pkgconfig/libffi.pc" || (
   make install SUBDIRS='include'
 )
 
-echo "============================================="
-echo "Compiling glib"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
+[ -f "$TARGET/lib/pkgconfig/glib-2.0.pc" ] || (
+  stage "Compiling glib"
   mkdir $DEPS/glib
   curl -Lks https://download.gnome.org/sources/glib/$(without_patch $VERSION_GLIB)/glib-$VERSION_GLIB.tar.xz | tar xJC $DEPS/glib --strip-components=1
   cd $DEPS/glib
@@ -234,10 +237,8 @@ test -f "$TARGET/lib/pkgconfig/glib-2.0.pc" || (
   meson install -C _build
 )
 
-echo "============================================="
-echo "Compiling expat"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/expat.pc" || (
+[ -f "$TARGET/lib/pkgconfig/expat.pc" ] || (
+  stage "Compiling expat"
   mkdir $DEPS/expat
   curl -Ls https://github.com/libexpat/libexpat/releases/download/R_${VERSION_EXPAT//./_}/expat-$VERSION_EXPAT.tar.xz | tar xJC $DEPS/expat --strip-components=1
   cd $DEPS/expat
@@ -246,10 +247,8 @@ test -f "$TARGET/lib/pkgconfig/expat.pc" || (
   make install dist_cmake_DATA= nodist_cmake_DATA=
 )
 
-echo "============================================="
-echo "Compiling exif"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/libexif.pc" || (
+[ -f "$TARGET/lib/pkgconfig/libexif.pc" ] || (
+  stage "Compiling exif"
   mkdir $DEPS/exif
   curl -Ls https://github.com/libexif/libexif/releases/download/v$VERSION_EXIF/libexif-$VERSION_EXIF.tar.bz2 | tar xjC $DEPS/exif --strip-components=1
   cd $DEPS/exif
@@ -258,10 +257,8 @@ test -f "$TARGET/lib/pkgconfig/libexif.pc" || (
   make install SUBDIRS='libexif' doc_DATA=
 )
 
-echo "============================================="
-echo "Compiling lcms2"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/lcms2.pc" || (
+[ -f "$TARGET/lib/pkgconfig/lcms2.pc" ] || (
+  stage "Compiling lcms2"
   mkdir $DEPS/lcms2
   curl -Ls https://github.com/mm2/Little-CMS/releases/download/lcms$VERSION_LCMS2/lcms2-$VERSION_LCMS2.tar.gz | tar xzC $DEPS/lcms2 --strip-components=1
   cd $DEPS/lcms2
@@ -271,10 +268,8 @@ test -f "$TARGET/lib/pkgconfig/lcms2.pc" || (
   make install SUBDIRS='src include'
 )
 
-echo "============================================="
-echo "Compiling hwy"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/libhwy.pc" || [ -n "$DISABLE_JXL" ] || (
+[ -f "$TARGET/lib/pkgconfig/libhwy.pc" ] || [ -n "$DISABLE_JXL" ] || (
+  stage "Compiling hwy"
   mkdir $DEPS/hwy
   curl -Ls https://github.com/google/highway/archive/refs/tags/$VERSION_HWY.tar.gz | tar xzC $DEPS/hwy --strip-components=1
   cd $DEPS/hwy
@@ -283,10 +278,8 @@ test -f "$TARGET/lib/pkgconfig/libhwy.pc" || [ -n "$DISABLE_JXL" ] || (
   make -C _build install
 )
 
-echo "============================================="
-echo "Compiling brotli"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/libbrotlicommon.pc" || [ -n "$DISABLE_JXL" ] || (
+[ -f "$TARGET/lib/pkgconfig/libbrotlicommon.pc" ] || [ -n "$DISABLE_JXL" ] || (
+  stage "Compiling brotli"
   mkdir $DEPS/brotli
   curl -Ls https://github.com/google/brotli/archive/$VERSION_BROTLI.tar.gz | tar xzC $DEPS/brotli --strip-components=1
   cd $DEPS/brotli
@@ -298,10 +291,8 @@ test -f "$TARGET/lib/pkgconfig/libbrotlicommon.pc" || [ -n "$DISABLE_JXL" ] || (
   make -C _build install
 )
 
-echo "============================================="
-echo "Compiling jpeg"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
+[ -f "$TARGET/lib/pkgconfig/libjpeg.pc" ] || (
+  stage "Compiling jpeg"
   mkdir $DEPS/jpeg
   curl -Ls https://github.com/mozilla/mozjpeg/archive/refs/tags/v$VERSION_JPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
   cd $DEPS/jpeg
@@ -313,10 +304,8 @@ test -f "$TARGET/lib/pkgconfig/libjpeg.pc" || (
   make -C _build install
 )
 
-echo "============================================="
-echo "Compiling jxl"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/libjxl.pc" || [ -n "$DISABLE_JXL" ] || (
+[ -f "$TARGET/lib/pkgconfig/libjxl.pc" ] || [ -n "$DISABLE_JXL" ] || (
+  stage "Compiling jxl"
   mkdir $DEPS/jxl
   curl -Ls https://github.com/libjxl/libjxl/archive/refs/tags/v$VERSION_JXL.tar.gz | tar xzC $DEPS/jxl --strip-components=1
   cd $DEPS/jxl
@@ -338,10 +327,8 @@ test -f "$TARGET/lib/pkgconfig/libjxl.pc" || [ -n "$DISABLE_JXL" ] || (
   fi
 )
 
-echo "============================================="
-echo "Compiling spng"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/spng.pc" || (
+[ -f "$TARGET/lib/pkgconfig/spng.pc" ] || (
+  stage "Compiling spng"
   mkdir $DEPS/spng
   curl -Ls https://github.com/randy408/libspng/archive/refs/tags/v$VERSION_SPNG.tar.gz | tar xzC $DEPS/spng --strip-components=1
   cd $DEPS/spng
@@ -354,10 +341,8 @@ test -f "$TARGET/lib/pkgconfig/spng.pc" || (
   meson install -C _build --tag devel
 )
 
-echo "============================================="
-echo "Compiling imagequant"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/imagequant.pc" || (
+[ -f "$TARGET/lib/pkgconfig/imagequant.pc" ] || (
+  stage "Compiling imagequant"
   mkdir $DEPS/imagequant
   curl -Ls https://github.com/lovell/libimagequant/archive/refs/tags/v$VERSION_IMAGEQUANT.tar.gz | tar xzC $DEPS/imagequant --strip-components=1
   cd $DEPS/imagequant
@@ -368,10 +353,8 @@ test -f "$TARGET/lib/pkgconfig/imagequant.pc" || (
   meson install -C _build --tag devel
 )
 
-echo "============================================="
-echo "Compiling cgif"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/cgif.pc" || (
+[ -f "$TARGET/lib/pkgconfig/cgif.pc" ] || (
+  stage "Compiling cgif"
   mkdir $DEPS/cgif
   curl -Ls https://github.com/dloebl/cgif/archive/refs/tags/V$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
   cd $DEPS/cgif
@@ -380,10 +363,8 @@ test -f "$TARGET/lib/pkgconfig/cgif.pc" || (
   meson install -C _build --tag devel
 )
 
-echo "============================================="
-echo "Compiling webp"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/libwebp.pc" || (
+[ -f "$TARGET/lib/pkgconfig/libwebp.pc" ] || (
+  stage "Compiling webp"
   mkdir $DEPS/webp
   curl -Ls https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-$VERSION_WEBP.tar.gz | tar xzC $DEPS/webp --strip-components=1
   cd $DEPS/webp
@@ -397,10 +378,8 @@ test -f "$TARGET/lib/pkgconfig/libwebp.pc" || (
   make install bin_PROGRAMS= noinst_PROGRAMS= man_MANS=
 )
 
-echo "============================================="
-echo "Compiling tiff"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/libtiff-4.pc" || (
+[ -f "$TARGET/lib/pkgconfig/libtiff-4.pc" ] || (
+  stage "Compiling tiff"
   mkdir $DEPS/tiff
   curl -Ls https://download.osgeo.org/libtiff/tiff-$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1
   cd $DEPS/tiff
@@ -409,10 +388,8 @@ test -f "$TARGET/lib/pkgconfig/libtiff-4.pc" || (
   make install SUBDIRS='libtiff' noinst_PROGRAMS= dist_doc_DATA=
 )
 
-echo "============================================="
-echo "Compiling vips"
-echo "============================================="
-test -f "$TARGET/lib/pkgconfig/vips.pc" || (
+[ -f "$TARGET/lib/pkgconfig/vips.pc" ] || (
+  stage "Compiling vips"
   mkdir $DEPS/vips
   curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$VERSION_VIPS.tar.gz | tar xzC $DEPS/vips --strip-components=1
   cd $DEPS/vips
@@ -435,10 +412,8 @@ test -f "$TARGET/lib/pkgconfig/vips.pc" || (
   sed -i "/^Libs:/ s/$/${modules//\//\\/}/" $TARGET/lib/pkgconfig/vips.pc
 )
 
-echo "============================================="
-echo "Compiling JS bindings"
-echo "============================================="
 (
+  stage "Compiling JS bindings"
   mkdir $DEPS/wasm-vips
   cd $DEPS/wasm-vips
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" \
@@ -446,11 +421,9 @@ echo "============================================="
   make
 )
 
-echo "============================================="
-echo "Prepare NPM package"
-echo "============================================="
 [ "$ENVIRONMENT" != "web,node" ] || (
   # Building for both Node.js and web, prepare NPM package
+  stage "Prepare NPM package"
 
   # Ensure compatibility with Deno (classic workers are not supported)
   # FIXME(kleisauke): This should ideally be handled in Emscripten itself for -sEXPORT_ES6

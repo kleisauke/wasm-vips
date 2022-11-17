@@ -31,8 +31,3 @@ export async function mochaGlobalSetup () {
   };
   globalThis.vips = await Vips(options);
 }
-
-export function mochaGlobalTeardown () {
-  // We are done, shutdown libvips and the runtime of Emscripten
-  globalThis.vips.shutdown();
-}

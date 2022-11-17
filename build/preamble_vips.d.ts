@@ -103,13 +103,6 @@ declare module Vips {
     function operationBlock(name: string, state: boolean): void;
 
     /**
-     * Call this to shutdown libvips and the runtime of Emscripten.
-     * This is only needed on Node.js, as the thread pool of
-     * Emscripten prevents the event loop from exiting.
-     */
-    function shutdown(): void;
-
-    /**
      * Convert a bigint value (usually coming from Wasm->JS call) into an int53 JS Number.
      * This is used when we have an incoming i64 that we know is a pointer or size_t and
      * is expected to be withing the int53 range.
@@ -1455,4 +1448,3 @@ declare module Vips {
     }
 
     //#endregion
-

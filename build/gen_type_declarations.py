@@ -254,7 +254,7 @@ def generate_enums_flags(gir_file, out_file, indent='    '):
         preamble = f.read()
 
     with open(out_file, 'w') as f:
-        f.write(preamble)
+        f.write(preamble + '\n')
         f.write(f'{indent}//#region Auto-generated enumerations\n\n')
 
         for name in all_nicknames:
@@ -272,9 +272,10 @@ def generate_enums_flags(gir_file, out_file, indent='    '):
             enum_doc = node.find('goi:doc', namespace)
 
             if enum_doc is not None:
-                text = enum_doc.text.replace('\n', '\n     * ')
+                components = enum_doc.text.split('\n')
                 f.write(f'{indent}/**\n')
-                f.write(f"{indent} * {text}\n")
+                for text in components:
+                    f.write(f"{indent} *{(' ' + text).rstrip()}\n")
                 f.write(f'{indent} */\n')
 
             f.write(f'{indent}enum {name} {{\n')

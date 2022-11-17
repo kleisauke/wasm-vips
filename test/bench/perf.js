@@ -45,12 +45,6 @@ const defaultWebPSaveOptions = {
 }
 
 const runSuites = suites => {
-  if (suites.length === 0) {
-    // We are done, shutdown libvips and the runtime of Emscripten
-    vips.shutdown();
-    return;
-  }
-
   const suite = suites[0];
   const remainingSuites = suites.slice(1);
 

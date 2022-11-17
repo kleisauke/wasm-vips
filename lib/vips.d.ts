@@ -103,13 +103,6 @@ declare module Vips {
     function operationBlock(name: string, state: boolean): void;
 
     /**
-     * Call this to shutdown libvips and the runtime of Emscripten.
-     * This is only needed on Node.js, as the thread pool of
-     * Emscripten prevents the event loop from exiting.
-     */
-    function shutdown(): void;
-
-    /**
      * Convert a bigint value (usually coming from Wasm->JS call) into an int53 JS Number.
      * This is used when we have an incoming i64 that we know is a pointer or size_t and
      * is expected to be withing the int53 range.
@@ -1460,7 +1453,7 @@ declare module Vips {
 
     /**
      * The format used for each band element.
-     * 
+     *
      * Each corresponds to a native C type for the current machine. For example,
      * #VIPS_FORMAT_USHORT is <type>unsigned short</type>.
      */
@@ -1510,11 +1503,11 @@ declare module Vips {
     /**
      * The various Porter-Duff and PDF blend modes. See vips_composite(),
      * for example.
-     * 
+     *
      * The Cairo docs have a nice explanation of all the blend modes:
-     * 
+     *
      * https://www.cairographics.org/operators
-     * 
+     *
      * The non-separable modes are not implemented.
      */
     enum BlendMode {
@@ -1622,11 +1615,11 @@ declare module Vips {
 
     /**
      * How pixels are coded.
-     * 
+     *
      * Normally, pixels are uncoded and can be manipulated as you would expect.
      * However some file formats code pixels for compression, and sometimes it's
      * useful to be able to manipulate images in the coded format.
-     * 
+     *
      * The gaps in the numbering are historical and must be maintained. Allocate
      * new numbers from the end.
      */
@@ -1649,10 +1642,10 @@ declare module Vips {
      * How the values in an image should be interpreted. For example, a
      * three-band float image of type #VIPS_INTERPRETATION_LAB should have its
      * pixels interpreted as coordinates in CIE Lab space.
-     * 
+     *
      * RGB and sRGB are treated in the same way. Use the colourspace functions if
      * you want some other behaviour.
-     * 
+     *
      * The gaps in numbering are historical and must be maintained. Allocate
      * new numbers from the end.
      */
@@ -1738,33 +1731,33 @@ declare module Vips {
     /**
      * See vips_image_pipelinev(). Operations can hint to the VIPS image IO
      * system about the kind of demand geometry they prefer.
-     * 
+     *
      * These demand styles are given below in order of increasing
      * restrictiveness.  When demanding output from a pipeline,
      * vips_image_generate()
      * will use the most restrictive of the styles requested by the operations
      * in the pipeline.
-     * 
+     *
      * #VIPS_DEMAND_STYLE_THINSTRIP --- This operation would like to output strips
      * the width of the image and a few pels high. This is option suitable for
      * point-to-point operations, such as those in the arithmetic package.
-     * 
+     *
      * This option is only efficient for cases where each output pel depends
      * upon the pel in the corresponding position in the input image.
-     * 
+     *
      * #VIPS_DEMAND_STYLE_FATSTRIP --- This operation would like to output strips
      * the width of the image and as high as possible. This option is suitable
      * for area operations which do not violently transform coordinates, such
      * as vips_conv().
-     * 
+     *
      * #VIPS_DEMAND_STYLE_SMALLTILE --- This is the most general demand format.
      * Output is demanded in small (around 100x100 pel) sections. This style works
      * reasonably efficiently, even for bizzare operations like 45 degree rotate.
-     * 
+     *
      * #VIPS_DEMAND_STYLE_ANY --- This image is not being demand-read from a disc
      * file (even indirectly) so any demand style is OK. It's used for things like
      * vips_black() where the pixels are calculated.
-     * 
+     *
      * See also: vips_image_pipelinev().
      */
     enum DemandStyle {
@@ -2007,9 +2000,9 @@ declare module Vips {
     /**
      * The type of access an operation has to supply. See vips_tilecache()
      * and #VipsForeign.
-     * 
+     *
      * @VIPS_ACCESS_RANDOM means requests can come in any order.
-     * 
+     *
      * @VIPS_ACCESS_SEQUENTIAL means requests will be top-to-bottom, but with some
      * amount of buffering behind the read point for small non-local accesses.
      */
@@ -2027,27 +2020,27 @@ declare module Vips {
 
     /**
      * See vips_embed(), vips_conv(), vips_affine() and so on.
-     * 
+     *
      * When the edges of an image are extended, you can specify
      * how you want the extension done.
-     * 
+     *
      * #VIPS_EXTEND_BLACK --- new pixels are black, ie. all bits are zero.
-     * 
+     *
      * #VIPS_EXTEND_COPY --- each new pixel takes the value of the nearest edge
      * pixel
-     * 
+     *
      * #VIPS_EXTEND_REPEAT --- the image is tiled to fill the new area
-     * 
+     *
      * #VIPS_EXTEND_MIRROR --- the image is reflected and tiled to reduce hash
      * edges
-     * 
+     *
      * #VIPS_EXTEND_WHITE --- new pixels are white, ie. all bits are set
-     * 
+     *
      * #VIPS_EXTEND_BACKGROUND --- colour set from the @background property
-     * 
+     *
      * We have to specify the exact value of each enum member since we have to
      * keep these frozen for back compat with vips7.
-     * 
+     *
      * See also: vips_embed().
      */
     enum Extend {
@@ -2121,10 +2114,10 @@ declare module Vips {
 
     /**
      * See vips_flip(), vips_join() and so on.
-     * 
+     *
      * Operations like vips_flip() need to be told whether to flip left-right or
      * top-bottom.
-     * 
+     *
      * See also: vips_flip(), vips_join().
      */
     enum Direction {
@@ -2140,10 +2133,10 @@ declare module Vips {
 
     /**
      * See vips_join() and so on.
-     * 
+     *
      * Operations like vips_join() need to be told whether to align images on the
      * low or high coordinate edge, or centre.
-     * 
+     *
      * See also: vips_join().
      */
     enum Align {
@@ -2165,11 +2158,11 @@ declare module Vips {
      * Pick the algorithm vips uses to decide image "interestingness". This is used
      * by vips_smartcrop(), for example, to decide what parts of the image to
      * keep.
-     * 
+     *
      * #VIPS_INTERESTING_NONE and #VIPS_INTERESTING_LOW mean the same -- the
      * crop is positioned at the top or left. #VIPS_INTERESTING_HIGH positions at
      * the bottom or right.
-     * 
+     *
      * See also: vips_smartcrop().
      */
     enum Interesting {
@@ -2205,9 +2198,9 @@ declare module Vips {
 
     /**
      * See vips_rot() and so on.
-     * 
+     *
      * Fixed rotate angles.
-     * 
+     *
      * See also: vips_rot().
      */
     enum Angle {
@@ -2231,9 +2224,9 @@ declare module Vips {
 
     /**
      * See vips_rot45() and so on.
-     * 
+     *
      * Fixed rotate angles.
-     * 
+     *
      * See also: vips_rot45().
      */
     enum Angle45 {
@@ -2292,7 +2285,7 @@ declare module Vips {
     /**
      * How sensitive loaders are to errors, from never stop (very insensitive), to
      * stop on the smallest warning (very sensitive).
-     * 
+     *
      * Each one implies the ones before it, so #VIPS_FAIL_ON_ERROR implies
      * #VIPS_FAIL_ON_TRUNCATED.
      */
@@ -2317,13 +2310,13 @@ declare module Vips {
 
     /**
      * The netpbm file format to save as.
-     * 
+     *
      * #VIPS_FOREIGN_PPM_FORMAT_PBM images are single bit.
-     * 
+     *
      * #VIPS_FOREIGN_PPM_FORMAT_PGM images are 8, 16, or 32-bits, one band.
-     * 
+     *
      * #VIPS_FOREIGN_PPM_FORMAT_PPM images are 8, 16, or 32-bits, three bands.
-     * 
+     *
      * #VIPS_FOREIGN_PPM_FORMAT_PFM images are 32-bit float pixels.
      */
     enum ForeignPpmFormat {
@@ -2487,13 +2480,13 @@ declare module Vips {
 
     /**
      * The compression types supported by the tiff writer.
-     * 
+     *
      * Use @Q to set the jpeg compression level, default 75.
-     * 
+     *
      * Use @predictor to set the lzw or deflate prediction, default horizontal.
-     * 
+     *
      * Use @lossless to set WEBP lossless compression.
-     * 
+     *
      * Use @level to set webp and zstd compression level.
      */
     enum ForeignTiffCompression {
@@ -2570,7 +2563,7 @@ declare module Vips {
 
     /**
      * The compression format to use inside a HEIF container.
-     * 
+     *
      * This is assumed to use the same numbering as %heif_compression_format.
      */
     enum ForeignHeifCompression {
@@ -2595,7 +2588,7 @@ declare module Vips {
     /**
      * Controls whether an operation should upsize, downsize, both up and
      * downsize, or force a size.
-     * 
+     *
      * See also: vips_thumbnail().
      */
     enum Size {
@@ -2689,7 +2682,7 @@ declare module Vips {
 
     /**
      * More like hit-miss, really.
-     * 
+     *
      * See also: vips_morph().
      */
     enum OperationMorphology {
@@ -2705,10 +2698,10 @@ declare module Vips {
 
     /**
      * See vips_draw_image() and so on.
-     * 
+     *
      * Operations like vips_draw_image() need to be told how to combine images
      * from two sources.
-     * 
+     *
      * See also: vips_join().
      */
     enum CombineMode {

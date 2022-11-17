@@ -29,6 +29,15 @@ using vips::TargetCustom;
 EM_JS(bool, is_node, (), { return ENVIRONMENT_IS_NODE; });
 #endif
 
+EM_JS(void, mark_all_threads_as_unused, (), {
+    if (!ENVIRONMENT_IS_NODE) {
+        return;
+    }
+    for (let worker of PThread.runningWorkers) {
+        worker['unref']();
+    }
+});
+
 int main() {
     if (vips_init("wasm-vips") != 0)
         vips_error_exit("unable to start up libvips");
@@ -54,14 +63,11 @@ int main() {
     // Handy for debugging.
     // vips_leak_set(1);
 
+    mark_all_threads_as_unused();
     emscripten_exit_with_live_runtime();
 
     return 0;
 }
-
-EM_JS(void, shutdown_js, (), {
-    exitRuntime();
-});
 
 struct TrimResult {
     int left;
@@ -439,11 +445,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
     function("operationBlock",
              optional_override([](const std::string &name, bool state) {
                  vips_operation_block_set(name.c_str(), state ? 1 : 0);
-             }));
-
-    // Helper for Node.js to shutdown libvips and the runtime of Emscripten
-    function("shutdown", optional_override([]() {
-                 shutdown_js();
              }));
 
     // Cache class

@@ -8,9 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.13.3, compiled with Emscripten v3.1.26.
 
-### Changed
+### Removed
 
-- Removed `vips.shutdown()` helper for Node.js.
+- Remove `vips.shutdown()` helper for Node.js.
+  [#29](https://github.com/kleisauke/wasm-vips/pull/29)
+  [@RReverser](https://github.com/RReverser)
 
 ## [v0.0.4] - 2022-11-03
 

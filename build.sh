@@ -118,7 +118,7 @@ if [ "$WASM_EH" = "true" ]; then export CFLAGS+=" -sSUPPORT_LONGJMP=wasm"; fi
 if [ "$LTO" = "true" ]; then export CFLAGS+=" -flto"; fi
 if [ "$PIC" = "true" ]; then export CFLAGS+=" -fPIC"; fi
 export CXXFLAGS="$CFLAGS"
-export LDFLAGS="-L$TARGET/lib -O3"
+export LDFLAGS="-L$TARGET/lib -O3 -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
 if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
 if [ "$WASM_FS" = "true" ]; then export LDFLAGS+=" -sWASMFS"; fi
 if [ "$WASM_EH" = "true" ]; then export LDFLAGS+=" -sSUPPORT_LONGJMP=wasm"; fi

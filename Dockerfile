@@ -4,7 +4,12 @@ FROM docker.io/emscripten/emsdk:3.1.27
 # Enable detection of running in a container
 ENV RUNNING_IN_CONTAINER=true \
     # Avoid using bundled Node from emsdk
-    PATH=$EMSDK:$EMSDK/upstream/emscripten:$EMSDK/upstream/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    PATH=$EMSDK:$EMSDK/upstream/emscripten:$EMSDK/upstream/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+    # Enable Emscripten sysroot cache
+    EM_CACHE=/src/build/emcache \
+    # Enable ccache
+    CCACHE_DIR=/src/build/ccache \
+    _EMCC_CCACHE=1
 
 RUN apt-get update \
   && curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
@@ -18,6 +23,7 @@ RUN apt-get update \
     # needed for Meson
     ninja-build \
     python3-pip \
+    ccache \
   # https://github.com/mesonbuild/meson/pull/10969
   && pip3 install git+https://github.com/kleisauke/meson@wasm-vips \
   # Prefer the default system-installed version of Node.js

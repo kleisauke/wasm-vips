@@ -438,6 +438,8 @@ node --version
   sed -i "/^Libs:/ s/$/${modules//\//\\/}/" $TARGET/lib/pkgconfig/vips.pc
 )
 
+exit 0 # Don't build bindings
+
 (
   stage "Compiling JS bindings"
   mkdir $DEPS/wasm-vips

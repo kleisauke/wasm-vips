@@ -122,7 +122,7 @@ if [ "$PIC" = "true" ]; then export CFLAGS+=" -fPIC"; fi
 
 export CXXFLAGS="$CFLAGS"
 
-export LDFLAGS="$COMMON_FLAGS -L$TARGET/lib"
+export LDFLAGS="$COMMON_FLAGS -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
 if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
 if [ "$WASM_FS" = "true" ]; then export LDFLAGS+=" -sWASMFS"; fi
 

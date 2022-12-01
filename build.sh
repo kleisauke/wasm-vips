@@ -181,7 +181,7 @@ cd $(dirname $(which emcc))
 # Assumes that the patches have already been applied when not running in a container
 if [ "$RUNNING_IN_CONTAINER" = true ]; then
   # TODO(kleisauke): Discuss these patches upstream
-  curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.26...kleisauke:wasm-vips-3.1.26.patch | patch -p1
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.27...kleisauke:wasm-vips-3.1.27.patch | patch -p1
 
   # The system headers require to be reinstalled, as some of
   # them have been changed with the patches above
@@ -312,8 +312,6 @@ fi
   cd $DEPS/jxl
   # Avoid bundling libpng, see: https://github.com/libjxl/libjxl/pull/1726
   sed -i 's/JPEGXL_EMSCRIPTEN/& AND JPEGXL_BUNDLE_LIBPNG/' third_party/CMakeLists.txt
-  # CMake < 3.19 workaround, see: https://github.com/libjxl/libjxl/issues/1425
-  sed -i 's/lcms2,INCLUDE_DIRECTORIES/lcms2,INTERFACE_INCLUDE_DIRECTORIES/' lib/jxl.cmake
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
     -DBUILD_SHARED_LIBS=FALSE -DBUILD_TESTING=FALSE -DJPEGXL_ENABLE_TOOLS=FALSE -DJPEGXL_ENABLE_EXAMPLES=FALSE \
     -DJPEGXL_ENABLE_SJPEG=FALSE -DJPEGXL_ENABLE_SKCMS=FALSE -DJPEGXL_BUNDLE_LIBPNG=FALSE -DJPEGXL_ENABLE_TRANSCODE_JPEG=FALSE \

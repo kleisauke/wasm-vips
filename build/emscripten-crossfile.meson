@@ -13,6 +13,12 @@ have_c99_vsnprintf = true
 have_c99_snprintf = true
 have_unix98_printf = true
 
+# libvips enforces a minimum pthread stack size of 2mb, which is not needed for
+# Wasm. Ensure we make `pthread_setattr_default_np()` no-op to disable this
+# behavior. This can be adjusted with Emscripten's `DEFAULT_PTHREAD_STACK_SIZE`
+# setting at link-time instead.
+has_function_pthread_setattr_default_np = false
+
 # Ensure that `-s PTHREAD_POOL_SIZE=*` is not injected into .pc files
 [built-in options]
 c_thread_count = 0

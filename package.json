@@ -37,7 +37,7 @@
     "lib/vips-jxl.wasm"
   ],
   "scripts": {
-    "build": "docker build -t wasm-vips . && docker run --rm -v $(pwd):/src wasm-vips ./build.sh",
+    "build": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh",
     "test": "npm run test:lint && npm run test:node",
     "test:lint": "semistandard",
     "test:node": "npm --prefix test/unit test",

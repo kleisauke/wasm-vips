@@ -428,7 +428,7 @@ fi
   sed -i 's/new Worker(\([^()]\+\))/new Worker(\1,{type:"module"})/g' $SOURCE_DIR/lib/vips-es6.js
   sed -i 's/new Worker(\(new URL([^)]\+)\)/new Worker(\1,{type:"module"}/g' $SOURCE_DIR/lib/vips-es6.js
 
-  # The produced vips.wasm file should be the same across the different variants (sanity check)
+  # The produced binary should be the same across the different variants (sanity check)
   # FIXME(kleisauke): -sMAIN_MODULE=2 appears to produce non-determinism binaries, perhaps this is similar to:
   # https://github.com/emscripten-core/emscripten/issues/15706
   expected_sha256=$(sha256sum "$SOURCE_DIR/lib/vips.wasm" | awk '{ print $1 }')
@@ -445,6 +445,15 @@ fi
     esac
     sed -i "$expression" $SOURCE_DIR/lib/$file
   done
+
+  # Print the target features section
+  python3 - << EOF
+from tools import webassembly
+
+with webassembly.Module('$SOURCE_DIR/lib/vips.wasm') as m:
+  features = [f[1] for f in m.parse_features_section() if f[0] == '+']
+  print('Used Wasm features:', ' '.join(features))
+EOF
 
   # Copy dynamic loadable modules
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)

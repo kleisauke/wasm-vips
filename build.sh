@@ -423,7 +423,7 @@ node --version
   curl -Ls https://github.com/libvips/libvips/commit/702ed8298f45d7ba342ebf5bae612d159e9cec6f.patch | patch -p1
   # Emscripten specific patches
   curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips.patch | patch -p1
-  curl -Ls https://github.com/kleisauke/libvips/compare/wasm-vips...RReverser:wasm-vips.patch | patch -p1
+  curl -Ls https://github.com/RReverser/libvips/commit/573fc9d94f1d5676e94522f1711c334ef0c3d89f.patch | patch -p1
   # Disable building man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \

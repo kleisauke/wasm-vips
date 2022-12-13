@@ -52,6 +52,9 @@ MODULES=true
 # Support for JPEG XL images, enabled by default
 JXL=true
 
+# Support for AVIF, enabled by default
+AVIF=true
+
 # Parse arguments
 while [ $# -gt 0 ]; do
   case $1 in
@@ -61,6 +64,7 @@ while [ $# -gt 0 ]; do
     --disable-simd) SIMD=false ;;
     --disable-wasm-bigint) WASM_BIGINT=false ;;
     --disable-jxl) JXL=false ;;
+    --disable-avif) AVIF=false ;;
     --disable-modules)
       PIC=false
       MODULES=false
@@ -86,6 +90,11 @@ if [ "$JXL" = "true" ]; then
   ENABLE_JXL=true
 else
   DISABLE_JXL=true
+fi
+if [ "$AVIF" = "true" ]; then
+  ENABLE_AVIF=true
+else
+  DISABLE_AVIF=true
 fi
 
 # Embuilder flags
@@ -155,6 +164,8 @@ VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.2.4          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.4.0          # https://gitlab.com/libtiff/libtiff
 VERSION_VIPS=8.13.3         # https://github.com/libvips/libvips
+VERSION_AOM=3.5.0           # https://aomedia.googlesource.com/aom
+VERSION_HEIF=1.14.0         # https://github.com/strukturag/libheif
 
 # Remove patch version component
 without_patch() {
@@ -387,6 +398,35 @@ fi
   make install SUBDIRS='libtiff' noinst_PROGRAMS= dist_doc_DATA=
 )
 
+[ -f "$TARGET/lib/pkgconfig/aom.pc" ] || [ -n "$DISABLE_AVIF" ] || (
+  stage "Compiling aom"
+  mkdir $DEPS/aom
+  curl -Ls https://aomedia.googlesource.com/aom/+archive/v$VERSION_AOM.tar.gz | tar xzC $DEPS/aom
+  cd $DEPS/aom
+  emcmake cmake -B_build -H. \
+    -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET \
+    -DAOM_TARGET_CPU=generic -DCONFIG_RUNTIME_CPU_DETECT=0 \
+    -DENABLE_DOCS=0 -DENABLE_TESTS=0 -DENABLE_EXAMPLES=0 -DENABLE_TOOLS=0 \
+    -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=0
+  make -C _build install
+)
+
+[ -f "$TARGET/lib/pkgconfig/libheif.pc" ] || [ -n "$DISABLE_AVIF" ] || (
+  stage "Compiling libheif"
+  mkdir $DEPS/heif
+  curl -Ls https://github.com/strukturag/libheif/releases/download/v$VERSION_HEIF/libheif-$VERSION_HEIF.tar.gz | tar xzC $DEPS/heif --strip-components=1
+  cd $DEPS/heif
+  # Note: without CMAKE_FIND_ROOT_PATH find_path for AOM is not working for some reason (see https://github.com/emscripten-core/emscripten/issues/10078).
+  emcmake cmake -B_build -H. \
+    -DCMAKE_FIND_ROOT_PATH=$TARGET \
+    -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET \
+    -DCMAKE_POSITION_INDEPENDENT_CODE=0 -DBUILD_SHARED_LIBS=0 \
+    -DENABLE_PLUGIN_LOADING=0 -DWITH_EXAMPLES=0 \
+    -DWITH_LIBDE265=0 -DWITH_X265=0 -DWITH_DAV1D=0 -DWITH_SvtEnc=0 -DWITH_RAV1E=0 \
+    -DWITH_AOM_ENCODER=1 -DWITH_AOM_DECODER=1
+  make -C _build install
+)
+
 [ -f "$TARGET/lib/pkgconfig/vips.pc" ] || (
   stage "Compiling vips"
   mkdir $DEPS/vips
@@ -402,7 +442,7 @@ fi
     -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled ${ENABLE_MODULES:+-Dmodules=enabled} \
     -Dcgif=enabled -Dexif=enabled -Dimagequant=enabled -Djpeg=enabled ${ENABLE_JXL:+-Djpeg-xl=enabled} \
     -Djpeg-xl-module=enabled -Dlcms=enabled -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true \
-    -Dppm=true -Danalyze=true -Dradiance=true
+    -Dppm=true -Danalyze=true -Dradiance=true ${ENABLE_AVIF:+-Dheif=enabled} -Dheif-module=enabled
   meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)

@@ -22,7 +22,6 @@ add_library(${PROJECT_NAME} OBJECT ${HEADERS} ${SOURCES})
 
 target_compile_definitions(${PROJECT_NAME}
         PUBLIC
-            EMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0
             $<$<CONFIG:Release>:G_DISABLE_CAST_CHECK G_DISABLE_CHECKS G_DISABLE_ASSERT>
         )
 

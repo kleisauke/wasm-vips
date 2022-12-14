@@ -426,6 +426,8 @@ fi
     -DWITH_LIBDE265=0 -DWITH_X265=0 -DWITH_DAV1D=0 -DWITH_SvtEnc=0 -DWITH_RAV1E=0 \
     -DWITH_AOM_ENCODER=1 -DWITH_AOM_DECODER=1
   make -C _build install
+  # Ensure the vips-heif side module links against the private dependencies
+  [ -n "$ENABLE_MODULES"  ] && sed -i 's/Requires.private/Requires/' $TARGET/lib/pkgconfig/libheif.pc
 )
 
 [ -f "$TARGET/lib/pkgconfig/vips.pc" ] || (

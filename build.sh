@@ -120,7 +120,7 @@ COMMON_FLAGS="-O3 -pthread"
 if [ "$LTO" = "true" ]; then COMMON_FLAGS+=" -flto"; fi
 if [ "$WASM_EH" = "true" ]; then COMMON_FLAGS+=" -sSUPPORT_LONGJMP=wasm"; fi
 
-export CFLAGS="$COMMON_FLAGS -fno-rtti -fno-exceptions -mnontrapping-fptoint"
+export CFLAGS="$COMMON_FLAGS -mnontrapping-fptoint"
 if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"; fi
 if [ "$WASM_BIGINT" = "true" ]; then
   # libffi needs to detect WASM_BIGINT support at compile time

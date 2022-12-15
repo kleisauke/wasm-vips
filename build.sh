@@ -417,6 +417,7 @@ fi
   mkdir $DEPS/heif
   curl -Ls https://github.com/strukturag/libheif/releases/download/v$VERSION_HEIF/libheif-$VERSION_HEIF.tar.gz | tar xzC $DEPS/heif --strip-components=1
   cd $DEPS/heif
+  curl -Ls https://github.com/strukturag/libheif/compare/v$VERSION_HEIF...kleisauke:wasm-vips.patch | patch -p1
   # Note: without CMAKE_FIND_ROOT_PATH find_path for AOM is not working for some reason (see https://github.com/emscripten-core/emscripten/issues/10078).
   emcmake cmake -B_build -H. \
     -DCMAKE_FIND_ROOT_PATH=$TARGET \

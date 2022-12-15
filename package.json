@@ -34,6 +34,7 @@
     "lib/*.js",
     "lib/vips.d.ts",
     "lib/vips.wasm",
+    "lib/vips-heif.wasm",
     "lib/vips-jxl.wasm"
   ],
   "scripts": {

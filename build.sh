@@ -401,7 +401,7 @@ fi
 [ -f "$TARGET/lib/pkgconfig/aom.pc" ] || [ -n "$DISABLE_AVIF" ] || (
   stage "Compiling aom"
   mkdir $DEPS/aom
-  curl -Ls https://aomedia.googlesource.com/aom/+archive/v$VERSION_AOM.tar.gz | tar xzC $DEPS/aom
+  curl -Ls https://storage.googleapis.com/aom-releases/libaom-$VERSION_AOM.tar.gz | tar xzC $DEPS/aom --strip-components=1
   cd $DEPS/aom
   emcmake cmake -B_build -H. \
     -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET \

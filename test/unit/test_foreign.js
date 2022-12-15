@@ -15,6 +15,7 @@ describe('foreign', () => {
   const fileLoaders = {
     jpegload: file => vips.Image.jpegload(file),
     jxlload: file => vips.Image.jxlload(file),
+    heifload: file => vips.Image.heifload(file),
     pngload: file => vips.Image.pngload(file),
     webpload: file => vips.Image.webpload(file),
     tiffload: file => vips.Image.tiffload(file),
@@ -25,6 +26,7 @@ describe('foreign', () => {
   const bufferLoaders = {
     jpegload_buffer: buffer => vips.Image.jpegloadBuffer(buffer),
     jxlload_buffer: buffer => vips.Image.jxlloadBuffer(buffer),
+    heifload_buffer: buffer => vips.Image.heifloadBuffer(buffer),
     pngload_buffer: buffer => vips.Image.pngloadBuffer(buffer),
     webpload_buffer: buffer => vips.Image.webploadBuffer(buffer),
     tiffload_buffer: buffer => vips.Image.tiffloadBuffer(buffer),
@@ -34,6 +36,7 @@ describe('foreign', () => {
   const bufferSavers = {
     jpegsave_buffer: (im, opts) => im.jpegsaveBuffer(opts),
     jxlsave_buffer: (im, opts) => im.jxlsaveBuffer(opts),
+    heifsave_buffer: (im, opts) => im.heifsaveBuffer(opts),
     pngsave_buffer: (im, opts) => im.pngsaveBuffer(opts),
     tiffsave_buffer: (im, opts) => im.tiffsaveBuffer(opts),
     webpsave_buffer: (im, opts) => im.webpsaveBuffer(opts),
@@ -856,6 +859,111 @@ describe('foreign', () => {
 
     saveLoad('%s.hdr', colour);
     saveBufferTempfile('radsave_buffer', '.hdr', rad, 0);
+  });
+
+  it('heifload', function () {
+    // Needs AVIF load support
+    if (!Helpers.have('heifload')) {
+      return this.skip();
+    }
+
+    const heifValid = (im) => {
+      const a = im.getpoint(10, 10);
+      // different versions of libheif decode have slightly different
+      // rounding
+      Helpers.assertAlmostEqualObjects(a, [197, 181, 158], 2);
+      expect(im.width).to.equal(3024);
+      expect(im.height).to.equal(4032);
+      expect(im.bands).to.equal(3);
+    };
+
+    fileLoader('heifload', Helpers.avifFile, heifValid);
+    bufferLoader('heifload_buffer', Helpers.avifFile, heifValid);
+
+    expect(() => {
+      const im = vips.Image.heifload(Helpers.avifFileHuge);
+      im.avg();
+    }).to.throw(/exceeds the maximum image size/);
+
+    const im = vips.Image.heifload(Helpers.avifFileHuge, { unlimited: true });
+    expect(im.avg()).to.equal(0);
+  });
+
+  describe('heifsave', () => {
+    it('roundtrip', function () {
+      // Needs AVIF save support
+      if (!Helpers.have('heifsave')) {
+        return this.skip();
+      }
+
+      // TODO(kleisauke): Reduce the threshold once https://github.com/strukturag/libheif/issues/533 is resolved.
+      saveLoadBuffer('heifsave_buffer', 'heifload_buffer',
+        colour, 80, { compression: 'av1', lossless: true });
+      saveLoad('%s.avif', colour);
+    });
+
+    it('quality', function () {
+      // Needs AVIF save support
+      if (!Helpers.have('heifsave')) {
+        return this.skip();
+      }
+
+      // higher Q should mean a bigger buffer
+      const b1 = mono.heifsaveBuffer({ Q: 10, compression: 'av1' });
+      const b2 = mono.heifsaveBuffer({ Q: 90, compression: 'av1' });
+      expect(b2.byteLength).to.be.above(b1.byteLength);
+    });
+
+    it('chroma', function () {
+      // Needs AVIF save support
+      if (!Helpers.have('heifsave')) {
+        return this.skip();
+      }
+
+      // Chroma subsampling should produce smaller file size for same Q
+      const b1 = mono.heifsaveBuffer({ compression: 'av1', subsample_mode: 'on' });
+      const b2 = mono.heifsaveBuffer({ compression: 'av1', subsample_mode: 'off' });
+      expect(b2.byteLength).to.be.above(b1.byteLength);
+    });
+
+    it('icc', function () {
+      // Needs AVIF save support
+      if (!Helpers.have('heifsave')) {
+        return this.skip();
+      }
+
+      // try saving an image with an ICC profile and reading it back
+      const buf = colour.heifsaveBuffer({ Q: 10, compression: 'av1' });
+      const im = vips.Image.newFromBuffer(buf, '');
+      if (im.getTypeof('icc-profile-data') !== 0) {
+        // verify that the profile comes back unharmed
+        const p1 = colour.getBlob('icc-profile-data');
+        const p2 = im.getBlob('icc-profile-data');
+        expect(p1.byteLength).to.equal(p2.byteLength);
+        expect(p1).to.deep.equal(p2);
+
+        // add tests for xmp, iptc
+        // the exif test will need us to be able to walk the header,
+        // we can't just check exif-data
+      }
+    });
+
+    it('exif', function () {
+      // Needs AVIF save support
+      if (!Helpers.have('heifsave')) {
+        return this.skip();
+      }
+
+      // first make sure we have exif support
+      let x = vips.Image.newFromFile(Helpers.jpegFile);
+      if (x.getTypeof('exif-ifd0-Orientation') !== 0) {
+        x = x.copy();
+        x.setString('exif-ifd0-XPComment', 'banana');
+        const buf = x.heifsaveBuffer({ Q: 10, compression: 'av1' });
+        const y = vips.Image.newFromBuffer(buf, '');
+        expect(y.getString('exif-ifd0-XPComment')).to.satisfy(comment => comment.startsWith('banana'));
+      }
+    });
   });
 
   it('jxlload', function () {

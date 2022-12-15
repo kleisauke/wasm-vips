@@ -16,6 +16,8 @@ export const gifAnimFile = getPath('cogs.gif');
 export const webpFile = getPath('1.webp');
 export const webpAnimFile = getPath('big-height.webp');
 export const srgbFile = getPath('sRGB.icm');
+export const avifFile = getPath('avif-orientation-6.avif');
+export const avifFileHuge = getPath('16x17000.avif');
 export const rgbaFile = getPath('rgba.png');
 export const rgbaCorrectFile = getPath('rgba-correct.ppm');
 export const mosaicFiles = [
@@ -39,6 +41,8 @@ export const testFiles = [
   gifAnimFile,
   webpFile,
   webpAnimFile,
+  avifFile,
+  avifFileHuge,
   srgbFile,
   rgbaFile,
   rgbaCorrectFile

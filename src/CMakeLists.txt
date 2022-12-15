@@ -119,8 +119,7 @@ set(MAIN_COMPILE_OPTIONS
 # note 6: Build with `-sALLOW_TABLE_GROWTH` so that we can store the read, seek, write and finish signals.
 # note 7: To ensure the testsuite passes, increase (main-)thread's stack size from 64kb to 256kb. This should be
 #         reasonable for image processing in Wasm, and given that libvips enforces a minimum thread stack size of 2mb
-#         on other POSIX platforms. We may need a bigger thread stack size, once we support AVIF images, see:
-#         https://gitlab.alpinelinux.org/alpine/aports/-/issues/11740
+#         on other POSIX platforms.
 set(MAIN_LINK_OPTIONS
         --closure=1
         --closure-args='--externs=${CMAKE_CURRENT_SOURCE_DIR}/closure-externs/wasm-vips.js'

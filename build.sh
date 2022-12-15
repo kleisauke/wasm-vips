@@ -429,7 +429,7 @@ fi
     -DENABLE_MULTITHREADING_SUPPORT=0 # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
   # Ensure the vips-heif side module links against the private dependencies
-  [ -n "$ENABLE_MODULES"  ] && sed -i 's/Requires.private/Requires/' $TARGET/lib/pkgconfig/libheif.pc
+  [ -z "$ENABLE_MODULES"  ] || sed -i 's/Requires.private/Requires/' $TARGET/lib/pkgconfig/libheif.pc
 )
 
 [ -f "$TARGET/lib/pkgconfig/vips.pc" ] || (

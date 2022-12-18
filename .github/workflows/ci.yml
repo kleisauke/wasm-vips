@@ -22,7 +22,7 @@ jobs:
           if [ "${{ inputs.force-rebuild }}" = true ]; then
             key=$(date +%s)
           else
-            key=${{ hashFiles('build/patches/**', 'lib/**', 'src/**', 'build.sh', 'Dockerfile') }}
+            key=${{ hashFiles('lib/**', 'src/**', 'build.sh', 'Dockerfile') }}
           fi
           echo "key=$key" >> $GITHUB_OUTPUT
       - uses: actions/cache@v3

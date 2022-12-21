@@ -146,7 +146,7 @@ VERSION_EXPAT=2.5.0         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.14          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.0.2           # https://github.com/google/highway
-VERSION_BROTLI=641bec0      # https://github.com/google/brotli
+VERSION_BROTLI=9b53703      # https://github.com/google/brotli
 VERSION_JPEG=4.1.1          # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.7.0           # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.2          # https://github.com/randy408/libspng
@@ -268,8 +268,6 @@ node --version
   mkdir $DEPS/brotli
   curl -Ls https://github.com/google/brotli/archive/$VERSION_BROTLI.tar.gz | tar xzC $DEPS/brotli --strip-components=1
   cd $DEPS/brotli
-  # https://github.com/google/brotli/pull/988
-  curl -Ls https://github.com/google/brotli/compare/$VERSION_BROTLI...kleisauke:install-static-wasm.patch | patch -p1
   # Exclude internal dictionary, see: https://github.com/emscripten-core/emscripten/issues/9960
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBROTLI_DISABLE_TESTS=TRUE \
     -DCMAKE_C_FLAGS="$CFLAGS -DBROTLI_EXTERNAL_DICTIONARY_DATA"

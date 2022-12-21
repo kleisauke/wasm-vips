@@ -367,7 +367,7 @@ node --version
   curl -Ls https://download.osgeo.org/libtiff/tiff-$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1
   cd $DEPS/tiff
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-    --disable-mdi --disable-pixarlog --disable-old-jpeg --disable-cxx
+    --disable-tools --disable-tests --disable-contrib --disable-docs --disable-mdi --disable-pixarlog --disable-old-jpeg --disable-cxx
   make install SUBDIRS='libtiff' noinst_PROGRAMS= dist_doc_DATA=
 )
 

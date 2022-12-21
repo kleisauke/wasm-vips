@@ -28,3 +28,6 @@ RUN apt-get update \
   && pip3 install git+https://github.com/kleisauke/meson@wasm-vips \
   # Prefer the default system-installed version of Node.js
   && echo "NODE_JS = '$(which node)'" >> $EMSDK/.emscripten
+
+RUN curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.27...kleisauke:wasm-vips-3.1.27.patch | patch -p1 -d /emsdk/upstream/emscripten && \
+    emcc --clear-cache && embuilder build sysroot --force

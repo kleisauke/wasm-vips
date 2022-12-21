@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.13.3, compiled with Emscripten v3.1.27.
 
+### Added
+
+- Support for AVIF images.
+  [#36](https://github.com/kleisauke/wasm-vips/pull/36)
+  [@RReverser](https://github.com/RReverser)
+
 ### Changed
 
 - Use a stack size of 256kb for both main and newly created threads.

@@ -172,11 +172,9 @@ stage() {
   echo -e "=============================================\e[0m"
 }
 
-stage "Set-up environment"
+stage "Environment"
 emcc --version
 node --version
-
-cd $(dirname $(which emcc))
 
 [ -f "$TARGET/lib/pkgconfig/zlib.pc" ] || (
   stage "Compiling zlib-ng"
@@ -433,7 +431,7 @@ cd $(dirname $(which emcc))
   done
 
   # Print the target features section
-  python3 - << EOF
+  PYTHONPATH="$(dirname $(which emcc))" python3 - << EOF
 from tools import webassembly
 
 with webassembly.Module('$SOURCE_DIR/lib/vips.wasm') as m:

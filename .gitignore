@@ -85,5 +85,9 @@ build/properties.cpp
 build/vips.d.ts
 test/bench/images/output*
 
+# Build caches
+build/emcache
+build/ccache
+
 # Include type definitions
 !lib/vips.d.ts

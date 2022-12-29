@@ -55,6 +55,12 @@ JXL=true
 # Support for AVIF, enabled by default
 AVIF=true
 
+# Build libvips C++ API, disabled by default
+LIBVIPS_CPP=false
+
+# Build bindings, enabled by default but can be disabled if you only need libvips
+BINDINGS=true
+
 # Parse arguments
 while [ $# -gt 0 ]; do
   case $1 in
@@ -69,6 +75,8 @@ while [ $# -gt 0 ]; do
       PIC=false
       MODULES=false
       ;;
+    --disable-bindings) BINDINGS=false ;;
+    --enable-libvips-cpp) LIBVIPS_CPP=true ;;
     -e|--environment) ENVIRONMENT="$2"; shift ;;
     *) echo "ERROR: Unknown parameter: $1" >&2; exit 1 ;;
   esac
@@ -95,6 +103,16 @@ if [ "$AVIF" = "true" ]; then
   ENABLE_AVIF=true
 else
   DISABLE_AVIF=true
+fi
+if [ "$LIBVIPS_CPP" = "true" ]; then
+  ENABLE_LIBVIPS_CPP=true
+else
+  DISABLE_LIBVIPS_CPP=true
+fi
+if [ "$BINDINGS" = "true" ]; then
+  ENABLE_BINDINGS=true
+else
+  DISABLE_BINDINGS=true
 fi
 
 # Embuilder flags
@@ -423,8 +441,14 @@ node --version
   curl -Ls https://github.com/libvips/libvips/commit/702ed8298f45d7ba342ebf5bae612d159e9cec6f.patch | patch -p1
   # Emscripten specific patches
   curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips.patch | patch -p1
-  # Disable building C++ bindings, man pages, gettext po files, tools, and (fuzz-)tests
-  sed -i "/subdir('cplusplus')/{N;N;N;N;N;d;}" meson.build
+  # Enable libvips C++ bindings if asked to do so
+  if [ -n "$ENABLE_LIBVIPS_CPP" ]; then
+    curl -Ls https://github.com/RReverser/libvips/commit/573fc9d94f1d5676e94522f1711c334ef0c3d89f.patch | patch -p1
+  else
+    sed -i "/subdir('cplusplus')/d" meson.build
+  fi
+  # Disable building man pages, gettext po files, tools, and (fuzz-)tests
+  sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled ${ENABLE_MODULES:+-Dmodules=enabled} \
     -Dcgif=enabled -Dexif=enabled -Dimagequant=enabled -Djpeg=enabled ${ENABLE_JXL:+-Djpeg-xl=enabled} \
@@ -437,7 +461,7 @@ node --version
   sed -i "/^Libs:/ s/$/${modules//\//\\/}/" $TARGET/lib/pkgconfig/vips.pc
 )
 
-(
+[ -n "$DISABLE_BINDINGS" ] || (
   stage "Compiling JS bindings"
   mkdir $DEPS/wasm-vips
   cd $DEPS/wasm-vips
@@ -446,7 +470,7 @@ node --version
   make
 )
 
-[ "$ENVIRONMENT" != "web,node" ] || (
+[ -n "$DISABLE_BINDINGS" ] || [ "$ENVIRONMENT" != "web,node" ] || (
   # Building for both Node.js and web, prepare NPM package
   stage "Prepare NPM package"
 

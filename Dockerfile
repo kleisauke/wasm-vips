@@ -1,5 +1,5 @@
 # https://github.com/emscripten-core/emsdk
-FROM docker.io/emscripten/emsdk:3.1.27
+FROM docker.io/emscripten/emsdk:3.1.29
 
 # Avoid using bundled Node from emsdk
 ENV PATH=$EMSDK:$EMSDK/upstream/emscripten:$EMSDK/upstream/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
@@ -27,5 +27,5 @@ RUN apt-get update \
   # Prefer the default system-installed version of Node.js
   && echo "NODE_JS = '$(which node)'" >> $EMSDK/.emscripten
 
-RUN curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.27...kleisauke:wasm-vips-3.1.27.patch | patch -p1 -d /emsdk/upstream/emscripten && \
+RUN curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.29...kleisauke:wasm-vips-3.1.29.patch | patch -p1 -d /emsdk/upstream/emscripten && \
     emcc --clear-cache && embuilder build sysroot --force

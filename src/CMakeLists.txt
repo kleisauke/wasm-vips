@@ -125,6 +125,7 @@ set(MAIN_LINK_OPTIONS
         --closure-args='--externs=${CMAKE_CURRENT_SOURCE_DIR}/closure-externs/wasm-vips.js'
         -lembind
         $<$<BOOL:${ENABLE_MODULES}>:-sMAIN_MODULE=2>
+        $<$<BOOL:${ENABLE_MODULES}>:--pre-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-pre.js>
         -sAUTOLOAD_DYLIBS=0
         -sMODULARIZE
         -sEXPORT_NAME='Vips'
@@ -149,9 +150,6 @@ set_target_properties(${TARGETS}
         )
 
 if ("node" IN_LIST ENVIRONMENT)
-    set(NODE_MODULES_PRE
-            --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-node-pre.js
-            )
     set(NODE_LINK_OPTIONS
             -sENVIRONMENT=node,worker
             -sNODERAWFS
@@ -161,13 +159,11 @@ if ("node" IN_LIST ENVIRONMENT)
 
     target_link_options(${PROJECT_NAME}-node-es6
             PUBLIC
-                $<$<BOOL:${ENABLE_MODULES}>:${NODE_MODULES_PRE}>
                 ${NODE_LINK_OPTIONS}
                 -sEXPORT_ES6
             )
     target_link_options(${PROJECT_NAME}-node-commonjs
             PUBLIC
-                $<$<BOOL:${ENABLE_MODULES}>:${NODE_MODULES_PRE}>
                 ${NODE_LINK_OPTIONS}
             )
 endif()
@@ -175,9 +171,6 @@ endif()
 if ("web" IN_LIST ENVIRONMENT)
     set(WEB_CORS_WORKAROUND
             --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/locatefile-cors-pre.js
-            )
-    set(WEB_MODULES_PRE
-            --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-web-pre.js
             )
     set(WEB_MIN_TARGETS
             -sMIN_FIREFOX_VERSION=89
@@ -193,13 +186,11 @@ if ("web" IN_LIST ENVIRONMENT)
     target_link_options(${PROJECT_NAME}-web
             PUBLIC
                 ${WEB_CORS_WORKAROUND}
-                $<$<BOOL:${ENABLE_MODULES}>:${WEB_MODULES_PRE}>
                 ${WEB_LINK_OPTIONS}
             )
     target_link_options(${PROJECT_NAME}-web-es6
             PUBLIC
                 # Note: we don't apply the CORS workaround since module scripts don't support `importScripts()`.
-                $<$<BOOL:${ENABLE_MODULES}>:${WEB_MODULES_PRE}>
                 ${WEB_LINK_OPTIONS}
                 -sEXPORT_ES6
             )

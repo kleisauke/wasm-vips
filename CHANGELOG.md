@@ -14,6 +14,12 @@ Uses libvips v8.13.3, compiled with Emscripten v3.1.29.
   [#36](https://github.com/kleisauke/wasm-vips/pull/36)
   [@RReverser](https://github.com/RReverser)
 
+### Fixed
+
+- Make CORS workaround opt-in, allowing dynamic modules to be locally served on
+  the web without overriding the `locateFile` callback.
+  [#35](https://github.com/kleisauke/wasm-vips/issues/35)
+
 ### Changed
 
 - Use a stack size of 256kb for both main and newly created threads.

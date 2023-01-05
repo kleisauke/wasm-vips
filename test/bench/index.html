@@ -31,7 +31,6 @@
   const benchFiles = [jpegFile, pngFile, webpFile];
 
   const vips = await Vips({
-    locateFile: (fileName, scriptDirectory) => scriptDirectory + fileName,
     // Disable dynamic modules
     dynamicLibraries: [],
     preRun: (module) => {

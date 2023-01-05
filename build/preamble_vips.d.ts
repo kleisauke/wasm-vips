@@ -21,6 +21,9 @@ interface EmscriptenModule {
     ): WebAssembly.Exports;
     locateFile(url: string, scriptDirectory: string): string;
     mainScriptUrlOrBlob: Blob | File | string;
+
+    // https://github.com/kleisauke/wasm-vips/issues/12
+    workaroundCors: boolean;
 }
 
 declare module Vips {

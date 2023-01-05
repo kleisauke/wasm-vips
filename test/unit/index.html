@@ -102,7 +102,6 @@
 
   const options = {
     print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
-    locateFile: (fileName, scriptDirectory) => scriptDirectory + fileName,
     // Uncomment to disable dynamic modules
     // dynamicLibraries: [],
     preRun: (module) => {

@@ -28,4 +28,5 @@ RUN apt-get update \
   && echo "NODE_JS = '$(which node)'" >> $EMSDK/.emscripten
 
 RUN curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.29...kleisauke:wasm-vips-3.1.29.patch | patch -p1 -d /emsdk/upstream/emscripten && \
+    curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.29...kleisauke:dylink-deno-compat.patch | patch -p1 -d /emsdk/upstream/emscripten && \
     emcc --clear-cache && embuilder build sysroot --force

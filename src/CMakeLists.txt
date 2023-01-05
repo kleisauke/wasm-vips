@@ -179,7 +179,6 @@ if ("web" IN_LIST ENVIRONMENT)
             )
     set(WEB_LINK_OPTIONS
             --use-preload-plugins
-            -sENVIRONMENT=web,worker
             ${WEB_MIN_TARGETS}
             )
 
@@ -187,11 +186,14 @@ if ("web" IN_LIST ENVIRONMENT)
             PUBLIC
                 ${WEB_CORS_WORKAROUND}
                 ${WEB_LINK_OPTIONS}
+                -sENVIRONMENT=web,worker
             )
     target_link_options(${PROJECT_NAME}-web-es6
             PUBLIC
                 # Note: we don't apply the CORS workaround since module scripts don't support `importScripts()`.
                 ${WEB_LINK_OPTIONS}
                 -sEXPORT_ES6
+                # Deno reuses the web ES6 module
+                -sENVIRONMENT=web,deno,worker
             )
 endif()

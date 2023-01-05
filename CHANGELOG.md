@@ -19,6 +19,8 @@ Uses libvips v8.13.3, compiled with Emscripten v3.1.29.
 - Make CORS workaround opt-in, allowing dynamic modules to be locally served on
   the web without overriding the `locateFile` callback.
   [#35](https://github.com/kleisauke/wasm-vips/issues/35)
+- Allow overriding the `print` and `printErr` callbacks on Node.js.
+  [#23](https://github.com/kleisauke/wasm-vips/issues/23)
 
 ### Changed
 

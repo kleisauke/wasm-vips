@@ -168,13 +168,13 @@ export MAKEFLAGS="-j$(nproc)"
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.6        # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.4           # https://github.com/libffi/libffi
-VERSION_GLIB=2.75.1         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.75.2         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.5.0         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.14          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.0.2           # https://github.com/google/highway
 VERSION_BROTLI=9b53703      # https://github.com/google/brotli
-VERSION_JPEG=4.1.1          # https://github.com/mozilla/mozjpeg
+VERSION_MOZJPEG=4.1.1       # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.7.0           # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.3          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
@@ -182,7 +182,7 @@ VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.2.4          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.5.0          # https://gitlab.com/libtiff/libtiff
 VERSION_AOM=3.5.0           # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.14.1         # https://github.com/strukturag/libheif
+VERSION_HEIF=1.14.2         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.13.3         # https://github.com/libvips/libvips
 
 # Remove patch version component
@@ -306,7 +306,7 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/libjpeg.pc" ] || (
   stage "Compiling jpeg"
   mkdir $DEPS/jpeg
-  curl -Ls https://github.com/mozilla/mozjpeg/archive/refs/tags/v$VERSION_JPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
+  curl -Ls https://github.com/mozilla/mozjpeg/archive/refs/tags/v$VERSION_MOZJPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
   cd $DEPS/jpeg
   # Compile without SIMD support, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250
   # Disable environment variables usage, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/600

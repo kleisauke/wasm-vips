@@ -148,10 +148,13 @@ export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+mutable-globals,+nontr
 
 # Common compiler flags
 COMMON_FLAGS="-pthread"
-if [ "$LTO" = "true" ]; then COMMON_FLAGS+=" -flto"; fi
+if [ "$LTO" = "true" ]; then
+  COMMON_FLAGS+=" -flto"
+  export RUSTFLAGS+=" -Clto -Cembed-bitcode=yes"
+fi
 if [ "$WASM_EH" = "true" ]; then
   COMMON_FLAGS+=" -fwasm-exceptions -sSUPPORT_LONGJMP=wasm"
-  export RUSTFLAGS+=",+exception-handling"
+  export RUSTFLAGS+=" -Ctarget-feature=+exception-handling"
 else
   COMMON_FLAGS+=" -fexceptions"
 fi
@@ -159,7 +162,7 @@ fi
 export CFLAGS="$COMMON_FLAGS -O3 -mnontrapping-fptoint"
 if [ "$SIMD" = "true" ]; then
   export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"
-  export RUSTFLAGS+=",+simd128"
+  export RUSTFLAGS+=" -Ctarget-feature=+simd128"
 fi
 if [ "$WASM_BIGINT" = "true" ]; then
   # libffi needs to detect WASM_BIGINT support at compile time
@@ -175,7 +178,7 @@ LD_OPT_LEVEL=3
 # https://github.com/rust-lang/rust/issues/91628 / https://github.com/emscripten-core/emscripten/issues/15722
 if [ "$ENABLE_SVG" = "true" ]; then LD_OPT_LEVEL=1; fi
 
-export LDFLAGS="$COMMON_FLAGS $LD_OPT_LEVEL -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
+export LDFLAGS="$COMMON_FLAGS -O$LD_OPT_LEVEL -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
 if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
 if [ "$WASM_FS" = "true" ]; then export LDFLAGS+=" -sWASMFS"; fi
 
@@ -425,7 +428,7 @@ node --version
   make install SUBDIRS='libtiff' noinst_PROGRAMS= dist_doc_DATA=
 )
 
-[ -f "$TARGET/lib/libresvg.a" ] || (
+[ -f "$TARGET/lib/libresvg.a" ] || [ -n "$DISABLE_SVG" ] || (
   stage "Compiling resvg"
   mkdir -p $DEPS/resvg
   curl -Ls https://github.com/RazrFalcon/resvg/releases/download/v$VERSION_RESVG/resvg-$VERSION_RESVG.tar.xz | tar xJC $DEPS/resvg --strip-components=1

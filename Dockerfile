@@ -2,7 +2,7 @@
 FROM docker.io/emscripten/emsdk:3.1.29
 
 # Avoid using bundled Node from emsdk
-ENV PATH=$EMSDK:$EMSDK/upstream/emscripten:$EMSDK/upstream/bin:/root/.cargo/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+ENV PATH=$EMSDK:$EMSDK/upstream/emscripten:$EMSDK/upstream/bin:/root/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
     # Enable Emscripten sysroot cache
     EM_CACHE=/src/build/emcache \
     # Enable Rust cache

@@ -447,6 +447,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
                  vips_operation_block_set(name.c_str(), state ? 1 : 0);
              }));
 
+    // Helper to shutdown libvips
+    function("shutdown", &vips_shutdown);
+
     // Cache class
     class_<Cache>("Cache")
         .constructor<>()

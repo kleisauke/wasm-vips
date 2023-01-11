@@ -106,6 +106,13 @@ declare module Vips {
     function operationBlock(name: string, state: boolean): void;
 
     /**
+     * Call this to drop caches, close plugins, terminate background threads, and finalize any internal library testing.
+     * Calling this is optional. If you don't call it, your platform will clean up for you.
+     * The only negative consequences are that the leak checker and the profiler will not work.
+     */
+    function shutdown(): void;
+
+    /**
      * Convert a bigint value (usually coming from Wasm->JS call) into an int53 JS Number.
      * This is used when we have an incoming i64 that we know is a pointer or size_t and
      * is expected to be withing the int53 range.

@@ -45,6 +45,12 @@ const defaultWebPSaveOptions = {
 }
 
 const runSuites = suites => {
+  if (suites.length === 0) {
+    // We are done, shutdown libvips
+    vips.shutdown();
+    return;
+  }
+
   const suite = suites[0];
   const remainingSuites = suites.slice(1);
 

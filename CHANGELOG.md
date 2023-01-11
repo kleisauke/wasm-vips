@@ -17,6 +17,9 @@ Uses libvips v8.13.3, compiled with Emscripten v3.1.29.
 
 ### Fixed
 
+- Make `vips.shutdown()` optional on Node.js.
+  [#29](https://github.com/kleisauke/wasm-vips/pull/29)
+  [@RReverser](https://github.com/RReverser)
 - Make CORS workaround opt-in.
   [#35](https://github.com/kleisauke/wasm-vips/issues/35)
 - Allow overriding the `print` and `printErr` callbacks on Node.js.
@@ -26,12 +29,6 @@ Uses libvips v8.13.3, compiled with Emscripten v3.1.29.
 
 - Use a stack size of 256kb for both main and newly created threads.
   Previously, this was configured at 5mb and 2mb, respectively.
-
-### Removed
-
-- Remove `vips.shutdown()` helper for Node.js.
-  [#29](https://github.com/kleisauke/wasm-vips/pull/29)
-  [@RReverser](https://github.com/RReverser)
 
 ## [v0.0.4] - 2022-11-03
 

@@ -880,7 +880,7 @@ describe('foreign', () => {
     fileLoader('heifload', Helpers.avifFile, heifValid);
     bufferLoader('heifload_buffer', Helpers.avifFile, heifValid);
 
-    expect(() => {
+    Helpers.expectCppException(() => {
       const im = vips.Image.heifload(Helpers.avifFileHuge);
       im.avg();
     }).to.throw(/exceeds the maximum image size/);
@@ -1052,7 +1052,7 @@ describe('foreign', () => {
 
     // set trunc should make it fail
     im = vips.Image.csvloadSource(source, { fail_on: 'truncated' });
-    expect(() =>
+    Helpers.expectCppException(() =>
       // this will now force parsing of the whole file, which should
       // trigger an error
       im.avg()
@@ -1060,6 +1060,6 @@ describe('foreign', () => {
 
     // warn should fail too, since trunc implies warn
     im = vips.Image.csvloadSource(source, { fail_on: 'warning' });
-    expect(() => im.avg()).to.throw(/unexpected end of file/);
+    Helpers.expectCppException(() => im.avg()).to.throw(/unexpected end of file/);
   });
 });

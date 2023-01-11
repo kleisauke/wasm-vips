@@ -152,9 +152,8 @@ int Option::to_enum(GType type, emscripten::val val) {
     } else if (val["value"].isNumber()) {
         return val["value"].as<int>();
     } else {
-        throw_type_error("unsupported type for enum " +
-                         val.typeOf().as<std::string>());
-        return -1;
+        throw std::invalid_argument("unsupported type for enum " +
+                                    val.typeOf().as<std::string>());
     }
 }
 
@@ -167,9 +166,8 @@ int Option::to_flag(GType type, emscripten::val val) {
     } else if (val["value"].isNumber()) {
         return val["value"].as<int>();
     } else {
-        throw_type_error("unsupported type for flag " +
-                         val.typeOf().as<std::string>());
-        return -1;
+        throw std::invalid_argument("unsupported type for flag " +
+                                    val.typeOf().as<std::string>());
     }
 }
 
@@ -207,9 +205,10 @@ Option *Option::set(const std::string &name, GType type, emscripten::val val,
         set(name, blob);
         vips_area_unref(VIPS_AREA(blob));
     } else {
-        throw_type_error("unsupported gtype for Option::set " +
-                         std::string(g_type_name(type)) + ", value type " +
-                         val.typeOf().as<std::string>());
+        throw std::invalid_argument("unsupported gtype for Option::set " +
+                                    std::string(g_type_name(type)) +
+                                    ", value type " +
+                                    val.typeOf().as<std::string>());
     }
 
     return this;
@@ -231,8 +230,8 @@ Option *Option::set(const std::string &name, GType type) {
         // remap VIPS_TYPE_ARRAY_INT to VIPS_TYPE_ARRAY_DOUBLE
         g_value_init(&pair->value, VIPS_TYPE_ARRAY_DOUBLE);
     } else {
-        throw_type_error("unsupported gtype for Option::set " +
-                         std::string(g_type_name(type)));
+        throw std::invalid_argument("unsupported gtype for Option::set " +
+                                    std::string(g_type_name(type)));
     }
 
     options.push_back(pair);
@@ -250,7 +249,7 @@ static void set_property(VipsObject *object, const std::string &name,
     GParamSpec *pspec = g_object_class_find_property(
         G_OBJECT_CLASS(object_class), name.c_str());
     if (pspec == nullptr)
-        throw_vips_error("property " + name + " not found");
+        throw Error("property " + name + " not found");
 
     if (G_IS_PARAM_SPEC_ENUM(pspec) && type == G_TYPE_STRING) {
         GType pspec_type = G_PARAM_SPEC_VALUE_TYPE(pspec);

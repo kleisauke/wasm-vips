@@ -120,6 +120,16 @@ declare module Vips {
      */
     function bigintToI53Checked(num: bigint): number;
 
+    /**
+     * Get the exception message from an exception pointer.
+     * C++ exceptions are thrown from WebAssembly using exception pointers, which
+     * means that try/catch/finally blocks in JavaScript will only receive a number,
+     * which represents a pointer into linear memory.
+     * @param exception The exception pointer.
+     * @return The exception message.
+     */
+    function getExceptionMessage(exception: number): string;
+
     //#endregion
 
     //#region APIs
@@ -261,23 +271,6 @@ declare module Vips {
          * @return The number of open files.
          */
         static files(): number;
-    }
-
-    /**
-     * An abstract class for error messages and error handling.
-     */
-    abstract class Error {
-        /**
-         * Get the error buffer as a string.
-         * @return The error buffer as a string.
-         */
-        static buffer(): string;
-
-        /**
-         * Clear and reset the error buffer.
-         * This is typically called after presenting an error to the user.
-         */
-        static clear(): void;
     }
 
     /**

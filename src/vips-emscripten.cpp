@@ -83,7 +83,6 @@ struct ColumnsRowsResult {
 
 struct Cache {};
 struct Stats {};
-struct Error {};
 struct Utils {};
 
 /**
@@ -468,14 +467,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("mem", &vips_tracked_get_mem)
         .class_function("memHighwater", &vips_tracked_get_mem_highwater)
         .class_function("files", &vips_tracked_get_files);
-
-    // Error class
-    class_<Error>("Error")
-        .constructor<>()
-        .class_function("buffer", optional_override([]() {
-                            return std::string(vips_error_buffer());
-                        }))
-        .class_function("clear", &vips_error_clear);
 
     // Utils class
     class_<Utils>("Utils")

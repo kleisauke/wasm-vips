@@ -14,7 +14,7 @@ void Image::call(const char *operation_name, const char *option_string,
 
     if (operation == nullptr) {
         delete args;
-        throw_vips_error("no such operation " + std::string(operation_name));
+        throw Error("no such operation " + std::string(operation_name));
     }
 
     VipsObject *object = VIPS_OBJECT(operation);
@@ -85,7 +85,7 @@ error:
     vips_object_unref_outputs(object);
     g_object_unref(operation);
     delete args;
-    throw_vips_error("unable to call " + std::string(operation_name));
+    throw Error("unable to call " + std::string(operation_name));
 }
 
 void Image::call(const char *operation_name, Option *args,
@@ -101,7 +101,7 @@ Image Image::new_temp_file(const std::string &file_format) {
     VipsImage *image = vips_image_new_temp_file(file_format.c_str());
 
     if (image == nullptr)
-        throw_vips_error("unable to make temp file");
+        throw Error("unable to make temp file");
 
     return Image(image);
 }
@@ -116,7 +116,7 @@ Image Image::new_from_file(const std::string &name,
     const char *operation_name = vips_foreign_find_load(filename);
 
     if (operation_name == nullptr)
-        throw_vips_error("unable to load from file " + std::string(filename));
+        throw Error("unable to load from file " + std::string(filename));
 
     Image out;
 
@@ -136,7 +136,7 @@ Image Image::new_from_memory(const std::string &data, int width, int height,
             Option::to_enum(VIPS_TYPE_BAND_FORMAT, format)));
 
     if (image == nullptr)
-        throw_vips_error("unable to make image from memory");
+        throw Error("unable to make image from memory");
 
     return Image(image);
 }
@@ -150,7 +150,7 @@ Image Image::new_from_memory(uintptr_t data, size_t size, int width, int height,
             Option::to_enum(VIPS_TYPE_BAND_FORMAT, format)));
 
     if (image == nullptr)
-        throw_vips_error("unable to make image from memory");
+        throw Error("unable to make image from memory");
 
     return Image(image);
 }
@@ -162,7 +162,7 @@ Image Image::new_from_buffer(const std::string &buffer,
         vips_foreign_find_load_buffer(buffer.c_str(), buffer.size());
 
     if (operation_name == nullptr)
-        throw_vips_error("unable to load from buffer");
+        throw Error("unable to load from buffer");
 
     Image out;
 
@@ -183,7 +183,7 @@ Image Image::new_from_source(const Source &source,
         vips_foreign_find_load_source(source.get_source());
 
     if (operation_name == nullptr)
-        throw_vips_error("unable to load from source");
+        throw Error("unable to load from source");
 
     Image out;
 
@@ -205,7 +205,7 @@ Image Image::new_matrix(int width, int height, emscripten::val array) {
         width, height, v.data(), static_cast<int>(v.size()));
 
     if (image == nullptr)
-        throw_vips_error("unable to make image from matrix");
+        throw Error("unable to make image from matrix");
 
     return Image(image);
 }
@@ -246,7 +246,7 @@ Image Image::new_from_array(emscripten::val array, double scale,
                                                         width * height);
 
     if (image == nullptr)
-        throw_vips_error("unable to make image from array");
+        throw Error("unable to make image from array");
 
     vips_image_set_double(image, "scale", scale);
     vips_image_set_double(image, "offset", offset);
@@ -261,7 +261,7 @@ Image Image::new_from_image(emscripten::val pixel) const {
                                                  static_cast<int>(v.size()));
 
     if (image == nullptr)
-        throw_vips_error("unable to make image from image");
+        throw Error("unable to make image from image");
 
     return Image(image);
 }
@@ -325,14 +325,14 @@ Image Image::copy_memory() const {
     VipsImage *image = vips_image_copy_memory(get_image());
 
     if (image == nullptr)
-        throw_vips_error("unable to copy to memory");
+        throw Error("unable to copy to memory");
 
     return Image(image);
 }
 
 Image Image::write(Image out) const {
     if (vips_image_write(get_image(), out.get_image()) != 0)
-        throw_vips_error("unable to write to image");
+        throw Error("unable to write to image");
 
     return out;
 }
@@ -347,7 +347,7 @@ void Image::write_to_file(const std::string &name,
     const char *operation_name = vips_foreign_find_save(filename);
 
     if (operation_name == nullptr)
-        throw_vips_error("unable to write to file " + std::string(filename));
+        throw Error("unable to write to file " + std::string(filename));
 
     Image::call(operation_name, option_string,
                 (new Option)->set("in", *this)->set("filename", filename),
@@ -386,7 +386,7 @@ emscripten::val Image::write_to_buffer(const std::string &suffix,
                     (new Option)->set("in", *this)->set("buffer", &blob),
                     js_options);
     } else {
-        throw_vips_error("unable to write to buffer");
+        throw Error("unable to write to buffer");
     }
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
@@ -407,7 +407,7 @@ void Image::write_to_target(const Target &target, const std::string &suffix,
     const char *operation_name = vips_foreign_find_save_target(filename);
 
     if (operation_name == nullptr)
-        throw_vips_error("unable to write to target");
+        throw Error("unable to write to target");
 
     Image::call(operation_name, option_string,
                 (new Option)->set("in", *this)->set("target", target),
@@ -419,10 +419,10 @@ emscripten::val Image::write_to_memory() const {
     void *mem = vips_image_write_to_memory(get_image(), &size);
 
     if (mem == nullptr)
-        throw_vips_error("unable to write to memory");
+        throw Error("unable to write to memory");
 
-    emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
-        size, reinterpret_cast<uint8_t *>(mem)));
+    emscripten::val result = BlobVal.new_(
+        emscripten::typed_memory_view(size, reinterpret_cast<uint8_t *>(mem)));
     g_free(mem);
     return result;
 }

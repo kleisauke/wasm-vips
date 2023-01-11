@@ -9,7 +9,7 @@ Source Source::new_from_file(const std::string &filename) {
     VipsSource *input = vips_source_new_from_file(filename.c_str());
 
     if (input == nullptr)
-        throw_vips_error("unable to make source from file " + filename);
+        throw Error("unable to make source from file " + filename);
 
     return Source(input);
 }
@@ -21,7 +21,7 @@ Source Source::new_from_memory(const std::string &memory) {
     vips_area_unref(VIPS_AREA(blob));
 
     if (input == nullptr)
-        throw_vips_error("unable to make source from memory");
+        throw Error("unable to make source from memory");
 
     return Source(input);
 }
@@ -70,7 +70,7 @@ Target Target::new_to_file(const std::string &filename) {
     VipsTarget *output = vips_target_new_to_file(filename.c_str());
 
     if (output == nullptr)
-        throw_vips_error("unable to output to file " + filename);
+        throw Error("unable to output to file " + filename);
 
     return Target(output);
 }
@@ -79,7 +79,7 @@ Target Target::new_to_memory() {
     VipsTarget *output = vips_target_new_to_memory();
 
     if (output == nullptr)
-        throw_vips_error("unable to output to memory");
+        throw Error("unable to output to memory");
 
     return Target(output);
 }

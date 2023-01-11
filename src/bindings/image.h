@@ -132,7 +132,7 @@ class Image : public Object {
         int value;
 
         if (vips_image_get_int(get_image(), field.c_str(), &value) != 0)
-            throw_vips_error("unable to get " + field);
+            throw Error("unable to get " + field);
 
         return value;
     }
@@ -143,7 +143,7 @@ class Image : public Object {
 
         if (vips_image_get_array_int(get_image(), field.c_str(), &array,
                                      &length) != 0)
-            throw_vips_error("unable to get " + field);
+            throw Error("unable to get " + field);
 
         return std::vector<int>(array, array + length);
     }
@@ -154,7 +154,7 @@ class Image : public Object {
 
         if (vips_image_get_array_double(get_image(), field.c_str(), &array,
                                         &length) != 0)
-            throw_vips_error("unable to get " + field);
+            throw Error("unable to get " + field);
 
         return std::vector<double>(array, array + length);
     }
@@ -163,7 +163,7 @@ class Image : public Object {
         double value;
 
         if (vips_image_get_double(get_image(), field.c_str(), &value) != 0)
-            throw_vips_error("unable to get " + field);
+            throw Error("unable to get " + field);
 
         return value;
     }
@@ -172,7 +172,7 @@ class Image : public Object {
         const char *value;
 
         if (vips_image_get_string(get_image(), field.c_str(), &value) != 0)
-            throw_vips_error("unable to get " + field);
+            throw Error("unable to get " + field);
 
         return value;
     }
@@ -183,7 +183,7 @@ class Image : public Object {
 
         if (vips_image_get_blob(get_image(), field.c_str(), &value, &length) !=
             0)
-            throw_vips_error("unable to get " + field);
+            throw Error("unable to get " + field);
 
         return emscripten::val(emscripten::typed_memory_view(
             length, reinterpret_cast<const uint8_t *>(value)));
@@ -193,7 +193,7 @@ class Image : public Object {
         char **fields = vips_image_get_fields(get_image());
 
         if (fields == nullptr)
-            throw_vips_error("unable to get fields");
+            throw Error("unable to get fields");
 
         std::vector<std::string> v;
 

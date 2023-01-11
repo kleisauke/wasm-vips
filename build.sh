@@ -137,7 +137,11 @@ if [ "$PIC" = "true" ]; then PIC_FLAG=--pic; fi
 # Common compiler flags
 COMMON_FLAGS="-O3 -pthread"
 if [ "$LTO" = "true" ]; then COMMON_FLAGS+=" -flto"; fi
-if [ "$WASM_EH" = "true" ]; then COMMON_FLAGS+=" -fwasm-exceptions -sSUPPORT_LONGJMP=wasm"; fi
+if [ "$WASM_EH" = "true" ]; then
+  COMMON_FLAGS+=" -fwasm-exceptions -sSUPPORT_LONGJMP=wasm"
+else
+  COMMON_FLAGS+=" -fexceptions"
+fi
 
 export CFLAGS="$COMMON_FLAGS -mnontrapping-fptoint"
 if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"; fi

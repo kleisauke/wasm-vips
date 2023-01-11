@@ -56,6 +56,9 @@ JXL=true
 # Support for AVIF, enabled by default
 AVIF=true
 
+# Partial support for SVG via resvg, disabled by default because it disables some opts.
+SVG=false
+
 # Build libvips C++ API, disabled by default
 LIBVIPS_CPP=false
 
@@ -72,6 +75,7 @@ while [ $# -gt 0 ]; do
     --disable-wasm-bigint) WASM_BIGINT=false ;;
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;
+    --enable-svg) SVG=true ;;
     --disable-modules)
       PIC=false
       MODULES=false
@@ -105,6 +109,11 @@ if [ "$AVIF" = "true" ]; then
 else
   DISABLE_AVIF=true
 fi
+if [ "$SVG" = "true" ]; then
+  ENABLE_SVG=true
+else
+  DISABLE_SVG=true
+fi
 if [ "$LIBVIPS_CPP" = "true" ]; then
   ENABLE_LIBVIPS_CPP=true
 else
@@ -134,17 +143,24 @@ if [ "$PIC" = "true" ]; then PIC_FLAG=--pic; fi
 # Specify location where source maps are published (browser specific)
 #export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"
 
+# Rust flags
+export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+mutable-globals,+nontrapping-fptoint"
+
 # Common compiler flags
-COMMON_FLAGS="-O3 -pthread"
+COMMON_FLAGS="-pthread"
 if [ "$LTO" = "true" ]; then COMMON_FLAGS+=" -flto"; fi
 if [ "$WASM_EH" = "true" ]; then
   COMMON_FLAGS+=" -fwasm-exceptions -sSUPPORT_LONGJMP=wasm"
+  export RUSTFLAGS+=",+exception-handling"
 else
   COMMON_FLAGS+=" -fexceptions"
 fi
 
-export CFLAGS="$COMMON_FLAGS -mnontrapping-fptoint"
-if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"; fi
+export CFLAGS="$COMMON_FLAGS -O3 -mnontrapping-fptoint"
+if [ "$SIMD" = "true" ]; then
+  export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"
+  export RUSTFLAGS+=",+simd128"
+fi
 if [ "$WASM_BIGINT" = "true" ]; then
   # libffi needs to detect WASM_BIGINT support at compile time
   export CFLAGS+=" -DWASM_BIGINT"
@@ -154,11 +170,14 @@ if [ "$PIC" = "true" ]; then export CFLAGS+=" -fPIC"; fi
 
 export CXXFLAGS="$CFLAGS"
 
-export LDFLAGS="$COMMON_FLAGS -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
+LD_OPT_LEVEL=3
+# The least-invasive workaround for
+# https://github.com/rust-lang/rust/issues/91628 / https://github.com/emscripten-core/emscripten/issues/15722
+if [ "$ENABLE_SVG" = "true" ]; then LD_OPT_LEVEL=1; fi
+
+export LDFLAGS="$COMMON_FLAGS $LD_OPT_LEVEL -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
 if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
 if [ "$WASM_FS" = "true" ]; then export LDFLAGS+=" -sWASMFS"; fi
-
-export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+mutable-globals,+nontrapping-fptoint"
 
 # Build paths
 export CPATH="$TARGET/include"
@@ -417,8 +436,8 @@ node --version
   # We don't want to build the shared library
   sed -i 's/crate-type = .*/crate-type = ["staticlib"]/' Cargo.toml
   # Note: --release dosn't work right now due to https://github.com/rust-lang/rust/issues/91628
-  RUSTFLAGS="$RUSTFLAGS -Clink-args=--no-entry" cargo build --target wasm32-unknown-emscripten --locked -Zbuild-std=panic_abort,std --no-default-features --features filter
-  cp $DEPS/resvg/target/wasm32-unknown-emscripten/debug/libresvg.a $TARGET/lib/
+  cargo build --release --target wasm32-unknown-emscripten --locked -Zbuild-std=panic_abort,std --no-default-features --features filter
+  cp $DEPS/resvg/target/wasm32-unknown-emscripten/release/libresvg.a $TARGET/lib/
   cp $DEPS/resvg/c-api/resvg.h $TARGET/include/
 )
 

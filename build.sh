@@ -34,7 +34,8 @@ WASM_BIGINT=true
 # https://github.com/emscripten-core/emscripten/issues/15041
 WASM_FS=false
 
-# setjmp/longjmp support using Wasm EH instructions, disabled by default
+# Leverage Wasm EH instructions for setjmp/longjmp support
+# and throwing/catching exceptions, disabled by default
 # https://github.com/WebAssembly/exception-handling
 WASM_EH=false
 
@@ -136,7 +137,7 @@ if [ "$PIC" = "true" ]; then PIC_FLAG=--pic; fi
 # Common compiler flags
 COMMON_FLAGS="-O3 -pthread"
 if [ "$LTO" = "true" ]; then COMMON_FLAGS+=" -flto"; fi
-if [ "$WASM_EH" = "true" ]; then COMMON_FLAGS+=" -sSUPPORT_LONGJMP=wasm"; fi
+if [ "$WASM_EH" = "true" ]; then COMMON_FLAGS+=" -fwasm-exceptions -sSUPPORT_LONGJMP=wasm"; fi
 
 export CFLAGS="$COMMON_FLAGS -mnontrapping-fptoint"
 if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"; fi

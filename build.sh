@@ -147,7 +147,7 @@ if [ "$PIC" = "true" ]; then PIC_FLAG=--pic; fi
 export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+mutable-globals,+nontrapping-fptoint"
 
 # Common compiler flags
-COMMON_FLAGS="-pthread"
+COMMON_FLAGS="-O3 -pthread"
 if [ "$LTO" = "true" ]; then
   COMMON_FLAGS+=" -flto"
   export RUSTFLAGS+=" -Clto -Cembed-bitcode=yes"
@@ -159,7 +159,7 @@ else
   COMMON_FLAGS+=" -fexceptions"
 fi
 
-export CFLAGS="$COMMON_FLAGS -O3 -mnontrapping-fptoint"
+export CFLAGS="$COMMON_FLAGS -mnontrapping-fptoint"
 if [ "$SIMD" = "true" ]; then
   export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"
   export RUSTFLAGS+=" -Ctarget-feature=+simd128"
@@ -173,12 +173,7 @@ if [ "$PIC" = "true" ]; then export CFLAGS+=" -fPIC"; fi
 
 export CXXFLAGS="$CFLAGS"
 
-LD_OPT_LEVEL=3
-# The least-invasive workaround for
-# https://github.com/rust-lang/rust/issues/91628 / https://github.com/emscripten-core/emscripten/issues/15722
-if [ "$ENABLE_SVG" = "true" ]; then LD_OPT_LEVEL=1; fi
-
-export LDFLAGS="$COMMON_FLAGS -O$LD_OPT_LEVEL -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
+export LDFLAGS="$COMMON_FLAGS -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
 if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
 if [ "$WASM_FS" = "true" ]; then export LDFLAGS+=" -sWASMFS"; fi
 
@@ -439,8 +434,8 @@ node --version
   # We don't want to build the shared library
   sed -i 's/crate-type = .*/crate-type = ["staticlib"]/' Cargo.toml
   # Note: --release dosn't work right now due to https://github.com/rust-lang/rust/issues/91628
-  cargo build --release --target wasm32-unknown-emscripten --locked -Zbuild-std=panic_abort,std --no-default-features --features filter
-  cp $DEPS/resvg/target/wasm32-unknown-emscripten/release/libresvg.a $TARGET/lib/
+  cargo build --target wasm32-unknown-emscripten --locked -Zbuild-std=panic_abort,std --no-default-features --features filter
+  cp $DEPS/resvg/target/wasm32-unknown-emscripten/debug/libresvg.a $TARGET/lib/
   cp $DEPS/resvg/c-api/resvg.h $TARGET/include/
 )
 

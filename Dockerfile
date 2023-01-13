@@ -1,8 +1,9 @@
 # https://github.com/emscripten-core/emsdk
 FROM docker.io/emscripten/emsdk:3.1.29
 
-# Avoid using bundled Node from emsdk
-ENV PATH=$EMSDK:$EMSDK/upstream/emscripten:$EMSDK/upstream/bin:/root/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+ENV RUSTUP_TOOLCHAIN=nightly-2023-01-12
+
+ENV PATH=$EMSDK:$EMSDK/upstream/emscripten:$EMSDK/upstream/bin:/root/.rustup/toolchains/$RUSTUP_TOOLCHAIN-x86_64-unknown-linux-gnu/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
     # Enable Emscripten sysroot cache
     EM_CACHE=/src/build/emcache \
     # Enable Rust cache
@@ -33,5 +34,5 @@ RUN curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.29...klei
     curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.29...kleisauke:dylink-deno-compat.patch | patch -p1 -d /emsdk/upstream/emscripten && \
     emcc --clear-cache && embuilder build sysroot --force
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --target wasm32-unknown-emscripten --default-toolchain nightly-2023-01-12 --component rust-src
-RUN curl -Ls https://github.com/rust-lang/rust/pull/106779.patch | patch -p1 -d /root/.rustup/toolchains/nightly-2023-01-12-x86_64-unknown-linux-gnu/lib/rustlib/src/rust
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --target wasm32-unknown-emscripten --default-toolchain $RUSTUP_TOOLCHAIN --component rust-src
+RUN curl -Ls https://github.com/rust-lang/rust/pull/106779.patch | patch -p1 -d /root/.rustup/toolchains/$RUSTUP_TOOLCHAIN-x86_64-unknown-linux-gnu/lib/rustlib/src/rust

@@ -33,4 +33,5 @@ RUN curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.29...klei
     curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.29...kleisauke:dylink-deno-compat.patch | patch -p1 -d /emsdk/upstream/emscripten && \
     emcc --clear-cache && embuilder build sysroot --force
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --target wasm32-unknown-emscripten --default-toolchain nightly --component rust-src
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --target wasm32-unknown-emscripten --default-toolchain nightly-2023-01-12 --component rust-src
+RUN curl -Ls https://github.com/rust-lang/rust/pull/106779.patch | patch -p1 -d /root/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust

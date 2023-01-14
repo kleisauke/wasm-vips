@@ -499,7 +499,7 @@ node --version
     -Dcgif=enabled -Dexif=enabled -Dimagequant=enabled -Djpeg=enabled ${ENABLE_JXL:+-Djpeg-xl=enabled} \
     -Djpeg-xl-module=enabled -Dlcms=enabled -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true \
     -Dppm=true -Danalyze=true -Dradiance=true \
-    -Dresvg=enabled ${ENABLE_AVIF:+-Dheif=enabled} -Dheif-module=enabled
+    ${ENABLE_SVG:+-Dresvg=enabled} ${ENABLE_AVIF:+-Dheif=enabled} -Dheif-module=enabled
   meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)

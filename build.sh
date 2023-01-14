@@ -490,7 +490,7 @@ node --version
   fi
   if [ -n "$ENABLE_SVG" ]; then
     # resvg patch
-    curl -Ls https://github.com/RReverser/libvips/commit/53657294d5fa6dfeff3055363bdb6048a0a32068.patch | patch -p1
+    curl -Ls https://github.com/RReverser/libvips/commit/185c842a405549c8297d35fd15edddf98092adfa.patch | patch -p1
   fi
   # Disable building man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build

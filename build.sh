@@ -56,7 +56,7 @@ JXL=true
 # Support for AVIF, enabled by default
 AVIF=true
 
-# Partial support for SVG via resvg, disabled by default because it disables some opts.
+# Partial support for SVG via resvg, disabled by default because it's incomplete and relatively rarely useful feature.
 SVG=false
 
 # Build libvips C++ API, disabled by default

@@ -434,7 +434,7 @@ node --version
   # We don't want to build the shared library
   sed -i 's/crate-type = .*/crate-type = ["staticlib"]/' Cargo.toml
   # Note: --release dosn't work right now due to https://github.com/rust-lang/rust/issues/91628
-  cargo build --release --target wasm32-unknown-emscripten --locked -Zbuild-std=panic_abort,std --no-default-features --features filter,raster_images
+  cargo build --release --target wasm32-unknown-emscripten --locked -Zbuild-std=panic_abort,std --no-default-features --features filter,raster-images
   cp $DEPS/resvg/target/wasm32-unknown-emscripten/release/libresvg.a $TARGET/lib/
   cp $DEPS/resvg/c-api/resvg.h $TARGET/include/
 )

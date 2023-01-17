@@ -56,8 +56,8 @@ JXL=true
 # Support for AVIF, enabled by default
 AVIF=true
 
-# Partial support for SVG via resvg, disabled by default because it's incomplete and relatively rarely useful feature.
-SVG=false
+# Partial support for SVG load via resvg, enabled by default
+SVG=true
 
 # Build libvips C++ API, disabled by default
 LIBVIPS_CPP=false
@@ -75,7 +75,7 @@ while [ $# -gt 0 ]; do
     --disable-wasm-bigint) WASM_BIGINT=false ;;
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;
-    --enable-svg) SVG=true ;;
+    --disable-svg) SVG=false ;;
     --disable-modules)
       PIC=false
       MODULES=false
@@ -489,7 +489,7 @@ node --version
   fi
   if [ -n "$ENABLE_SVG" ]; then
     # resvg patch
-    curl -Ls https://github.com/RReverser/libvips/compare/wasm-vips..wasm-vips-resvg.patch | patch -p1
+    curl -Ls https://github.com/kleisauke/libvips/compare/wasm-vips...RReverser-wasm-vips-resvg.patch | patch -p1
   fi
   # Disable building man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
@@ -497,7 +497,7 @@ node --version
     -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled \
     ${ENABLE_MODULES:+-Dmodules=enabled} -Dcgif=enabled -Dexif=enabled ${ENABLE_AVIF:+-Dheif=enabled} \
     -Dheif-module=enabled -Dimagequant=enabled -Djpeg=enabled ${ENABLE_JXL:+-Djpeg-xl=enabled} \
-    -Djpeg-xl-module=enabled -Dlcms=enabled ${ENABLE_SVG:+-Dresvg=enabled} \
+    -Djpeg-xl-module=enabled -Dlcms=enabled ${ENABLE_SVG:+-Dresvg=enabled} -Dresvg-module=enabled \
     -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true -Dppm=true -Danalyze=true -Dradiance=true
   meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export

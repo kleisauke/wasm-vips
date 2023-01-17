@@ -104,6 +104,8 @@
     print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
     // Uncomment to disable dynamic modules
     // dynamicLibraries: [],
+    // Test all available dynamic modules
+    dynamicLibraries: ['vips-jxl.wasm', 'vips-heif.wasm', 'vips-resvg.wasm'],
     preRun: (module) => {
       module.setAutoDeleteLater(true);
       module.setDelayFunction(fn => {

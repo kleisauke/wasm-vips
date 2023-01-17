@@ -12,6 +12,9 @@ export async function mochaGlobalSetup () {
     // Uncomment to disable dynamic modules
     // dynamicLibraries: [],
     preRun: (module) => {
+      // Ensure we also test the vips-resvg dynamic module
+      module.dynamicLibraries.push('../vips-resvg.wasm');
+
       module.setAutoDeleteLater(true);
       module.setDelayFunction(fn => {
         globalThis.cleanup = fn;

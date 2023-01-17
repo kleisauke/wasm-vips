@@ -88,6 +88,7 @@ test/bench/images/output*
 # Build caches
 build/emcache
 build/ccache
+build/cargo-cache
 
 # Include type definitions
 !lib/vips.d.ts

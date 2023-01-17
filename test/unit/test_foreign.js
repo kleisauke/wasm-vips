@@ -880,8 +880,7 @@ describe('foreign', () => {
     fileLoader('svgload', Helpers.svgFile, svgValid);
     bufferLoader('svgload_buffer', Helpers.svgFile, svgValid);
 
-    // FIXME(kleisauke): resvg doesn't seem to support gzip compressed SVG images.
-    /* fileLoader('svgload', Helpers.svgzFile, svgValid);
+    fileLoader('svgload', Helpers.svgzFile, svgValid);
     bufferLoader('svgload_buffer', Helpers.svgzFile, svgValid);
 
     fileLoader('svgload', Helpers.svgGzFile, svgValid);
@@ -894,7 +893,7 @@ describe('foreign', () => {
     im = vips.Image.newFromFile(Helpers.svgzFile);
     x = vips.Image.newFromFile(Helpers.svgzFile, { dpi: 144 });
     expect(Math.abs(im.width * 2 - x.width)).to.be.below(2);
-    expect(Math.abs(im.height * 2 - x.height)).to.be.below(2); */
+    expect(Math.abs(im.height * 2 - x.height)).to.be.below(2);
 
     Helpers.expectCppException(() => {
       const svg = '<svg viewBox="0 0 0 0"></svg>';

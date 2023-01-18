@@ -1,8 +1,9 @@
 #pragma once
 
+#include <exception>
 #include <string>
 
-#include <emscripten.h>
+#include <vips/vips.h>
 
 namespace vips {
 
@@ -21,12 +22,12 @@ class Error : public std::exception {
         vips_error_clear();
     }
 
-    virtual ~Error() throw() {}
+    virtual ~Error() noexcept {}
 
     /**
      * Get a reference to the underlying C string.
      */
-    virtual const char *what() const throw() {
+    virtual const char *what() const noexcept {
         return _what.c_str();
     }
 };

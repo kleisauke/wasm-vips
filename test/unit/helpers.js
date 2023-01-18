@@ -239,13 +239,3 @@ export function imageToString (im) {
 export function makeRepeated (arr, repeats) {
   return [].concat(...Array.from({ length: repeats }, () => arr));
 }
-
-export function expectCppException (fn) {
-  return expect(() => {
-    try {
-      fn();
-    } catch (exception) {
-      throw new Error(vips.getExceptionMessage(exception));
-    }
-  });
-}

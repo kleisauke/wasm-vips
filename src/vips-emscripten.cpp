@@ -5,6 +5,7 @@
 #include "bindings/utils.h"
 
 #include <emscripten/bind.h>
+#include <emscripten/emscripten.h>
 #include <emscripten/val.h>
 #include <emscripten/version.h>
 #ifdef WASMFS
@@ -439,8 +440,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
                  return vips::replace_all(VIPS_CONFIG, ", ", "\n");
              }));
     function("blockUntrusted", optional_override([](bool state) {
-                vips_block_untrusted_set(state ? 1 : 0);
-            }));
+                 vips_block_untrusted_set(state ? 1 : 0);
+             }));
     function("operationBlock",
              optional_override([](const std::string &name, bool state) {
                  vips_operation_block_set(name.c_str(), state ? 1 : 0);

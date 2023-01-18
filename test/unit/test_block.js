@@ -25,7 +25,7 @@ describe('block', () => {
 
     // For example, `vipsload` is an untrusted operation, and would throw
     // an error when untrusted operations are blocked
-    Helpers.expectCppException(() => vips.Image.vipsload(Helpers.vipsFile)).to.throw(/operation is blocked/);
+    expect(() => vips.Image.vipsload(Helpers.vipsFile)).to.throw(/operation is blocked/);
 
     // Ensure no operations are blocked when the rest of the tests are run
     vips.blockUntrusted(false);
@@ -38,15 +38,15 @@ describe('block', () => {
     }
 
     vips.operationBlock('VipsForeignLoadJpeg', true);
-    Helpers.expectCppException(() => vips.Image.jpegload(Helpers.jpegFile)).to.throw(/operation is blocked/);
+    expect(() => vips.Image.jpegload(Helpers.jpegFile)).to.throw(/operation is blocked/);
 
     vips.operationBlock('VipsForeignLoad', false);
     vips.operationBlock('VipsForeignLoadPng', true);
     expect(() => vips.Image.jpegload(Helpers.jpegFile)).to.not.throw();
-    Helpers.expectCppException(() => vips.Image.pngload(Helpers.pngFile)).to.throw(/operation is blocked/);
+    expect(() => vips.Image.pngload(Helpers.pngFile)).to.throw(/operation is blocked/);
 
     vips.operationBlock('VipsForeignLoadJpeg', true);
-    Helpers.expectCppException(() => vips.Image.jpegload(Helpers.jpegFile)).to.throw(/operation is blocked/);
+    expect(() => vips.Image.jpegload(Helpers.jpegFile)).to.throw(/operation is blocked/);
 
     vips.operationBlock('VipsForeignLoadPng', false);
     expect(() => vips.Image.pngload(Helpers.pngFile)).to.not.throw();

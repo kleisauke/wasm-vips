@@ -8,18 +8,17 @@
 #   pip install --user pyvips
 
 # Sample member declaration:
-# Image invert(emscripten::val js_options = emscripten::val::null()) const;
+# Image invert() const;
 
 # Sample member definition:
-# Image Image::invert(emscripten::val js_options) const
+# Image Image::invert() const
 # {
 #     Image out;
 #
-#     call("invert",
-#          (new Option)
-#              ->set("in", *this)
-#              ->set("out", &out),
-#          js_options);
+#     this->call("invert",
+#                (new Option)
+#                    ->set("in", *this)
+#                    ->set("out", &out));
 #
 #     return out;
 # }

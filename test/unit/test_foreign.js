@@ -895,7 +895,7 @@ describe('foreign', () => {
     expect(Math.abs(im.width * 2 - x.width)).to.be.below(2);
     expect(Math.abs(im.height * 2 - x.height)).to.be.below(2);
 
-    Helpers.expectCppException(() => {
+    expect(() => {
       const svg = '<svg viewBox="0 0 0 0"></svg>';
       vips.Image.newFromBuffer(svg, '');
     }).to.throw('failed to parse SVG data');
@@ -938,7 +938,7 @@ describe('foreign', () => {
     fileLoader('heifload', Helpers.avifFile, heifValid);
     bufferLoader('heifload_buffer', Helpers.avifFile, heifValid);
 
-    Helpers.expectCppException(() => {
+    expect(() => {
       const im = vips.Image.heifload(Helpers.avifFileHuge);
       im.avg();
     }).to.throw(/exceeds the maximum image size/);
@@ -1110,7 +1110,7 @@ describe('foreign', () => {
 
     // set trunc should make it fail
     im = vips.Image.csvloadSource(source, { fail_on: 'truncated' });
-    Helpers.expectCppException(() =>
+    expect(() =>
       // this will now force parsing of the whole file, which should
       // trigger an error
       im.avg()
@@ -1118,6 +1118,6 @@ describe('foreign', () => {
 
     // warn should fail too, since trunc implies warn
     im = vips.Image.csvloadSource(source, { fail_on: 'warning' });
-    Helpers.expectCppException(() => im.avg()).to.throw(/unexpected end of file/);
+    expect(() => im.avg()).to.throw(/unexpected end of file/);
   });
 });

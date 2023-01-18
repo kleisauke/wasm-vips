@@ -51,4 +51,10 @@ RUN \
 
 # Rust patches
 RUN \
-  curl -Ls https://github.com/rust-lang/rust/pull/106779.patch | patch -p1 -d $RUSTUP_HOME/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/src/rust
+  curl -Ls https://github.com/rust-lang/rust/pull/106779.patch | patch -p1 -d $(rustc --print sysroot)/lib/rustlib/src/rust && \
+  curl -Ls https://github.com/kleisauke/rust/commit/c705a6a9b68b0262a01ddc50d80fbf8571580cfc.patch | patch -p1 -d $(rustc --print sysroot)/lib/rustlib/src/rust
+
+# Copy the Cargo.lock for Rust to places `vendor` will see
+# https://github.com/rust-lang/wg-cargo-std-aware/issues/23#issuecomment-720455524
+RUN \
+  cp $(rustc --print sysroot)/lib/rustlib/src/rust/Cargo.lock $(rustc --print sysroot)/lib/rustlib/src/rust/library/test

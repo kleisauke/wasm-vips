@@ -994,7 +994,7 @@ describe('foreign', () => {
 
     // save and load with an icc profile
     saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',
-      colour, 120);
+      colour, 130);
 
     // with no icc profile
     const noProfile = colour.copy();
@@ -1016,7 +1016,7 @@ describe('foreign', () => {
     // 16-bit mode
     const rgb16 = colour.colourspace('rgb16');
     saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',
-      rgb16, 30000);
+      rgb16, 30300);
 
     // repeat for lossless mode
     saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',

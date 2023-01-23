@@ -896,27 +896,26 @@ describe('foreign', () => {
     expect(Math.abs(im.height * 2 - x.height)).to.be.below(2);
 
     expect(() => {
-      const svg = '<svg viewBox="0 0 0 0"></svg>';
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0"></svg>';
       vips.Image.newFromBuffer(svg, '');
-    }).to.throw('failed to parse SVG data');
+    }).to.throw('SVG doesn\'t have a valid size');
 
-    // FIXME(kleisauke): Doesn't seem to work with resvg.
     // recognize dimensions for SVGs without width/height
-    /* let svg = '<svg viewBox="0 0 100 100"></svg>';
+    let svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"></svg>';
     im = vips.Image.newFromBuffer(svg, '');
     expect(im.width).to.equal(100);
     expect(im.height).to.equal(100);
 
-    svg = '<svg><rect width="100" height="100" /></svg>';
+    svg = '<svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>';
     im = vips.Image.newFromBuffer(svg, '');
     expect(im.width).to.equal(100);
     expect(im.height).to.equal(100);
 
     // width and height of 0.5 is valid
-    svg = '<svg width="0.5" height="0.5"></svg>';
+    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="0.5" height="0.5"></svg>';
     im = vips.Image.newFromBuffer(svg, '');
     expect(im.width).to.equal(1);
-    expect(im.height).to.equal(1); */
+    expect(im.height).to.equal(1);
   });
 
   it('heifload', function () {

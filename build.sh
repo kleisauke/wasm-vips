@@ -205,9 +205,9 @@ VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.2.4          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.5.0          # https://gitlab.com/libtiff/libtiff
+VERSION_RESVG=0.28.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.5.0           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.14.2         # https://github.com/strukturag/libheif
-VERSION_RESVG=0.28.0        # https://github.com/RazrFalcon/resvg
 VERSION_VIPS=8.13.3         # https://github.com/libvips/libvips
 
 # Remove patch version component

@@ -428,15 +428,11 @@ node --version
   mkdir -p $DEPS/resvg
   curl -Ls https://github.com/RazrFalcon/resvg/releases/download/v$VERSION_RESVG/resvg-$VERSION_RESVG.tar.xz | tar xJC $DEPS/resvg --strip-components=1
   cd $DEPS/resvg
-  # Allow building vendored sources with `-Zbuild-std`, see:
-  # https://github.com/rust-lang/wg-cargo-std-aware/issues/23#issuecomment-720455524
-  cargo vendor -s $(rustc --print sysroot)/lib/rustlib/src/rust/library/test/Cargo.toml
-  # Patch libc
-  curl -Ls https://github.com/kleisauke/libc/commit/dc597aff818dd32856758feab0d9c530d15985c4.patch | patch -p1 -d vendor/libc
-  # Update expected Cargo SHA256 hashes for the vendored files we have patched
-  sed -i 's/6ef4652dfb94e3c58aed5133ece982ad30569d46b6b1054552cd61905fa61690/8ff63140fc57d10a185f0883d02564d08c93120dcbbaa0410f753154efde3a71/' vendor/libc/.cargo-checksum.json
+  # Vendor dir doesn't work with -Zbuild-std due to https://github.com/rust-lang/wg-cargo-std-aware/issues/23
+  # Just delete the config so that all deps are downloaded from the internet
+  rm .cargo/config
   # We don't want to build the shared library
-  sed -i 's/crate-type = .*/crate-type = ["staticlib"]/' c-api/Cargo.toml
+  sed -i '/^crate-type =/s/"cdylib", //' c-api/Cargo.toml
   cargo build --manifest-path=c-api/Cargo.toml --release --target wasm32-unknown-emscripten --locked \
     -Zbuild-std=panic_abort,std --no-default-features --features filter,raster-images
   cp $DEPS/resvg/target/wasm32-unknown-emscripten/release/libresvg.a $TARGET/lib/

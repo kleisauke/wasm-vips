@@ -51,9 +51,8 @@ RUN \
 # Rust patches
 RUN \
   curl -Ls https://github.com/rust-lang/rust/pull/106779.patch | patch -p1 -d $(rustc --print sysroot)/lib/rustlib/src/rust && \
-  curl -Ls https://github.com/kleisauke/rust/commit/c705a6a9b68b0262a01ddc50d80fbf8571580cfc.patch | patch -p1 -d $(rustc --print sysroot)/lib/rustlib/src/rust
+  curl -Ls https://github.com/rust-lang/rust/pull/107221.patch | patch -p1 -d $(rustc --print sysroot)/lib/rustlib/src/rust
 
-# Copy the Cargo.lock for Rust to places `vendor` will see
-# https://github.com/rust-lang/wg-cargo-std-aware/issues/23#issuecomment-720455524
+# https://github.com/rust-lang/libc/pull/3087
 RUN \
-  cp $(rustc --print sysroot)/lib/rustlib/src/rust/Cargo.lock $(rustc --print sysroot)/lib/rustlib/src/rust/library/test
+  sed -i 's|version = "0.2.138"|git = "https://github.com/kleisauke/libc", branch = "getentropy-emscripten"|' $(rustc --print sysroot)/lib/rustlib/src/rust/library/std/Cargo.toml

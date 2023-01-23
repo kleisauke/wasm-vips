@@ -435,8 +435,8 @@ node --version
   sed -i '/^crate-type =/s/"cdylib", //' c-api/Cargo.toml
   cargo build --manifest-path=c-api/Cargo.toml --release --target wasm32-unknown-emscripten --locked \
     -Zbuild-std=panic_abort,std --no-default-features --features filter,raster-images
-  cp $DEPS/resvg/target/wasm32-unknown-emscripten/release/libresvg.a $TARGET/lib/
-  cp $DEPS/resvg/c-api/resvg.h $TARGET/include/
+  cp target/wasm32-unknown-emscripten/release/libresvg.a $TARGET/lib/
+  cp c-api/resvg.h $TARGET/include/
 )
 
 [ -f "$TARGET/lib/pkgconfig/aom.pc" ] || [ -n "$DISABLE_AVIF" ] || (

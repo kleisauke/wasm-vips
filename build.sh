@@ -495,8 +495,6 @@ node --version
   else
     sed -i "/subdir('cplusplus')/d" meson.build
   fi
-  # resvg patch
-  curl -Ls https://github.com/kleisauke/libvips/compare/wasm-vips...RReverser-wasm-vips-resvg.patch | patch -p1
   # Disable building man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \

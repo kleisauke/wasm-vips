@@ -189,6 +189,13 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Run as many parallel jobs as there are available CPU cores
 export MAKEFLAGS="-j$(nproc)"
 
+# Ensure Rust build path prefixes are removed from the resulting binaries
+# https://reproducible-builds.org/docs/build-path/
+# TODO(kleisauke): Switch to -Ctrim-paths=all once supported - https://github.com/rust-lang/rfcs/pull/3127
+export RUSTFLAGS+=" --remap-path-prefix=$(rustc --print sysroot)/lib/rustlib/src/rust/library/="
+export RUSTFLAGS+=" --remap-path-prefix=$CARGO_HOME/registry/src/="
+export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
+
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.6        # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.4           # https://github.com/libffi/libffi

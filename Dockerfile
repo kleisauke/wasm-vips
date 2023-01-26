@@ -4,7 +4,7 @@ FROM docker.io/emscripten/emsdk:3.1.30
 # Path settings
 ENV \
   RUSTUP_HOME="/usr/local/rustup" \
-  PATH="/usr/local/rustup/toolchains/nightly-2023-01-24-x86_64-unknown-linux-gnu/bin:$EMSDK/upstream/emscripten:$EMSDK/upstream/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  PATH="/usr/local/rustup/toolchains/nightly-2023-01-26-x86_64-unknown-linux-gnu/bin:$EMSDK/upstream/emscripten:$EMSDK/upstream/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # Cache settings
 ENV \
@@ -35,7 +35,7 @@ RUN \
     --no-modify-path \
     --profile minimal \
     --target wasm32-unknown-emscripten \
-    --default-toolchain nightly-2023-01-24 \
+    --default-toolchain nightly-2023-01-26 \
     --component rust-src \
     && \
   # https://github.com/mesonbuild/meson/pull/10969
@@ -50,9 +50,9 @@ RUN \
 
 # Rust patches
 RUN \
-  curl -Ls https://github.com/rust-lang/rust/pull/106779.patch | patch -p1 -d $(rustc --print sysroot)/lib/rustlib/src/rust && \
+  curl -Ls https://github.com/rust-lang/rust/commit/cc92bdb9c99b944b77833f3f2cd0e362c94bf861.patch | patch -p1 -d $(rustc --print sysroot)/lib/rustlib/src/rust && \
   curl -Ls https://github.com/rust-lang/rust/pull/107221.patch | patch -p1 -d $(rustc --print sysroot)/lib/rustlib/src/rust
 
-# https://github.com/rust-lang/libc/pull/3087
+# https://github.com/rust-lang/libc/commit/1df1e22876c36b3c00de679e9a57226f12c8f266
 RUN \
-  sed -i 's|version = "0.2.138"|git = "https://github.com/kleisauke/libc", branch = "getentropy-emscripten"|' $(rustc --print sysroot)/lib/rustlib/src/rust/library/std/Cargo.toml
+  sed -i 's|version = "0.2.138"|git = "https://github.com/rust-lang/libc", branch = "master"|' $(rustc --print sysroot)/lib/rustlib/src/rust/library/std/Cargo.toml

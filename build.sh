@@ -177,7 +177,7 @@ VERSION_GLIB=2.75.2         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.5.0         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.14          # https://github.com/mm2/Little-CMS
-VERSION_HWY=1.0.2           # https://github.com/google/highway
+VERSION_HWY=1.0.3           # https://github.com/google/highway
 VERSION_BROTLI=9b53703      # https://github.com/google/brotli
 VERSION_MOZJPEG=4.1.1       # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.8.0           # https://github.com/libjxl/libjxl
@@ -292,6 +292,8 @@ node --version
   mkdir $DEPS/hwy
   curl -Ls https://github.com/google/highway/archive/refs/tags/$VERSION_HWY.tar.gz | tar xzC $DEPS/hwy --strip-components=1
   cd $DEPS/hwy
+  # Remove build path from binary
+  sed -i 's/HWY_ASSERT/HWY_DASSERT/' hwy/aligned_allocator.cc
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=FALSE \
     -DBUILD_TESTING=FALSE -DHWY_ENABLE_CONTRIB=FALSE -DHWY_ENABLE_EXAMPLES=FALSE
   make -C _build install

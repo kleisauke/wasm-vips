@@ -25,6 +25,11 @@ vips copy owl.jpg owl.jxl
 vips copy owl.jpg owl.avif[effort=9]
 ```
 
+[`alphachannel.svg`](alphachannel.svg):
+```
+https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/alphachannel.svg
+```
+
 [`transparency_demo.png`](transparency_demo.png):
 ```
 https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png

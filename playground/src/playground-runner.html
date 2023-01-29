@@ -68,7 +68,12 @@
       // module.ENV.VIPS_LEAK = '1';
 
       // Preload playground files
-      for (const image of ['owl.jpg', 'owl.tif', 'owl.webp', 'owl.jxl', 'owl.avif', 'banana.webp', 'banana.gif', 'transparency_demo.png'])
+      const images = [
+        'owl.jpg', 'owl.tif', 'owl.webp', 'owl.jxl', 'owl.avif',
+        'banana.webp', 'banana.gif',
+        'alphachannel.svg', 'transparency_demo.png'
+      ];
+      for (const image of images)
         module.FS.createPreloadedFile('/', image, 'assets/images/' + image, true, false);
     },
     postRun: (module) => {

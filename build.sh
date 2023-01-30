@@ -451,11 +451,19 @@ node --version
   mkdir $DEPS/aom
   curl -Ls https://storage.googleapis.com/aom-releases/libaom-$VERSION_AOM.tar.gz | tar xzC $DEPS/aom --strip-components=1
   cd $DEPS/aom
-  emcmake cmake -B_build -H. \
-    -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET \
+  # Avoid CPU checks at runtime
+  sed -i '/x86.h/d' build/cmake/rtcd.pl
+  sed -i '/x86_simd_caps/{N;N;d;}' build/cmake/rtcd.pl
+  # Remove incompatible (and unused) x86 assembly libs
+  sed -i '/add_asm_library(.*)/d' aom_dsp/aom_dsp.cmake
+  sed -i '/add_asm_library(.*)/d' av1/av1.cmake
+  # Pass --disable-sse2 and --disable-ssse3 to avoid depending on x86 assembly
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET \
     -DAOM_TARGET_CPU=generic -DCONFIG_RUNTIME_CPU_DETECT=0 \
     -DENABLE_DOCS=0 -DENABLE_TESTS=0 -DENABLE_EXAMPLES=0 -DENABLE_TOOLS=0 \
     -DCONFIG_PIC=$PIC -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=0 \
+    -DHAVE_{SSE,SSE2,SSE3,SSSE3,SSE4_1}=${ENABLE_SIMD:+1}${DISABLE_SIMD:+0} \
+    ${ENABLE_SIMD:+-DAOM_RTCD_FLAGS="--arch=x86;--disable-sse2;--disable-ssse3;--disable-sse4_2;--disable-avx;--disable-avx2"} \
     -DCONFIG_MULTITHREAD=0 # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
 )

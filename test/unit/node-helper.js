@@ -13,7 +13,7 @@ export async function mochaGlobalSetup () {
     // dynamicLibraries: [],
     preRun: (module) => {
       // Ensure we also test the vips-resvg dynamic module
-      module.dynamicLibraries.push('../vips-resvg.wasm');
+      module.dynamicLibraries?.push('../vips-resvg.wasm');
 
       module.setAutoDeleteLater(true);
       module.setDelayFunction(fn => {

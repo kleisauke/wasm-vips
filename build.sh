@@ -203,17 +203,17 @@ VERSION_GLIB=2.75.2         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.5.0         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.14          # https://github.com/mm2/Little-CMS
-VERSION_HWY=1.0.2           # https://github.com/google/highway
+VERSION_HWY=1.0.3           # https://github.com/google/highway
 VERSION_BROTLI=9b53703      # https://github.com/google/brotli
 VERSION_MOZJPEG=4.1.1       # https://github.com/mozilla/mozjpeg
-VERSION_JXL=0.7.0           # https://github.com/libjxl/libjxl
+VERSION_JXL=0.8.1           # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.3          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif
-VERSION_WEBP=1.2.4          # https://chromium.googlesource.com/webm/libwebp
+VERSION_WEBP=1.3.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.5.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.28.0        # https://github.com/RazrFalcon/resvg
-VERSION_AOM=3.5.0           # https://aomedia.googlesource.com/aom
+VERSION_AOM=3.6.0           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.14.2         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.13.3         # https://github.com/libvips/libvips
 
@@ -319,6 +319,8 @@ node --version
   mkdir $DEPS/hwy
   curl -Ls https://github.com/google/highway/archive/refs/tags/$VERSION_HWY.tar.gz | tar xzC $DEPS/hwy --strip-components=1
   cd $DEPS/hwy
+  # Remove build path from binary
+  sed -i 's/HWY_ASSERT/HWY_DASSERT/' hwy/aligned_allocator.cc
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=FALSE \
     -DBUILD_TESTING=FALSE -DHWY_ENABLE_CONTRIB=FALSE -DHWY_ENABLE_EXAMPLES=FALSE
   make -C _build install
@@ -353,8 +355,6 @@ node --version
   mkdir $DEPS/jxl
   curl -Ls https://github.com/libjxl/libjxl/archive/refs/tags/v$VERSION_JXL.tar.gz | tar xzC $DEPS/jxl --strip-components=1
   cd $DEPS/jxl
-  # Avoid bundling libpng, see: https://github.com/libjxl/libjxl/pull/1726
-  sed -i 's/JPEGXL_EMSCRIPTEN/& AND JPEGXL_BUNDLE_LIBPNG/' third_party/CMakeLists.txt
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
     -DBUILD_SHARED_LIBS=FALSE -DBUILD_TESTING=FALSE -DJPEGXL_ENABLE_TOOLS=FALSE -DJPEGXL_ENABLE_EXAMPLES=FALSE \
     -DJPEGXL_ENABLE_SJPEG=FALSE -DJPEGXL_ENABLE_SKCMS=FALSE -DJPEGXL_BUNDLE_LIBPNG=FALSE -DJPEGXL_ENABLE_TRANSCODE_JPEG=FALSE \

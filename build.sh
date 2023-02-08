@@ -180,13 +180,13 @@ VERSION_LCMS2=2.14          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.0.3           # https://github.com/google/highway
 VERSION_BROTLI=9b53703      # https://github.com/google/brotli
 VERSION_MOZJPEG=4.1.1       # https://github.com/mozilla/mozjpeg
-VERSION_JXL=0.8.0           # https://github.com/libjxl/libjxl
+VERSION_JXL=0.8.1           # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.3          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.3.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.5.0          # https://gitlab.com/libtiff/libtiff
-VERSION_AOM=3.5.0           # https://aomedia.googlesource.com/aom
+VERSION_AOM=3.6.0           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.14.2         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.13.3         # https://github.com/libvips/libvips
 

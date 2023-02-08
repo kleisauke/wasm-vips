@@ -4,7 +4,7 @@ FROM docker.io/emscripten/emsdk:3.1.31
 # Path settings
 ENV \
   RUSTUP_HOME="/usr/local/rustup" \
-  PATH="/usr/local/rustup/toolchains/nightly-2023-01-29-x86_64-unknown-linux-gnu/bin:$EMSDK/upstream/emscripten:$EMSDK/upstream/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  PATH="/usr/local/rustup/toolchains/nightly-2023-02-08-x86_64-unknown-linux-gnu/bin:$EMSDK/upstream/emscripten:$EMSDK/upstream/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # Cache settings
 ENV \
@@ -35,7 +35,7 @@ RUN \
     --no-modify-path \
     --profile minimal \
     --target wasm32-unknown-emscripten \
-    --default-toolchain nightly-2023-01-29 \
+    --default-toolchain nightly-2023-02-08 \
     --component rust-src \
     && \
   # https://github.com/mesonbuild/meson/pull/10969

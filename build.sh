@@ -56,6 +56,9 @@ JXL=true
 # Support for AVIF, enabled by default
 AVIF=true
 
+# Partial support for SVG load via resvg, enabled by default
+SVG=true
+
 # Build libvips C++ API, disabled by default
 LIBVIPS_CPP=false
 
@@ -72,6 +75,7 @@ while [ $# -gt 0 ]; do
     --disable-wasm-bigint) WASM_BIGINT=false ;;
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;
+    --disable-svg) SVG=false ;;
     --disable-modules)
       PIC=false
       MODULES=false
@@ -105,6 +109,11 @@ if [ "$AVIF" = "true" ]; then
 else
   DISABLE_AVIF=true
 fi
+if [ "$SVG" = "true" ]; then
+  ENABLE_SVG=true
+else
+  DISABLE_SVG=true
+fi
 if [ "$LIBVIPS_CPP" = "true" ]; then
   ENABLE_LIBVIPS_CPP=true
 else
@@ -134,17 +143,27 @@ if [ "$PIC" = "true" ]; then PIC_FLAG=--pic; fi
 # Specify location where source maps are published (browser specific)
 #export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"
 
+# Rust flags
+export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+mutable-globals,+nontrapping-fptoint"
+
 # Common compiler flags
 COMMON_FLAGS="-O3 -pthread"
-if [ "$LTO" = "true" ]; then COMMON_FLAGS+=" -flto"; fi
+if [ "$LTO" = "true" ]; then
+  COMMON_FLAGS+=" -flto"
+  export RUSTFLAGS+=" -Clto -Cembed-bitcode=yes"
+fi
 if [ "$WASM_EH" = "true" ]; then
   COMMON_FLAGS+=" -fwasm-exceptions -sSUPPORT_LONGJMP=wasm"
+  export RUSTFLAGS+=" -Ctarget-feature=+exception-handling"
 else
   COMMON_FLAGS+=" -fexceptions"
 fi
 
 export CFLAGS="$COMMON_FLAGS -mnontrapping-fptoint"
-if [ "$SIMD" = "true" ]; then export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"; fi
+if [ "$SIMD" = "true" ]; then
+  export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"
+  export RUSTFLAGS+=" -Ctarget-feature=+simd128"
+fi
 if [ "$WASM_BIGINT" = "true" ]; then
   # libffi needs to detect WASM_BIGINT support at compile time
   export CFLAGS+=" -DWASM_BIGINT"
@@ -170,6 +189,13 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Run as many parallel jobs as there are available CPU cores
 export MAKEFLAGS="-j$(nproc)"
 
+# Ensure Rust build path prefixes are removed from the resulting binaries
+# https://reproducible-builds.org/docs/build-path/
+# TODO(kleisauke): Switch to -Ctrim-paths=all once supported - https://github.com/rust-lang/rfcs/pull/3127
+export RUSTFLAGS+=" --remap-path-prefix=$(rustc --print sysroot)/lib/rustlib/src/rust/library/="
+export RUSTFLAGS+=" --remap-path-prefix=$CARGO_HOME/registry/src/="
+export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
+
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.6        # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.4           # https://github.com/libffi/libffi
@@ -186,6 +212,7 @@ VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.3.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.5.0          # https://gitlab.com/libtiff/libtiff
+VERSION_RESVG=0.29.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.6.0           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.14.2         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.13.3         # https://github.com/libvips/libvips
@@ -403,6 +430,22 @@ node --version
   make install SUBDIRS='libtiff' noinst_PROGRAMS= dist_doc_DATA=
 )
 
+[ -f "$TARGET/lib/libresvg.a" ] || [ -n "$DISABLE_SVG" ] || (
+  stage "Compiling resvg"
+  mkdir -p $DEPS/resvg
+  curl -Ls https://github.com/RazrFalcon/resvg/releases/download/v$VERSION_RESVG/resvg-$VERSION_RESVG.tar.xz | tar xJC $DEPS/resvg --strip-components=1
+  cd $DEPS/resvg
+  # Vendor dir doesn't work with -Zbuild-std due to https://github.com/rust-lang/wg-cargo-std-aware/issues/23
+  # Just delete the config so that all deps are downloaded from the internet
+  rm .cargo/config
+  # We don't want to build the shared library
+  sed -i '/^crate-type =/s/"cdylib", //' c-api/Cargo.toml
+  cargo build --manifest-path=c-api/Cargo.toml --release --target wasm32-unknown-emscripten --locked \
+    -Zbuild-std=panic_abort,std --no-default-features --features filter,raster-images
+  cp target/wasm32-unknown-emscripten/release/libresvg.a $TARGET/lib/
+  cp c-api/resvg.h $TARGET/include/
+)
+
 [ -f "$TARGET/lib/pkgconfig/aom.pc" ] || [ -n "$DISABLE_AVIF" ] || (
   stage "Compiling aom"
   mkdir $DEPS/aom
@@ -455,10 +498,12 @@ node --version
   # Disable building man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled ${ENABLE_MODULES:+-Dmodules=enabled} \
-    -Dcgif=enabled -Dexif=enabled -Dimagequant=enabled -Djpeg=enabled ${ENABLE_JXL:+-Djpeg-xl=enabled} \
-    -Djpeg-xl-module=enabled -Dlcms=enabled -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true \
-    -Dppm=true -Danalyze=true -Dradiance=true ${ENABLE_AVIF:+-Dheif=enabled} -Dheif-module=enabled
+    -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled \
+    ${ENABLE_MODULES:+-Dmodules=enabled} -Dcgif=enabled -Dexif=enabled ${ENABLE_AVIF:+-Dheif=enabled} \
+    -Dheif-module=enabled -Dimagequant=enabled -Djpeg=enabled ${ENABLE_JXL:+-Djpeg-xl=enabled} \
+    -Djpeg-xl-module=enabled -Dlcms=enabled ${ENABLE_SVG:+-Dresvg=enabled} -Dresvg-module=enabled \
+    -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true -Dppm=true -Danalyze=true -Dradiance=true \
+    -Dzlib=enabled
   meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)

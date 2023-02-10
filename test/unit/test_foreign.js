@@ -16,6 +16,7 @@ describe('foreign', () => {
     jpegload: file => vips.Image.jpegload(file),
     jxlload: file => vips.Image.jxlload(file),
     heifload: file => vips.Image.heifload(file),
+    svgload: file => vips.Image.svgload(file),
     pngload: file => vips.Image.pngload(file),
     webpload: file => vips.Image.webpload(file),
     tiffload: file => vips.Image.tiffload(file),
@@ -27,6 +28,7 @@ describe('foreign', () => {
     jpegload_buffer: buffer => vips.Image.jpegloadBuffer(buffer),
     jxlload_buffer: buffer => vips.Image.jxlloadBuffer(buffer),
     heifload_buffer: buffer => vips.Image.heifloadBuffer(buffer),
+    svgload_buffer: buffer => vips.Image.svgloadBuffer(buffer),
     pngload_buffer: buffer => vips.Image.pngloadBuffer(buffer),
     webpload_buffer: buffer => vips.Image.webploadBuffer(buffer),
     tiffload_buffer: buffer => vips.Image.tiffloadBuffer(buffer),
@@ -859,6 +861,61 @@ describe('foreign', () => {
 
     saveLoad('%s.hdr', colour);
     saveBufferTempfile('radsave_buffer', '.hdr', rad, 0);
+  });
+
+  it('svgload', function () {
+    // Needs SVG load support
+    if (!Helpers.have('svgload')) {
+      return this.skip();
+    }
+
+    const svgValid = (im) => {
+      const a = im.getpoint(10, 10);
+      Helpers.assertAlmostEqualObjects(a, [0, 0, 0, 0]);
+      expect(im.width).to.equal(736);
+      expect(im.height).to.equal(552);
+      expect(im.bands).to.equal(4);
+    };
+
+    fileLoader('svgload', Helpers.svgFile, svgValid);
+    bufferLoader('svgload_buffer', Helpers.svgFile, svgValid);
+
+    fileLoader('svgload', Helpers.svgzFile, svgValid);
+    bufferLoader('svgload_buffer', Helpers.svgzFile, svgValid);
+
+    fileLoader('svgload', Helpers.svgGzFile, svgValid);
+
+    let im = vips.Image.newFromFile(Helpers.svgzFile);
+    let x = vips.Image.newFromFile(Helpers.svgzFile, { scale: 2 });
+    expect(Math.abs(im.width * 2 - x.width)).to.be.below(2);
+    expect(Math.abs(im.height * 2 - x.height)).to.be.below(2);
+
+    im = vips.Image.newFromFile(Helpers.svgzFile);
+    x = vips.Image.newFromFile(Helpers.svgzFile, { dpi: 144 });
+    expect(Math.abs(im.width * 2 - x.width)).to.be.below(2);
+    expect(Math.abs(im.height * 2 - x.height)).to.be.below(2);
+
+    expect(() => {
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0"></svg>';
+      vips.Image.newFromBuffer(svg, '');
+    }).to.throw('SVG doesn\'t have a valid size');
+
+    // recognize dimensions for SVGs without width/height
+    let svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"></svg>';
+    im = vips.Image.newFromBuffer(svg, '');
+    expect(im.width).to.equal(100);
+    expect(im.height).to.equal(100);
+
+    svg = '<svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>';
+    im = vips.Image.newFromBuffer(svg, '');
+    expect(im.width).to.equal(100);
+    expect(im.height).to.equal(100);
+
+    // width and height of 0.5 is valid
+    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="0.5" height="0.5"></svg>';
+    im = vips.Image.newFromBuffer(svg, '');
+    expect(im.width).to.equal(1);
+    expect(im.height).to.equal(1);
   });
 
   it('heifload', function () {

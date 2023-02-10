@@ -22,6 +22,7 @@ let im = vips.Image.newFromFile('owl.jpg');
 // let im = vips.Image.newFromFile('owl.tif');
 // let im = vips.Image.newFromFile('owl.jxl');
 // let im = vips.Image.newFromFile('owl.avif');
+// let im = vips.Image.newFromFile('alphachannel.svg');
 // let im = vips.Image.newFromFile('transparency_demo.png');
 // let im = vips.Image.newFromFile('banana.webp', { n: -1 });
 // let im = vips.Image.newFromFile('banana.gif', { n: -1 });

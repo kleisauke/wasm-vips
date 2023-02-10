@@ -20,6 +20,9 @@ export const avifFile = getPath('avif-orientation-6.avif');
 export const avifFileHuge = getPath('16x17000.avif');
 export const rgbaFile = getPath('rgba.png');
 export const rgbaCorrectFile = getPath('rgba-correct.ppm');
+export const svgFile = getPath('logo.svg');
+export const svgzFile = getPath('logo.svgz');
+export const svgGzFile = getPath('logo.svg.gz');
 export const mosaicFiles = [
   getPath('cd1.1.jpg'), getPath('cd1.2.jpg'),
   getPath('cd2.1.jpg'), getPath('cd2.2.jpg'),
@@ -45,7 +48,10 @@ export const testFiles = [
   avifFileHuge,
   srgbFile,
   rgbaFile,
-  rgbaCorrectFile
+  rgbaCorrectFile,
+  svgFile,
+  svgzFile,
+  svgGzFile
 ].concat(analyzeFiles).concat(mosaicFiles);
 
 export const mosaicMarks = [

@@ -68,7 +68,12 @@
       // module.ENV.VIPS_LEAK = '1';
 
       // Preload playground files
-      for (const image of ['owl.jpg', 'owl.tif', 'owl.webp', 'owl.jxl', 'owl.avif', 'banana.webp', 'banana.gif', 'transparency_demo.png'])
+      const images = [
+        'owl.jpg', 'owl.tif', 'owl.webp', 'owl.jxl', 'owl.avif',
+        'banana.webp', 'banana.gif',
+        'alphachannel.svg', 'transparency_demo.png'
+      ];
+      for (const image of images)
         module.FS.createPreloadedFile('/', image, 'assets/images/' + image, true, false);
     },
     postRun: (module) => {
@@ -104,9 +109,15 @@
     }
   };
 
-  // Disable dynamic modules whenever the ?disableModules query string is passed
-  if (document.referrer.includes('disableModules')) {
-    options.dynamicLibraries = [];
+  // Control the dynamic modules via the ?modules= query string
+  const params = new URL(document.referrer).searchParams;
+  if (params.has('modules')) {
+    const enabledModules = params.get('modules').split(',').filter(e => e);
+    options.dynamicLibraries = [
+      'vips-jxl.wasm', // enabled by default
+      'vips-heif.wasm', // enabled by default
+      'vips-resvg.wasm' // disabled by default
+    ].filter(m => enabledModules.some(e => m.includes(e)));
   }
 
   globalThis.vips = await Vips(options);

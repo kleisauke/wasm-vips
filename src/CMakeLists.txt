@@ -133,7 +133,6 @@ set(MAIN_LINK_OPTIONS
         -sPTHREAD_POOL_SIZE='_emscripten_num_logical_cores\(\)+3'
         -sINITIAL_MEMORY=1GB
         -sSTACK_SIZE=256KB
-        -sDEFAULT_PTHREAD_STACK_SIZE=256KB
         -sALLOW_TABLE_GROWTH
         -sALLOW_BLOCKING_ON_MAIN_THREAD
         -sTEXTDECODER=2

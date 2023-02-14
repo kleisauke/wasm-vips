@@ -19,19 +19,17 @@
       "require": "./lib/vips.js"
     },
     "node": {
-      "import": "./lib/node-es6/vips.mjs",
-      "require": "./lib/node-commonjs/vips.js"
+      "import": "./lib/vips-node.mjs",
+      "require": "./lib/vips-node.js"
     },
     "default": "./lib/vips.js"
   },
-  "main": "lib/node-commonjs/vips.js",
+  "main": "lib/vips-node.js",
   "browser": "lib/vips.js",
   "types": "lib/vips.d.ts",
   "files": [
-    "lib/node-commonjs/*.js",
-    "lib/node-es6/*.js",
-    "lib/node-es6/*.mjs",
     "lib/*.js",
+    "lib/*.mjs",
     "lib/vips.d.ts",
     "lib/vips.wasm",
     "lib/vips-heif.wasm",

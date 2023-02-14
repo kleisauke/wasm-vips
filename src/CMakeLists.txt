@@ -40,29 +40,30 @@ target_link_libraries(${PROJECT_NAME}
 set(TARGETS "")
 
 if ("node" IN_LIST ENVIRONMENT)
+    add_executable(${PROJECT_NAME}-node $<TARGET_OBJECTS:${PROJECT_NAME}>)
     add_executable(${PROJECT_NAME}-node-es6 $<TARGET_OBJECTS:${PROJECT_NAME}>)
-    add_executable(${PROJECT_NAME}-node-commonjs $<TARGET_OBJECTS:${PROJECT_NAME}>)
 
+    set_target_properties(${PROJECT_NAME}-node
+            PROPERTIES
+                SUFFIX "-node.js"
+                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+            )
     set_target_properties(${PROJECT_NAME}-node-es6
             PROPERTIES
-                SUFFIX ".mjs"
-                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/node-es6"
-            )
-    set_target_properties(${PROJECT_NAME}-node-commonjs
-            PROPERTIES
-                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/node-commonjs"
+                SUFFIX "-node-es6.js"
+                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
             )
 
+    target_link_libraries(${PROJECT_NAME}-node
+            PRIVATE
+                ${VIPS_STATIC_LDFLAGS}
+            )
     target_link_libraries(${PROJECT_NAME}-node-es6
             PRIVATE
                 ${VIPS_STATIC_LDFLAGS}
             )
-    target_link_libraries(${PROJECT_NAME}-node-commonjs
-            PRIVATE
-                ${VIPS_STATIC_LDFLAGS}
-            )
 
-    list(APPEND TARGETS ${PROJECT_NAME}-node-es6 ${PROJECT_NAME}-node-commonjs)
+    list(APPEND TARGETS ${PROJECT_NAME}-node ${PROJECT_NAME}-node-es6)
 endif()
 
 if ("web" IN_LIST ENVIRONMENT)
@@ -156,14 +157,14 @@ if ("node" IN_LIST ENVIRONMENT)
             -sNODEJS_CATCH_REJECTION=0
             )
 
+    target_link_options(${PROJECT_NAME}-node
+            PUBLIC
+                ${NODE_LINK_OPTIONS}
+            )
     target_link_options(${PROJECT_NAME}-node-es6
             PUBLIC
                 ${NODE_LINK_OPTIONS}
                 -sEXPORT_ES6
-            )
-    target_link_options(${PROJECT_NAME}-node-commonjs
-            PUBLIC
-                ${NODE_LINK_OPTIONS}
             )
 endif()
 

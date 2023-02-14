@@ -103,6 +103,9 @@ module.exports = {
         },
         {
           from: path.resolve(__dirname, '..', 'lib', '*.js'),
+          globOptions: {
+            ignore: ['**/*-node*.js']
+          },
           to: path.resolve(__dirname, 'dist', 'lib')
         },
         {

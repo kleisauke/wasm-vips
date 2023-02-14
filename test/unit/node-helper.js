@@ -1,6 +1,6 @@
 'use strict';
 
-import Vips from '../../lib/node-es6/vips.mjs';
+import Vips from '../../lib/vips-node.mjs';
 
 import { tmpdir } from 'os';
 import { expect } from 'chai';
@@ -11,10 +11,9 @@ export async function mochaGlobalSetup () {
   const options = {
     // Uncomment to disable dynamic modules
     // dynamicLibraries: [],
+    // Test all available dynamic modules
+    dynamicLibraries: ['vips-jxl.wasm', 'vips-heif.wasm', 'vips-resvg.wasm'],
     preRun: (module) => {
-      // Ensure we also test the vips-resvg dynamic module
-      module.dynamicLibraries?.push('../vips-resvg.wasm');
-
       module.setAutoDeleteLater(true);
       module.setDelayFunction(fn => {
         globalThis.cleanup = fn;

@@ -3,7 +3,7 @@
 import assert from 'assert';
 import Benchmark from 'benchmark';
 
-import Vips from '../../lib/node-es6/vips.mjs';
+import Vips from '../../lib/vips-node.mjs';
 import { tmpdir } from 'os';
 import { inputJpg, inputPng, inputWebP, getPath } from './images.js';
 

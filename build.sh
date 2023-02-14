@@ -531,19 +531,26 @@ node --version
 
   # The produced binary should be the same across the different variants (sanity check)
   expected_sha256=$(sha256sum "$SOURCE_DIR/lib/vips.wasm" | awk '{ print $1 }')
-  for file in vips-es6.wasm node-commonjs/vips.wasm node-es6/vips.wasm; do
+  for file in vips-es6.wasm vips-node.wasm vips-node-es6.wasm; do
     echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check
     rm $SOURCE_DIR/lib/$file
   done
 
-  # Adjust vips.wasm path for web and Node.js
-  for file in vips-es6.js node-commonjs/vips.js node-es6/vips.mjs; do
-    case "$file" in
-      vips-es6.js) expression='s/vips-es6.wasm/vips.wasm/g' ;;
-      *) expression='s/vips[^.]*.wasm/..\/&/g' ;;
-    esac
-    sed -i "$expression" $SOURCE_DIR/lib/$file
+  # Use a single wasm binary for web and Node.js
+  for file in vips-es6.js vips-node.js vips-node-es6.js; do
+    filename=$(basename "$file" .js)
+    sed -i "s/$filename.wasm/vips.wasm/g" $SOURCE_DIR/lib/$file
   done
+
+  # Omit -es6 suffix from Node.js files, prefer .mjs extension instead
+  mv $SOURCE_DIR/lib/vips-node-es6.js $SOURCE_DIR/lib/vips-node.mjs
+  mv $SOURCE_DIR/lib/vips-node-es6.worker.js $SOURCE_DIR/lib/vips-node.worker.mjs
+  sed -i 's/vips-node-es6.worker.js/vips-node.worker.mjs/g' $SOURCE_DIR/lib/vips-node.mjs
+  sed -i 's/vips-node-es6.js/vips-node.mjs/g' $SOURCE_DIR/lib/vips-node.worker.mjs
+
+  # Add a static import declaration for require()
+  sed -i 's/var Module/import { createRequire } from "module";&/' $SOURCE_DIR/lib/vips-node.worker.mjs
+  sed -i 's/var Module/const require = createRequire(import.meta.url);&/' $SOURCE_DIR/lib/vips-node.worker.mjs
 
   # Print the target features section
   PYTHONPATH="$(dirname $(which emcc))" python3 - << EOF

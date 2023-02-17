@@ -191,7 +191,7 @@ function load () {
     url.searchParams.set('modules', [...enabledModules].join('-'));
     // Reload the page to change settings, but pretend the reload never happened
     history.replaceState({}, '', url);
-    if(reload){
+    if (reload) {
       share();
       window.location.reload();
     }

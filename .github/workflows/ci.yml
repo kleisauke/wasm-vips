@@ -56,6 +56,19 @@ jobs:
         with:
           node-version: ${{ matrix.nodejs_version }}
           registry-url: 'https://registry.npmjs.org'
+      # https://github.com/actions/toolkit/issues/1341
+      - name: Downgrade zstd on Windows
+        if: runner.os == 'Windows'
+        run: |
+          Invoke-WebRequest https://github.com/facebook/zstd/releases/download/v1.5.2/zstd-v1.5.2-win64.zip -OutFile $env:RUNNER_TEMP\zstd.zip
+          Expand-Archive $env:RUNNER_TEMP\zstd.zip -DestinationPath $env:RUNNER_TEMP
+          Add-Content $env:GITHUB_PATH "$env:RUNNER_TEMP\zstd-v1.5.2-win64"
+      - name: Downgrade zstd on macOS
+        if: runner.os == 'macOS'
+        run: |
+          brew uninstall --ignore-dependencies zstd
+          git -C "$(brew --repo homebrew/core)" checkout d3f04bd Formula/zstd.rb
+          brew install zstd
       - uses: actions/cache@v3
         with:
           path: lib

@@ -8,6 +8,27 @@ import './images/banana.gif';
 import './images/alphachannel.svg';
 import './images/transparency_demo.png';
 
+export const dynamicModules = [
+  {
+    name: 'JPEG XL save/load',
+    id: 'jxl',
+    file: 'vips-jxl.wasm',
+    default: true
+  },
+  {
+    name: 'AVIF save/load',
+    id: 'heif',
+    file: 'vips-heif.wasm',
+    default: true
+  },
+  {
+    name: 'SVG load (no text support)',
+    id: 'resvg',
+    file: 'vips-resvg.wasm',
+    default: false
+  }
+];
+
 export const playSamples = [
   {
     chapter: 'Filter',

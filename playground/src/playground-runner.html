@@ -17,6 +17,22 @@
 <body>
 <script src="/lib/vips.js?<%= __webpack_hash__ %>"></script>
 <script type="module">
+  // TODO: `dynamicModules` should be imported from './samples' instead.
+  const dynamicModules = [
+    {
+      id: "jxl",
+      file: "vips-jxl.wasm",
+    },
+    {
+      id: "heif",
+      file: "vips-heif.wasm",
+    },
+    {
+      id: "resvg",
+      file: "vips-resvg.wasm",
+    },
+  ];
+
   let loadedElements = [];
 
   window.addEventListener('message', load);
@@ -112,12 +128,8 @@
   // Control the dynamic modules via the ?modules= query string
   const params = new URL(document.referrer).searchParams;
   if (params.has('modules')) {
-    const enabledModules = params.get('modules').split(',').filter(e => e);
-    options.dynamicLibraries = [
-      'vips-jxl.wasm', // enabled by default
-      'vips-heif.wasm', // enabled by default
-      'vips-resvg.wasm' // disabled by default
-    ].filter(m => enabledModules.some(e => m.includes(e)));
+    const enabledModules = params.get('modules').split('-').filter(id => id.length > 2);
+    options.dynamicLibraries = dynamicModules.filter(module => enabledModules.some(id => module.id === id)).map(module => module.file);
   }
 
   globalThis.vips = await Vips(options);

@@ -5,7 +5,7 @@ import 'monaco-editor/esm/vs/basic-languages/html/html';
 import 'monaco-editor/esm/vs/basic-languages/css/css';
 import { deflateSync, inflateSync, strToU8, strFromU8 } from 'fflate';
 
-import { playSamples } from './samples';
+import { dynamicModules, playSamples } from './samples';
 import './css/playground.css';
 
 const isMac = /Mac/i.test(navigator.userAgent);
@@ -147,6 +147,53 @@ function load () {
 
   const runContainer = document.createElement('div');
   runContainer.className = 'run-container';
+
+  const moduleEnabler = document.getElementById('module-enabler');
+  const initialEnabledModules = getEnabledModulesFromUrl();
+  for (const dynamicModule of dynamicModules) {
+    const htmlId = `module-enabler-${dynamicModule.id}`;
+
+    const checkbox = document.createElement('input');
+    checkbox.id = htmlId;
+    checkbox.type = 'checkbox';
+
+    const checkboxLabel = document.createElement('label');
+    checkboxLabel.htmlFor = htmlId;
+    checkboxLabel.innerText = dynamicModule.name;
+
+    if (initialEnabledModules.isSet) {
+      checkbox.checked = initialEnabledModules.enabledModules.has(dynamicModule.id);
+    } else if (dynamicModule.default) {
+      toggleModuleInUrl(dynamicModule.id, true);
+      checkbox.checked = true;
+    }
+    checkbox.addEventListener('change', event => {
+      toggleModuleInUrl(dynamicModule.id, event.target.checked);
+    });
+
+    moduleEnabler.append(checkbox, checkboxLabel);
+  }
+  function getEnabledModulesFromUrl () {
+    const url = new URL(window.location);
+    const isSet = url.searchParams.has('modules');
+    const enabledModules = new Set(url.searchParams.get('modules')?.split?.('-'));
+    enabledModules.delete('');
+
+    return { url, isSet, enabledModules };
+  }
+  function toggleModuleInUrl (id, state) {
+    const { url, enabledModules } = getEnabledModulesFromUrl();
+    if (state) {
+      enabledModules.add(id);
+    } else {
+      enabledModules.delete(id);
+    }
+    url.searchParams.set('modules', [...enabledModules].join('-'));
+    // Reload the page to change settings, but pretend the reload never happened
+    history.replaceState({}, '', url);
+    share();
+    window.location.reload();
+  }
 
   const sampleSwitcher = document.getElementById('sample-switcher');
   let sampleChapter;

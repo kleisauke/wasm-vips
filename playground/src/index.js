@@ -168,7 +168,7 @@ function load () {
       checkbox.checked = true;
     }
     checkbox.addEventListener('change', event => {
-      toggleModuleInUrl(dynamicModule.id, event.target.checked);
+      toggleModuleInUrl(dynamicModule.id, event.target.checked, true);
     });
 
     moduleEnabler.append(checkbox, checkboxLabel);
@@ -181,7 +181,7 @@ function load () {
 
     return { url, isSet, enabledModules };
   }
-  function toggleModuleInUrl (id, state) {
+  function toggleModuleInUrl (id, state, reload = false) {
     const { url, enabledModules } = getEnabledModulesFromUrl();
     if (state) {
       enabledModules.add(id);
@@ -191,8 +191,10 @@ function load () {
     url.searchParams.set('modules', [...enabledModules].join('-'));
     // Reload the page to change settings, but pretend the reload never happened
     history.replaceState({}, '', url);
-    share();
-    window.location.reload();
+    if(reload){
+      share();
+      window.location.reload();
+    }
   }
 
   const sampleSwitcher = document.getElementById('sample-switcher');

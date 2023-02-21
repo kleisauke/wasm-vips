@@ -144,7 +144,7 @@ if [ "$PIC" = "true" ]; then PIC_FLAG=--pic; fi
 #export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"
 
 # Rust flags
-export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+mutable-globals,+nontrapping-fptoint"
+export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+nontrapping-fptoint"
 
 # Common compiler flags
 COMMON_FLAGS="-O3 -pthread"

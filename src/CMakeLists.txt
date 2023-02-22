@@ -139,6 +139,7 @@ set(MAIN_LINK_OPTIONS
         -sASSERTIONS=0
         -sFORCE_FILESYSTEM
         -sEXPORTED_RUNTIME_METHODS=FS,ENV,deletionQueue,addFunction,bigintToI53Checked
+        -sEXCEPTION_STACK_TRACES
         )
 
 set_target_properties(${TARGETS}

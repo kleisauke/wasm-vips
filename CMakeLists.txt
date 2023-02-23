@@ -19,6 +19,9 @@ set(ENVIRONMENT_VALUES "web;node" CACHE INTERNAL "List of possible environments.
 
 set_property(CACHE ENVIRONMENT PROPERTY STRINGS ${ENVIRONMENT_VALUES})
 
+set(ENABLE_MODULES true CACHE BOOL "Support dynamic loadable modules.")
+set(ENABLE_WASMFS false CACHE BOOL "Build with WasmFS.")
+
 # Let's enable C++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

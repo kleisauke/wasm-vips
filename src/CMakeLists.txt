@@ -21,6 +21,7 @@ add_library(${PROJECT_NAME} OBJECT ${HEADERS} ${SOURCES})
 
 target_compile_definitions(${PROJECT_NAME}
         PUBLIC
+            $<$<BOOL:${ENABLE_WASMFS}>:WASMFS>
             $<$<CONFIG:Release>:G_DISABLE_CAST_CHECKS G_DISABLE_CHECKS G_DISABLE_ASSERT>
         )
 
@@ -124,6 +125,7 @@ set(MAIN_LINK_OPTIONS
         --closure=1
         --closure-args='--externs=${CMAKE_CURRENT_SOURCE_DIR}/closure-externs/wasm-vips.js'
         -lembind
+        $<$<BOOL:${ENABLE_WASMFS}>:-sWASMFS>
         $<$<BOOL:${ENABLE_MODULES}>:-sMAIN_MODULE=2>
         $<$<BOOL:${ENABLE_MODULES}>:--pre-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-pre.js>
         -sAUTOLOAD_DYLIBS=0

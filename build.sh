@@ -168,14 +168,12 @@ if [ "$WASM_BIGINT" = "true" ]; then
   # libffi needs to detect WASM_BIGINT support at compile time
   export CFLAGS+=" -DWASM_BIGINT"
 fi
-if [ "$WASM_FS" = "true" ]; then export CFLAGS+=" -DWASMFS"; fi
 if [ "$PIC" = "true" ]; then export CFLAGS+=" -fPIC"; fi
 
 export CXXFLAGS="$CFLAGS"
 
 export LDFLAGS="$COMMON_FLAGS -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
 if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
-if [ "$WASM_FS" = "true" ]; then export LDFLAGS+=" -sWASMFS"; fi
 
 # Build paths
 export CPATH="$TARGET/include"
@@ -516,7 +514,7 @@ node --version
   mkdir $DEPS/wasm-vips
   cd $DEPS/wasm-vips
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" \
-    -DENVIRONMENT=${ENVIRONMENT//,/;} -DENABLE_MODULES=$MODULES
+    -DENVIRONMENT=${ENVIRONMENT//,/;} -DENABLE_MODULES=$MODULES -DENABLE_WASMFS=$WASM_FS
   make
 )
 

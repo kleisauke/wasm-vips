@@ -31,8 +31,7 @@ RUN \
     ninja-build \
     python3-pip \
     && \
-  # https://github.com/mesonbuild/meson/pull/10969
-  pip3 install git+https://github.com/kleisauke/meson@wasm-vips && \
+  pip3 install meson && \
   # Prefer the default system-installed version of Node.js
   echo "NODE_JS = '$(which node)'" >> $EMSDK/.emscripten
 

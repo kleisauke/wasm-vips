@@ -8,10 +8,14 @@ body {
 #controls > fieldset {
     display: inline-block;
     margin-left: 15px;
+    border: 1px solid #999;
+    vertical-align: top;
 }
+
 #module-enabler > input {
     margin-right: 5px;
 }
+
 #module-enabler > label ~ input {
     margin-left: 15px;
 }

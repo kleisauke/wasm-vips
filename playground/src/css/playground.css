@@ -5,9 +5,19 @@ body {
     font-size: 13px;
 }
 
-select {
-    width: initial;
-    margin: 0 15px;
+#controls > fieldset {
+    display: inline-block;
+    margin-left: 15px;
+    border: 1px solid #999;
+    vertical-align: top;
+}
+
+#module-enabler > input {
+    margin-right: 5px;
+}
+
+#module-enabler > label ~ input {
+    margin-left: 15px;
 }
 
 .playground-page h1,

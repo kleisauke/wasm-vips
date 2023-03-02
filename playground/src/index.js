@@ -86,6 +86,8 @@ function load () {
     editor.focus();
   }
 
+  const url = new URL(window.location);
+
   // create the typing side
   const typingContainer = document.createElement('div');
   typingContainer.className = 'typing-container';
@@ -148,8 +150,18 @@ function load () {
   const runContainer = document.createElement('div');
   runContainer.className = 'run-container';
 
+  function getEnabledModules () {
+    const hasModules = url.searchParams.has('modules');
+    const modules = new Set(hasModules
+      ? url.searchParams.get('modules').split('-')
+      : dynamicModules.filter(module => module.default).map(module => module.id));
+    modules.delete('');
+
+    return modules;
+  }
+
   const moduleEnabler = document.getElementById('module-enabler');
-  const initialEnabledModules = getEnabledModulesFromUrl();
+  const enabledModules = getEnabledModules();
   for (const dynamicModule of dynamicModules) {
     const htmlId = `module-enabler-${dynamicModule.id}`;
 
@@ -161,40 +173,19 @@ function load () {
     checkboxLabel.htmlFor = htmlId;
     checkboxLabel.innerText = dynamicModule.name;
 
-    if (initialEnabledModules.isSet) {
-      checkbox.checked = initialEnabledModules.enabledModules.has(dynamicModule.id);
-    } else if (dynamicModule.default) {
-      toggleModuleInUrl(dynamicModule.id, true);
-      checkbox.checked = true;
-    }
+    checkbox.checked = enabledModules.has(dynamicModule.id);
     checkbox.addEventListener('change', event => {
-      toggleModuleInUrl(dynamicModule.id, event.target.checked, true);
+      if (event.target.checked) {
+        enabledModules.add(dynamicModule.id);
+      } else {
+        enabledModules.delete(dynamicModule.id);
+      }
+      url.searchParams.set('modules', [...enabledModules].join('-'));
+      share();
+      window.location.reload();
     });
 
     moduleEnabler.append(checkbox, checkboxLabel);
-  }
-  function getEnabledModulesFromUrl () {
-    const url = new URL(window.location);
-    const isSet = url.searchParams.has('modules');
-    const enabledModules = new Set(url.searchParams.get('modules')?.split?.('-'));
-    enabledModules.delete('');
-
-    return { url, isSet, enabledModules };
-  }
-  function toggleModuleInUrl (id, state, reload = false) {
-    const { url, enabledModules } = getEnabledModulesFromUrl();
-    if (state) {
-      enabledModules.add(id);
-    } else {
-      enabledModules.delete(id);
-    }
-    url.searchParams.set('modules', [...enabledModules].join('-'));
-    // Reload the page to change settings, but pretend the reload never happened
-    history.replaceState({}, '', url);
-    if (reload) {
-      share();
-      window.location.reload();
-    }
   }
 
   const sampleSwitcher = document.getElementById('sample-switcher');
@@ -281,12 +272,10 @@ function load () {
   }
 
   sampleSwitcher.onchange = function () {
-    window.location.hash = sampleSwitcher.options[sampleSwitcher.selectedIndex].value;
-    const u = new URL(location);
-    const p = new URLSearchParams(u.search);
-    p.delete('deflate');
-    u.search = '?' + p.toString();
-    history.replaceState({}, '', u);
+    url.searchParams.delete('deflate');
+    url.hash = sampleSwitcher.options[sampleSwitcher.selectedIndex].value;
+    history.replaceState({}, '', url);
+    parseHash();
   };
 
   const playgroundContainer = document.getElementById('playground');
@@ -342,7 +331,7 @@ function load () {
 
   window.onhashchange = parseHash;
 
-  const p = new URLSearchParams(location.search);
+  const p = url.searchParams;
   if (p.has('deflate')) {
     // restore - and _ to + and /
     const b64 = p.get('deflate').replaceAll('-', '+')
@@ -364,8 +353,6 @@ function load () {
   }
 
   function share () {
-    const u = new URL(location);
-    const p = new URLSearchParams(u.search);
     const jsonData = JSON.stringify([
       data.js.model.getValue(),
       data.html.model.getValue(),
@@ -378,11 +365,10 @@ function load () {
     const safePayload = payload.replaceAll('+', '-')
       .replaceAll('/', '_')
       .replaceAll('=', '');
-    p.set('deflate', safePayload);
-    u.search = '?' + p.toString();
-    u.hash = '';
-    history.replaceState({}, '', u);
-    navigator.clipboard.writeText(u.toString()).then(_ => console.log('URL copied to clipboard.'));
+    url.searchParams.set('deflate', safePayload);
+    url.hash = '';
+    history.replaceState({}, '', url);
+    navigator.clipboard.writeText(url.toString()).then(_ => console.log('URL copied to clipboard.'));
   }
 
   editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, run);

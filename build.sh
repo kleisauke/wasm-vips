@@ -197,10 +197,10 @@ export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 # Dependency version numbers
 VERSION_ZLIBNG=2.0.6        # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.4           # https://github.com/libffi/libffi
-VERSION_GLIB=2.75.3         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.75.4         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.5.0         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
-VERSION_LCMS2=2.14          # https://github.com/mm2/Little-CMS
+VERSION_LCMS2=2.15          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.0.3           # https://github.com/google/highway
 VERSION_BROTLI=9b53703      # https://github.com/google/brotli
 VERSION_MOZJPEG=4.1.1       # https://github.com/mozilla/mozjpeg
@@ -306,10 +306,9 @@ node --version
   mkdir $DEPS/lcms2
   curl -Ls https://github.com/mm2/Little-CMS/releases/download/lcms$VERSION_LCMS2/lcms2-$VERSION_LCMS2.tar.gz | tar xzC $DEPS/lcms2 --strip-components=1
   cd $DEPS/lcms2
-  # Disable threading support, we rely on libvips' thread pool
-  emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-   --without-threads --without-jpeg --without-tiff --without-zlib
-  make install SUBDIRS='src include'
+  meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
+    -Djpeg=disabled -Dtiff=disabled
+  meson install -C _build --tag devel
 )
 
 [ -f "$TARGET/lib/pkgconfig/libhwy.pc" ] || [ -n "$DISABLE_JXL" ] || (

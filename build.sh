@@ -195,7 +195,7 @@ export RUSTFLAGS+=" --remap-path-prefix=$CARGO_HOME/registry/src/="
 export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 
 # Dependency version numbers
-VERSION_ZLIBNG=2.0.6        # https://github.com/zlib-ng/zlib-ng
+VERSION_ZLIBNG=b8c2114      # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.4           # https://github.com/libffi/libffi
 VERSION_GLIB=2.75.4         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.5.0         # https://github.com/libexpat/libexpat
@@ -238,16 +238,15 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/zlib.pc" ] || (
   stage "Compiling zlib-ng"
   mkdir $DEPS/zlib-ng
-  curl -Ls https://github.com/zlib-ng/zlib-ng/archive/refs/tags/$VERSION_ZLIBNG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
+  curl -Ls https://github.com/zlib-ng/zlib-ng/archive/$VERSION_ZLIBNG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
   cd $DEPS/zlib-ng
   # SSE intrinsics needs to be checked for wasm32
   sed -i 's/|\s*x86_64/& | wasm32/g' configure
-  # Correct SSSE3 intrinsics header
-  sed -i 's/x86intrin.h/immintrin.h/g' configure
   # Avoid CPU checks at runtime
   sed -i 's/\s-DX86_FEATURES//g' configure
-  sed -i 's/\sx86.l*o//g' configure
-  sed -i '/x86_cpu_has_ssse3/d' functable.c
+  sed -i 's/\sx86_features.l\?o//g' configure
+  sed -i 's/cf.x86.has_ssse3/1/' functable.c
+  sed -i 's/cf.x86.has_sse41/1/' functable.c
   emconfigure ./configure --prefix=$TARGET --static --zlib-compat ${DISABLE_SIMD:+--without-optimizations} \
     ${ENABLE_SIMD:+--force-sse2} --without-acle --without-neon
   make install

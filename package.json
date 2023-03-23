@@ -61,6 +61,7 @@
     ],
     "ignore": [
       "src/closure-externs/wasm-vips.js",
+      "src/fixed-threadpool-web.js",
       "src/locatefile-cors-pre.js",
       "src/modules-pre.js",
       "test/bench/perf.js"

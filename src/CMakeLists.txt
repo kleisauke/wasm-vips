@@ -110,15 +110,8 @@ set(MAIN_COMPILE_OPTIONS
 
 # note 1: `ALLOW_MEMORY_GROWTH` may run non-wasm code slowly. See: https://github.com/WebAssembly/design/issues/1271.
 # note 2: Browsers appear to limit the maximum initial memory size to 1GB, set `INITIAL_MEMORY` accordingly.
-# note 3: The browser might hang if the number of active threads exceed `PTHREAD_POOL_SIZE`. See:
-#         https://github.com/emscripten-core/emscripten/issues/8988
-# note 4: A potential deadlock may occur if the main thread spawns a thread and immediately waits for it. See:
-#         https://github.com/emscripten-core/emscripten/issues/8969
-#         https://github.com/libvips/libvips/blob/fc9edfe593be15fa241628b4e0fafa87bd544f7c/libvips/iofuncs/threadpool.c#L959-L961
-# note 5: Build with `-sPTHREAD_POOL_SIZE="_emscripten_num_logical_cores() + 2 + 1"` since `vips_sink_disc` uses two
-#         write-behind background threads, plus we need another one to run a maximum of two pipelines simultaneously.
-# note 6: Build with `-sALLOW_TABLE_GROWTH` so that we can store the read, seek, write and finish signals.
-# note 7: To ensure the testsuite passes, increase (main-)thread's stack size from 64kb to 256kb. This should be
+# note 3: Build with `-sALLOW_TABLE_GROWTH` so that we can store the read, seek, write and finish signals.
+# note 4: To ensure the testsuite passes, increase (main-)thread's stack size from 64kb to 256kb. This should be
 #         reasonable for image processing in Wasm, and given that libvips enforces a minimum thread stack size of 2mb
 #         on other POSIX platforms.
 set(MAIN_LINK_OPTIONS
@@ -132,7 +125,6 @@ set(MAIN_LINK_OPTIONS
         -sMODULARIZE
         -sEXPORT_NAME='Vips'
         -sEXIT_RUNTIME
-        -sPTHREAD_POOL_SIZE='_emscripten_num_logical_cores\(\)+2+1'
         -sINITIAL_MEMORY=1GB
         -sSTACK_SIZE=256KB
         -sALLOW_TABLE_GROWTH
@@ -174,13 +166,22 @@ if ("web" IN_LIST ENVIRONMENT)
     set(WEB_CORS_WORKAROUND
             --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/locatefile-cors-pre.js
             )
+    set(WEB_FIXED_THREADPOOL
+            --js-library=${CMAKE_CURRENT_SOURCE_DIR}/fixed-threadpool-web.js
+            )
     set(WEB_MIN_TARGETS
             -sMIN_FIREFOX_VERSION=89
             -sMIN_EDGE_VERSION=91
             -sMIN_CHROME_VERSION=91
             )
+
+    # Build with `-sPTHREAD_POOL_SIZE="navigator.hardwareConcurrency + 2 + 1"` since `vips_sink_disc` uses two
+    # write-behind background threads, plus we need another one to run a maximum of two pipelines simultaneously.
+    # Only needed on the web, pthreads on Node.js can be spawned synchronously without waiting for an event loop tick.
     set(WEB_LINK_OPTIONS
             --use-preload-plugins
+            -sPTHREAD_POOL_SIZE='navigator.hardwareConcurrency+2+1'
+            ${WEB_FIXED_THREADPOOL}
             ${WEB_MIN_TARGETS}
             )
 

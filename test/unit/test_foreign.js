@@ -898,7 +898,7 @@ describe('foreign', () => {
     expect(() => {
       const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0"></svg>';
       vips.Image.newFromBuffer(svg, '');
-    }).to.throw('SVG doesn\'t have a valid size');
+    }).to.throw(/SVG doesn't have a valid size/);
 
     // recognize dimensions for SVGs without width/height
     let svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"></svg>';

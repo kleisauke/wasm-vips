@@ -426,8 +426,30 @@ describe('foreign', () => {
     }).byteLength;
     expect(lenMono1).to.be.below(lenMono2);
 
+    // take a 1-bit image to png and back
+    const buf = onebit.writeToBuffer('.png', {
+      bitdepth: 1
+    });
+    const after = vips.Image.newFromBuffer(buf, '');
+    expect(onebit.subtract(after).abs().max()).to.equal(0);
+
     // we can't test palette save since we can't be sure libimagequant is
     // available and there's no easy test for its presence
+
+    // see if we have exif parsing: our test jpg image has this field
+    const x = vips.Image.newFromFile(Helpers.jpegFile);
+    if (x.getTypeof('exif-ifd0-Orientation') !== 0) {
+      // we need a copy of the image to set the new metadata on
+      // otherwise we get caching problems
+      const x = colour.copy();
+
+      // can set, save and load new orientation
+      x.setInt('orientation', 2);
+
+      const buf = x.pngsaveBuffer();
+      const y = vips.Image.newFromBuffer(buf, '');
+      expect(y.getInt('orientation')).to.equal(2);
+    }
   });
 
   it('tiff', function () {
@@ -674,11 +696,11 @@ describe('foreign', () => {
       expect(p1.byteLength).to.equal(p2.byteLength);
       expect(p1).to.deep.equal(p2);
 
-      // add tests for exif, xmp, ipct
+      // add tests for exif, xmp, iptc
       // the exif test will need us to be able to walk the header,
       // we can't just check exif-data
 
-      // we can test that exif changes change the output of webpsave
+      // we can test that exif changes the output of webpsave
       // first make sure we have exif support
       const z = vips.Image.newFromFile(Helpers.jpegFile);
       if (z.getTypeof('exif-ifd0-Orientation') !== 0) {
@@ -774,6 +796,11 @@ describe('foreign', () => {
     expect(x2.getArrayInt('delay')).to.deep.equal(x1.getArrayInt('delay'));
     expect(x2.getInt('page-height')).to.equal(x1.getInt('page-height'));
     expect(x2.getInt('loop')).to.equal(x1.getInt('loop'));
+
+    // Interlaced GIFs are usually larger in file size
+    b1 = colour.gifsaveBuffer({ interlace: false });
+    const interlaced = colour.gifsaveBuffer({ interlace: true });
+    expect(interlaced.byteLength).to.be.above(b1.byteLength);
 
     // Reducing dither will typically reduce file size (and quality)
     const littleDither = colour.gifsaveBuffer({ dither: 0.1, effort: 1 });
@@ -1071,9 +1098,11 @@ describe('foreign', () => {
       scrgbNoProfile, 120);
 
     // 16-bit mode
-    const rgb16 = colour.colourspace('rgb16');
+    const rgb16 = colour.colourspace('rgb16').copy();
+    // remove the ICC profile: the RGB one will no longer be appropriate
+    rgb16.remove('icc-profile-data');
     saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',
-      rgb16, 30300);
+      rgb16, 10700);
 
     // repeat for lossless mode
     saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',

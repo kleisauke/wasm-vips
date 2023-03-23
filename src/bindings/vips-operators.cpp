@@ -3868,6 +3868,14 @@ emscripten::val Image::webpsave_buffer(emscripten::val js_options) const
     return result;
 }
 
+void Image::webpsave_mime(emscripten::val js_options) const
+{
+    this->call("webpsave_mime",
+               (new Option)
+                   ->set("in", *this),
+               js_options);
+}
+
 void Image::webpsave_target(const Target &target, emscripten::val js_options) const
 {
     this->call("webpsave_target",

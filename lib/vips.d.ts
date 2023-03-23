@@ -2276,6 +2276,31 @@ declare module Vips {
     }
 
     /**
+     * Sets the word wrapping style for vips_text() when used with a maximum
+     * width.
+     *
+     * See also: vips_text().
+     */
+    enum TextWrap {
+        /**
+         * Wrap at word boundaries
+         */
+        word = 'word',
+        /**
+         * Wrap at character boundaries
+         */
+        char = 'char',
+        /**
+         * Wrap at word boundaries, but fall back to character boundaries if there is not enough space for a full word
+         */
+        word_char = 'word-char',
+        /**
+         * No wrapping
+         */
+        none = 'none'
+    }
+
+    /**
      * How sensitive loaders are to errors, from never stop (very insensitive), to
      * stop on the smallest warning (very sensitive).
      *
@@ -2311,6 +2336,9 @@ declare module Vips {
      * #VIPS_FOREIGN_PPM_FORMAT_PPM images are 8, 16, or 32-bits, three bands.
      *
      * #VIPS_FOREIGN_PPM_FORMAT_PFM images are 32-bit float pixels.
+     *
+     * #VIPS_FOREIGN_PPM_FORMAT_PNM images are anymap images -- the image format
+     * is used to pick the saver.
      */
     enum ForeignPpmFormat {
         /**
@@ -2328,7 +2356,11 @@ declare module Vips {
         /**
          * Portable float map
          */
-        pfm = 'pfm'
+        pfm = 'pfm',
+        /**
+         * Portable anymap
+         */
+        pnm = 'pnm'
     }
 
     /**
@@ -2576,6 +2608,34 @@ declare module Vips {
          * Aom
          */
         av1 = 'av1'
+    }
+
+    /**
+     * The selected encoder to use.
+     * If libheif hasn't been compiled with the selected encoder,
+     * we will fallback to the default encoder for the compression format.
+     */
+    enum ForeignHeifEncoder {
+        /**
+         * Auto
+         */
+        auto = 'auto',
+        /**
+         * Aom
+         */
+        aom = 'aom',
+        /**
+         * RAV1E
+         */
+        rav1e = 'rav1e',
+        /**
+         * SVT-AV1
+         */
+        svt = 'svt',
+        /**
+         * X265
+         */
+        x265 = 'x265'
     }
 
     /**
@@ -3049,11 +3109,11 @@ declare module Vips {
          */
         static gifload(filename: string, options?: {
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
-             * Load this page from the file.
+             * First page to load.
              */
             page?: number
             /**
@@ -3082,11 +3142,11 @@ declare module Vips {
          */
         static gifloadBuffer(buffer: Blob, options?: {
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
-             * Load this page from the file.
+             * First page to load.
              */
             page?: number
             /**
@@ -3115,11 +3175,11 @@ declare module Vips {
          */
         static gifloadSource(source: Source, options?: {
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
-             * Load this page from the file.
+             * First page to load.
              */
             page?: number
             /**
@@ -3162,11 +3222,11 @@ declare module Vips {
          */
         static heifload(filename: string, options?: {
             /**
-             * Load this page from the file.
+             * First page to load.
              */
             page?: number
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
@@ -3203,11 +3263,11 @@ declare module Vips {
          */
         static heifloadBuffer(buffer: Blob, options?: {
             /**
-             * Load this page from the file.
+             * First page to load.
              */
             page?: number
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
@@ -3244,11 +3304,11 @@ declare module Vips {
          */
         static heifloadSource(source: Source, options?: {
             /**
-             * Load this page from the file.
+             * First page to load.
              */
             page?: number
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
@@ -3600,11 +3660,11 @@ declare module Vips {
              */
             density?: string
             /**
-             * Load this page from the file.
+             * First page to load.
              */
             page?: number
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
@@ -3637,11 +3697,11 @@ declare module Vips {
              */
             density?: string
             /**
-             * Load this page from the file.
+             * First page to load.
              */
             page?: number
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
@@ -4108,10 +4168,6 @@ declare module Vips {
          */
         static openslideload(filename: string, options?: {
             /**
-             * Attach all associated images.
-             */
-            attach_associated?: boolean
-            /**
              * Load this level from the file.
              */
             level?: number
@@ -4123,6 +4179,14 @@ declare module Vips {
              * Load this associated image.
              */
             associated?: string
+            /**
+             * Attach all associated images.
+             */
+            attach_associated?: boolean
+            /**
+             * Output rgb (not rgba).
+             */
+            rgb?: boolean
             /**
              * Force open via memory.
              */
@@ -4149,10 +4213,6 @@ declare module Vips {
          */
         static openslideloadSource(source: Source, options?: {
             /**
-             * Attach all associated images.
-             */
-            attach_associated?: boolean
-            /**
              * Load this level from the file.
              */
             level?: number
@@ -4164,6 +4224,14 @@ declare module Vips {
              * Load this associated image.
              */
             associated?: string
+            /**
+             * Attach all associated images.
+             */
+            attach_associated?: boolean
+            /**
+             * Output rgb (not rgba).
+             */
+            rgb?: boolean
             /**
              * Force open via memory.
              */
@@ -4190,27 +4258,27 @@ declare module Vips {
          */
         static pdfload(filename: string, options?: {
             /**
-             * Load this page from the file.
+             * First page to load.
              */
             page?: number
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
-             * Render at this dpi.
+             * Dpi to render at.
              */
             dpi?: number
             /**
-             * Scale output by this factor.
+             * Factor to scale by.
              */
             scale?: number
             /**
-             * Background value.
+             * Background colour.
              */
             background?: ArrayConstant
             /**
-             * Decrypt with this password.
+             * Password to decrypt with.
              */
             password?: string
             /**
@@ -4239,27 +4307,27 @@ declare module Vips {
          */
         static pdfloadBuffer(buffer: Blob, options?: {
             /**
-             * Load this page from the file.
+             * First page to load.
              */
             page?: number
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
-             * Render at this dpi.
+             * Dpi to render at.
              */
             dpi?: number
             /**
-             * Scale output by this factor.
+             * Factor to scale by.
              */
             scale?: number
             /**
-             * Background value.
+             * Background colour.
              */
             background?: ArrayConstant
             /**
-             * Decrypt with this password.
+             * Password to decrypt with.
              */
             password?: string
             /**
@@ -4288,27 +4356,27 @@ declare module Vips {
          */
         static pdfloadSource(source: Source, options?: {
             /**
-             * Load this page from the file.
+             * First page to load.
              */
             page?: number
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
-             * Render at this dpi.
+             * Dpi to render at.
              */
             dpi?: number
             /**
-             * Scale output by this factor.
+             * Factor to scale by.
              */
             scale?: number
             /**
-             * Background value.
+             * Background colour.
              */
             background?: ArrayConstant
             /**
-             * Decrypt with this password.
+             * Password to decrypt with.
              */
             password?: string
             /**
@@ -4809,17 +4877,13 @@ declare module Vips {
              */
             align?: Align | Enum
             /**
-             * Enable rgba output.
+             * Justify lines.
              */
-            rgba?: boolean
+            justify?: boolean
             /**
              * Dpi to render at.
              */
             dpi?: number
-            /**
-             * Justify lines.
-             */
-            justify?: boolean
             /**
              * Line spacing.
              */
@@ -4828,6 +4892,14 @@ declare module Vips {
              * Load this font file.
              */
             fontfile?: string
+            /**
+             * Enable rgba output.
+             */
+            rgba?: boolean
+            /**
+             * Wrap lines on word or character boundaries.
+             */
+            wrap?: TextWrap | Enum
             /**
              * Dpi selected by autofit (output).
              */
@@ -4988,15 +5060,15 @@ declare module Vips {
          */
         static tiffload(filename: string, options?: {
             /**
-             * Load this page from the image.
+             * First page to load.
              */
             page?: number
             /**
-             * Select subifd index.
+             * Subifd index.
              */
             subifd?: number
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
@@ -5029,15 +5101,15 @@ declare module Vips {
          */
         static tiffloadBuffer(buffer: Blob, options?: {
             /**
-             * Load this page from the image.
+             * First page to load.
              */
             page?: number
             /**
-             * Select subifd index.
+             * Subifd index.
              */
             subifd?: number
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
@@ -5070,15 +5142,15 @@ declare module Vips {
          */
         static tiffloadSource(source: Source, options?: {
             /**
-             * Load this page from the image.
+             * First page to load.
              */
             page?: number
             /**
-             * Select subifd index.
+             * Subifd index.
              */
             subifd?: number
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
@@ -5209,15 +5281,15 @@ declare module Vips {
          */
         static webpload(filename: string, options?: {
             /**
-             * Load this page from the file.
+             * First page to load.
              */
             page?: number
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
-             * Scale factor on load.
+             * Factor to scale by.
              */
             scale?: number
             /**
@@ -5246,15 +5318,15 @@ declare module Vips {
          */
         static webploadBuffer(buffer: Blob, options?: {
             /**
-             * Load this page from the file.
+             * First page to load.
              */
             page?: number
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
-             * Scale factor on load.
+             * Factor to scale by.
              */
             scale?: number
             /**
@@ -5283,15 +5355,15 @@ declare module Vips {
          */
         static webploadSource(source: Source, options?: {
             /**
-             * Load this page from the file.
+             * First page to load.
              */
             page?: number
             /**
-             * Load this many pages.
+             * Number of pages to load, -1 for all.
              */
             n?: number
             /**
-             * Scale factor on load.
+             * Factor to scale by.
              */
             scale?: number
             /**
@@ -6544,13 +6616,17 @@ declare module Vips {
              */
             interframe_maxerror?: number
             /**
-             * Reoptimise colour palettes.
+             * Reuse palette from input.
              */
-            reoptimise?: boolean
+            reuse?: boolean
             /**
              * Maximum inter-palette error for palette reusage.
              */
             interpalette_maxerror?: number
+            /**
+             * Generate an interlaced (progressive) gif.
+             */
+            interlace?: boolean
             /**
              * Strip all metadata from image.
              */
@@ -6588,13 +6664,17 @@ declare module Vips {
              */
             interframe_maxerror?: number
             /**
-             * Reoptimise colour palettes.
+             * Reuse palette from input.
              */
-            reoptimise?: boolean
+            reuse?: boolean
             /**
              * Maximum inter-palette error for palette reusage.
              */
             interpalette_maxerror?: number
+            /**
+             * Generate an interlaced (progressive) gif.
+             */
+            interlace?: boolean
             /**
              * Strip all metadata from image.
              */
@@ -6632,13 +6712,17 @@ declare module Vips {
              */
             interframe_maxerror?: number
             /**
-             * Reoptimise colour palettes.
+             * Reuse palette from input.
              */
-            reoptimise?: boolean
+            reuse?: boolean
             /**
              * Maximum inter-palette error for palette reusage.
              */
             interpalette_maxerror?: number
+            /**
+             * Generate an interlaced (progressive) gif.
+             */
+            interlace?: boolean
             /**
              * Strip all metadata from image.
              */
@@ -6728,6 +6812,10 @@ declare module Vips {
              */
             subsample_mode?: ForeignSubsample | Enum
             /**
+             * Select encoder to use.
+             */
+            encoder?: ForeignHeifEncoder | Enum
+            /**
              * Strip all metadata from image.
              */
             strip?: boolean
@@ -6772,6 +6860,10 @@ declare module Vips {
              */
             subsample_mode?: ForeignSubsample | Enum
             /**
+             * Select encoder to use.
+             */
+            encoder?: ForeignHeifEncoder | Enum
+            /**
              * Strip all metadata from image.
              */
             strip?: boolean
@@ -6815,6 +6907,10 @@ declare module Vips {
              * Select chroma subsample operation mode.
              */
             subsample_mode?: ForeignSubsample | Enum
+            /**
+             * Select encoder to use.
+             */
+            encoder?: ForeignHeifEncoder | Enum
             /**
              * Strip all metadata from image.
              */
@@ -8896,6 +8992,14 @@ declare module Vips {
              * How to measure interestingness.
              */
             interesting?: Interesting | Enum
+            /**
+             * Horizontal position of attention centre (output).
+             */
+            attention_x?: number | undefined
+            /**
+             * Vertical position of attention centre (output).
+             */
+            attention_y?: number | undefined
         }): Image;
 
         /**
@@ -9428,7 +9532,7 @@ declare module Vips {
         }): void;
 
         /**
-         * Save image to webp file.
+         * Save as webp.
          * @param filename Filename to save to.
          * @param options Optional options.
          */
@@ -9496,7 +9600,7 @@ declare module Vips {
         }): void;
 
         /**
-         * Save image to webp buffer.
+         * Save as webp.
          * @param options Optional options.
          * @return Buffer to save to.
          */
@@ -9564,7 +9668,74 @@ declare module Vips {
         }): Uint8Array;
 
         /**
-         * Save image to webp target.
+         * Save image to webp mime.
+         * @param options Optional options.
+         */
+        webpsaveMime(options?: {
+            /**
+             * Q factor.
+             */
+            Q?: number
+            /**
+             * Enable lossless compression.
+             */
+            lossless?: boolean
+            /**
+             * Preset for lossy compression.
+             */
+            preset?: ForeignWebpPreset | Enum
+            /**
+             * Enable high quality chroma subsampling.
+             */
+            smart_subsample?: boolean
+            /**
+             * Enable preprocessing in lossless mode (uses q).
+             */
+            near_lossless?: boolean
+            /**
+             * Change alpha plane fidelity for lossy compression.
+             */
+            alpha_q?: number
+            /**
+             * Optimise for minimum size.
+             */
+            min_size?: boolean
+            /**
+             * Minimum number of frames between key frames.
+             */
+            kmin?: number
+            /**
+             * Maximum number of frames between key frames.
+             */
+            kmax?: number
+            /**
+             * Level of cpu effort to reduce file size.
+             */
+            effort?: number
+            /**
+             * Icc profile to embed.
+             */
+            profile?: string
+            /**
+             * Allow mixed encoding (might reduce file size).
+             */
+            mixed?: boolean
+            /**
+             * Strip all metadata from image.
+             */
+            strip?: boolean
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Set page height for multipage save.
+             */
+            page_height?: number
+        }): void;
+
+        /**
+         * Save as webp.
          * @param target Target to save to.
          * @param options Optional options.
          */

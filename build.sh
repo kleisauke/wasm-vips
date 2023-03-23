@@ -114,11 +114,6 @@ if [ "$SVG" = "true" ]; then
 else
   DISABLE_SVG=true
 fi
-if [ "$LIBVIPS_CPP" = "true" ]; then
-  ENABLE_LIBVIPS_CPP=true
-else
-  DISABLE_LIBVIPS_CPP=true
-fi
 if [ "$BINDINGS" = "true" ]; then
   ENABLE_BINDINGS=true
 else
@@ -214,11 +209,16 @@ VERSION_TIFF=4.5.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.29.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.6.0           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.15.1         # https://github.com/strukturag/libheif
-VERSION_VIPS=8.13.3         # https://github.com/libvips/libvips
+VERSION_VIPS=8.14.2         # https://github.com/libvips/libvips
 
 # Remove patch version component
 without_patch() {
   echo "${1%.[[:digit:]]*}"
+}
+
+# Remove prerelease suffix
+without_prerelease() {
+  echo "${1%-[[:alnum:]]*}"
 }
 
 title() {
@@ -248,7 +248,10 @@ node --version
   sed -i 's/\sx86_features.l\?o//g' configure
   sed -i 's/cf.x86.has_ssse3/1/' functable.c
   sed -i 's/cf.x86.has_sse41/1/' functable.c
-  emconfigure ./configure --prefix=$TARGET --static --zlib-compat ${DISABLE_SIMD:+--without-optimizations} \
+  # FIXME(kleisauke): Investigate test failures when compling without `-DZ_TLS=`.
+  # Regressed since commit:
+  # https://github.com/zlib-ng/zlib-ng/commit/101653c0201a2f487ca7268dd23c5b62c9ad9c79
+  CFLAGS="$CFLAGS -DZ_TLS=" emconfigure ./configure --prefix=$TARGET --static --zlib-compat ${DISABLE_SIMD:+--without-optimizations} \
     ${ENABLE_SIMD:+--force-sse2} --without-acle --without-neon
   make install
 )
@@ -480,22 +483,14 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/vips.pc" ] || (
   stage "Compiling vips"
   mkdir $DEPS/vips
-  curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$VERSION_VIPS.tar.gz | tar xzC $DEPS/vips --strip-components=1
+  curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$(without_prerelease $VERSION_VIPS).tar.xz | tar xJC $DEPS/vips --strip-components=1
   cd $DEPS/vips
-  # Backport commit libvips/libvips@702ed82
-  curl -Ls https://github.com/libvips/libvips/commit/702ed8298f45d7ba342ebf5bae612d159e9cec6f.patch | patch -p1
   # Emscripten specific patches
-  curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips.patch | patch -p1
-  # Enable libvips C++ bindings if asked to do so
-  if [ -n "$ENABLE_LIBVIPS_CPP" ]; then
-    curl -Ls https://github.com/RReverser/libvips/commit/573fc9d94f1d5676e94522f1711c334ef0c3d89f.patch | patch -p1
-  else
-    sed -i "/subdir('cplusplus')/d" meson.build
-  fi
+  curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-8.14.patch | patch -p1
   # Disable building man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Ddeprecated=false -Dintrospection=false -Dauto_features=disabled \
+    -Ddeprecated=false -Dexamples=false -Dcplusplus=$LIBVIPS_CPP -Dintrospection=false -Dauto_features=disabled \
     ${ENABLE_MODULES:+-Dmodules=enabled} -Dcgif=enabled -Dexif=enabled ${ENABLE_AVIF:+-Dheif=enabled} \
     -Dheif-module=enabled -Dimagequant=enabled -Djpeg=enabled ${ENABLE_JXL:+-Djpeg-xl=enabled} \
     -Djpeg-xl-module=enabled -Dlcms=enabled ${ENABLE_SVG:+-Dresvg=enabled} -Dresvg-module=enabled \

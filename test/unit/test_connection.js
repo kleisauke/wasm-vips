@@ -209,4 +209,19 @@ describe('connection', () => {
 
     expect(im.subtract(mono).abs().max()).to.equal(0);
   });
+
+  it('tiff', function () {
+    // Needs tiff connection support
+    if (!Helpers.have('tiffload_source') ||
+      !Helpers.have('tiffsave_target')) {
+      return this.skip();
+    }
+
+    const x = vips.Target.newToMemory();
+    mono.tiffsaveTarget(x);
+    const y = vips.Source.newFromMemory(x.getBlob());
+    const im = vips.Image.tiffloadSource(y);
+
+    expect(im.subtract(mono).abs().max()).to.equal(0);
+  });
 });

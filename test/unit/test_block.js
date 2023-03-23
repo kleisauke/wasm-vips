@@ -19,7 +19,7 @@ describe('block', () => {
     expect(() => vips.Image.vipsload(Helpers.vipsFile)).to.not.throw();
 
     // However, if the environment variable `VIPS_BLOCK_UNTRUSTED` is set,
-    // or `vips_block_untrusted_set( TRUE );` is called, any operations
+    // or `vips_block_untrusted_set(TRUE);` is called, any operations
     // that are tagged as untrusted will be prevented from running
     vips.blockUntrusted(true);
 

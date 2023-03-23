@@ -153,8 +153,8 @@ export function zipExpand (x, y) {
 }
 
 // run a 1-ary function on a thing -- loop over elements if the
-// thing is a array or vector
-export function runFn (fn, x, y) {
+// thing is an array or vector
+export function runFn (fn, x) {
   return Array.isArray(x) ? x.map(value => fn(value)) : fn(x);
 }
 

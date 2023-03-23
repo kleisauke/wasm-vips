@@ -71,7 +71,4 @@ std::vector<double> negate(const std::vector<double> &vector);
 
 std::vector<double> invert(const std::vector<double> &vector);
 
-std::string replace_all(std::string str, const std::string &from,
-                        const std::string &to);
-
 }  // namespace vips

@@ -511,6 +511,18 @@ describe('create', () => {
     // quite a large threshold, since we need to work with a huge range of
     // text rendering systems
     expect(Math.abs(im.width - 500)).to.be.below(50);
+
+    // test wrap
+    const im1 = vips.Image.text('helloworld', {
+      width: 100,
+      dpi: 500
+    });
+    const im2 = vips.Image.text('helloworld', {
+      width: 100,
+      dpi: 500,
+      wrap: vips.TextWrap.char
+    });
+    expect(im1.width).to.be.above(im2.width);
   });
 
   it('tonelut', function () {

@@ -115,8 +115,8 @@ set(MAIN_COMPILE_OPTIONS
 # note 4: A potential deadlock may occur if the main thread spawns a thread and immediately waits for it. See:
 #         https://github.com/emscripten-core/emscripten/issues/8969
 #         https://github.com/libvips/libvips/blob/fc9edfe593be15fa241628b4e0fafa87bd544f7c/libvips/iofuncs/threadpool.c#L959-L961
-# note 5: Build with `-sPTHREAD_POOL_SIZE="_emscripten_num_logical_cores() + 3"` since `vips_sink_disc` could run 3
-#         additional background threads in the pool.
+# note 5: Build with `-sPTHREAD_POOL_SIZE="_emscripten_num_logical_cores() + 2 + 1"` since `vips_sink_disc` uses two
+#         write-behind background threads, plus we need another one to run a maximum of two pipelines simultaneously.
 # note 6: Build with `-sALLOW_TABLE_GROWTH` so that we can store the read, seek, write and finish signals.
 # note 7: To ensure the testsuite passes, increase (main-)thread's stack size from 64kb to 256kb. This should be
 #         reasonable for image processing in Wasm, and given that libvips enforces a minimum thread stack size of 2mb
@@ -132,7 +132,7 @@ set(MAIN_LINK_OPTIONS
         -sMODULARIZE
         -sEXPORT_NAME='Vips'
         -sEXIT_RUNTIME
-        -sPTHREAD_POOL_SIZE='_emscripten_num_logical_cores\(\)+3'
+        -sPTHREAD_POOL_SIZE='_emscripten_num_logical_cores\(\)+2+1'
         -sINITIAL_MEMORY=1GB
         -sSTACK_SIZE=256KB
         -sALLOW_TABLE_GROWTH

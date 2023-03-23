@@ -288,6 +288,12 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("float", VIPS_PRECISION_FLOAT)
         .value("approximate", VIPS_PRECISION_APPROXIMATE);
 
+    enum_<VipsTextWrap>("TextWrap")
+        .value("word", VIPS_TEXT_WRAP_WORD)
+        .value("char", VIPS_TEXT_WRAP_CHAR)
+        .value("word_char", VIPS_TEXT_WRAP_WORD_CHAR)
+        .value("none", VIPS_TEXT_WRAP_NONE);
+
     enum_<VipsFailOn>("FailOn")
         .value("none", VIPS_FAIL_ON_NONE)
         .value("truncated", VIPS_FAIL_ON_TRUNCATED)
@@ -298,7 +304,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("pbm", VIPS_FOREIGN_PPM_FORMAT_PBM)
         .value("pgm", VIPS_FOREIGN_PPM_FORMAT_PGM)
         .value("ppm", VIPS_FOREIGN_PPM_FORMAT_PPM)
-        .value("pfm", VIPS_FOREIGN_PPM_FORMAT_PFM);
+        .value("pfm", VIPS_FOREIGN_PPM_FORMAT_PFM)
+        .value("pnm", VIPS_FOREIGN_PPM_FORMAT_PNM);
 
     enum_<VipsForeignSubsample>("ForeignSubsample")
         .value("auto", VIPS_FOREIGN_SUBSAMPLE_AUTO)
@@ -363,6 +370,13 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("avc", VIPS_FOREIGN_HEIF_COMPRESSION_AVC)
         .value("jpeg", VIPS_FOREIGN_HEIF_COMPRESSION_JPEG)
         .value("av1", VIPS_FOREIGN_HEIF_COMPRESSION_AV1);
+
+    enum_<VipsForeignHeifEncoder>("ForeignHeifEncoder")
+        .value("auto", VIPS_FOREIGN_HEIF_ENCODER_AUTO)
+        .value("aom", VIPS_FOREIGN_HEIF_ENCODER_AOM)
+        .value("rav1e", VIPS_FOREIGN_HEIF_ENCODER_RAV1E)
+        .value("svt", VIPS_FOREIGN_HEIF_ENCODER_SVT)
+        .value("x265", VIPS_FOREIGN_HEIF_ENCODER_X265);
 
     enum_<VipsSize>("Size")
         .value("both", VIPS_SIZE_BOTH)
@@ -437,7 +451,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
                  return major + "." + minor + "." + patch;
              }));
     function("config", optional_override([]() {
-                 return vips::replace_all(VIPS_CONFIG, ", ", "\n");
+                 return std::string(VIPS_CONFIG);
              }));
     function("blockUntrusted", optional_override([](bool state) {
                  vips_block_untrusted_set(state ? 1 : 0);
@@ -1995,6 +2009,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("webpsaveBuffer", &Image::webpsave_buffer)
         .function("webpsaveBuffer", optional_override([](const Image &image) {
                       return image.webpsave_buffer();
+                  }))
+        .function("webpsaveMime", &Image::webpsave_mime)
+        .function("webpsaveMime", optional_override([](const Image &image) {
+                      image.webpsave_mime();
                   }))
         .function("webpsaveTarget", &Image::webpsave_target)
         .function("webpsaveTarget", optional_override([](const Image &image, const Target &target) {

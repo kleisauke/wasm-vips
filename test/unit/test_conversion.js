@@ -335,10 +335,27 @@ describe('conversion', () => {
     }
   });
 
-  it('smartcrop', function () {
-    const test = image.smartcrop(100, 100);
-    expect(test.width).to.equal(100);
-    expect(test.height).to.equal(100);
+  describe('smartcrop', () => {
+    it('entropy', function () {
+      const test = image.smartcrop(100, 100, {
+        interesting: vips.Interesting.entropy
+      });
+      expect(test.width).to.equal(100);
+      expect(test.height).to.equal(100);
+    });
+
+    it('attention', function () {
+      const position = {
+        attention_x: undefined, // Output horizontal position of attention centre here
+        attention_y: undefined // Output vertical position of attention centre here
+      };
+      const test = image.smartcrop(100, 100, position);
+      expect(test.width).to.equal(100);
+      expect(test.height).to.equal(100);
+
+      expect(position.attention_x).to.equal(199);
+      expect(position.attention_y).to.equal(234);
+    });
   });
 
   it('falsecolour', function () {

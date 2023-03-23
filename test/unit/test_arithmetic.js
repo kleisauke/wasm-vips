@@ -373,7 +373,7 @@ describe('arithmetic', () => {
   it('invert', function () {
     const invert = (x) => x instanceof vips.Image ? x.invert() : (x ^ -1) & 0xff;
 
-    // ~image is trimmed to image max so it's hard to test for all formats
+    // ~image is trimmed to image max, so it's hard to test for all formats
     // just test uchar
     runUnary(allImages, invert, ['uchar']);
   });

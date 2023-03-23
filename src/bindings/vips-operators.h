@@ -2261,21 +2261,27 @@ void vipssave(const std::string &filename, emscripten::val js_options = emscript
 void vipssave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
- * Save image to webp file.
+ * Save as webp.
  * @param filename Filename to save to.
  * @param js_options Optional options.
  */
 void webpsave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
- * Save image to webp buffer.
+ * Save as webp.
  * @param js_options Optional options.
  * @return Buffer to save to.
  */
 emscripten::val webpsave_buffer(emscripten::val js_options = emscripten::val::null()) const;
 
 /**
- * Save image to webp target.
+ * Save image to webp mime.
+ * @param js_options Optional options.
+ */
+void webpsave_mime(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save as webp.
  * @param target Target to save to.
  * @param js_options Optional options.
  */

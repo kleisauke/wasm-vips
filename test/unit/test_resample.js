@@ -269,26 +269,28 @@ describe('resample', () => {
     }
   });
 
-  it('similarity', function () {
-    const im = vips.Image.newFromFile(Helpers.jpegFile);
-    const im2 = im.similarity({
-      angle: 90
+  describe('similarity', () => {
+    it('angle', function () {
+      const im = vips.Image.newFromFile(Helpers.jpegFile);
+      const im2 = im.similarity({
+        angle: 90
+      });
+      const im3 = im.affine([0, -1, 1, 0]);
+
+      // rounding in calculating the affine transform from the angle stops
+      // this being exactly true
+      expect(im2.subtract(im3).abs().max()).to.be.below(50);
     });
-    const im3 = im.affine([0, -1, 1, 0]);
 
-    // rounding in calculating the affine transform from the angle stops
-    // this being exactly true
-    expect(im2.subtract(im3).abs().max()).to.be.below(50);
-  });
+    it('scale', function () {
+      const im = vips.Image.newFromFile(Helpers.jpegFile);
+      const im2 = im.similarity({
+        scale: 2
+      });
+      const im3 = im.affine([2, 0, 0, 2]);
 
-  it('similarity scale', function () {
-    const im = vips.Image.newFromFile(Helpers.jpegFile);
-    const im2 = im.similarity({
-      scale: 2
+      expect(im2.subtract(im3).abs().max()).to.equal(0);
     });
-    const im3 = im.affine([2, 0, 0, 2]);
-
-    expect(im2.subtract(im3).abs().max()).to.equal(0);
   });
 
   it('rotate', function () {

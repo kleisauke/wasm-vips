@@ -248,10 +248,7 @@ node --version
   sed -i 's/\sx86_features.l\?o//g' configure
   sed -i 's/cf.x86.has_ssse3/1/' functable.c
   sed -i 's/cf.x86.has_sse41/1/' functable.c
-  # FIXME(kleisauke): Investigate test failures when compling without `-DZ_TLS=`.
-  # Regressed since commit:
-  # https://github.com/zlib-ng/zlib-ng/commit/101653c0201a2f487ca7268dd23c5b62c9ad9c79
-  CFLAGS="$CFLAGS -DZ_TLS=" emconfigure ./configure --prefix=$TARGET --static --zlib-compat ${DISABLE_SIMD:+--without-optimizations} \
+  emconfigure ./configure --prefix=$TARGET --static --zlib-compat ${DISABLE_SIMD:+--without-optimizations} \
     ${ENABLE_SIMD:+--force-sse2} --without-acle --without-neon
   make install
 )

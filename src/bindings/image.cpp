@@ -33,7 +33,7 @@ void Image::call(const char *operation_name, const char *option_string,
     if (!kwargs.isNull()) {
         g_assert(is_type(kwargs, "object"));
 
-        emscripten::val keys = ObjectVal.call<emscripten::val>("keys", kwargs);
+        emscripten::val keys = ObjectKeysVal(kwargs);
 
         if (args == nullptr)
             args = new Option;

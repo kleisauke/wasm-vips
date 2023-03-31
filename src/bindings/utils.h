@@ -10,9 +10,9 @@ namespace vips {
 /**
  * JS helpers.
  */
-thread_local const emscripten::val ObjectVal =
-    emscripten::val::global("Object");
-thread_local const emscripten::val BlobVal =
+static const emscripten::val ObjectKeysVal =
+    emscripten::val::global("Object")["keys"];
+static const emscripten::val BlobVal =
     emscripten::val::global("Uint8Array");
 
 /**

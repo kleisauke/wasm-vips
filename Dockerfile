@@ -46,9 +46,5 @@ RUN \
     --no-modify-path \
     --profile minimal \
     --target wasm32-unknown-emscripten \
-    --default-toolchain nightly-2023-03-21 \
+    --default-toolchain nightly-2023-03-31 \
     --component rust-src
-
-# https://github.com/rust-lang/rust/pull/107221
-RUN \
-  curl -Ls https://github.com/rust-lang/rust/pull/107221.patch | patch -p1 -d $(rustc --print sysroot)/lib/rustlib/src/rust

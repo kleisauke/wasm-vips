@@ -1,7 +1,9 @@
 // wasm-vips externs for Closure to know about
 
 /**
- * See: https://emscripten.org/docs/api_reference/Filesystem-API.html
+ * See: 
+ * https://emscripten.org/docs/api_reference/Filesystem-API.html
+ * https://emscripten.org/docs/api_reference/advanced-apis.html#advanced-file-system-api
  * @suppress {duplicate}
  */
 var FS, fs;
@@ -16,6 +18,14 @@ var NODEFS;
  * @param {number} mi
  */
 FS.makedev = function (ma, mi) {};
+
+/**
+ * @param {Object|string} parent
+ * @param {string} name
+ * @param {function()=} input
+ * @param {function(string)=} output
+ */
+FS.createDevice = function (parent, name, input, output) {};
 
 /**
  * @param {number} dev
@@ -209,6 +219,16 @@ FS.writeFile = function (path, data, opts) {};
 /**
  * @param {Object|string} parent
  * @param {string} name
+ * @param {string|ArrayBufferView} data
+ * @param {boolean} canRead
+ * @param {boolean} canWrite
+ * @param {boolean} canOwn
+ */
+FS.createDataFile = function (parent, name, data, canRead, canWrite, canOwn) {};
+
+/**
+ * @param {Object|string} parent
+ * @param {string} name
  * @param {string} url
  * @param {boolean} canRead
  * @param {boolean} canWrite
@@ -260,6 +280,14 @@ FS.cwd = function () {};
  * @param {string} path
  */
 FS.chdir = function (path) {};
+
+/**
+ * @param {Object|string} parent
+ * @param {string} path
+ * @param {boolean} canRead
+ * @param {boolean} canWrite
+ */
+FS.createPath = function(parent, path, canRead, canWrite) {};
 
 /**
  * @param {string} path

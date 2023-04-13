@@ -191,7 +191,7 @@ export RUSTFLAGS+=" --remap-path-prefix=$CARGO_HOME/registry/src/="
 export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 
 # Dependency version numbers
-VERSION_ZLIBNG=b8c2114      # https://github.com/zlib-ng/zlib-ng
+VERSION_ZLIB_NG=b8c2114     # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.4           # https://github.com/libffi/libffi
 VERSION_GLIB=2.76.1         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.5.0         # https://github.com/libexpat/libexpat
@@ -203,10 +203,10 @@ VERSION_MOZJPEG=4.1.1       # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.8.1           # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.3          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
-VERSION_CGIF=0.3.0          # https://github.com/dloebl/cgif
+VERSION_CGIF=0.3.1          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.3.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.5.0          # https://gitlab.com/libtiff/libtiff
-VERSION_RESVG=0.30.0        # https://github.com/RazrFalcon/resvg
+VERSION_RESVG=0.31.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.6.0           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.15.2         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.14.2         # https://github.com/libvips/libvips
@@ -239,7 +239,7 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/zlib.pc" ] || (
   stage "Compiling zlib-ng"
   mkdir $DEPS/zlib-ng
-  curl -Ls https://github.com/zlib-ng/zlib-ng/archive/$VERSION_ZLIBNG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
+  curl -Ls https://github.com/zlib-ng/zlib-ng/archive/$VERSION_ZLIB_NG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
   cd $DEPS/zlib-ng
   # SSE intrinsics needs to be checked for wasm32
   sed -i 's/|\s*x86_64/& | wasm32/g' configure

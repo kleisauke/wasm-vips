@@ -24,13 +24,13 @@
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
     "fflate": "^0.7.4",
-    "html-webpack-plugin": "^5.5.0",
+    "html-webpack-plugin": "^5.5.1",
     "mini-css-extract-plugin": "^2.7.5",
     "monaco-editor": "^0.37.1",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "terser-webpack-plugin": "^5.3.7",
-    "webpack": "^5.79.0",
-    "webpack-cli": "^5.0.1",
-    "webpack-dev-server": "^4.13.2"
+    "webpack": "^5.80.0",
+    "webpack-cli": "^5.0.2",
+    "webpack-dev-server": "^4.13.3"
   }
 }

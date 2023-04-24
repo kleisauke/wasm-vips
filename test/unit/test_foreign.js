@@ -129,8 +129,8 @@ describe('foreign', () => {
   }
 
   function saveBufferTempfile (saver, suf, im, maxDiff = 0) {
-    // Needs FS.open support, not yet available in the JS API of WasmFS.
-    if (typeof vips.FS.open !== 'function') {
+    // Needs FS.write support, not yet available in the JS API of WasmFS.
+    if (typeof vips.FS.write !== 'function') {
       return;
     }
 

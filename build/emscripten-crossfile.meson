@@ -4,7 +4,7 @@ cpp = 'em++'
 ld = 'wasm-ld'
 ar = 'emar'
 ranlib = 'emranlib'
-pkgconfig = ['emconfigure', 'pkg-config']
+pkgconfig = ['pkg-config', '--static']
 
 # https://docs.gtk.org/glib/cross-compiling.html#cross-properties
 [properties]
@@ -13,7 +13,7 @@ have_c99_vsnprintf = true
 have_c99_snprintf = true
 have_unix98_printf = true
 
-# Ensure that `-s PTHREAD_POOL_SIZE=*` is not injected into .pc files
+# Ensure that `-sPTHREAD_POOL_SIZE=*` is not injected into .pc files
 [built-in options]
 c_thread_count = 0
 cpp_thread_count = 0

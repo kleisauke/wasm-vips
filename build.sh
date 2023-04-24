@@ -183,6 +183,9 @@ export MESON_CROSS="$SOURCE_DIR/build/emscripten-crossfile.meson"
 # Run as many parallel jobs as there are available CPU cores
 export MAKEFLAGS="-j$(nproc)"
 
+# Ensure we link against internal/private dependencies
+export PKG_CONFIG="pkg-config --static"
+
 # Ensure Rust build path prefixes are removed from the resulting binaries
 # https://reproducible-builds.org/docs/build-path/
 # TODO(kleisauke): Switch to -Ctrim-paths=all once supported - https://github.com/rust-lang/rfcs/pull/3127
@@ -358,12 +361,8 @@ node --version
     -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE -DJPEGXL_FORCE_SYSTEM_LCMS2=TRUE -DJPEGXL_FORCE_SYSTEM_HWY=TRUE \
     -DCMAKE_C_FLAGS="$CFLAGS -DJXL_DEBUG_ON_ABORT=0" -DCMAKE_CXX_FLAGS="$CXXFLAGS -DJXL_DEBUG_ON_ABORT=0"
   make -C _build install
-  if [ -n "$ENABLE_MODULES" ]; then
-    # Ensure we don't link with lcms2 in the vips-jxl side module
-    sed -i '/^Requires.private:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl.pc
-    # Ensure the vips-jxl side module links against the private dependencies
-    sed -i 's/Requires.private/Requires/' $TARGET/lib/pkgconfig/libjxl.pc
-  fi
+  # Ensure we don't link with lcms2 in the vips-jxl side module
+  [ -z "$ENABLE_MODULES"  ] || sed -i '/^Requires.private:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl.pc
 )
 
 [ -f "$TARGET/lib/pkgconfig/spng.pc" ] || (
@@ -473,8 +472,6 @@ node --version
     -DWITH_AOM_ENCODER=1 -DWITH_AOM_DECODER=1 \
     -DENABLE_MULTITHREADING_SUPPORT=0 # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
-  # Ensure the vips-heif side module links against the private dependencies
-  [ -z "$ENABLE_MODULES"  ] || sed -i 's/Requires.private/Requires/' $TARGET/lib/pkgconfig/libheif.pc
 )
 
 [ -f "$TARGET/lib/pkgconfig/vips.pc" ] || (

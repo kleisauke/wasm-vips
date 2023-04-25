@@ -9,15 +9,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/platform/1.3.6/platform.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/benchmark/2.1.4/benchmark.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.3.7/chai.min.js" crossorigin="anonymous"></script>
 <script src="lib/vips.js"></script>
 <script type="module">
-  // Global variables used throughout the benchmarks
-  const assert = chai.assert;
-
-  // Target width and height
   const width = 720;
-  const height = 588;
+
+  // vips_thumbnail resize behavior is based on a square bounding box, so
+  // pass a huge value to resize on a specific axis instead.
+  const height = 10000000; // = VIPS_MAX_COORD
 
   // https://www.flickr.com/photos/grizdave/2569067123/
   const jpegFile = '2569067123_aca715a2ee_o.jpg';
@@ -78,9 +76,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
-        height: height
+        height
       });
-      im.jpegsave('images/output.jpg', defaultJpegSaveOptions);
+      im.jpegsave('output.jpg', defaultJpegSaveOptions);
       im.delete();
       deferred.resolve();
     }
@@ -88,10 +86,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
-        height: height
+        height
       });
-      const buffer = im.jpegsaveBuffer(defaultJpegSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      im.jpegsaveBuffer(defaultJpegSaveOptions);
       im.delete();
       deferred.resolve();
     }
@@ -99,9 +96,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnail(jpegFile, width, {
-        height: height
+        height
       });
-      im.jpegsave('images/output.jpg', defaultJpegSaveOptions);
+      im.jpegsave('output.jpg', defaultJpegSaveOptions);
       im.delete();
       deferred.resolve();
     }
@@ -109,9 +106,9 @@
     defer: true,
     fn: function (deferred) {
       const source = vips.Source.newFromFile(jpegFile);
-      const target = vips.Target.newToFile('images/output.jpg');
+      const target = vips.Target.newToFile('output.jpg');
       const im = vips.Image.thumbnailSource(source, width, {
-        height: height
+        height
       })
       im.jpegsaveTarget(target, defaultJpegSaveOptions);
       im.delete();
@@ -123,10 +120,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnail(jpegFile, width, {
-        height: height
+        height
       });
-      const buffer = im.jpegsaveBuffer(defaultJpegSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      im.jpegsaveBuffer(defaultJpegSaveOptions);
       im.delete();
       deferred.resolve();
     }
@@ -139,7 +135,7 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
-        height: height
+        height
       });
       // Fast, mild sharpen
       const sharpen = vips.Image.newFromArray([
@@ -148,8 +144,7 @@
         -1.0, -1.0, -1.0
       ], 24);
       const conv = im.conv(sharpen);
-      const buffer = conv.jpegsaveBuffer(defaultJpegSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      conv.jpegsaveBuffer(defaultJpegSaveOptions);
       conv.delete();
       sharpen.delete();
       im.delete();
@@ -159,12 +154,11 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
-        height: height
+        height
       });
       // Slow, accurate sharpen in LAB colour space, with control over flat vs jagged areas
       const sharpen = im.sharpen({sigma: 3, m1: 1, m2: 3});
-      const buffer = sharpen.jpegsaveBuffer(defaultJpegSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      sharpen.jpegsaveBuffer(defaultJpegSaveOptions);
       sharpen.delete();
       im.delete();
       deferred.resolve();
@@ -173,7 +167,7 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
-        height: height
+        height
       });
       // Fast, mild blur - averages neighbouring pixel
       const blur = vips.Image.newFromArray([
@@ -182,8 +176,7 @@
         1.0, 1.0, 1.0
       ], 9);
       const conv = im.conv(blur);
-      const buffer = conv.jpegsaveBuffer(defaultJpegSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      conv.jpegsaveBuffer(defaultJpegSaveOptions);
       conv.delete();
       blur.delete();
       im.delete();
@@ -193,12 +186,11 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
-        height: height
+        height
       });
       // Slower, accurate Gaussian blur
       const blur = im.gaussblur(3);
-      const buffer = blur.jpegsaveBuffer(defaultJpegSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      blur.jpegsaveBuffer(defaultJpegSaveOptions);
       blur.delete();
       im.delete();
       deferred.resolve();
@@ -207,11 +199,10 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
-        height: height
+        height
       });
       const gamma = im.gamma({exponent: 2.2});
-      const buffer = gamma.jpegsaveBuffer(defaultJpegSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      gamma.jpegsaveBuffer(defaultJpegSaveOptions);
       gamma.delete();
       im.delete();
       deferred.resolve();
@@ -220,11 +211,10 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
-        height: height
+        height
       });
       const greyscale = im.colourspace(vips.Interpretation.b_w);
-      const buffer = greyscale.jpegsaveBuffer(defaultJpegSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      greyscale.jpegsaveBuffer(defaultJpegSaveOptions);
       greyscale.delete();
       im.delete();
       deferred.resolve();
@@ -233,12 +223,11 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
-        height: height
+        height
       });
       const gamma = im.gamma({exponent: 2.2});
       const greyscale = gamma.colourspace(vips.Interpretation.b_w);
-      const buffer = greyscale.jpegsaveBuffer(defaultJpegSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      greyscale.jpegsaveBuffer(defaultJpegSaveOptions);
       greyscale.delete();
       gamma.delete();
       im.delete();
@@ -248,10 +237,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
-        height: height
+        height
       });
-      const buffer = im.jpegsaveBuffer({...defaultJpegSaveOptions, interlace: true});
-      assert.notStrictEqual(null, buffer);
+      im.jpegsaveBuffer({...defaultJpegSaveOptions, interlace: true});
       im.delete();
       deferred.resolve();
     }
@@ -259,13 +247,12 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
-        height: height
+        height
       });
-      const buffer = im.jpegsaveBuffer({
+      im.jpegsaveBuffer({
         ...defaultJpegSaveOptions,
         subsample_mode: vips.ForeignSubsample.off
       });
-      assert.notStrictEqual(null, buffer);
       im.delete();
       deferred.resolve();
     }
@@ -273,13 +260,12 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
-        height: height
+        height
       });
       // Need to copy to memory, we have to stay seq
       const mem = im.copyMemory();
       const rot90 = mem.rot90();
-      const buffer = rot90.jpegsaveBuffer(defaultJpegSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      rot90.jpegsaveBuffer(defaultJpegSaveOptions);
       rot90.delete();
       mem.delete();
       im.delete();
@@ -289,11 +275,10 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
-        height: height,
+        height: 588,
         crop: vips.Interesting.entropy
       });
-      const buffer = im.jpegsaveBuffer(defaultJpegSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      im.jpegsaveBuffer(defaultJpegSaveOptions);
       im.delete();
       deferred.resolve();
     }
@@ -301,11 +286,10 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
-        height: height,
+        height: 588,
         crop: vips.Interesting.attention
       });
-      const buffer = im.jpegsaveBuffer(defaultJpegSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      im.jpegsaveBuffer(defaultJpegSaveOptions);
       im.delete();
       deferred.resolve();
     }
@@ -318,9 +302,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
-        height: height
+        height
       });
-      im.pngsave('images/output.png', defaultPngSaveOptions);
+      im.pngsave('output.png', defaultPngSaveOptions);
       im.delete();
       deferred.resolve();
     }
@@ -328,10 +312,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
-        height: height
+        height
       });
-      const buffer = im.pngsaveBuffer(defaultPngSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      im.pngsaveBuffer(defaultPngSaveOptions);
       im.delete();
       deferred.resolve();
     }
@@ -339,9 +322,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnail(pngFile, width, {
-        height: height
+        height
       });
-      im.pngsave('images/output.png', defaultPngSaveOptions);
+      im.pngsave('output.png', defaultPngSaveOptions);
       im.delete();
       deferred.resolve();
     }
@@ -349,10 +332,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnail(pngFile, width, {
-        height: height
+        height
       });
-      const buffer = im.pngsaveBuffer(defaultPngSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      im.pngsaveBuffer(defaultPngSaveOptions);
       im.delete();
       deferred.resolve();
     }
@@ -360,10 +342,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
-        height: height
+        height
       });
-      const buffer = im.pngsaveBuffer({...defaultPngSaveOptions, interlace: true});
-      assert.notStrictEqual(null, buffer);
+      im.pngsaveBuffer({...defaultPngSaveOptions, interlace: true});
       im.delete();
       deferred.resolve();
     }
@@ -371,10 +352,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
-        height: height
+        height
       });
-      const buffer = im.pngsaveBuffer({...defaultPngSaveOptions, filter: vips.ForeignPngFilter.all});
-      assert.notStrictEqual(null, buffer);
+      im.pngsaveBuffer({...defaultPngSaveOptions, filter: vips.ForeignPngFilter.all});
       im.delete();
       deferred.resolve();
     }
@@ -382,10 +362,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
-        height: height
+        height
       });
-      const buffer = im.pngsaveBuffer({...defaultPngSaveOptions, compression: 9});
-      assert.notStrictEqual(null, buffer);
+      im.pngsaveBuffer({...defaultPngSaveOptions, compression: 9});
       im.delete();
       deferred.resolve();
     }
@@ -394,13 +373,13 @@
   })
 
   // WebP
-  const webpSuite = new Benchmark.Suite('webp').add('wasm-vips-file', {
+  const webpSuite = new Benchmark.Suite('webp').add('wasm-vips-buffer-file', {
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputWebPBuffer, width, {
-        height: height
+        height
       });
-      im.webpsave('images/output.webp', defaultWebPSaveOptions);
+      im.webpsave('output.webp', defaultWebPSaveOptions);
       im.delete();
       deferred.resolve();
     }
@@ -408,10 +387,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnailBuffer(inputWebPBuffer, width, {
-        height: height
+        height
       });
-      const buffer = im.webpsaveBuffer(defaultWebPSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      im.webpsaveBuffer(defaultWebPSaveOptions);
       im.delete();
       deferred.resolve();
     }
@@ -419,9 +397,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnail(webpFile, width, {
-        height: height
+        height
       });
-      im.webpsave('images/output.webp', defaultWebPSaveOptions);
+      im.webpsave('output.webp', defaultWebPSaveOptions);
       im.delete();
       deferred.resolve();
     }
@@ -429,10 +407,9 @@
     defer: true,
     fn: function (deferred) {
       const im = vips.Image.thumbnail(webpFile, width, {
-        height: height
+        height
       });
-      const buffer = im.webpsaveBuffer(defaultWebPSaveOptions);
-      assert.notStrictEqual(null, buffer);
+      im.webpsaveBuffer(defaultWebPSaveOptions);
       im.delete();
       deferred.resolve();
     }

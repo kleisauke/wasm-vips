@@ -29,7 +29,7 @@
     "monaco-editor": "^0.37.1",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "terser-webpack-plugin": "^5.3.7",
-    "webpack": "^5.80.0",
+    "webpack": "^5.81.0",
     "webpack-cli": "^5.0.2",
     "webpack-dev-server": "^4.13.3"
   }

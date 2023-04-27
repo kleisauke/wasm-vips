@@ -74,4 +74,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm publish
-          gh release create ${{ github.ref_name }} --target ${{ github.sha }}
+          gh release create ${{ github.ref_name }}

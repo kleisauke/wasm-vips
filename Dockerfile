@@ -34,13 +34,12 @@ RUN \
     --no-modify-path \
     --profile minimal \
     --target wasm32-unknown-emscripten \
-    --default-toolchain nightly-2023-09-19 \
+    --default-toolchain nightly-2023-10-07 \
     --component rust-src
 
-# https://github.com/rust-lang/libc/pull/3282
 # https://github.com/rust-lang/libc/pull/3308
 RUN \
-  sed -i 's|version = "0.2.146"|git = "https://github.com/kleisauke/libc", branch = "emscripten-lfs64-compat"|' $(rustc --print sysroot)/lib/rustlib/src/rust/library/std/Cargo.toml
+  sed -i '/^libc =/s/0.2.148/0.2.149/' $(rustc --print sysroot)/lib/rustlib/src/rust/library/std/Cargo.toml
 
 # Cache settings
 ENV \

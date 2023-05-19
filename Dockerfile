@@ -46,5 +46,5 @@ RUN \
     --no-modify-path \
     --profile minimal \
     --target wasm32-unknown-emscripten \
-    --default-toolchain nightly-2023-05-11 \
+    --default-toolchain nightly-2023-05-19 \
     --component rust-src

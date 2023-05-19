@@ -418,7 +418,8 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/libtiff-4.pc" ] || (
   stage "Compiling tiff"
   mkdir $DEPS/tiff
-  curl -Ls https://download.osgeo.org/libtiff/tiff-$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1
+  curl -Ls https://download.osgeo.org/libtiff/tiff-$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1 \
+    || (echo "Failed to download libtiff, using mirror" && curl -Ls https://fossies.org/linux/misc/tiff-$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1)
   cd $DEPS/tiff
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-tools --disable-tests --disable-contrib --disable-docs --disable-mdi --disable-pixarlog --disable-old-jpeg --disable-cxx

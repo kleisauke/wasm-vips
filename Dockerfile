@@ -13,6 +13,7 @@ RUN \
     build-essential \
     ccache \
     libglib2.0-dev \
+    libssl-dev \
     pkgconf \
     # needed for Meson
     ninja-build \
@@ -34,7 +35,9 @@ RUN \
     --profile minimal \
     --target wasm32-unknown-emscripten \
     --default-toolchain nightly-2024-08-02 \
-    --component rust-src
+    --component rust-src \
+    && \
+  cargo install cargo-c
 
 # Cache settings
 ENV \

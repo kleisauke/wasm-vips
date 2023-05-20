@@ -179,7 +179,7 @@ VERSION_WEBP=1.4.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.42.0        # https://github.com/RazrFalcon/resvg
 VERSION_DAV1D=1.4.3         # https://code.videolan.org/videolan/dav1d
-VERSION_AOM=3.9.1           # https://aomedia.googlesource.com/aom
+VERSION_RAV1E=0.7.1         # https://github.com/xiph/rav1e
 VERSION_HEIF=1.18.1         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.15.2         # https://github.com/libvips/libvips
 
@@ -187,7 +187,6 @@ VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
 
 # Generate versions.json
 ( printf "{\n"; \
-  [ -n "$DISABLE_AVIF" ] || printf "  \"aom\": \"${VERSION_AOM}\",\n"; \
   [ -n "$DISABLE_JXL" ] || printf "  \"brotli\": \"${VERSION_BROTLI}\",\n"; \
   printf "  \"cgif\": \"${VERSION_CGIF}\",\n"; \
   [ -n "$DISABLE_AVIF" ] || printf "  \"dav1d\": \"${VERSION_DAV1D}\",\n"; \
@@ -202,6 +201,7 @@ VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
   [ -n "$DISABLE_JXL" ] || printf "  \"jxl\": \"${VERSION_JXL}\",\n"; \
   printf "  \"lcms\": \"${VERSION_LCMS2}\",\n"; \
   printf "  \"mozjpeg\": \"${VERSION_MOZJPEG}\",\n"; \
+  [ -n "$DISABLE_AVIF" ] || printf "  \"rav1e\": \"${VERSION_RAV1E}\",\n"; \
   [ -n "$DISABLE_SVG" ] || printf "  \"resvg\": \"${VERSION_RESVG}\",\n"; \
   printf "  \"spng\": \"${VERSION_SPNG}\",\n"; \
   printf "  \"tiff\": \"${VERSION_TIFF}\",\n"; \
@@ -451,17 +451,18 @@ node --version
   meson install -C _build --tag devel
 )
 
-[ -f "$TARGET/lib/pkgconfig/aom.pc" ] || [ -n "$DISABLE_AVIF" ] || (
-  stage "Compiling aom"
-  mkdir $DEPS/aom
-  curl -Ls https://storage.googleapis.com/aom-releases/libaom-$VERSION_AOM.tar.gz | tar xzC $DEPS/aom --strip-components=1
-  cd $DEPS/aom
-  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET \
-    -DAOM_TARGET_CPU=generic ${ENABLE_PIC:+-DCONFIG_PIC=1} -DCONFIG_RUNTIME_CPU_DETECT=0 \
-    -DENABLE_DOCS=FALSE -DENABLE_TESTS=FALSE -DENABLE_EXAMPLES=FALSE -DENABLE_TOOLS=FALSE \
-    -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=0 -DCONFIG_AV1_DECODER=0 \
-    -DCONFIG_MULTITHREAD=0 # Disable threading support, we rely on libvips' thread pool.
-  make -C _build install
+[ -f "$TARGET/lib/pkgconfig/rav1e.pc" ] || [ -n "$DISABLE_AVIF" ] || (
+  stage "Compiling rav1e"
+  mkdir $DEPS/rav1e
+  curl -Ls https://github.com/xiph/rav1e/archive/refs/tags/v$VERSION_RAV1E.tar.gz | tar xzC $DEPS/rav1e --strip-components=1
+  cd $DEPS/rav1e
+  curl -OLs https://github.com/xiph/rav1e/releases/download/v$VERSION_RAV1E/Cargo.lock
+  cargo cinstall --prefix=$TARGET --release --target wasm32-unknown-emscripten --library-type staticlib --locked \
+    -Zbuild-std=panic_abort,std --no-default-features # --features=threading
+  # Ensure we don't link with libc in the vips-heif side module
+  # https://github.com/emscripten-core/emscripten/issues/16680#issuecomment-1558015445
+  # TODO(kleisauke): Switch to -Zlink-native-libraries=no once stable
+  [ -z "$ENABLE_MODULES" ] || sed -i 's/ -lc//g' $TARGET/lib/pkgconfig/rav1e.pc
 )
 
 [ -f "$TARGET/lib/pkgconfig/libheif.pc" ] || [ -n "$DISABLE_AVIF" ] || (
@@ -473,8 +474,8 @@ node --version
   # Compile with -D__EMSCRIPTEN_STANDALONE_WASM__ to disable the Embind implementation.
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
     -DBUILD_SHARED_LIBS=FALSE -DCMAKE_POSITION_INDEPENDENT_CODE=$PIC -DENABLE_PLUGIN_LOADING=FALSE \
-    -DBUILD_TESTING=FALSE -DWITH_EXAMPLES=FALSE -DWITH_LIBDE265=FALSE -DWITH_X265=FALSE -DWITH_AOM_DECODER=FALSE \
-    -DWITH_DAV1D=TRUE -DWITH_AOM_ENCODER=TRUE \
+    -DBUILD_TESTING=FALSE -DWITH_EXAMPLES=FALSE -DWITH_LIBDE265=FALSE -DWITH_X265=FALSE \
+    -DWITH_DAV1D=TRUE -DWITH_RAV1E=TRUE -DWITH_AOM_ENCODER=FALSE -DWITH_AOM_DECODER=FALSE \
     -DCMAKE_CXX_FLAGS="$CXXFLAGS -D__EMSCRIPTEN_STANDALONE_WASM__" \
     -DENABLE_MULTITHREADING_SUPPORT=FALSE # Disable threading support, we rely on libvips' thread pool.
   make -C _build install

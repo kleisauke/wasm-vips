@@ -178,6 +178,7 @@ VERSION_CGIF=0.4.1          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.4.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.42.0        # https://github.com/RazrFalcon/resvg
+VERSION_DAV1D=1.4.3         # https://code.videolan.org/videolan/dav1d
 VERSION_AOM=3.9.1           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.18.1         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.15.2         # https://github.com/libvips/libvips
@@ -189,6 +190,7 @@ VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
   [ -n "$DISABLE_AVIF" ] || printf "  \"aom\": \"${VERSION_AOM}\",\n"; \
   [ -n "$DISABLE_JXL" ] || printf "  \"brotli\": \"${VERSION_BROTLI}\",\n"; \
   printf "  \"cgif\": \"${VERSION_CGIF}\",\n"; \
+  [ -n "$DISABLE_AVIF" ] || printf "  \"dav1d\": \"${VERSION_DAV1D}\",\n"; \
   printf "  \"emscripten\": \"${VERSION_EMSCRIPTEN}\",\n"; \
   printf "  \"exif\": \"${VERSION_EXIF}\",\n"; \
   printf "  \"expat\": \"${VERSION_EXPAT}\",\n"; \
@@ -439,6 +441,16 @@ node --version
   cp crates/c-api/resvg.h $TARGET/include/
 )
 
+[ -f "$TARGET/lib/pkgconfig/dav1d.pc" ] || [ -n "$DISABLE_AVIF" ] || (
+  stage "Compiling dav1d"
+  mkdir -p $DEPS/dav1d
+  curl -Ls https://downloads.videolan.org/pub/videolan/dav1d/$VERSION_DAV1D/dav1d-$VERSION_DAV1D.tar.xz | tar xJC $DEPS/dav1d --strip-components=1
+  cd $DEPS/dav1d
+  meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
+    -Dbitdepths=8 -Denable_tools=false -Denable_examples=false -Denable_tests=false
+  meson install -C _build --tag devel
+)
+
 [ -f "$TARGET/lib/pkgconfig/aom.pc" ] || [ -n "$DISABLE_AVIF" ] || (
   stage "Compiling aom"
   mkdir $DEPS/aom
@@ -447,7 +459,7 @@ node --version
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET \
     -DAOM_TARGET_CPU=generic ${ENABLE_PIC:+-DCONFIG_PIC=1} -DCONFIG_RUNTIME_CPU_DETECT=0 \
     -DENABLE_DOCS=FALSE -DENABLE_TESTS=FALSE -DENABLE_EXAMPLES=FALSE -DENABLE_TOOLS=FALSE \
-    -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=0 \
+    -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=0 -DCONFIG_AV1_DECODER=0 \
     -DCONFIG_MULTITHREAD=0 # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
 )
@@ -461,7 +473,8 @@ node --version
   # Compile with -D__EMSCRIPTEN_STANDALONE_WASM__ to disable the Embind implementation.
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
     -DBUILD_SHARED_LIBS=FALSE -DCMAKE_POSITION_INDEPENDENT_CODE=$PIC -DENABLE_PLUGIN_LOADING=FALSE \
-    -DBUILD_TESTING=FALSE -DWITH_EXAMPLES=FALSE -DWITH_LIBDE265=FALSE -DWITH_X265=FALSE \
+    -DBUILD_TESTING=FALSE -DWITH_EXAMPLES=FALSE -DWITH_LIBDE265=FALSE -DWITH_X265=FALSE -DWITH_AOM_DECODER=FALSE \
+    -DWITH_DAV1D=TRUE -DWITH_AOM_ENCODER=TRUE \
     -DCMAKE_CXX_FLAGS="$CXXFLAGS -D__EMSCRIPTEN_STANDALONE_WASM__" \
     -DENABLE_MULTITHREADING_SUPPORT=FALSE # Disable threading support, we rely on libvips' thread pool.
   make -C _build install

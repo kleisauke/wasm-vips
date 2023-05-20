@@ -24,6 +24,7 @@ RUN \
     build-essential \
     ccache \
     libglib2.0-dev \
+    libssl-dev \
     libtool \
     nodejs \
     pkgconf \
@@ -46,5 +47,9 @@ RUN \
     --no-modify-path \
     --profile minimal \
     --target wasm32-unknown-emscripten \
-    --default-toolchain nightly-2023-05-19 \
-    --component rust-src
+    # FIXME(kleisauke): Update to latest nightly once https://github.com/rust-lang/cargo/pull/12088 is landed in cargo-c
+    --default-toolchain nightly-2023-05-04 \
+    --component rust-src \
+    && \
+  # TODO(kleisauke): Upstream this
+  CARGO_HOME="/usr/local/cargo" cargo install cargo-c --git https://github.com/kleisauke/cargo-c --branch emscripten

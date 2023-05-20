@@ -210,6 +210,7 @@ VERSION_CGIF=0.3.1          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.3.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.5.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.33.0        # https://github.com/RazrFalcon/resvg
+VERSION_DAV1D=1.2.0         # https://code.videolan.org/videolan/dav1d
 VERSION_AOM=3.6.1           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.16.1         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.14.2         # https://github.com/libvips/libvips
@@ -442,16 +443,25 @@ node --version
   cp crates/c-api/resvg.h $TARGET/include/
 )
 
+[ -f "$TARGET/lib/pkgconfig/dav1d.pc" ] || [ -n "$DISABLE_AVIF" ] || (
+  stage "Compiling dav1d"
+  mkdir -p $DEPS/dav1d
+  curl -Ls https://downloads.videolan.org/pub/videolan/dav1d/$VERSION_DAV1D/dav1d-$VERSION_DAV1D.tar.xz | tar xJC $DEPS/dav1d --strip-components=1
+  cd $DEPS/dav1d
+  meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
+    -Dbitdepths=8 -Denable_tools=false -Denable_examples=false -Denable_tests=false
+  meson install -C _build --tag devel
+)
+
 [ -f "$TARGET/lib/pkgconfig/aom.pc" ] || [ -n "$DISABLE_AVIF" ] || (
   stage "Compiling aom"
   mkdir $DEPS/aom
   curl -Ls https://storage.googleapis.com/aom-releases/libaom-$VERSION_AOM.tar.gz | tar xzC $DEPS/aom --strip-components=1
   cd $DEPS/aom
-  emcmake cmake -B_build -H. \
-    -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET \
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET \
     -DAOM_TARGET_CPU=generic -DCONFIG_RUNTIME_CPU_DETECT=0 \
     -DENABLE_DOCS=0 -DENABLE_TESTS=0 -DENABLE_EXAMPLES=0 -DENABLE_TOOLS=0 \
-    -DCONFIG_PIC=$PIC -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=0 \
+    -DCONFIG_PIC=$PIC -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=0 -DCONFIG_AV1_DECODER=0 \
     -DCONFIG_MULTITHREAD=0 # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
 )
@@ -463,13 +473,11 @@ node --version
   cd $DEPS/heif
   curl -Ls https://github.com/strukturag/libheif/compare/v$VERSION_HEIF...kleisauke:wasm-vips.patch | patch -p1
   # Note: without CMAKE_FIND_ROOT_PATH find_path for AOM is not working for some reason (see https://github.com/emscripten-core/emscripten/issues/10078).
-  emcmake cmake -B_build -H. \
-    -DCMAKE_FIND_ROOT_PATH=$TARGET \
-    -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=$PIC -DBUILD_SHARED_LIBS=0 \
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=0 \
+    -DCMAKE_FIND_ROOT_PATH=$TARGET -DCMAKE_POSITION_INDEPENDENT_CODE=$PIC \
     -DENABLE_PLUGIN_LOADING=0 -DWITH_EXAMPLES=0 \
-    -DWITH_LIBDE265=0 -DWITH_X265=0 -DWITH_DAV1D=0 -DWITH_SvtEnc=0 -DWITH_RAV1E=0 \
-    -DWITH_AOM_ENCODER=1 -DWITH_AOM_DECODER=1 \
+    -DWITH_LIBDE265=0 -DWITH_X265=0 -DWITH_SvtEnc=0 -DWITH_RAV1E=0 -DWITH_AOM_DECODER=0 \
+    -DWITH_DAV1D=1 -DWITH_AOM_ENCODER=1 \
     -DENABLE_MULTITHREADING_SUPPORT=0 # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
   # Ensure we don't link with libsharpyuv in the vips-heif side module

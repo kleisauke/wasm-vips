@@ -495,7 +495,7 @@ node --version
   meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
-  [ -d "$module_dir" ] && modules=$(find $module_dir/ -type f -printf " %p")
+  [ -d "$module_dir" ] && modules=$(find $module_dir/ -type f -printf " %p") || true
   sed -i "/^Libs:/ s/$/${modules//\//\\/}/" $TARGET/lib/pkgconfig/vips.pc
 )
 
@@ -520,7 +520,7 @@ node --version
   # The produced binary should be the same across the different variants (sanity check)
   expected_sha256=$(sha256sum "$SOURCE_DIR/lib/vips.wasm" | awk '{ print $1 }')
   for file in vips-es6.wasm vips-node.wasm vips-node-es6.wasm; do
-    echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check
+    echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check --status
     rm $SOURCE_DIR/lib/$file
   done
 
@@ -551,5 +551,5 @@ EOF
 
   # Copy dynamic loadable modules
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
-  [ -d "$module_dir" ] && cp $module_dir/* $SOURCE_DIR/lib/
+  [ -d "$module_dir" ] && cp $module_dir/* $SOURCE_DIR/lib/ || true
 )

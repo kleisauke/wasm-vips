@@ -34,9 +34,8 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           docker build -t wasm-vips .
-          # FIXME(kleisauke): multiple definition error if you remove `--disable-svg`
-          # FIXME(kleisauke): hangs during runtime if you remove `--disable-modules`
-          docker run --rm -v ${{ github.workspace }}:/src wasm-vips ./build.sh --disable-modules --disable-svg
+          # FIXME(kleisauke): multiple definition error if you build with `--disable-modules`
+          docker run --rm -v ${{ github.workspace }}:/src wasm-vips ./build.sh
   CI:
     runs-on: ${{ matrix.os }}
     needs: build

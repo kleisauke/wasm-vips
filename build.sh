@@ -461,6 +461,9 @@ node --version
   curl -OLs https://github.com/xiph/rav1e/releases/download/v$VERSION_RAV1E/Cargo.lock
   cargo cinstall --prefix=$TARGET --release --target wasm32-unknown-emscripten --library-type staticlib --locked \
     -Zbuild-std=panic_abort,std --no-default-features # --features=threading
+  # Ensure we don't link with libc in the vips-heif side module
+  # https://github.com/emscripten-core/emscripten/issues/16680#issuecomment-1558015445
+  [ -z "$ENABLE_MODULES"  ] || sed -i 's/ -lc//g' $TARGET/lib/pkgconfig/rav1e.pc
 )
 
 [ -f "$TARGET/lib/pkgconfig/libheif.pc" ] || [ -n "$DISABLE_AVIF" ] || (

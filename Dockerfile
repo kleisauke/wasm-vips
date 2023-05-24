@@ -51,5 +51,4 @@ RUN \
     --default-toolchain nightly-2023-05-04 \
     --component rust-src \
     && \
-  # TODO(kleisauke): Upstream this
-  CARGO_HOME="/usr/local/cargo" cargo install cargo-c --git https://github.com/kleisauke/cargo-c --branch emscripten
+  CARGO_HOME="/usr/local/cargo" cargo install cargo-c --git https://github.com/lu-zero/cargo-c

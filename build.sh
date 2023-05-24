@@ -194,24 +194,24 @@ export RUSTFLAGS+=" --remap-path-prefix=$CARGO_HOME/registry/src/="
 export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 
 # Dependency version numbers
-VERSION_ZLIB_NG=2.1.0-beta1 # https://github.com/zlib-ng/zlib-ng
+VERSION_ZLIB_NG=2.1.1-beta2 # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.4           # https://github.com/libffi/libffi
-VERSION_GLIB=2.76.2         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.76.3         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.5.0         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.15          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.0.4           # https://github.com/google/highway
 VERSION_BROTLI=9b53703      # https://github.com/google/brotli
-VERSION_MOZJPEG=4.1.1       # https://github.com/mozilla/mozjpeg
+VERSION_MOZJPEG=4.1.3       # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.8.1           # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
-VERSION_CGIF=0.3.1          # https://github.com/dloebl/cgif
+VERSION_CGIF=0.3.2          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.3.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.5.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.33.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.6.1           # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.16.1         # https://github.com/strukturag/libheif
+VERSION_HEIF=1.16.2         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.14.2         # https://github.com/libvips/libvips
 
 # Remove patch version component
@@ -260,7 +260,7 @@ node --version
   mkdir $DEPS/ffi
   curl -Ls https://github.com/libffi/libffi/releases/download/v$VERSION_FFI/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
   cd $DEPS/ffi
-  # TODO(kleisauke): https://github.com/hoodmane/libffi-emscripten/issues/16
+  # TODO(kleisauke): Wait for upstream release with PR https://github.com/libffi/libffi/pull/763 included
   curl -Ls https://github.com/libffi/libffi/compare/v$VERSION_FFI...kleisauke:wasm-vips.patch | patch -p1
   autoreconf -fiv
   # Compile without -fexceptions

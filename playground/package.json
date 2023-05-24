@@ -23,7 +23,7 @@
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.4",
-    "fflate": "^0.7.4",
+    "fflate": "^0.8.0",
     "html-webpack-plugin": "^5.5.1",
     "mini-css-extract-plugin": "^2.7.6",
     "monaco-editor": "^0.38.0",

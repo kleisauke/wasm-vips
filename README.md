@@ -78,7 +78,7 @@ Or, if you prefer to use ES6 modules:
   const vips = await Vips();
 </script>
 ```
-<sup>This won't work on Firefox due to <https://bugzil.la/1540913>.</sup>
+<sup>This requires support for [`import()` in workers](https://caniuse.com/mdn-javascript_operators_import_worker_support).</sup>
 
 ### Node.js
 

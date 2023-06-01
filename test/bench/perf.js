@@ -3,7 +3,7 @@
 import Benchmark from 'benchmark';
 
 import Vips from '../../lib/vips-node.mjs';
-import { tmpdir } from 'os';
+import { tmpdir } from 'node:os';
 import { inputJpg, inputPng, inputWebP, getPath } from './images.js';
 
 const width = 720;
@@ -33,18 +33,18 @@ const inputJpgBuffer = vips.FS.readFile(inputJpg);
 const defaultJpegSaveOptions = {
   strip: true,
   Q: 80
-}
+};
 const inputPngBuffer = vips.FS.readFile(inputPng);
 const defaultPngSaveOptions = {
   strip: true,
   compression: 6,
   filter: vips.ForeignPngFilter.none
-}
+};
 const inputWebPBuffer = vips.FS.readFile(inputWebP);
 const defaultWebPSaveOptions = {
   strip: true,
   Q: 80
-}
+};
 
 const runSuites = suites => {
   if (suites.length === 0) {
@@ -100,7 +100,7 @@ const jpegSuite = new Benchmark.Suite('jpeg').add('wasm-vips-buffer-file', {
     const target = vips.Target.newToFile(jpegOut);
     const im = vips.Image.thumbnailSource(source, width, {
       height
-    })
+    });
     im.jpegsaveTarget(target, defaultJpegSaveOptions);
     im.delete();
     target.delete();
@@ -148,7 +148,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
       height
     });
     // Slow, accurate sharpen in LAB colour space, with control over flat vs jagged areas
-    const sharpen = im.sharpen({sigma: 3, m1: 1, m2: 3});
+    const sharpen = im.sharpen({ sigma: 3, m1: 1, m2: 3 });
     sharpen.jpegsaveBuffer(defaultJpegSaveOptions);
     sharpen.delete();
     im.delete();
@@ -192,7 +192,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
-    const gamma = im.gamma({exponent: 2.2});
+    const gamma = im.gamma({ exponent: 2.2 });
     gamma.jpegsaveBuffer(defaultJpegSaveOptions);
     gamma.delete();
     im.delete();
@@ -216,7 +216,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
-    const gamma = im.gamma({exponent: 2.2});
+    const gamma = im.gamma({ exponent: 2.2 });
     const greyscale = gamma.colourspace(vips.Interpretation.b_w);
     greyscale.jpegsaveBuffer(defaultJpegSaveOptions);
     greyscale.delete();
@@ -230,7 +230,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
-    im.jpegsaveBuffer({...defaultJpegSaveOptions, interlace: true});
+    im.jpegsaveBuffer({ ...defaultJpegSaveOptions, interlace: true });
     im.delete();
     deferred.resolve();
   }
@@ -286,7 +286,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
   }
 }).on('cycle', function (event) {
   console.log('operations ' + String(event.target));
-})
+});
 
 // PNG
 const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
@@ -335,7 +335,7 @@ const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
     const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
       height
     });
-    im.pngsaveBuffer({...defaultPngSaveOptions, interlace: true});
+    im.pngsaveBuffer({ ...defaultPngSaveOptions, interlace: true });
     im.delete();
     deferred.resolve();
   }
@@ -345,7 +345,7 @@ const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
     const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
       height
     });
-    im.pngsaveBuffer({...defaultPngSaveOptions, filter: vips.ForeignPngFilter.all});
+    im.pngsaveBuffer({ ...defaultPngSaveOptions, filter: vips.ForeignPngFilter.all });
     im.delete();
     deferred.resolve();
   }
@@ -355,13 +355,13 @@ const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
     const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
       height
     });
-    im.pngsaveBuffer({...defaultPngSaveOptions, compression: 9});
+    im.pngsaveBuffer({ ...defaultPngSaveOptions, compression: 9 });
     im.delete();
     deferred.resolve();
   }
 }).on('cycle', function (event) {
   console.log('png ' + String(event.target));
-})
+});
 
 // WebP
 const webpSuite = new Benchmark.Suite('webp').add('wasm-vips-buffer-file', {

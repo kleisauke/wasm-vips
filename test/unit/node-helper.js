@@ -2,7 +2,7 @@
 
 import Vips from '../../lib/vips-node.mjs';
 
-import { tmpdir } from 'os';
+import { tmpdir } from 'node:os';
 import { expect } from 'chai';
 
 globalThis.expect = expect;

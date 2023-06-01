@@ -47,7 +47,7 @@
     "bench:web": "serve -c test/bench/serve.json"
   },
   "devDependencies": {
-    "semistandard": "^16.0.1",
+    "semistandard": "^17.0.0",
     "serve": "^14.2.0"
   },
   "engines": {
@@ -55,16 +55,13 @@
   },
   "semistandard": {
     "globals": [
-      "vips",
-      "expect",
-      "cleanup"
+      "vips"
     ],
     "ignore": [
       "src/closure-externs/wasm-vips.js",
       "src/fixed-threadpool-web.js",
       "src/locatefile-cors-pre.js",
-      "src/modules-pre.js",
-      "test/bench/perf.js"
+      "src/modules-pre.js"
     ],
     "env": [
       "browser",

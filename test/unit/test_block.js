@@ -1,3 +1,4 @@
+/* global vips, expect, cleanup */
 'use strict';
 
 import * as Helpers from './helpers.js';

@@ -253,9 +253,9 @@ function load () {
       const html = _[2];
       loadedSamples.push({
         id: sampleId,
-        js: js,
-        css: css,
-        html: html
+        js,
+        css,
+        html
       });
       return callback(null, findLoadedSample(sampleId));
     }, function (err) {

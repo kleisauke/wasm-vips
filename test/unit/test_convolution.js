@@ -1,3 +1,4 @@
+/* global vips, expect, cleanup */
 'use strict';
 
 import * as Helpers from './helpers.js';
@@ -285,7 +286,7 @@ describe('convolution', () => {
         for (const sigma of [0.5, 1, 1.5, 2]) {
           const test = im.cast(fmt);
           let sharp = test.sharpen({
-            sigma: sigma
+            sigma
           });
 
           // hard to test much more than this
@@ -294,7 +295,7 @@ describe('convolution', () => {
 
           // if m1 and m2 are zero, sharpen should do nothing
           sharp = test.sharpen({
-            sigma: sigma,
+            sigma,
             m1: 0,
             m2: 0
           });

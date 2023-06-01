@@ -1,3 +1,4 @@
+/* global vips, expect */
 'use strict';
 
 export const jpegFile = getPath('sample.jpg');

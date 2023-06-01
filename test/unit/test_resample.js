@@ -1,3 +1,4 @@
+/* global vips, expect, cleanup */
 'use strict';
 
 import * as Helpers from './helpers.js';
@@ -79,7 +80,7 @@ describe('resample', () => {
       const interpolate = vips.Interpolate.newFromName(name);
       for (let i = 0; i < 4; i++) {
         x = x.affine([0, 1, 1, 0], {
-          interpolate: interpolate
+          interpolate
         });
       }
 
@@ -98,7 +99,7 @@ describe('resample', () => {
         for (const kernel of ['nearest', 'linear', 'cubic', 'lanczos2', 'lanczos3']) {
           const x = im.cast(fmt);
           const r = x.reduce(fac, fac, {
-            kernel: kernel
+            kernel
           });
           const d = Math.abs(r.avg() - im.avg());
 
@@ -116,7 +117,7 @@ describe('resample', () => {
         // console.log(`testing const = ${constant}`);
 
         const shr = im.reduce(2, 2, {
-          kernel: kernel
+          kernel
         });
         const d = Math.abs(shr.avg() - im.avg());
         expect(d).to.equal(0);

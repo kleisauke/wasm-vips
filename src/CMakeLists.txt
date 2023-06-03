@@ -147,6 +147,7 @@ if ("node" IN_LIST ENVIRONMENT)
     set(NODE_LINK_OPTIONS
             -sENVIRONMENT=node,worker
             -sNODERAWFS
+            -sMIN_NODE_VERSION=160400
             )
 
     target_link_options(${PROJECT_NAME}-node

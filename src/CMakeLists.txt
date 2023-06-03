@@ -147,8 +147,6 @@ if ("node" IN_LIST ENVIRONMENT)
     set(NODE_LINK_OPTIONS
             -sENVIRONMENT=node,worker
             -sNODERAWFS
-            -sNODEJS_CATCH_EXIT=0
-            -sNODEJS_CATCH_REJECTION=0
             )
 
     target_link_options(${PROJECT_NAME}-node

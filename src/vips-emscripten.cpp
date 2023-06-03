@@ -8,9 +8,6 @@
 #include <emscripten/emscripten.h>
 #include <emscripten/val.h>
 #include <emscripten/version.h>
-#ifdef WASMFS
-#include <emscripten/wasmfs.h>
-#endif
 
 #include <vips/vips.h>
 
@@ -26,10 +23,6 @@ using vips::SourceCustom;
 using vips::Target;
 using vips::TargetCustom;
 
-#ifdef WASMFS
-EM_JS(bool, is_node, (), { return ENVIRONMENT_IS_NODE; });
-#endif
-
 int main() {
     if (vips_init("wasm-vips") != 0)
         vips_error_exit("unable to start up libvips");
@@ -41,16 +34,6 @@ int main() {
     // We need to lower these numbers for Wasm a bit.
     vips_cache_set_max_mem(50 * 1024 * 1024);  // = 50mb
     vips_cache_set_max_files(20);
-
-#ifdef WASMFS
-    if (is_node()) {
-        int err = wasmfs_create_directory("root", 0777,
-                                          wasmfs_create_node_backend("."));
-        g_assert(err == 0);
-        err = chdir("root");
-        g_assert(err == 0);
-    }
-#endif
 
     // Handy for debugging.
     // vips_leak_set(1);

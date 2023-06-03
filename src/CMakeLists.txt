@@ -21,7 +21,6 @@ add_library(${PROJECT_NAME} OBJECT ${HEADERS} ${SOURCES})
 
 target_compile_definitions(${PROJECT_NAME}
         PUBLIC
-            $<$<BOOL:${ENABLE_WASMFS}>:WASMFS>
             $<$<CONFIG:Release>:G_DISABLE_CAST_CHECKS G_DISABLE_CHECKS G_DISABLE_ASSERT>
         )
 

@@ -520,7 +520,7 @@ node --version
   # The produced binary should be the same across the different variants (sanity check)
   expected_sha256=$(sha256sum "$SOURCE_DIR/lib/vips.wasm" | awk '{ print $1 }')
   for file in vips-es6.wasm vips-node.wasm vips-node-es6.wasm; do
-    echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check --status
+    echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check --quiet
     rm $SOURCE_DIR/lib/$file
   done
 

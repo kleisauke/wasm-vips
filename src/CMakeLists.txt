@@ -21,6 +21,7 @@ add_library(${PROJECT_NAME} OBJECT ${HEADERS} ${SOURCES})
 
 target_compile_definitions(${PROJECT_NAME}
         PUBLIC
+            $<$<BOOL:${ENABLE_WASMFS}>:WASMFS>
             $<$<CONFIG:Release>:G_DISABLE_CAST_CHECKS G_DISABLE_CHECKS G_DISABLE_ASSERT>
         )
 
@@ -145,7 +146,7 @@ set_target_properties(${TARGETS}
 if ("node" IN_LIST ENVIRONMENT)
     set(NODE_LINK_OPTIONS
             -sENVIRONMENT=node,worker
-            -sNODERAWFS
+            $<$<NOT:$<BOOL:${ENABLE_WASMFS}>>:-sNODERAWFS>
             -sMIN_NODE_VERSION=160400
             )
 

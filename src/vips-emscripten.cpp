@@ -8,6 +8,9 @@
 #include <emscripten/emscripten.h>
 #include <emscripten/val.h>
 #include <emscripten/version.h>
+#ifdef WASMFS
+#include <emscripten/wasmfs.h>
+#endif
 
 #include <vips/vips.h>
 
@@ -22,6 +25,19 @@ using vips::Source;
 using vips::SourceCustom;
 using vips::Target;
 using vips::TargetCustom;
+
+#ifdef WASMFS
+EM_JS(bool, is_node, (), { return ENVIRONMENT_IS_NODE; });
+
+namespace wasmfs {
+
+backend_t wasmfs_create_root_dir() {
+    return is_node() ? wasmfs_create_node_backend(".")
+                     : wasmfs_create_memory_backend();
+}
+
+}  // namespace wasmfs
+#endif
 
 int main() {
     if (vips_init("wasm-vips") != 0)

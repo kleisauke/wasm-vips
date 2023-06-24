@@ -130,11 +130,6 @@ describe('foreign', () => {
   }
 
   function saveBufferTempfile (saver, suf, im, maxDiff = 0) {
-    // Needs FS.write support, not yet available in the JS API of WasmFS.
-    if (typeof vips.FS.write !== 'function') {
-      return;
-    }
-
     const filename = vips.Utils.tempName('%s' + suf);
 
     const buf = bufferSavers[saver](im, {});
@@ -152,9 +147,9 @@ describe('foreign', () => {
   }
 
   it('vips', function () {
-    // Needs ftruncate() support, not yet available in the Node backend of WasmFS.
-    // https://github.com/emscripten-core/emscripten/blob/3.1.40/system/lib/wasmfs/backends/node_backend.cpp#L120-L122
-    if (typeof vips.FS.ftruncate !== 'function') {
+    // ftruncate() is not yet available in the Node backend of WasmFS.
+    // https://github.com/emscripten-core/emscripten/blob/3.1.42/system/lib/wasmfs/backends/node_backend.cpp#L120-L122
+    if (typeof vips.FS.statBufToObject === 'function') {
       return this.skip();
     }
 

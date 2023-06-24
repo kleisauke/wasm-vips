@@ -79,11 +79,6 @@ describe('connection', () => {
         expect(y.height).to.equal(442);
       });
       it('custom', function () {
-        // Needs FS.read support, not yet available in the JS API of WasmFS.
-        if (typeof vips.FS.read !== 'function') {
-          return this.skip();
-        }
-
         const stream = vips.FS.open(Helpers.jpegFile, 'r');
 
         const source = new vips.SourceCustom();
@@ -127,11 +122,6 @@ describe('connection', () => {
         expect(x.getBlob()).to.deep.equal(y);
       });
       it('custom', function () {
-        // Needs FS.write support, not yet available in the JS API of WasmFS.
-        if (typeof vips.FS.write !== 'function') {
-          return this.skip();
-        }
-
         const filename = vips.Utils.tempName('%s.png');
         const stream = vips.FS.open(filename, 'w');
 

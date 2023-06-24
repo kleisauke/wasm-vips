@@ -305,3 +305,9 @@ FS.analyzePath = function (path, dontResolveLastLink) {};
  * @param {*} node
  */
 FS.getPath = function (node) {};
+
+// Only available in WasmFS, avoid mangling to detect its presence in JS.
+/**
+ * @param {*} statBuf
+ */
+FS.statBufToObject = function (statBuf) {};

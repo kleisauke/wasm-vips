@@ -170,6 +170,8 @@ export CXXFLAGS="$CFLAGS"
 
 export LDFLAGS="$COMMON_FLAGS -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
 if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
+# FIXME(kleisauke): Workaround for: https://github.com/emscripten-core/emscripten/issues/16836#issuecomment-1556187350
+if [ "$LTO" = "true" ]; then export LDFLAGS+=" -Wl,-u,htonl"; fi
 
 # Build paths
 export CPATH="$TARGET/include"

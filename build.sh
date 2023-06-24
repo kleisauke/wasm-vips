@@ -149,8 +149,8 @@ if [ "$LTO" = "true" ]; then
 fi
 if [ "$WASM_EH" = "true" ]; then
   COMMON_FLAGS+=" -fwasm-exceptions -sSUPPORT_LONGJMP=wasm"
-  # `-Cpanic=unwind` implies `-mllvm -enable-emscripten-cxx-exceptions`
-  export RUSTFLAGS+=" -Cpanic=abort -Cllvm-args=-wasm-enable-eh -Cllvm-args=-wasm-enable-sjlj"
+  # https://github.com/rust-lang/rust/issues/112195
+  export RUSTFLAGS+=" -Cllvm-args=-enable-emscripten-cxx-exceptions=0 -Cllvm-args=-wasm-enable-sjlj"
 else
   COMMON_FLAGS+=" -fexceptions"
 fi

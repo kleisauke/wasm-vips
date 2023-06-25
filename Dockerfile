@@ -38,8 +38,6 @@ RUN \
 # Emscripten patches
 RUN \
   curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.42...kleisauke:wasm-vips-3.1.42.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
-  # https://github.com/emscripten-core/emscripten/pull/19569#issuecomment-1605440414
-  curl -Ls https://github.com/emscripten-core/emscripten/commit/b182182747e8a5525ff3282953fb814c8c0c9266.patch | patch -R -p1 -d $EMSDK/upstream/emscripten && \
   emcc --clear-cache && embuilder build sysroot --force
 
 # Rust
@@ -50,3 +48,7 @@ RUN \
     --target wasm32-unknown-emscripten \
     --default-toolchain nightly-2023-06-24 \
     --component rust-src
+
+# https://github.com/rust-lang/libc/pull/3282
+RUN \
+  sed -i 's|version = "0.2.146"|git = "https://github.com/kleisauke/libc", branch = "emscripten-new-stat"|' $(rustc --print sysroot)/lib/rustlib/src/rust/library/std/Cargo.toml

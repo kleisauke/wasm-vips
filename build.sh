@@ -88,41 +88,14 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-# Configure flags helpers
-if [ "$SIMD" = "true" ]; then
-  ENABLE_SIMD=true
-else
-  DISABLE_SIMD=true
-fi
-if [ "$MODULES" = "true" ]; then
-  ENABLE_MODULES=true
-else
-  DISABLE_MODULES=true
-fi
-if [ "$JXL" = "true" ]; then
-  ENABLE_JXL=true
-else
-  DISABLE_JXL=true
-fi
-if [ "$AVIF" = "true" ]; then
-  ENABLE_AVIF=true
-else
-  DISABLE_AVIF=true
-fi
-if [ "$SVG" = "true" ]; then
-  ENABLE_SVG=true
-else
-  DISABLE_SVG=true
-fi
-if [ "$BINDINGS" = "true" ]; then
-  ENABLE_BINDINGS=true
-else
-  DISABLE_BINDINGS=true
-fi
-
-# Embuilder flags
-if [ "$LTO" = "true" ]; then LTO_FLAG=--lto; fi
-if [ "$PIC" = "true" ]; then PIC_FLAG=--pic; fi
+# Configure the ENABLE_* and DISABLE_* expansion helpers
+for arg in SIMD WASM_BIGINT JXL AVIF SVG MODULES BINDINGS; do
+  if [ "${!arg}" = "true" ]; then
+    declare ENABLE_$arg=true
+  else
+    declare DISABLE_$arg=true
+  fi
+done
 
 # Handy for debugging
 #export CFLAGS="-O0 -gsource-map -pthread"
@@ -159,10 +132,6 @@ export CFLAGS="$COMMON_FLAGS -mnontrapping-fptoint"
 if [ "$SIMD" = "true" ]; then
   export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"
   export RUSTFLAGS+=" -Ctarget-feature=+simd128"
-fi
-if [ "$WASM_BIGINT" = "true" ]; then
-  # libffi needs to detect WASM_BIGINT support at compile time
-  export CFLAGS+=" -DWASM_BIGINT"
 fi
 if [ "$PIC" = "true" ]; then export CFLAGS+=" -fPIC"; fi
 
@@ -263,7 +232,7 @@ node --version
   curl -Ls https://github.com/libffi/libffi/releases/download/v$VERSION_FFI/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
   cd $DEPS/ffi
   # TODO(kleisauke): Wait for upstream release with PR https://github.com/libffi/libffi/pull/763 included
-  curl -Ls https://github.com/libffi/libffi/compare/v$VERSION_FFI...kleisauke:wasm-vips.patch | patch -p1
+  curl -Ls https://github.com/libffi/libffi/compare/v$VERSION_FFI...kleisauke:wasm-vips${ENABLE_WASM_BIGINT:+-bigint}.patch | patch -p1
   autoreconf -fiv
   # Compile without -fexceptions
   sed -i 's/ -fexceptions//g' configure

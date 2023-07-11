@@ -5,11 +5,10 @@ FROM docker.io/emscripten/emsdk:3.1.42
 ENV \
   RUSTUP_HOME="/usr/local/rustup" \
   CARGO_HOME="/usr/local/cargo" \
-  PATH="/usr/local/cargo/bin:$EMSDK/upstream/emscripten:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  PATH="/usr/local/cargo/bin:$PATH"
 
 RUN \
   apt-get update && \
-  curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
   apt-get install -qqy \
     autoconf \
     build-essential \
@@ -22,9 +21,7 @@ RUN \
     ninja-build \
     python3-pip \
     && \
-  pip3 install meson && \
-  # Prefer the default system-installed version of Node.js
-  echo "NODE_JS = '$(which node)'" >> $EMSDK/.emscripten
+  pip3 install meson
 
 # Emscripten patches
 RUN \

@@ -23,9 +23,6 @@ git pull
 # Make the "tip-of-tree" build active for the current user (writes .emscripten file)
 ./emsdk activate tot
 
-# Prefer the default system-installed version of Node.js
-echo "NODE_JS = '$(which node)'" >> .emscripten
-
 # Activate PATH and other environment variables in the current terminal
 source ./emsdk_env.sh
 ```

@@ -1,7 +1,6 @@
 [binaries]
 c = 'emcc'
 cpp = 'em++'
-ld = 'wasm-ld'
 ar = 'emar'
 ranlib = 'emranlib'
 pkgconfig = ['pkg-config', '--static']

@@ -34,7 +34,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           docker build -t wasm-vips .
-          docker run --rm -v ${{ github.workspace }}:/src wasm-vips ./build.sh
+          docker run --rm -v ${{ github.workspace }}:/src wasm-vips
   CI:
     runs-on: ${{ matrix.os }}
     needs: build

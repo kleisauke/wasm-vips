@@ -4,17 +4,8 @@ FROM docker.io/emscripten/emsdk:3.1.42
 # Path settings
 ENV \
   RUSTUP_HOME="/usr/local/rustup" \
-  PATH="/usr/local/cargo/bin:$EMSDK/upstream/emscripten:$EMSDK/upstream/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
-# Cache settings
-ENV \
-  # Enable Emscripten sysroot cache
-  EM_CACHE="/src/build/emcache" \
-  # Enable Rust cache
-  CARGO_HOME="/src/build/cargo-cache" \
-  # Enable ccache
-  CCACHE_DIR="/src/build/ccache" \
-  _EMCC_CCACHE=1
+  CARGO_HOME="/usr/local/cargo" \
+  PATH="/usr/local/cargo/bin:$EMSDK/upstream/emscripten:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 RUN \
   apt-get update && \
@@ -42,7 +33,7 @@ RUN \
 
 # Rust
 RUN \
-  curl https://sh.rustup.rs -sSf | CARGO_HOME="/usr/local/cargo" sh -s -- -y \
+  curl https://sh.rustup.rs -sSf | sh -s -- -y \
     --no-modify-path \
     --profile minimal \
     --target wasm32-unknown-emscripten \
@@ -52,3 +43,16 @@ RUN \
 # https://github.com/rust-lang/libc/pull/3282
 RUN \
   sed -i 's|version = "0.2.146"|git = "https://github.com/kleisauke/libc", branch = "emscripten-new-stat"|' $(rustc --print sysroot)/lib/rustlib/src/rust/library/std/Cargo.toml
+
+# Cache settings
+ENV \
+  # Enable Emscripten sysroot cache
+  EM_CACHE="/src/build/emcache" \
+  # Enable Rust cache
+  CARGO_HOME="/src/build/cargo-cache" \
+  # Enable ccache
+  CCACHE_DIR="/src/build/ccache" \
+  _EMCC_CCACHE=1
+
+ENTRYPOINT ["/bin/bash"]
+CMD ["./build.sh"]

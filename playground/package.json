@@ -26,10 +26,10 @@
     "fflate": "^0.8.0",
     "html-webpack-plugin": "^5.5.3",
     "mini-css-extract-plugin": "^2.7.6",
-    "monaco-editor": "^0.39.0",
-    "monaco-editor-webpack-plugin": "^7.0.1",
+    "monaco-editor": "^0.40.0",
+    "monaco-editor-webpack-plugin": "^7.1.0",
     "terser-webpack-plugin": "^5.3.9",
-    "webpack": "^5.88.0",
+    "webpack": "^5.88.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
   }

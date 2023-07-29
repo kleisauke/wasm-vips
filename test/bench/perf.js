@@ -30,6 +30,9 @@ const vips = await Vips({
 // Disable libvips cache to ensure tests are as fair as they can be
 vips.Cache.max(0);
 
+// Reduce concurrency to 1
+vips.concurrency(1);
+
 const inputJpgBuffer = vips.FS.readFile(inputJpg);
 const defaultJpegSaveOptions = {
   keep: vips.ForeignKeep.none,

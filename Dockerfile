@@ -34,7 +34,7 @@ RUN \
     --no-modify-path \
     --profile minimal \
     --target wasm32-unknown-emscripten \
-    --default-toolchain nightly-2023-08-05 \
+    --default-toolchain nightly-2023-08-17 \
     --component rust-src
 
 # https://github.com/rust-lang/libc/pull/3282

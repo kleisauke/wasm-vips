@@ -10,7 +10,8 @@ pipeline executes at once, streaming the image in parallel from source to
 destination a section at a time. Because wasm-vips is parallel, it's quick,
 and because it doesn't need to keep entire images in memory, it's light.
 
-> **Note**: This library is still under early development. See: [#1](
+> [!NOTE]
+> This library is still under early development. See: [#1](
 https://github.com/kleisauke/wasm-vips/issues/1).
 
 ## Engine support

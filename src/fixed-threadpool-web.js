@@ -1,4 +1,4 @@
-mergeInto(LibraryManager.library, {
+addToLibrary({
   $VIPS__deps: ['$ENV'],
   $VIPS__postset: 'VIPS.enforce_fixed_threadpool();',
   $VIPS: {

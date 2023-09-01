@@ -167,13 +167,13 @@ export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 # Dependency version numbers
 VERSION_ZLIB_NG=2.1.3       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.4           # https://github.com/libffi/libffi
-VERSION_GLIB=2.77.2         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.77.3         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.5.0         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.15          # https://github.com/mm2/Little-CMS
-VERSION_HWY=1.0.6           # https://github.com/google/highway
-VERSION_BROTLI=9b53703      # https://github.com/google/brotli
-VERSION_MOZJPEG=4.1.3       # https://github.com/mozilla/mozjpeg
+VERSION_HWY=1.0.7           # https://github.com/google/highway
+VERSION_BROTLI=1.1.0        # https://github.com/google/brotli
+VERSION_MOZJPEG=4.1.4       # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.8.2           # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
@@ -181,7 +181,7 @@ VERSION_CGIF=0.3.2          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.3.1          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.5.1          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.35.0        # https://github.com/RazrFalcon/resvg
-VERSION_AOM=3.6.1           # https://aomedia.googlesource.com/aom
+VERSION_AOM=3.7.0           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.16.2         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.14.4         # https://github.com/libvips/libvips
 
@@ -299,7 +299,7 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/libbrotlicommon.pc" ] || [ -n "$DISABLE_JXL" ] || (
   stage "Compiling brotli"
   mkdir $DEPS/brotli
-  curl -Ls https://github.com/google/brotli/archive/$VERSION_BROTLI.tar.gz | tar xzC $DEPS/brotli --strip-components=1
+  curl -Ls https://github.com/google/brotli/archive/refs/tags/v$VERSION_BROTLI.tar.gz | tar xzC $DEPS/brotli --strip-components=1
   cd $DEPS/brotli
   # Exclude internal dictionary, see: https://github.com/emscripten-core/emscripten/issues/9960
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBROTLI_DISABLE_TESTS=TRUE \

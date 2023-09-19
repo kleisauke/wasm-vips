@@ -64,7 +64,7 @@ main_link_args = [
     '-sINITIAL_MEMORY=256MB',
     '-sSTACK_SIZE=256KB',
     '-sALLOW_MEMORY_GROWTH',
-    '-sGROWABLE_ARRAYBUFFERS',
+    '-sGROWABLE_ARRAYBUFFERS=2',
     '-sALLOW_TABLE_GROWTH',
     '-sTEXTDECODER=2',
     '-sASSERTIONS=@0@'.format(get_option('debug') ? '2' : '0'),
@@ -102,9 +102,9 @@ if 'web' in get_option('environments')
         '--use-preload-plugins',
         '-sENVIRONMENT=web',
         '-sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency>6?navigator.hardwareConcurrency:6',
-        '-sMIN_CHROME_VERSION=95',
-        '-sMIN_FIREFOX_VERSION=100',
-        '-sMIN_SAFARI_VERSION=160400',
+        '-sMIN_CHROME_VERSION=144',
+        '-sMIN_FIREFOX_VERSION=145',
+        '-sMIN_SAFARI_VERSION=260200',
     ]
 
     executable('vips',
@@ -124,15 +124,13 @@ if 'web' in get_option('environments')
             web_link_args,
             # Note: we don't apply the CORS workaround since module scripts don't support `importScripts()`
             '-sEXPORT_ES6',
-            # new Worker() supports ECMAScript module only starting from Firefox 114
-            '-sMIN_FIREFOX_VERSION=114',
         ],
         install: true,
     )
 endif
 
 if 'node' in get_option('environments')
-    node_link_args = ['-sENVIRONMENT=node']
+    node_link_args = ['-sENVIRONMENT=node', '-sMIN_NODE_VERSION=240000']
     if not get_option('wasmfs')
         node_link_args += ['-sNODERAWFS']
     endif

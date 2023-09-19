@@ -4,7 +4,7 @@ All notable changes to wasm-vips will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v0.0.19] - TBD
+## [v0.1.0] - TBD
 
 Uses libvips v8.18.3, compiled with Emscripten v6.0.2.
 
@@ -12,6 +12,11 @@ Uses libvips v8.18.3, compiled with Emscripten v6.0.2.
 
 - Support for growable WebAssembly memory up to 2 GiB.
   [#106](https://github.com/kleisauke/wasm-vips/issues/106)
+
+### Changed
+
+- Build with `-sGROWABLE_ARRAYBUFFERS=2`.
+- Drop support for Node.js 17, now requires Node.js >= 24.
 
 ## [v0.0.18] - 2026-06-09
 
@@ -323,7 +328,7 @@ Uses libvips v8.10.0, compiled with Emscripten v2.0.0.
 
 - Initial release.
 
-[v0.0.19]: https://github.com/kleisauke/wasm-vips/compare/v0.0.18...v0.0.19
+[v0.1.0]: https://github.com/kleisauke/wasm-vips/compare/v0.0.18...v0.1.0
 [v0.0.18]: https://github.com/kleisauke/wasm-vips/compare/v0.0.17...v0.0.18
 [v0.0.17]: https://github.com/kleisauke/wasm-vips/compare/v0.0.16...v0.0.17
 [v0.0.16]: https://github.com/kleisauke/wasm-vips/compare/v0.0.15...v0.0.16

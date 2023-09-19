@@ -167,7 +167,7 @@ export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 # Dependency version numbers
 VERSION_ZLIB_NG=2.1.3       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.4           # https://github.com/libffi/libffi
-VERSION_GLIB=2.77.3         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.78.0         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.5.0         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.15          # https://github.com/mm2/Little-CMS
@@ -178,8 +178,8 @@ VERSION_JXL=0.8.2           # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.3.2          # https://github.com/dloebl/cgif
-VERSION_WEBP=1.3.1          # https://chromium.googlesource.com/webm/libwebp
-VERSION_TIFF=4.5.1          # https://gitlab.com/libtiff/libtiff
+VERSION_WEBP=1.3.2          # https://chromium.googlesource.com/webm/libwebp
+VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.35.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.7.0           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.16.2         # https://github.com/strukturag/libheif

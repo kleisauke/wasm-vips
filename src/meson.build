@@ -46,8 +46,9 @@ wasm_vips_dep = declare_dependency(
 # 4GiB - 100MiB (ASan + pthreads extra increment) - 512MiB (shadow size, 1/8th of 4GiB) - 256KiB (stack size)
 # -sINITIAL_MEMORY=3652976640
 
-# note 1: `ALLOW_MEMORY_GROWTH` may run non-wasm code slowly. See: https://github.com/WebAssembly/design/issues/1271.
-# note 2: Browsers appear to limit the maximum initial memory size to 1GB, set `INITIAL_MEMORY` accordingly.
+# note 1: Build with `-sALLOW_MEMORY_GROWTH` to accommodate unpredictable image sizes. Allowing memory to expand
+#         gradually is a more efficient approach than over-allocating in resource-limited environments.
+# note 2: Build with `-sGROWABLE_ARRAYBUFFERS` to avoid https://github.com/WebAssembly/design/issues/1271.
 # note 3: Build with `-sALLOW_TABLE_GROWTH` so that we can store the read, seek, write and finish signals.
 # note 4: To ensure the testsuite passes, increase (main-)thread's stack size from 64kb to 256kb. This should be
 #         reasonable for image processing in Wasm, and given that libvips enforces a minimum thread stack size of 2mb
@@ -60,8 +61,10 @@ main_link_args = [
     '-sMODULARIZE',
     '-sEXPORT_NAME=Vips',
     '-sEXIT_RUNTIME',
-    '-sINITIAL_MEMORY=1GB',
+    '-sINITIAL_MEMORY=256MB',
     '-sSTACK_SIZE=256KB',
+    '-sALLOW_MEMORY_GROWTH',
+    '-sGROWABLE_ARRAYBUFFERS',
     '-sALLOW_TABLE_GROWTH',
     '-sTEXTDECODER=2',
     '-sASSERTIONS=@0@'.format(get_option('debug') ? '2' : '0'),
@@ -98,9 +101,9 @@ if 'web' in get_option('environments')
     web_link_args = [
         '--use-preload-plugins',
         '-sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency>6?navigator.hardwareConcurrency:6',
-        '-sMIN_CHROME_VERSION=91',
-        '-sMIN_FIREFOX_VERSION=89',
-        '-sMIN_SAFARI_VERSION=160400',
+        '-sMIN_CHROME_VERSION=144',
+        '-sMIN_FIREFOX_VERSION=145',
+        '-sMIN_SAFARI_VERSION=260200',
     ]
 
     executable('vips',
@@ -131,7 +134,7 @@ if 'web' in get_option('environments')
 endif
 
 if 'node' in get_option('environments')
-    node_link_args = ['-sENVIRONMENT=node', '-sMIN_NODE_VERSION=160400']
+    node_link_args = ['-sENVIRONMENT=node', '-sMIN_NODE_VERSION=240000']
     if not get_option('wasmfs')
         node_link_args += ['-sNODERAWFS']
     endif

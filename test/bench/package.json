@@ -17,12 +17,12 @@
   "type": "module",
   "main": "perf.js",
   "scripts": {
-    "test": "node perf"
+    "test": "node --experimental-wasm-rab-integration perf"
   },
   "devDependencies": {
     "benchmark": "^2.1.4"
   },
   "engines": {
-    "node": ">=16.4.0"
+    "node": ">=24.0.0"
   }
 }

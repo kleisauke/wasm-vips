@@ -108,10 +108,10 @@ set(MAIN_COMPILE_OPTIONS
 # -sSYSCALL_DEBUG
 # -sDYLINK_DEBUG
 
-# note 1: `ALLOW_MEMORY_GROWTH` may run non-wasm code slowly. See: https://github.com/WebAssembly/design/issues/1271.
-# note 2: Browsers appear to limit the maximum initial memory size to 1GB, set `INITIAL_MEMORY` accordingly.
-# note 3: Build with `-sALLOW_TABLE_GROWTH` so that we can store the read, seek, write and finish signals.
-# note 4: To ensure the testsuite passes, increase (main-)thread's stack size from 64kb to 256kb. This should be
+# note 1: Build with `-sALLOW_MEMORY_GROWTH` to accommodate unpredictable image sizes. Allowing memory to expand
+#         gradually is a more efficient approach than over-allocating in resource-limited environments.
+# note 2: Build with `-sALLOW_TABLE_GROWTH` so that we can store the read, seek, write and finish signals.
+# note 3: To ensure the testsuite passes, increase (main-)thread's stack size from 64kb to 256kb. This should be
 #         reasonable for image processing in Wasm, and given that libvips enforces a minimum thread stack size of 2mb
 #         on other POSIX platforms.
 set(MAIN_LINK_OPTIONS
@@ -128,8 +128,9 @@ set(MAIN_LINK_OPTIONS
         -sMODULARIZE
         -sEXPORT_NAME='Vips'
         -sEXIT_RUNTIME
-        -sINITIAL_MEMORY=1GB
+        -sINITIAL_MEMORY=256MB
         -sSTACK_SIZE=256KB
+        -sALLOW_MEMORY_GROWTH
         -sALLOW_TABLE_GROWTH
         -sTEXTDECODER=2
         -sASSERTIONS=0
@@ -150,7 +151,7 @@ if ("node" IN_LIST ENVIRONMENT)
     set(NODE_LINK_OPTIONS
             -sENVIRONMENT=node,worker
             $<$<NOT:$<BOOL:${ENABLE_WASMFS}>>:-sNODERAWFS>
-            -sMIN_NODE_VERSION=160400
+            -sMIN_NODE_VERSION=200000
             )
 
     target_link_options(${PROJECT_NAME}-node
@@ -169,8 +170,8 @@ if ("web" IN_LIST ENVIRONMENT)
             --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/workaround-cors-pre.js
             )
     set(WEB_MIN_TARGETS
-            -sMIN_CHROME_VERSION=91
-            -sMIN_FIREFOX_VERSION=89
+            -sMIN_CHROME_VERSION=111
+            -sMIN_FIREFOX_VERSION=128
             -sMIN_SAFARI_VERSION=160400
             )
 

@@ -16,13 +16,13 @@
   "author": "Kleis Auke Wolthuizen",
   "type": "module",
   "scripts": {
-    "test": "mocha -s 5000 -t 120000 *.js -r node-helper.js"
+    "test": "node --experimental-wasm-rab-integration node_modules/mocha/bin/mocha -s 5000 -t 120000 *.js -r node-helper.js"
   },
   "devDependencies": {
     "chai": "^6.2.2",
     "mocha": "^11.7.5"
   },
   "engines": {
-    "node": ">=16.4.0"
+    "node": ">=24.0.0"
   }
 }

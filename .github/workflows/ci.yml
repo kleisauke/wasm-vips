@@ -61,6 +61,7 @@ jobs:
           path: lib
           key: ${{ needs.build.outputs.cache-key }}
           enableCrossOsArchive: true
+          fail-on-cache-miss: true
       - name: Install dependencies
         run: npm install
       - name: Install test dependencies

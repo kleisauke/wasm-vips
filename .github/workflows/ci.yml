@@ -16,7 +16,7 @@ jobs:
     outputs:
       cache-key: ${{ steps.gen-cache-key.outputs.key }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: gen-cache-key
         run: |
           if [ "${{ inputs.force-rebuild }}" = true ]; then
@@ -50,7 +50,7 @@ jobs:
           - os: windows-2022
             nodejs_version: 16
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup node
         uses: actions/setup-node@v3
         with:

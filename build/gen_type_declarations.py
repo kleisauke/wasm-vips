@@ -243,12 +243,21 @@ def generate_enums_flags(gir_file, out_file, indent='    '):
 
         return ffi.NULL
 
-    # Enums
-    type_map(type_from_name('GEnum'), add_enum)
+    def add_flag(gtype, a, b):
+        nickname = type_name(gtype)
+        all_nicknames.append(nickname)
+        gtype_to_js_param[gtype] = f'{remove_prefix(nickname)} | Flag'
 
-    # Flags
-    all_nicknames.append('VipsForeignPngFilter')
-    gtype_to_js_param[type_from_name('VipsForeignPngFilter')] = f'{remove_prefix("VipsForeignPngFilter")} | Flag'
+        type_map(gtype, add_flag)
+
+        return ffi.NULL
+
+    type_map(type_from_name('GEnum'), add_enum)
+    type_map(type_from_name('GFlags'), add_flag)
+
+    # Filter internal flags
+    filter = ['VipsForeignFlags']
+    all_nicknames = [name for name in all_nicknames if name not in filter]
 
     with open('preamble_vips.d.ts', 'r') as f:
         preamble = f.read()
@@ -261,11 +270,11 @@ def generate_enums_flags(gir_file, out_file, indent='    '):
             gtype = type_from_name(name)
             name = remove_prefix(name)
             if name in xml_enums:
-                is_enum = True
                 node = xml_enums[name]
+                values = values_for_enum(gtype)
             elif name in xml_flags:
-                is_enum = False
                 node = xml_flags[name]
+                values = values_for_flag(gtype)
             else:
                 continue
 
@@ -280,7 +289,6 @@ def generate_enums_flags(gir_file, out_file, indent='    '):
 
             f.write(f'{indent}enum {name} {{\n')
 
-            values = values_for_enum(gtype) if is_enum else values_for_flag(gtype)
             for i, value in enumerate(values):
                 js_value = value.replace('-', '_')
                 if i == 0 and (js_value == 'error' or js_value == 'notset'):

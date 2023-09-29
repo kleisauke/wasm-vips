@@ -219,11 +219,20 @@ def generate_enums_flags(file):
 
         return ffi.NULL
 
-    # Enums
-    type_map(type_from_name('GEnum'), add_enum)
+    def add_flag(gtype, a, b):
+        nickname = type_name(gtype)
+        all_flags.append(nickname)
 
-    # Flags
-    all_flags.append('VipsForeignPngFilter')
+        type_map(gtype, add_flag)
+
+        return ffi.NULL
+
+    type_map(type_from_name('GEnum'), add_enum)
+    type_map(type_from_name('GFlags'), add_flag)
+
+    # Filter internal flags
+    filter_flags = ['VipsForeignFlags']
+    all_flags = [name for name in all_flags if name not in filter_flags]
 
     print(f'Generating {file}...')
 

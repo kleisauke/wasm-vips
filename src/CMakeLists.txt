@@ -98,15 +98,16 @@ set(MAIN_COMPILE_OPTIONS
         )
 
 # Handy for debugging
-# --threadprofiler \
-# -sSAFE_HEAP \
-# -sSTACK_OVERFLOW_CHECK=2 \
-# -sDISABLE_EXCEPTION_CATCHING=0 \
-# -sASSERTIONS=2 \
-# -sPTHREADS_DEBUG \
-# -sLIBRARY_DEBUG \
-# -sSYSCALL_DEBUG \
-# -sDYLINK_DEBUG \
+# --threadprofiler
+# -sSAFE_HEAP
+# -sASSERTIONS=2
+# -sCHECK_NULL_WRITES=0
+# -sPTHREADS_DEBUG
+# -sDYLINK_DEBUG
+# -sLIBRARY_DEBUG
+# -sEXCEPTION_DEBUG
+# -sSYSCALL_DEBUG
+# -sDYLINK_DEBUG
 
 # note 1: `ALLOW_MEMORY_GROWTH` may run non-wasm code slowly. See: https://github.com/WebAssembly/design/issues/1271.
 # note 2: Browsers appear to limit the maximum initial memory size to 1GB, set `INITIAL_MEMORY` accordingly.

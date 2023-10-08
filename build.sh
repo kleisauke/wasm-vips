@@ -98,15 +98,11 @@ for arg in SIMD WASM_BIGINT JXL AVIF SVG MODULES BINDINGS; do
 done
 
 # Handy for debugging
-#export CFLAGS="-O0 -gsource-map -pthread"
-#export CXXFLAGS="$CFLAGS"
-#export LDFLAGS="-L$TARGET/lib -O0 -gsource-map"
+#COMMON_FLAGS="-Og -gsource-map -pthread"
 #export EMCC_DEBUG=1
 
 # Handy for catching bugs
-#export CFLAGS="-Os -gsource-map -fsanitize=address -pthread"
-#export CXXFLAGS="$CFLAGS"
-#export LDFLAGS="-L$TARGET/lib -Os -gsource-map -fsanitize=address -sINITIAL_MEMORY=64MB"
+#COMMON_FLAGS="-Os -gsource-map -fsanitize=address -pthread"
 
 # Specify location where source maps are published (browser specific)
 #export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"

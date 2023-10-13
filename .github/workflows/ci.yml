@@ -56,7 +56,7 @@ jobs:
         with:
           node-version: ${{ matrix.nodejs_version }}
           registry-url: 'https://registry.npmjs.org'
-      - uses: actions/cache@v3
+      - uses: actions/cache/restore@v3
         with:
           path: lib
           key: ${{ needs.build.outputs.cache-key }}

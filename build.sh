@@ -89,7 +89,7 @@ while [ $# -gt 0 ]; do
 done
 
 # Configure the ENABLE_* and DISABLE_* expansion helpers
-for arg in SIMD WASM_BIGINT JXL AVIF SVG MODULES BINDINGS; do
+for arg in SIMD WASM_BIGINT JXL AVIF SVG PIC MODULES BINDINGS; do
   if [ "${!arg}" = "true" ]; then
     declare ENABLE_$arg=true
   else
@@ -155,13 +155,13 @@ export PKG_CONFIG="pkg-config --static"
 
 # Ensure Rust build path prefixes are removed from the resulting binaries
 # https://reproducible-builds.org/docs/build-path/
-# TODO(kleisauke): Switch to -Ctrim-paths=all once supported - https://github.com/rust-lang/rfcs/pull/3127
+# TODO(kleisauke): Switch to -Ctrim-paths=all once supported - https://github.com/rust-lang/rust/issues/111540
 export RUSTFLAGS+=" --remap-path-prefix=$(rustc --print sysroot)/lib/rustlib/src/rust/library/="
 export RUSTFLAGS+=" --remap-path-prefix=$CARGO_HOME/registry/src/="
 export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 
 # Dependency version numbers
-VERSION_ZLIB_NG=2.1.3       # https://github.com/zlib-ng/zlib-ng
+VERSION_ZLIB_NG=2.1.4       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.4           # https://github.com/libffi/libffi
 VERSION_GLIB=2.78.0         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.5.0         # https://github.com/libexpat/libexpat
@@ -169,7 +169,7 @@ VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.15          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.0.7           # https://github.com/google/highway
 VERSION_BROTLI=1.1.0        # https://github.com/google/brotli
-VERSION_MOZJPEG=4.1.4       # https://github.com/mozilla/mozjpeg
+VERSION_MOZJPEG=4.1.5       # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.8.2           # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
@@ -178,7 +178,7 @@ VERSION_WEBP=1.3.2          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.36.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.7.0           # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.16.2         # https://github.com/strukturag/libheif
+VERSION_HEIF=1.17.1         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.14.5         # https://github.com/libvips/libvips
 
 # Remove patch version component
@@ -212,14 +212,15 @@ node --version
   curl -Ls https://github.com/zlib-ng/zlib-ng/archive/refs/tags/$VERSION_ZLIB_NG.tar.gz | tar xzC $DEPS/zlib-ng --strip-components=1
   cd $DEPS/zlib-ng
   # SSE intrinsics needs to be checked for wasm32
-  sed -i 's/|\s*x86_64/& | wasm32/g' configure
+  sed -i 's/BASEARCH_X86_FOUND/& OR BASEARCH_WASM32_FOUND/g' CMakeLists.txt
   # Avoid CPU checks at runtime
-  sed -i 's/\s-DX86_FEATURES//g' configure
-  sed -i 's/\sx86_features.l\?o//g' configure
+  sed -i '/-DX86_FEATURES/d' CMakeLists.txt
+  sed -i '/x86_features.[hc]/d' CMakeLists.txt
   sed -i 's/cf.x86.has_ssse3/1/' functable.c
-  emconfigure ./configure --prefix=$TARGET --static --zlib-compat ${DISABLE_SIMD:+--without-optimizations} \
-    ${ENABLE_SIMD:+--force-sse2} --without-acle --without-neon
-  make install
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=FALSE \
+    ${DISABLE_SIMD:+-DWITH_OPTIM=FALSE} ${ENABLE_SIMD:+-DFORCE_SSE2=TRUE} -DZLIB_COMPAT=TRUE \
+    -DZLIB_ENABLE_TESTS=FALSE -DZLIBNG_ENABLE_TESTS=FALSE -DWITH_GTEST=FALSE
+  make -C _build install
 )
 
 [ -f "$TARGET/lib/pkgconfig/libffi.pc" ] || (
@@ -288,7 +289,7 @@ node --version
   # Remove build path from binary
   sed -i 's/HWY_ASSERT/HWY_DASSERT/' hwy/aligned_allocator.cc
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=FALSE \
-    -DBUILD_TESTING=FALSE -DHWY_ENABLE_CONTRIB=FALSE -DHWY_ENABLE_EXAMPLES=FALSE
+    -DBUILD_TESTING=FALSE -DHWY_ENABLE_CONTRIB=FALSE -DHWY_ENABLE_EXAMPLES=FALSE -DHWY_ENABLE_TESTS=FALSE
   make -C _build install
 )
 
@@ -328,7 +329,7 @@ node --version
     -DCMAKE_C_FLAGS="$CFLAGS -DJXL_DEBUG_ON_ABORT=0" -DCMAKE_CXX_FLAGS="$CXXFLAGS -DJXL_DEBUG_ON_ABORT=0"
   make -C _build install
   # Ensure we don't link with lcms2 in the vips-jxl side module
-  [ -z "$ENABLE_MODULES"  ] || sed -i '/^Requires.private:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl.pc
+  [ -z "$ENABLE_MODULES" ] || sed -i '/^Requires.private:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl.pc
 )
 
 [ -f "$TARGET/lib/pkgconfig/spng.pc" ] || (
@@ -414,11 +415,10 @@ node --version
   mkdir $DEPS/aom
   curl -Ls https://storage.googleapis.com/aom-releases/libaom-$VERSION_AOM.tar.gz | tar xzC $DEPS/aom --strip-components=1
   cd $DEPS/aom
-  emcmake cmake -B_build -H. \
-    -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET \
-    -DAOM_TARGET_CPU=generic -DCONFIG_RUNTIME_CPU_DETECT=0 \
-    -DENABLE_DOCS=0 -DENABLE_TESTS=0 -DENABLE_EXAMPLES=0 -DENABLE_TOOLS=0 \
-    -DCONFIG_PIC=$PIC -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=0 \
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET \
+    -DAOM_TARGET_CPU=generic ${ENABLE_PIC:+-DCONFIG_PIC=1} -DCONFIG_RUNTIME_CPU_DETECT=0 \
+    -DENABLE_DOCS=FALSE -DENABLE_TESTS=FALSE -DENABLE_EXAMPLES=FALSE -DENABLE_TOOLS=FALSE \
+    -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=0 \
     -DCONFIG_MULTITHREAD=0 # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
 )
@@ -428,19 +428,16 @@ node --version
   mkdir $DEPS/heif
   curl -Ls https://github.com/strukturag/libheif/releases/download/v$VERSION_HEIF/libheif-$VERSION_HEIF.tar.gz | tar xzC $DEPS/heif --strip-components=1
   cd $DEPS/heif
-  curl -Ls https://github.com/strukturag/libheif/compare/v$VERSION_HEIF...kleisauke:wasm-vips.patch | patch -p1
   # Note: without CMAKE_FIND_ROOT_PATH find_path for AOM is not working for some reason (see https://github.com/emscripten-core/emscripten/issues/10078).
-  emcmake cmake -B_build -H. \
-    -DCMAKE_FIND_ROOT_PATH=$TARGET \
-    -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=$PIC -DBUILD_SHARED_LIBS=0 \
-    -DENABLE_PLUGIN_LOADING=0 -DWITH_EXAMPLES=0 \
-    -DWITH_LIBDE265=0 -DWITH_X265=0 -DWITH_DAV1D=0 -DWITH_SvtEnc=0 -DWITH_RAV1E=0 \
-    -DWITH_AOM_ENCODER=1 -DWITH_AOM_DECODER=1 \
-    -DENABLE_MULTITHREADING_SUPPORT=0 # Disable threading support, we rely on libvips' thread pool.
+  # Compile with -D__EMSCRIPTEN_STANDALONE_WASM__ to disable the Embind implementation.
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
+    -DBUILD_SHARED_LIBS=FALSE -DCMAKE_POSITION_INDEPENDENT_CODE=$PIC -DENABLE_PLUGIN_LOADING=FALSE \
+    -DWITH_EXAMPLES=FALSE -DWITH_LIBDE265=FALSE -DWITH_X265=FALSE \
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS -D__EMSCRIPTEN_STANDALONE_WASM__" \
+    -DENABLE_MULTITHREADING_SUPPORT=FALSE # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
   # Ensure we don't link with libsharpyuv in the vips-heif side module
-  [ -z "$ENABLE_MODULES"  ] || sed -i '/^Requires.private:/s/ libsharpyuv//' $TARGET/lib/pkgconfig/libheif.pc
+  [ -z "$ENABLE_MODULES" ] || sed -i '/^Requires.private:/s/ libsharpyuv//' $TARGET/lib/pkgconfig/libheif.pc
 )
 
 [ -f "$TARGET/lib/pkgconfig/vips.pc" ] || (
@@ -480,7 +477,7 @@ node --version
   stage "Prepare NPM package"
 
   # Ensure compatibility with Deno (classic workers are not supported)
-  # FIXME(kleisauke): This should ideally be handled in Emscripten itself for -sEXPORT_ES6
+  # TODO(kleisauke): Remove when Emscripten 3.1.48 is released - https://github.com/emscripten-core/emscripten/pull/20452
   sed -i 's/new Worker(\([^()]\+\))/new Worker(\1,{type:"module"})/g' $SOURCE_DIR/lib/vips-es6.js
   sed -i 's/new Worker(\(new URL([^)]\+)\)/new Worker(\1,{type:"module"}/g' $SOURCE_DIR/lib/vips-es6.js
 

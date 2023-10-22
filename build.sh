@@ -124,7 +124,7 @@ else
   COMMON_FLAGS+=" -fexceptions"
 fi
 
-export CFLAGS="$COMMON_FLAGS -mnontrapping-fptoint"
+export CFLAGS="$COMMON_FLAGS -mnontrapping-fptoint -fvisibility=hidden"
 if [ "$SIMD" = "true" ]; then
   export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"
   export RUSTFLAGS+=" -Ctarget-feature=+simd128"

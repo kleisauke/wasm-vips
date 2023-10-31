@@ -351,8 +351,6 @@ node --version
   mkdir $DEPS/imagequant
   curl -Ls https://github.com/lovell/libimagequant/archive/refs/tags/v$VERSION_IMAGEQUANT.tar.gz | tar xzC $DEPS/imagequant --strip-components=1
   cd $DEPS/imagequant
-  # TODO(kleisauke): Discuss this patch upstream
-  curl -Ls https://github.com/lovell/libimagequant/compare/v$VERSION_IMAGEQUANT...kleisauke:wasm-vips.patch | patch -p1
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse -DUSE_SSE=1"}
   meson install -C _build --tag devel

@@ -537,5 +537,8 @@ EOF
 
   # Copy dynamic loadable modules
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
-  [ -d "$module_dir" ] && cp $module_dir/* $SOURCE_DIR/lib/ || true
+  [ -d "$module_dir" ] && cp $module_dir/* $SOURCE_DIR/lib || true
+
+  # Copy versions.json
+  cp $TARGET/versions.json $SOURCE_DIR
 )

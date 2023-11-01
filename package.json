@@ -14,15 +14,18 @@
   "author": "Kleis Auke Wolthuizen",
   "type": "commonjs",
   "exports": {
-    "browser": {
-      "import": "./lib/vips-es6.js",
-      "require": "./lib/vips.js"
+    ".": {
+      "browser": {
+        "import": "./lib/vips-es6.js",
+        "require": "./lib/vips.js"
+      },
+      "node": {
+        "import": "./lib/vips-node.mjs",
+        "require": "./lib/vips-node.js"
+      },
+      "default": "./lib/vips.js"
     },
-    "node": {
-      "import": "./lib/vips-node.mjs",
-      "require": "./lib/vips-node.js"
-    },
-    "default": "./lib/vips.js"
+    "./versions": "./versions.json"
   },
   "main": "lib/vips-node.js",
   "browser": "lib/vips.js",
@@ -35,7 +38,8 @@
     "lib/vips-heif.wasm",
     "lib/vips-jxl.wasm",
     "lib/vips-resvg.wasm",
-    "THIRD-PARTY-NOTICES.md"
+    "THIRD-PARTY-NOTICES.md",
+    "versions.json"
   ],
   "scripts": {
     "build": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh",

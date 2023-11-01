@@ -181,6 +181,30 @@ VERSION_AOM=3.7.0           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.17.1         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.14.5         # https://github.com/libvips/libvips
 
+# Generate versions.json
+( printf "{\n"; \
+  [ -n "$DISABLE_AVIF" ] || printf "  \"aom\": \"${VERSION_AOM}\",\n"; \
+  [ -n "$DISABLE_JXL" ] || printf "  \"brotli\": \"${VERSION_BROTLI}\",\n"; \
+  printf "  \"cgif\": \"${VERSION_CGIF}\",\n"; \
+  printf "  \"exif\": \"${VERSION_EXIF}\",\n"; \
+  printf "  \"expat\": \"${VERSION_EXPAT}\",\n"; \
+  printf "  \"ffi\": \"${VERSION_FFI}\",\n"; \
+  printf "  \"glib\": \"${VERSION_GLIB}\",\n"; \
+  [ -n "$DISABLE_AVIF" ] || printf "  \"heif\": \"${VERSION_HEIF}\",\n"; \
+  [ -n "$DISABLE_JXL" ] || printf "  \"highway\": \"${VERSION_HWY}\",\n"; \
+  printf "  \"imagequant\": \"${VERSION_IMAGEQUANT}\",\n"; \
+  [ -n "$DISABLE_JXL" ] || printf "  \"jxl\": \"${VERSION_JXL}\",\n"; \
+  printf "  \"lcms\": \"${VERSION_LCMS2}\",\n"; \
+  printf "  \"mozjpeg\": \"${VERSION_MOZJPEG}\",\n"; \
+  [ -n "$DISABLE_SVG" ] || printf "  \"resvg\": \"${VERSION_RESVG}\",\n"; \
+  printf "  \"spng\": \"${VERSION_SPNG}\",\n"; \
+  printf "  \"tiff\": \"${VERSION_TIFF}\",\n"; \
+  printf "  \"vips\": \"${VERSION_VIPS}\",\n"; \
+  printf "  \"webp\": \"${VERSION_WEBP}\",\n"; \
+  printf "  \"zlib-ng\": \"${VERSION_ZLIB_NG}\"\n"; \
+  printf '}'; ) \
+>$TARGET/versions.json
+
 # Remove patch version component
 without_patch() {
   echo "${1%.[[:digit:]]*}"

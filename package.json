@@ -34,7 +34,8 @@
     "lib/vips.wasm",
     "lib/vips-heif.wasm",
     "lib/vips-jxl.wasm",
-    "lib/vips-resvg.wasm"
+    "lib/vips-resvg.wasm",
+    "THIRD-PARTY-NOTICES.md"
   ],
   "scripts": {
     "build": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh",

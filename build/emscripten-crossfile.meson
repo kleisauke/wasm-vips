@@ -4,15 +4,12 @@ cpp = 'em++'
 ar = 'emar'
 ranlib = 'emranlib'
 pkgconfig = ['pkg-config', '--static']
+exe_wrapper = 'node'
 
-# https://docs.gtk.org/glib/cross-compiling.html#cross-properties
 [properties]
-growing_stack = true
-have_c99_vsnprintf = true
-have_c99_snprintf = true
-have_unix98_printf = true
+needs_exe_wrapper = true
 
-# Ensure that `-sPTHREAD_POOL_SIZE=*` is not injected into .pc files
+# Ensure that `-sPTHREAD_POOL_SIZE=4` is not injected into .pc files
 [built-in options]
 c_thread_count = 0
 cpp_thread_count = 0

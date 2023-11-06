@@ -498,11 +498,6 @@ node --version
   # Building for both Node.js and web, prepare NPM package
   stage "Prepare NPM package"
 
-  # Ensure compatibility with Deno (classic workers are not supported)
-  # TODO(kleisauke): Remove when Emscripten 3.1.48 is released - https://github.com/emscripten-core/emscripten/pull/20452
-  sed -i 's/new Worker(\([^()]\+\))/new Worker(\1,{type:"module"})/g' $SOURCE_DIR/lib/vips-es6.js
-  sed -i 's/new Worker(\(new URL([^)]\+)\)/new Worker(\1,{type:"module"}/g' $SOURCE_DIR/lib/vips-es6.js
-
   # The produced binary should be the same across the different variants (sanity check)
   expected_sha256=$(sha256sum "$SOURCE_DIR/lib/vips.wasm" | awk '{ print $1 }')
   for file in vips-es6.wasm vips-node.wasm vips-node-es6.wasm; do
@@ -527,13 +522,9 @@ node --version
   sed -i 's/var Module/const require = createRequire(import.meta.url);&/' $SOURCE_DIR/lib/vips-node.worker.mjs
 
   # Print the target features section
-  PYTHONPATH="$(dirname $(which emcc))" python3 - << EOF
-from tools import webassembly
-
-with webassembly.Module('$SOURCE_DIR/lib/vips.wasm') as m:
-  features = [f[1] for f in m.parse_features_section() if f[0] == '+']
-  print('Used Wasm features:', ' '.join(features))
-EOF
+  echo -n "Used Wasm features: "
+  $EMSDK/upstream/bin/wasm-opt --mvp-features --print-features -o /dev/null $SOURCE_DIR/lib/vips.wasm | \
+    sed 's/^--enable-//' | paste -sd' '
 
   # Copy dynamic loadable modules
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)

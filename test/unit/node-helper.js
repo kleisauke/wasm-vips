@@ -20,11 +20,11 @@ export async function mochaGlobalSetup () {
       });
 
       // Handy for debugging
-      // module.ENV.VIPS_INFO = '1';
-      // module.ENV.VIPS_LEAK = '1';
+      // module.ENV.VIPS_INFO = 1;
+      // module.ENV.VIPS_LEAK = 1;
 
       // Hide warning messages
-      module.ENV.VIPS_WARNING = '0';
+      module.ENV.VIPS_WARNING = 0;
 
       // libvips stores temporary files by default in `/tmp`;
       // set the TMPDIR env variable to override this directory

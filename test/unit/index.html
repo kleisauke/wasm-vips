@@ -113,8 +113,8 @@
       });
 
       // Handy for debugging
-      // module.ENV.VIPS_INFO = '1';
-      // module.ENV.VIPS_LEAK = '1';
+      // module.ENV.VIPS_INFO = 1;
+      // module.ENV.VIPS_LEAK = 1;
 
       // Preload test files
       for (const file of Helpers.testFiles)
@@ -126,7 +126,7 @@
 
       console.log('vips version:'.padEnd(pad), module.version());
       console.log('Emscripten version:'.padEnd(pad), module.emscriptenVersion());
-      //console.log(module.config());
+      // console.log(module.config());
       console.log('Concurrency:'.padEnd(pad), module.concurrency());
 
       console.log('Cache max mem:'.padEnd(pad), module.Cache.maxMem());

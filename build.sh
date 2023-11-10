@@ -178,7 +178,7 @@ VERSION_WEBP=1.3.2          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.36.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.7.0           # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.17.2         # https://github.com/strukturag/libheif
+VERSION_HEIF=1.17.3         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.14.5         # https://github.com/libvips/libvips
 
 # Generate versions.json

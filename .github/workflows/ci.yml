@@ -10,6 +10,7 @@ on:
         type: boolean
         required: false
         description: Force rebuild
+permissions: {}
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -28,7 +29,9 @@ jobs:
       - uses: actions/cache@v3
         id: cache
         with:
-          path: lib
+          path: |
+            lib
+            versions.json
           key: ${{ steps.gen-cache-key.outputs.key }}
       - name: Build
         if: steps.cache.outputs.cache-hit != 'true'
@@ -36,29 +39,28 @@ jobs:
           docker build -t wasm-vips .
           docker run --rm -v ${{ github.workspace }}:/src wasm-vips
   CI:
-    runs-on: ${{ matrix.os }}
     needs: build
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-22.04
             nodejs_version: 16
-            publish: true
           - os: macos-11
             nodejs_version: 16
           - os: windows-2022
             nodejs_version: 16
     steps:
       - uses: actions/checkout@v4
-      - name: Setup node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.nodejs_version }}
-          registry-url: 'https://registry.npmjs.org'
       - uses: actions/cache/restore@v3
         with:
-          path: lib
+          path: |
+            lib
+            versions.json
           key: ${{ needs.build.outputs.cache-key }}
           enableCrossOsArchive: true
           fail-on-cache-miss: true
@@ -68,11 +70,32 @@ jobs:
         run: npm --prefix test/unit install
       - name: Test
         run: npm test
+  release:
+    if: github.ref_type == 'tag'
+    needs:
+      - build
+      - CI
+    permissions:
+      contents: write # for gh release create
+      id-token: write # for npm publish --provenance
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+      - uses: actions/cache/restore@v3
+        with:
+          path: |
+            lib
+            versions.json
+          key: ${{ needs.build.outputs.cache-key }}
+          fail-on-cache-miss: true
       - name: Publish
-        if: matrix.publish && github.ref_type == 'tag'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm publish
+          npm publish --provenance
           gh release create ${{ github.ref_name }}

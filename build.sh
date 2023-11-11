@@ -191,7 +191,7 @@ VERSION_VIPS=8.15.0         # https://github.com/libvips/libvips
   printf "  \"ffi\": \"${VERSION_FFI}\",\n"; \
   printf "  \"glib\": \"${VERSION_GLIB}\",\n"; \
   [ -n "$DISABLE_AVIF" ] || printf "  \"heif\": \"${VERSION_HEIF}\",\n"; \
-  [ -n "$DISABLE_JXL" ] || printf "  \"highway\": \"${VERSION_HWY}\",\n"; \
+  [[ -n "$DISABLE_SIMD" && -n "$DISABLE_JXL" ]] || printf "  \"highway\": \"${VERSION_HWY}\",\n"; \
   printf "  \"imagequant\": \"${VERSION_IMAGEQUANT}\",\n"; \
   [ -n "$DISABLE_JXL" ] || printf "  \"jxl\": \"${VERSION_JXL}\",\n"; \
   printf "  \"lcms\": \"${VERSION_LCMS2}\",\n"; \
@@ -305,7 +305,7 @@ node --version
   meson install -C _build --tag devel
 )
 
-[ -f "$TARGET/lib/pkgconfig/libhwy.pc" ] || [ -n "$DISABLE_JXL" ] || (
+[ -f "$TARGET/lib/pkgconfig/libhwy.pc" ] || [[ -n "$DISABLE_SIMD" && -n "$DISABLE_JXL" ]] || (
   stage "Compiling hwy"
   mkdir $DEPS/hwy
   curl -Ls https://github.com/google/highway/archive/refs/tags/$VERSION_HWY.tar.gz | tar xzC $DEPS/hwy --strip-components=1
@@ -352,8 +352,12 @@ node --version
     -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE -DJPEGXL_FORCE_SYSTEM_LCMS2=TRUE -DJPEGXL_FORCE_SYSTEM_HWY=TRUE \
     -DCMAKE_C_FLAGS="$CFLAGS -DJXL_DEBUG_ON_ABORT=0" -DCMAKE_CXX_FLAGS="$CXXFLAGS -DJXL_DEBUG_ON_ABORT=0"
   make -C _build install
-  # Ensure we don't link with lcms2 in the vips-jxl side module
-  [ -z "$ENABLE_MODULES" ] || sed -i '/^Requires.private:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl.pc
+  if [ -n "$ENABLE_MODULES" ]; then
+    # Ensure we don't link with highway in the vips-jxl side module
+    [ -z "$ENABLE_SIMD" ] || sed -i '/^Requires.private:/s/ libhwy//' $TARGET/lib/pkgconfig/libjxl.pc
+    # ... and the same for lcms2
+    sed -i '/^Requires.private:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl.pc
+  fi
 )
 
 [ -f "$TARGET/lib/pkgconfig/spng.pc" ] || (
@@ -475,9 +479,9 @@ node --version
     -Ddeprecated=false -Dexamples=false -Dcplusplus=$LIBVIPS_CPP -Dauto_features=disabled \
     ${ENABLE_MODULES:+-Dmodules=enabled} -Dcgif=enabled -Dexif=enabled ${ENABLE_AVIF:+-Dheif=enabled} \
     -Dheif-module=enabled -Dimagequant=enabled -Djpeg=enabled ${ENABLE_JXL:+-Djpeg-xl=enabled} \
-    -Djpeg-xl-module=enabled -Dlcms=enabled ${ENABLE_SVG:+-Dresvg=enabled} -Dresvg-module=enabled \
-    -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true -Dppm=true -Danalyze=true -Dradiance=true \
-    -Dzlib=enabled
+    -Djpeg-xl-module=enabled -Dlcms=enabled ${ENABLE_SIMD:+-Dhighway=enabled} ${ENABLE_SVG:+-Dresvg=enabled} \
+    -Dresvg-module=enabled -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true -Dppm=true -Danalyze=true \
+    -Dradiance=true -Dzlib=enabled
   meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)

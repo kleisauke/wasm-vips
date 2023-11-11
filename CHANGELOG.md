@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.15.0, compiled with Emscripten v3.1.48.
 
+### Added
+
+- Enable optimized SIMD paths in libvips (using Highway).
+
 ### Changed
 
 - Update methods/enums for libvips 8.15.

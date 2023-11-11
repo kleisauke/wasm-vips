@@ -148,7 +148,7 @@ describe('foreign', () => {
 
   it('vips', function () {
     // ftruncate() is not yet available in the Node backend of WasmFS.
-    // https://github.com/emscripten-core/emscripten/blob/3.1.42/system/lib/wasmfs/backends/node_backend.cpp#L120-L122
+    // https://github.com/emscripten-core/emscripten/blob/3.1.48/system/lib/wasmfs/backends/node_backend.cpp#L120-L122
     if (typeof vips.FS.statBufToObject === 'function') {
       return this.skip();
     }
@@ -399,6 +399,7 @@ describe('foreign', () => {
       expect(im.width).to.equal(290);
       expect(im.height).to.equal(442);
       expect(im.bands).to.equal(3);
+      expect(im.getInt('bits-per-sample')).to.equal(16);
     };
 
     fileLoader('pngload', Helpers.pngFile, pngValid);
@@ -434,6 +435,7 @@ describe('foreign', () => {
     });
     const after = vips.Image.newFromBuffer(buf, '');
     expect(onebit.subtract(after).abs().max()).to.equal(0);
+    expect(after.getInt('bits-per-sample')).to.equal(1);
 
     // we can't test palette save since we can't be sure libimagequant is
     // available and there's no easy test for its presence
@@ -452,6 +454,13 @@ describe('foreign', () => {
       const y = vips.Image.newFromBuffer(buf, '');
       expect(y.getInt('orientation')).to.equal(2);
     }
+
+    // Add EXIF to new PNG
+    const im1 = vips.Image.black(8, 8);
+    im1.setString('exif-ifd0-ImageDescription', 'test description');
+    const im2 = vips.Image.newFromBuffer(im1.pngsaveBuffer(), '');
+    expect(im2.getString('exif-ifd0-ImageDescription')).to.satisfy(desc =>
+      desc.startsWith('test description'));
   });
 
   it('tiff', function () {
@@ -466,6 +475,7 @@ describe('foreign', () => {
       expect(im.width).to.equal(290);
       expect(im.height).to.equal(442);
       expect(im.bands).to.equal(3);
+      expect(im.getInt('bits-per-sample')).to.equal(16);
     };
 
     fileLoader('tiffload', Helpers.tifFile, tiffValid);
@@ -479,6 +489,7 @@ describe('foreign', () => {
       expect(im.width).to.equal(256);
       expect(im.height).to.equal(4);
       expect(im.bands).to.equal(1);
+      expect(im.getInt('bits-per-sample')).to.equal(1);
     };
 
     fileLoader('tiffload', Helpers.tif1File, tiff1Valid);
@@ -491,6 +502,7 @@ describe('foreign', () => {
       expect(im.width).to.equal(256);
       expect(im.height).to.equal(4);
       expect(im.bands).to.equal(1);
+      expect(im.getInt('bits-per-sample')).to.equal(2);
     };
 
     fileLoader('tiffload', Helpers.tif2File, tiff2Valid);
@@ -503,6 +515,7 @@ describe('foreign', () => {
       expect(im.width).to.equal(256);
       expect(im.height).to.equal(4);
       expect(im.bands).to.equal(1);
+      expect(im.getInt('bits-per-sample')).to.equal(4);
     };
 
     fileLoader('tiffload', Helpers.tif4File, tiff4Valid);
@@ -753,17 +766,24 @@ describe('foreign', () => {
       expect(im.width).to.equal(159);
       expect(im.height).to.equal(203);
       expect(im.bands).to.equal(3);
+      expect(im.getInt('bits-per-sample')).to.equal(4);
     };
 
     fileLoader('gifload', Helpers.gifFile, gifValid);
     bufferLoader('gifload_buffer', Helpers.gifFile, gifValid);
 
     // test metadata
-    let x1 = vips.Image.newFromFile(Helpers.gifAnimFile, { n: -1 });
+    let x1 = vips.Image.newFromFile(Helpers.gifFile, { n: -1 });
+    expect(x1.getInt('n-pages')).to.equal(1);
+    expect(x1.getArrayDouble('background')).to.deep.equal([81.0, 81.0, 81.0]);
+    expect(x1.getInt('interlaced')).to.equal(1);
+
+    x1 = vips.Image.newFromFile(Helpers.gifAnimFile, { n: -1 });
     // our test gif has delay 0 for the first frame set in error
     expect(x1.getArrayInt('delay')).to.deep.equal([0, 50, 50, 50, 50]);
     expect(x1.getInt('loop')).to.equal(32761);
     expect(x1.getArrayDouble('background')).to.deep.equal([255.0, 255.0, 255.0]);
+    expect(x1.getTypeof('interlaced')).to.equal(0);
     // test deprecated fields too
     expect(x1.getInt('gif-loop')).to.equal(32760);
     expect(x1.getInt('gif-delay')).to.equal(0);
@@ -961,6 +981,7 @@ describe('foreign', () => {
       expect(im.width).to.equal(3024);
       expect(im.height).to.equal(4032);
       expect(im.bands).to.equal(3);
+      expect(im.getInt('bits-per-sample')).to.equal(8);
     };
 
     fileLoader('heifload', Helpers.avifFile, heifValid);
@@ -1066,6 +1087,7 @@ describe('foreign', () => {
       expect(im.width).to.equal(290);
       expect(im.height).to.equal(442);
       expect(im.bands).to.equal(4);
+      expect(im.getInt('bits-per-sample')).to.equal(8);
     };
 
     fileLoader('jxlload', Helpers.jxlFile, jxlValid);

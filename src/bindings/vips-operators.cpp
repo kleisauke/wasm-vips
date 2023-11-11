@@ -3186,6 +3186,18 @@ Image Image::premultiply(emscripten::val js_options) const
     return out;
 }
 
+Image Image::prewitt() const
+{
+    Image out;
+
+    this->call("prewitt",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("out", &out));
+
+    return out;
+}
+
 Image Image::profile(Image *rows) const
 {
     Image columns;
@@ -3542,6 +3554,18 @@ Image Image::scale(emscripten::val js_options) const
                    ->set("in", *this)
                    ->set("out", &out),
                js_options);
+
+    return out;
+}
+
+Image Image::scharr() const
+{
+    Image out;
+
+    this->call("scharr",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("out", &out));
 
     return out;
 }

@@ -62,4 +62,39 @@ describe('iofuncs', () => {
 
     expect(s).to.deep.equal(t);
   });
+
+  it('revalidate', function () {
+    // ftruncate() is not yet available in the Node backend of WasmFS.
+    // https://github.com/emscripten-core/emscripten/blob/3.1.48/system/lib/wasmfs/backends/node_backend.cpp#L120-L122
+    if (typeof vips.FS.statBufToObject === 'function') {
+      return this.skip();
+    }
+
+    const filename = vips.Utils.tempName('%s.v');
+
+    const im1 = vips.Image.black(10, 10);
+    im1.writeToFile(filename);
+
+    const load1 = vips.Image.newFromFile(filename);
+    expect(load1.width).to.equal(im1.width);
+
+    const im2 = vips.Image.black(20, 20);
+    im2.writeToFile(filename);
+
+    // this will use the old, cached load
+    let load2 = vips.Image.newFromFile(filename);
+    expect(load2.width).to.equal(im1.width);
+
+    // load again with 'revalidate' and we should see the new image
+    load2 = vips.Image.newFromFile(filename, {
+      revalidate: true
+    });
+    expect(load2.width).to.equal(im2.width);
+
+    // load once more without revalidate and we should see the cached
+    // new image
+    load2 = vips.Image.newFromFile(filename);
+    load2.setDeleteOnClose(true);
+    expect(load2.width).to.equal(im2.width);
+  });
 });

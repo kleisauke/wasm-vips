@@ -496,12 +496,14 @@ describe('create', () => {
       return this.skip();
     }
 
-    let im = vips.Image.text('Hello, world!');
+    let im = vips.Image.text('Hello, world!', {
+      dpi: 300
+    });
     expect(im.width).to.be.above(10);
     expect(im.height).to.be.above(10);
     expect(im.bands).to.equal(1);
     expect(im.format).to.equal('uchar');
-    expect(im.max()).to.equal(255);
+    expect(im.max()).to.be.above(240);
     expect(im.min()).to.equal(0);
 
     // test autofit

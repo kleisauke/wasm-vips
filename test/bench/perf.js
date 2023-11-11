@@ -8,8 +8,9 @@ import { inputJpg, inputPng, inputWebP, getPath } from './images.js';
 
 const width = 720;
 
-// vips_thumbnail resize behavior is based on a square bounding box, so
-// pass a huge value to resize on a specific axis instead.
+// `vips_thumbnail` resize behavior is based on a square bounding box.
+// To resize along a specific axis, pass a huge value to the opposite axis.
+// See: https://github.com/libvips/libvips/pull/1639
 const height = 10000000; // = VIPS_MAX_COORD
 
 const jpegOut = getPath('output.jpg');
@@ -31,18 +32,18 @@ vips.Cache.max(0);
 
 const inputJpgBuffer = vips.FS.readFile(inputJpg);
 const defaultJpegSaveOptions = {
-  strip: true,
+  keep: vips.ForeignKeep.none,
   Q: 80
 };
 const inputPngBuffer = vips.FS.readFile(inputPng);
 const defaultPngSaveOptions = {
-  strip: true,
+  keep: vips.ForeignKeep.none,
   compression: 6,
   filter: vips.ForeignPngFilter.none
 };
 const inputWebPBuffer = vips.FS.readFile(inputWebP);
 const defaultWebPSaveOptions = {
-  strip: true,
+  keep: vips.ForeignKeep.none,
   Q: 80
 };
 

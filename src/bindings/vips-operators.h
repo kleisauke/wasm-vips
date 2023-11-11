@@ -1068,7 +1068,7 @@ Image convf(emscripten::val mask) const;
 Image convi(emscripten::val mask) const;
 
 /**
- * Seperable convolution operation.
+ * Separable convolution operation.
  * @param mask Input matrix image.
  * @param js_options Optional options.
  * @return Output image.
@@ -1890,6 +1890,12 @@ void ppmsave_target(const Target &target, emscripten::val js_options = emscripte
 Image premultiply(emscripten::val js_options = emscripten::val::null()) const;
 
 /**
+ * Prewitt edge detector.
+ * @return Output image.
+ */
+Image prewitt() const;
+
+/**
  * Find image profiles.
  * @param rows First non-zero pixel in row.
  * @return First non-zero pixel in column.
@@ -2091,6 +2097,12 @@ Image scRGB2sRGB(emscripten::val js_options = emscripten::val::null()) const;
  * @return Output image.
  */
 Image scale(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Scharr edge detector.
+ * @return Output image.
+ */
+Image scharr() const;
 
 /**
  * Check sequential access.

@@ -29,7 +29,11 @@ describe('colour', () => {
       }
 
       const pixel = im.getpoint(10, 10);
-      expect(pixel[3]).to.be.closeTo(42, 0.01);
+      if (col === 'scrgb') {
+        expect(pixel[3]).to.be.closeTo(42.0 / 255.0, 0.0001);
+      } else {
+        expect(pixel[3]).to.be.closeTo(42, 0.01);
+      }
     }
 
     // alpha won't be equal for RGB16, but it should be preserved if we go

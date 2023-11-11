@@ -179,7 +179,7 @@ VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.36.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.7.0           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.17.3         # https://github.com/strukturag/libheif
-VERSION_VIPS=8.14.5         # https://github.com/libvips/libvips
+VERSION_VIPS=8.15.0         # https://github.com/libvips/libvips
 
 # Generate versions.json
 ( printf "{\n"; \
@@ -468,11 +468,11 @@ node --version
   curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$(without_prerelease $VERSION_VIPS).tar.xz | tar xJC $DEPS/vips --strip-components=1
   cd $DEPS/vips
   # Emscripten specific patches
-  curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-8.14.patch | patch -p1
+  curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-8.15.patch | patch -p1
   # Disable building man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
-    -Ddeprecated=false -Dexamples=false -Dcplusplus=$LIBVIPS_CPP -Dintrospection=false -Dauto_features=disabled \
+    -Ddeprecated=false -Dexamples=false -Dcplusplus=$LIBVIPS_CPP -Dauto_features=disabled \
     ${ENABLE_MODULES:+-Dmodules=enabled} -Dcgif=enabled -Dexif=enabled ${ENABLE_AVIF:+-Dheif=enabled} \
     -Dheif-module=enabled -Dimagequant=enabled -Djpeg=enabled ${ENABLE_JXL:+-Djpeg-xl=enabled} \
     -Djpeg-xl-module=enabled -Dlcms=enabled ${ENABLE_SVG:+-Dresvg=enabled} -Dresvg-module=enabled \

@@ -399,6 +399,15 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("set", VIPS_COMBINE_MODE_SET)
         .value("add", VIPS_COMBINE_MODE_ADD);
 
+    enum_<VipsForeignKeep>("ForeignKeep")
+        .value("none", VIPS_FOREIGN_KEEP_NONE)
+        .value("exif", VIPS_FOREIGN_KEEP_EXIF)
+        .value("xmp", VIPS_FOREIGN_KEEP_XMP)
+        .value("iptc", VIPS_FOREIGN_KEEP_IPTC)
+        .value("icc", VIPS_FOREIGN_KEEP_ICC)
+        .value("other", VIPS_FOREIGN_KEEP_OTHER)
+        .value("all", VIPS_FOREIGN_KEEP_ALL);
+
     enum_<VipsForeignPngFilter>("ForeignPngFilter")
         .value("none", VIPS_FOREIGN_PNG_FILTER_NONE)
         .value("sub", VIPS_FOREIGN_PNG_FILTER_SUB)
@@ -1847,6 +1856,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("premultiply", optional_override([](const Image &image) {
                       return image.premultiply();
                   }))
+        .function("prewitt", &Image::prewitt)
         .function("quadratic", &Image::quadratic)
         .function("quadratic", optional_override([](const Image &image, emscripten::val coeff) {
                       return image.quadratic(coeff);
@@ -1914,6 +1924,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("scale", optional_override([](const Image &image) {
                       return image.scale();
                   }))
+        .function("scharr", &Image::scharr)
         .function("sequential", &Image::sequential)
         .function("sequential", optional_override([](const Image &image) {
                       return image.sequential();

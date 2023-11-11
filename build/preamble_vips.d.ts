@@ -576,6 +576,10 @@ declare module Vips {
              * loaders are permissive, that is, [[FailOn.none]].
              */
             fail_on?: FailOn | Enum
+            /**
+             * Don't use a cached result for this operation.
+             */
+            revalidate?: boolean
         }): Image;
 
         /**
@@ -641,6 +645,10 @@ declare module Vips {
              * loaders are permissive, that is, [[FailOn.none]].
              */
             fail_on?: FailOn | Enum
+            /**
+             * Don't use a cached result for this operation.
+             */
+            revalidate?: boolean
         }): Image;
 
         /**
@@ -663,6 +671,10 @@ declare module Vips {
              * loaders are permissive, that is, [[FailOn.none]].
              */
             fail_on?: FailOn | Enum
+            /**
+             * Don't use a cached result for this operation.
+             */
+            revalidate?: boolean
         }): Image;
 
         /**
@@ -966,6 +978,10 @@ declare module Vips {
              * Color for background pixels.
              */
             background?: ArrayConstant
+            /**
+             * Enable line art mode.
+             */
+            line_art?: boolean
         }): {
             /**
              * Output left edge.

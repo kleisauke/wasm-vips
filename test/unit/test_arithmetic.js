@@ -758,6 +758,7 @@ describe('arithmetic', () => {
 
     const testRgb = test.bandjoin([test, test]);
     const trim = testRgb.findTrim({
+      line_art: true,
       background: [255, 255, 255]
     });
 

@@ -1,6 +1,6 @@
 {
   "name": "wasm-vips",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "libvips for the browser and Node.js, compiled to WebAssembly with Emscripten",
   "homepage": "https://github.com/kleisauke/wasm-vips",
   "bugs": {

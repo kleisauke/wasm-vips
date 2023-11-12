@@ -8,6 +8,7 @@ used under the terms of the following licences:
 | aom           | BSD 2-Clause + [Alliance for Open Media Patent License 1.0](https://aomedia.org/license/patent-license/)  |
 | brotli        | MIT Licence                                                                                               |
 | cgif          | MIT Licence                                                                                               |
+| emscripten    | [MIT Licence](https://github.com/emscripten-core/emscripten/blob/main/LICENSE)                            |
 | expat         | MIT Licence                                                                                               |
 | glib          | LGPLv3                                                                                                    |
 | highway       | Apache-2.0 License, BSD 3-Clause                                                                          |

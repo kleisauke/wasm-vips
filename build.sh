@@ -462,8 +462,13 @@ node --version
     -DCMAKE_CXX_FLAGS="$CXXFLAGS -D__EMSCRIPTEN_STANDALONE_WASM__" \
     -DENABLE_MULTITHREADING_SUPPORT=FALSE # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
-  # Ensure we don't link with libsharpyuv in the vips-heif side module
-  [ -z "$ENABLE_MODULES" ] || sed -i '/^Requires.private:/s/ libsharpyuv//' $TARGET/lib/pkgconfig/libheif.pc
+  if [ -n "$ENABLE_MODULES" ]; then
+    # Ensure we don't link with libsharpyuv in the vips-heif side module
+    sed -i '/^Requires.private:/s/ libsharpyuv//' $TARGET/lib/pkgconfig/libheif.pc
+    # ... and the same for -lc++, see:
+    # https://github.com/emscripten-core/emscripten/issues/16680#issuecomment-1558015445
+    sed -i '/^Libs.private:/s/-lc++//g' $TARGET/lib/pkgconfig/libheif.pc
+  fi
 )
 
 [ -f "$TARGET/lib/pkgconfig/vips.pc" ] || (

@@ -155,13 +155,13 @@ export PKG_CONFIG="pkg-config --static"
 
 # Ensure Rust build path prefixes are removed from the resulting binaries
 # https://reproducible-builds.org/docs/build-path/
-# TODO(kleisauke): Switch to -Ctrim-paths=all once supported - https://github.com/rust-lang/rust/issues/111540
+# TODO(kleisauke): Switch to -Ztrim-paths=all once supported - https://github.com/rust-lang/rust/issues/111540
 export RUSTFLAGS+=" --remap-path-prefix=$(rustc --print sysroot)/lib/rustlib/src/rust/library/="
 export RUSTFLAGS+=" --remap-path-prefix=$CARGO_HOME/registry/src/="
 export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 
 # Dependency version numbers
-VERSION_ZLIB_NG=2.1.4       # https://github.com/zlib-ng/zlib-ng
+VERSION_ZLIB_NG=2.1.5       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.4           # https://github.com/libffi/libffi
 VERSION_GLIB=2.78.1         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.5.0         # https://github.com/libexpat/libexpat
@@ -177,8 +177,8 @@ VERSION_CGIF=0.3.2          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.3.2          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.36.0        # https://github.com/RazrFalcon/resvg
-VERSION_AOM=3.7.0           # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.17.3         # https://github.com/strukturag/libheif
+VERSION_AOM=3.7.1           # https://aomedia.googlesource.com/aom
+VERSION_HEIF=1.17.5         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.15.0         # https://github.com/libvips/libvips
 
 # Generate versions.json

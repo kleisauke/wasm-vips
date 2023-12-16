@@ -172,7 +172,6 @@ if ("web" IN_LIST ENVIRONMENT)
             )
     set(WEB_MIN_TARGETS
             -sMIN_FIREFOX_VERSION=89
-            -sMIN_EDGE_VERSION=91
             -sMIN_CHROME_VERSION=91
             )
 

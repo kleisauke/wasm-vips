@@ -3,7 +3,7 @@ c = 'emcc'
 cpp = 'em++'
 ar = 'emar'
 ranlib = 'emranlib'
-pkgconfig = ['pkg-config', '--static']
+pkg-config = ['pkg-config', '--static']
 exe_wrapper = 'node'
 
 [properties]

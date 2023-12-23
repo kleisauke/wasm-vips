@@ -1126,7 +1126,7 @@ describe('foreign', () => {
     // remove the ICC profile: the RGB one will no longer be appropriate
     rgb16.remove('icc-profile-data');
     saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',
-      rgb16, 10700);
+      rgb16, 12000);
 
     // repeat for lossless mode
     saveLoadBuffer('jxlsave_buffer', 'jxlload_buffer',

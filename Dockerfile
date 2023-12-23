@@ -20,6 +20,8 @@ RUN \
     # needed for Meson
     ninja-build \
     python3-pip \
+    # needed by GLib
+    python3-packaging \
     && \
   pip3 install meson
 

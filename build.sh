@@ -181,7 +181,7 @@ VERSION_AOM=3.8.0           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.17.5         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.15.1         # https://github.com/libvips/libvips
 
-VERSION_EMSCRIPTEN="$(cat /emsdk/upstream/emscripten/emscripten-version.txt | xargs)"
+VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
 
 # Generate versions.json
 ( printf "{\n"; \

@@ -181,11 +181,14 @@ VERSION_AOM=3.8.0           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.17.5         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.15.1         # https://github.com/libvips/libvips
 
+VERSION_EMSCRIPTEN="$(cat /emsdk/upstream/emscripten/emscripten-version.txt | xargs)"
+
 # Generate versions.json
 ( printf "{\n"; \
   [ -n "$DISABLE_AVIF" ] || printf "  \"aom\": \"${VERSION_AOM}\",\n"; \
   [ -n "$DISABLE_JXL" ] || printf "  \"brotli\": \"${VERSION_BROTLI}\",\n"; \
   printf "  \"cgif\": \"${VERSION_CGIF}\",\n"; \
+  printf "  \"emscripten\": \"${VERSION_EMSCRIPTEN}\",\n"; \
   printf "  \"exif\": \"${VERSION_EXIF}\",\n"; \
   printf "  \"expat\": \"${VERSION_EXPAT}\",\n"; \
   printf "  \"ffi\": \"${VERSION_FFI}\",\n"; \

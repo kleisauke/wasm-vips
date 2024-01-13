@@ -49,12 +49,13 @@ yarn add wasm-vips
 ### Browser
 
 Requires `vips.js`, `vips.wasm` and `vips.worker.js` to be served from
-the same directory.
+the same directory. Additionally, when using ES6 modules, it's necessary
+to also serve the `vips-es6.js` and `vips-es6.worker.js` files.
 
 Since wasm-vips requires [the `SharedArrayBuffer` API](
 https://caniuse.com/sharedarraybuffer), the website needs to opt-in to
 a cross-origin isolated state, by serving the following HTTP headers on
-the main document:
+both the main document and worker script (`*.worker.js`):
 
 ```http
 Cross-Origin-Embedder-Policy: require-corp

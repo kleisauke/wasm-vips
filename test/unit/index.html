@@ -68,7 +68,6 @@
 <body>
 <div id="mocha"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/10.2.0/mocha.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.3.10/chai.min.js" crossorigin="anonymous"></script>
 <script class="mocha-init">
   mocha.setup({
     ui: 'bdd',
@@ -92,13 +91,14 @@
 <script type="module" src="test_mosaicing.js"></script>
 <script type="module" src="test_resample.js"></script>
 <script type="module" class="mocha-exec">
-  // Global variables used throughout the unit tests
-  globalThis.expect = chai.expect;
-
   // Uncomment to test the web ES6 module
   // import Vips from './lib/vips-es6.js';
 
   import * as Helpers from './helpers.js';
+  import { expect } from 'https://cdnjs.cloudflare.com/ajax/libs/chai/5.0.0/chai.min.js';
+
+  // Global variables used throughout the unit tests
+  globalThis.expect = expect;
 
   const options = {
     print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),

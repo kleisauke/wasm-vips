@@ -51,7 +51,7 @@ if ("node" IN_LIST ENVIRONMENT)
             )
     set_target_properties(${PROJECT_NAME}-node-es6
             PROPERTIES
-                SUFFIX "-node-es6.js"
+                SUFFIX "-node-es6.mjs"
                 RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
             )
 

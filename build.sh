@@ -519,20 +519,15 @@ node --version
   done
 
   # Use a single wasm binary for web and Node.js
-  for file in vips-es6.js vips-node.js vips-node-es6.js; do
-    filename=$(basename "$file" .js)
-    sed -i "s/$filename.wasm/vips.wasm/g" $SOURCE_DIR/lib/$file
+  for file in vips-es6.js vips-node.js vips-node-es6.mjs; do
+    sed -i "s/${file%.*}.wasm/vips.wasm/g" $SOURCE_DIR/lib/$file
   done
 
-  # Omit -es6 suffix from Node.js files, prefer .mjs extension instead
-  mv $SOURCE_DIR/lib/vips-node-es6.js $SOURCE_DIR/lib/vips-node.mjs
-  mv $SOURCE_DIR/lib/vips-node-es6.worker.js $SOURCE_DIR/lib/vips-node.worker.mjs
-  sed -i 's/vips-node-es6.worker.js/vips-node.worker.mjs/g' $SOURCE_DIR/lib/vips-node.mjs
-  sed -i 's/vips-node-es6.js/vips-node.mjs/g' $SOURCE_DIR/lib/vips-node.worker.mjs
-
-  # Add a static import declaration for require()
-  sed -i 's/var Module/import { createRequire } from "module";&/' $SOURCE_DIR/lib/vips-node.worker.mjs
-  sed -i 's/var Module/const require = createRequire(import.meta.url);&/' $SOURCE_DIR/lib/vips-node.worker.mjs
+  # Omit -es6 suffix from Node.js files
+  mv $SOURCE_DIR/lib/vips-node-es6.mjs $SOURCE_DIR/lib/vips-node.mjs
+  mv $SOURCE_DIR/lib/vips-node-es6.worker.mjs $SOURCE_DIR/lib/vips-node.worker.mjs
+  sed -i 's/vips-node-es6/vips-node/g' $SOURCE_DIR/lib/vips-node.mjs
+  sed -i 's/vips-node-es6/vips-node/g' $SOURCE_DIR/lib/vips-node.worker.mjs
 
   # Print the target features section
   echo -n "Used Wasm features: "

@@ -507,6 +507,11 @@ declare module Vips {
         readonly filename: string;
 
         /**
+         * Block evaluation on this image.
+         */
+        kill: boolean;
+
+        /**
          * Attach progress feedback.
          *
          * This method can update user-interfaces with progress feedback,

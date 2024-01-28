@@ -12,6 +12,7 @@ Uses libvips v8.15.1, compiled with Emscripten v3.1.52.
 
 - Add `image.onProgress` callback for progress feedback.
   [#63](https://github.com/kleisauke/wasm-vips/issues/63)
+- Add `image.kill` property accessor to block evaluation.
 
 ## [v0.0.7] - 2023-11-12
 

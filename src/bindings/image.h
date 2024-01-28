@@ -82,6 +82,14 @@ class Image : public Object {
         return vips_image_get_filename(get_image());
     }
 
+    bool is_killed() const {
+        return vips_image_iskilled(get_image());
+    }
+
+    void set_kill(bool kill) {
+        vips_image_set_kill(get_image(), kill ? 1 : 0);
+    }
+
     static void eval_handler(VipsImage *image, VipsProgress *progress,
                              void *user);
 

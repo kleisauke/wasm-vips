@@ -93,6 +93,26 @@ void Image::call(const char *operation_name, Option *args,
     Image::call(operation_name, nullptr, args, kwargs, this);
 }
 
+void Image::eval_handler(VipsImage *image, VipsProgress *progress, void *user) {
+    Image *self = reinterpret_cast<Image *>(user);
+    if (self->progress_callback == nullptr)
+        return;
+
+    // Ensure that we call the JS function on the main thread, see:
+    // https://github.com/emscripten-core/emscripten/issues/11317
+    emscripten_sync_run_in_main_runtime_thread(
+        EM_FUNC_SIG_VI, self->progress_callback, progress->percent);
+}
+
+void Image::set_progress_callback(emscripten::val js_func) {
+    emscripten::val ptr = emscripten::val::module_property("addFunction")(
+        js_func, emscripten::val("vi"));
+    progress_callback = reinterpret_cast<void (*)(int)>(ptr.as<int>());
+
+    vips_image_set_progress(get_image(), 1);
+    g_signal_connect(get_image(), "eval", G_CALLBACK(eval_handler), this);
+}
+
 Image Image::new_memory() {
     return Image(vips_image_new_memory());
 }

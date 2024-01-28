@@ -506,6 +506,21 @@ declare module Vips {
          */
         readonly filename: string;
 
+        /**
+         * Attach progress feedback.
+         *
+         * This method can update user-interfaces with progress feedback,
+         * for example:
+         * ```js
+         * const image = vips.Image.newFromFile('huge.jpg');
+         * image.onProgress = (percent) =>
+         *   console.log(`${percent}% complete`);
+         * image.writeToFile('x.png');
+         * ```
+         * @param percent Percent complete.
+         */
+        onProgress: (percent: number) => void;
+
         //#region Constructor functions
 
         /**

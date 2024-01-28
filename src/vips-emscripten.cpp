@@ -1104,6 +1104,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .property("xres", &Image::xres)
         .property("yres", &Image::yres)
         .property("filename", &Image::filename)
+        // Handwritten setters
+        .property("onProgress", &Image::stub_getter,
+                  &Image::set_progress_callback)
         // Auto-generated (class-)functions
         .class_function("analyzeload", &Image::analyzeload)
         .class_function("analyzeload", optional_override([](const std::string &filename) {

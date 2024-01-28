@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <emscripten/val.h>
+#include <emscripten/threading.h>
 
 namespace vips {
 
@@ -79,6 +80,15 @@ class Image : public Object {
 
     std::string filename() const {
         return vips_image_get_filename(get_image());
+    }
+
+    static void eval_handler(VipsImage *image, VipsProgress *progress,
+                             void *user);
+
+    void set_progress_callback(emscripten::val js_func);
+
+    emscripten::val stub_getter() const {
+        return emscripten::val::null();
     }
 
     const void *data() const {
@@ -612,6 +622,10 @@ class Image : public Object {
 
         return out;
     }
+
+ private:
+    // sig = vi
+    void (*progress_callback)(int percent) = nullptr;
 };
 
 }  // namespace vips

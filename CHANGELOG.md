@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.15.1, compiled with Emscripten v3.1.52.
 
+### Added
+
+- Add `image.onProgress` callback for progress feedback.
+  [#63](https://github.com/kleisauke/wasm-vips/issues/63)
+
 ## [v0.0.7] - 2023-11-12
 
 Uses libvips v8.15.0, compiled with Emscripten v3.1.48.

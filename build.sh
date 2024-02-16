@@ -162,8 +162,8 @@ export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 
 # Dependency version numbers
 VERSION_ZLIB_NG=2.1.6       # https://github.com/zlib-ng/zlib-ng
-VERSION_FFI=3.4.4           # https://github.com/libffi/libffi
-VERSION_GLIB=2.79.1         # https://gitlab.gnome.org/GNOME/glib
+VERSION_FFI=3.4.5           # https://github.com/libffi/libffi
+VERSION_GLIB=2.79.2         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.6.0         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS
@@ -255,9 +255,8 @@ node --version
   mkdir $DEPS/ffi
   curl -Ls https://github.com/libffi/libffi/releases/download/v$VERSION_FFI/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
   cd $DEPS/ffi
-  # TODO(kleisauke): Wait for upstream release with PR https://github.com/libffi/libffi/pull/763 included
-  curl -Ls https://github.com/libffi/libffi/compare/v$VERSION_FFI...kleisauke:wasm-vips${ENABLE_WASM_BIGINT:+-bigint}.patch | patch -p1
-  autoreconf -fiv
+  # TODO(kleisauke): Discuss this patch upstream
+  curl -Ls https://github.com/libffi/libffi/compare/v$VERSION_FFI...kleisauke:cleanup${ENABLE_WASM_BIGINT:+-bigint}.patch | patch -p1
   # Compile without -fexceptions
   sed -i 's/ -fexceptions//g' configure
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \

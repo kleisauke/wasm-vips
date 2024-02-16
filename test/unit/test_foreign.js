@@ -693,7 +693,7 @@ describe('foreign', () => {
     let im = vips.Image.newFromFile(Helpers.webpFile);
     let buf = im.webpsaveBuffer({ lossless: true });
     const im2 = vips.Image.newFromBuffer(buf, '');
-    expect(Math.abs(im.avg() - im2.avg())).to.be.below(1);
+    expect(im.subtract(im2).abs().max()).to.be.below(1);
 
     // higher Q should mean a bigger buffer
     const b1 = im.webpsaveBuffer({ Q: 10 });

@@ -1003,9 +1003,10 @@ describe('foreign', () => {
         return this.skip();
       }
 
-      // TODO(kleisauke): Reduce the threshold once https://github.com/strukturag/libheif/issues/533 is resolved.
+      // TODO(kleisauke): Remove `subsample_mode: 'off'` when libvips >= 8.16, see:
+      // https://github.com/libvips/libvips/commit/dbd298cc8c9789dfc0fc6917b2492cb570406a7a
       saveLoadBuffer('heifsave_buffer', 'heifload_buffer',
-        colour, 80, { compression: 'av1', lossless: true });
+        colour, 0, { compression: 'av1', lossless: true, subsample_mode: 'off' });
       saveLoad('%s.avif', colour);
     });
 

@@ -10,12 +10,9 @@ ENV \
 RUN \
   apt-get update && \
   apt-get install -qqy \
-    autoconf \
     build-essential \
     ccache \
     libglib2.0-dev \
-    libtool \
-    nodejs \
     pkgconf \
     # needed for Meson
     ninja-build \

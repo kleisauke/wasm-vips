@@ -162,21 +162,21 @@ export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 
 # Dependency version numbers
 VERSION_ZLIB_NG=2.1.6       # https://github.com/zlib-ng/zlib-ng
-VERSION_FFI=3.4.5           # https://github.com/libffi/libffi
+VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
 VERSION_GLIB=2.79.2         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.6.0         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS
-VERSION_HWY=1.0.7           # https://github.com/google/highway
+VERSION_HWY=1.1.0           # https://github.com/google/highway
 VERSION_BROTLI=1.1.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=4.1.5       # https://github.com/mozilla/mozjpeg
-VERSION_JXL=0.9.2           # https://github.com/libjxl/libjxl
+VERSION_JXL=0.10.0          # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.3.2          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.3.2          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
-VERSION_RESVG=0.39.0        # https://github.com/RazrFalcon/resvg
+VERSION_RESVG=0.40.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.8.1           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.17.6         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.15.1         # https://github.com/libvips/libvips
@@ -359,7 +359,10 @@ node --version
     # Ensure we don't link with highway in the vips-jxl side module
     [ -z "$ENABLE_SIMD" ] || sed -i '/^Requires.private:/s/ libhwy//' $TARGET/lib/pkgconfig/libjxl.pc
     # ... and the same for lcms2
-    sed -i '/^Requires.private:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl.pc
+    sed -i '/^Requires:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl_cms.pc
+    # ... and the same for -lc++, see:
+    # https://github.com/emscripten-core/emscripten/issues/16680#issuecomment-1558015445
+    sed -i '/^Libs/s/ -lc++//g' $TARGET/lib/pkgconfig/libjxl{,_cms}.pc
   fi
 )
 
@@ -470,7 +473,7 @@ node --version
     sed -i '/^Requires.private:/s/ libsharpyuv//' $TARGET/lib/pkgconfig/libheif.pc
     # ... and the same for -lc++, see:
     # https://github.com/emscripten-core/emscripten/issues/16680#issuecomment-1558015445
-    sed -i '/^Libs.private:/s/-lc++//g' $TARGET/lib/pkgconfig/libheif.pc
+    sed -i '/^Libs.private:/s/ -lc++//' $TARGET/lib/pkgconfig/libheif.pc
   fi
 )
 

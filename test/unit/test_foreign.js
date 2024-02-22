@@ -1084,7 +1084,7 @@ describe('foreign', () => {
       const a = im.getpoint(10, 10);
       // the delta might need to be adjusted up as new
       // libjxl versions are released
-      Helpers.assertAlmostEqualObjects(a, [157, 129, 90], 0);
+      Helpers.assertAlmostEqualObjects(a, [156, 129, 90], 0);
       expect(im.width).to.equal(290);
       expect(im.height).to.equal(442);
       expect(im.bands).to.equal(4);

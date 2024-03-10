@@ -163,14 +163,14 @@ export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 # Dependency version numbers
 VERSION_ZLIB_NG=2.1.6       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
-VERSION_GLIB=2.79.2         # https://gitlab.gnome.org/GNOME/glib
-VERSION_EXPAT=2.6.0         # https://github.com/libexpat/libexpat
+VERSION_GLIB=2.80.0         # https://gitlab.gnome.org/GNOME/glib
+VERSION_EXPAT=2.6.1         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.1.0           # https://github.com/google/highway
 VERSION_BROTLI=1.1.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=4.1.5       # https://github.com/mozilla/mozjpeg
-VERSION_JXL=0.10.0          # https://github.com/libjxl/libjxl
+VERSION_JXL=0.10.2          # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.3.2          # https://github.com/dloebl/cgif

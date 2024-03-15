@@ -179,7 +179,7 @@ VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.40.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.8.2           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.17.6         # https://github.com/strukturag/libheif
-VERSION_VIPS=8.15.1         # https://github.com/libvips/libvips
+VERSION_VIPS=8.15.2         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
 
@@ -480,7 +480,7 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/vips.pc" ] || (
   stage "Compiling vips"
   mkdir $DEPS/vips
-  curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$(without_prerelease $VERSION_VIPS).tar.xz | tar xJC $DEPS/vips --strip-components=1
+  curl -Ls https://github.com/libvips/libvips/releases/download/v${VERSION_VIPS}a/vips-$(without_prerelease $VERSION_VIPS).tar.xz | tar xJC $DEPS/vips --strip-components=1
   cd $DEPS/vips
   # Emscripten specific patches
   curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-8.15.patch | patch -p1

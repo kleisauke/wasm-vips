@@ -14,6 +14,10 @@ Uses libvips v8.15.1, compiled with Emscripten v3.1.56.
   [#63](https://github.com/kleisauke/wasm-vips/issues/63)
 - Add `image.kill` property accessor to block evaluation.
 
+### Changed
+
+- Switch memory allocator from dlmalloc to mimalloc.
+
 ## [v0.0.7] - 2023-11-12
 
 Uses libvips v8.15.0, compiled with Emscripten v3.1.48.

@@ -122,6 +122,8 @@ set(MAIN_LINK_OPTIONS
         $<$<BOOL:${ENABLE_MODULES}>:-sMAIN_MODULE=2>
         $<$<BOOL:${ENABLE_MODULES}>:--pre-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-pre.js>
         -sAUTOLOAD_DYLIBS=0
+        -sABORTING_MALLOC=0
+        -sMALLOC=mimalloc
         -sMODULARIZE
         -sEXPORT_NAME='Vips'
         -sEXIT_RUNTIME

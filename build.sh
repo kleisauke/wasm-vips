@@ -164,7 +164,7 @@ export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 VERSION_ZLIB_NG=2.1.6       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
 VERSION_GLIB=2.80.0         # https://gitlab.gnome.org/GNOME/glib
-VERSION_EXPAT=2.6.1         # https://github.com/libexpat/libexpat
+VERSION_EXPAT=2.6.2         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.1.0           # https://github.com/google/highway
@@ -177,7 +177,7 @@ VERSION_CGIF=0.3.2          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.3.2          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.40.0        # https://github.com/RazrFalcon/resvg
-VERSION_AOM=3.8.1           # https://aomedia.googlesource.com/aom
+VERSION_AOM=3.8.2           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.17.6         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.15.1         # https://github.com/libvips/libvips
 

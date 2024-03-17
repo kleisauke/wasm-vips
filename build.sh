@@ -480,7 +480,7 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/vips.pc" ] || (
   stage "Compiling vips"
   mkdir $DEPS/vips
-  curl -Ls https://github.com/libvips/libvips/releases/download/v${VERSION_VIPS}a/vips-$(without_prerelease $VERSION_VIPS).tar.xz | tar xJC $DEPS/vips --strip-components=1
+  curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$(without_prerelease $VERSION_VIPS).tar.xz | tar xJC $DEPS/vips --strip-components=1
   cd $DEPS/vips
   # Emscripten specific patches
   curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-8.15.patch | patch -p1

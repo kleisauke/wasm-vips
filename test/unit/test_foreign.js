@@ -750,7 +750,7 @@ describe('foreign', () => {
     // Animated WebP round trip
     im = vips.Image.newFromFile(Helpers.webpAnimFile, { n: -1 });
     expect(im.width).to.equal(13);
-    expect(im.height).to.equal(16393);
+    expect(im.height).to.equal(16731);
     buf = im.webpsaveBuffer(); // eslint-disable-line no-unused-vars
   });
 

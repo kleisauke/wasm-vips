@@ -173,10 +173,10 @@ VERSION_MOZJPEG=4.1.5       # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.10.2          # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
-VERSION_CGIF=0.3.2          # https://github.com/dloebl/cgif
+VERSION_CGIF=0.4.0          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.3.2          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
-VERSION_RESVG=0.40.0        # https://github.com/RazrFalcon/resvg
+VERSION_RESVG=0.41.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.8.2           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.17.6         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.15.2         # https://github.com/libvips/libvips
@@ -393,7 +393,7 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/cgif.pc" ] || (
   stage "Compiling cgif"
   mkdir $DEPS/cgif
-  curl -Ls https://github.com/dloebl/cgif/archive/refs/tags/V$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
+  curl -Ls https://github.com/dloebl/cgif/archive/refs/tags/v$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
   cd $DEPS/cgif
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Dtests=false
@@ -484,6 +484,8 @@ node --version
   cd $DEPS/vips
   # Emscripten specific patches
   curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-8.15.patch | patch -p1
+  # Disable HBR support in heifsave
+  curl -Ls https://github.com/kleisauke/libvips/commit/ad921cf9396dc5a224e93c71b601e87bd3a8a521.patch | patch -p1
   # Disable building man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \

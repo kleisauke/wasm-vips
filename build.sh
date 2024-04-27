@@ -100,6 +100,7 @@ done
 # Handy for debugging
 #COMMON_FLAGS="-Og -gsource-map -pthread"
 #export EMCC_DEBUG=1
+#export EMCC_DEBUG_SAVE=1
 
 # Handy for catching bugs
 #COMMON_FLAGS="-Os -gsource-map -fsanitize=address -pthread"
@@ -108,7 +109,7 @@ done
 #export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"
 
 # Rust flags
-export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+nontrapping-fptoint"
+export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+nontrapping-fptoint -Zdefault-hidden-visibility=yes"
 
 # Common compiler flags
 COMMON_FLAGS="-O3 -pthread"
@@ -174,10 +175,10 @@ VERSION_JXL=0.10.2          # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.4.0          # https://github.com/dloebl/cgif
-VERSION_WEBP=1.3.2          # https://chromium.googlesource.com/webm/libwebp
+VERSION_WEBP=1.4.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.41.0        # https://github.com/RazrFalcon/resvg
-VERSION_AOM=3.8.2           # https://aomedia.googlesource.com/aom
+VERSION_AOM=3.9.0           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.17.6         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.15.2         # https://github.com/libvips/libvips
 

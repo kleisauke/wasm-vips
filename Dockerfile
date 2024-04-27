@@ -33,7 +33,7 @@ RUN \
     --no-modify-path \
     --profile minimal \
     --target wasm32-unknown-emscripten \
-    --default-toolchain nightly-2024-04-13 \
+    --default-toolchain nightly-2024-04-27 \
     --component rust-src
 
 # Cache settings

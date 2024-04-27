@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.15.2, compiled with Emscripten v3.1.58.
 
+### Changed
+
+- Inline worker script (`.worker.js`) into the main output file.
+  [emscripten-core/emscripten#21701](https://github.com/emscripten-core/emscripten/pull/21701)
+
 ## [v0.0.8] - 2024-03-17
 
 Uses libvips v8.15.2, compiled with Emscripten v3.1.56.

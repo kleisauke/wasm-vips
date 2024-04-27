@@ -529,9 +529,7 @@ node --version
 
   # Omit -es6 suffix from Node.js files
   mv $SOURCE_DIR/lib/vips-node-es6.mjs $SOURCE_DIR/lib/vips-node.mjs
-  mv $SOURCE_DIR/lib/vips-node-es6.worker.mjs $SOURCE_DIR/lib/vips-node.worker.mjs
   sed -i 's/vips-node-es6/vips-node/g' $SOURCE_DIR/lib/vips-node.mjs
-  sed -i 's/vips-node-es6/vips-node/g' $SOURCE_DIR/lib/vips-node.worker.mjs
 
   # Print the target features section
   echo -n "Used Wasm features: "

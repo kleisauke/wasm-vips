@@ -166,7 +166,7 @@ endif()
 
 if ("web" IN_LIST ENVIRONMENT)
     set(WEB_CORS_WORKAROUND
-            --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/locatefile-cors-pre.js
+            --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/workaround-cors-pre.js
             )
     set(WEB_FIXED_THREADPOOL
             --js-library=${CMAKE_CURRENT_SOURCE_DIR}/fixed-threadpool-web.js

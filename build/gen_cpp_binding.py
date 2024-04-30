@@ -8,7 +8,7 @@
 import re
 
 from pyvips import Image, Introspect, GValue, Error, \
-    ffi, values_for_enum, values_for_flag, \
+    ffi, enum_dict, flags_dict, \
     gobject_lib, type_map, type_name, \
     type_from_name, nickname_find
 
@@ -244,20 +244,21 @@ def generate_enums_flags(file):
 
             f.write(f'    enum_<{name}>("{remove_prefix(name)}")')
 
-            for value in values_for_enum(gtype):
-                js_value = cppize(value)
+            values = enum_dict(gtype)
+            for key, _ in values.items():
+                js_key = cppize(key)
                 prefix = to_snake_case(name).upper()
                 if prefix == 'VIPS_BAND_FORMAT':
                     prefix = 'VIPS_FORMAT'
                 elif prefix == 'VIPS_IMAGE_TYPE':
                     prefix = 'VIPS_IMAGE'
-                cpp_value = prefix + '_' + js_value.upper()
+                cpp_value = prefix + '_' + js_key.upper()
                 if cpp_value == 'VIPS_INTERPRETATION_SRGB':
                     cpp_value = 'VIPS_INTERPRETATION_sRGB'
                 elif cpp_value == 'VIPS_INTERPRETATION_SCRGB':
                     cpp_value = 'VIPS_INTERPRETATION_scRGB'
 
-                f.write(f'\n        .value("{js_value}", {cpp_value})')
+                f.write(f'\n        .value("{js_key}", {cpp_value})')
 
             f.write(';\n\n')
 
@@ -266,12 +267,13 @@ def generate_enums_flags(file):
 
             f.write(f'    enum_<{name}>("{remove_prefix(name)}")')
 
-            for value in values_for_flag(gtype):
-                js_value = cppize(value)
+            values = flags_dict(gtype)
+            for key, _ in values.items():
+                js_key = cppize(key)
                 prefix = to_snake_case(name).upper()
-                cpp_value = prefix + '_' + js_value.upper()
+                cpp_value = prefix + '_' + js_key.upper()
 
-                f.write(f'\n        .value("{js_value}", {cpp_value})')
+                f.write(f'\n        .value("{js_key}", {cpp_value})')
 
             f.write(';\n\n')
 

@@ -10,7 +10,7 @@ import argparse
 import xml.etree.ElementTree as ET
 
 from pyvips import Introspect, GValue, Error, \
-    ffi, values_for_enum, values_for_flag, \
+    ffi, enum_dict, flags_dict, \
     gobject_lib, type_map, type_name, \
     type_from_name, nickname_find
 
@@ -271,10 +271,10 @@ def generate_enums_flags(gir_file, out_file, indent='    '):
             name = remove_prefix(name)
             if name in xml_enums:
                 node = xml_enums[name]
-                values = values_for_enum(gtype)
+                values = enum_dict(gtype)
             elif name in xml_flags:
                 node = xml_flags[name]
-                values = values_for_flag(gtype)
+                values = flags_dict(gtype)
             else:
                 continue
 
@@ -289,12 +289,12 @@ def generate_enums_flags(gir_file, out_file, indent='    '):
 
             f.write(f'{indent}enum {name} {{\n')
 
-            for i, value in enumerate(values):
-                js_value = value.replace('-', '_')
-                if i == 0 and (js_value == 'error' or js_value == 'notset'):
+            for i, (key, value) in enumerate(values.items()):
+                js_key = key.replace('-', '_')
+                if i == 0 and (js_key == 'error' or js_key == 'notset'):
                     continue
 
-                member = node.find(f"goi:member[@name='{js_value}']", namespace)
+                member = node.find(f"goi:member[@name='{js_key}']", namespace)
                 member_doc = member.find('goi:doc', namespace)
                 if member_doc is not None:
                     text = member_doc.text[:1].upper() + member_doc.text[1:]
@@ -302,12 +302,14 @@ def generate_enums_flags(gir_file, out_file, indent='    '):
                     f.write(f'{indent}     * {text}\n')
                     f.write(f'{indent}     */\n')
 
-                f.write(f"{indent}    {js_value} = '{value}'")
+                f.write(f'{indent}    {js_key} = {value}')
 
                 if i != len(values) - 1:
-                    f.write(',\n')
+                    f.write(',')
 
-            f.write(f'\n{indent}}}\n\n')
+                f.write(f" // '{key}'\n")
+
+            f.write(f'{indent}}}\n\n')
 
         f.write(f'{indent}//#endregion\n\n')
 

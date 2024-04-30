@@ -56,7 +56,7 @@
     "serve": "^14.2.3"
   },
   "engines": {
-    "node": ">=16.4.0"
+    "node": ">=17.2.0"
   },
   "semistandard": {
     "globals": [

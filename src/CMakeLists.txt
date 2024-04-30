@@ -150,7 +150,7 @@ if ("node" IN_LIST ENVIRONMENT)
     set(NODE_LINK_OPTIONS
             -sENVIRONMENT=node,worker
             $<$<NOT:$<BOOL:${ENABLE_WASMFS}>>:-sNODERAWFS>
-            -sMIN_NODE_VERSION=160400
+            -sMIN_NODE_VERSION=170200
             )
 
     target_link_options(${PROJECT_NAME}-node

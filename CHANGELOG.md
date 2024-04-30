@@ -12,6 +12,9 @@ Uses libvips v8.15.2, compiled with Emscripten v3.1.58.
 
 - Inline worker script (`.worker.js`) into the main output file.
   [emscripten-core/emscripten#21701](https://github.com/emscripten-core/emscripten/pull/21701)
+- Enable WebAssembly multi-value and reference types features.
+  [llvm/llvm-project#80923](https://github.com/llvm/llvm-project/pull/80923)
+- Drop support for Node.js 16, now requires Node.js >= 17.2.0.
 
 ## [v0.0.8] - 2024-03-17
 

@@ -72,7 +72,7 @@
 
   const options = {
     print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
-    locateFile: (fileName, scriptDirectory) => scriptDirectory + fileName + '?<%= __webpack_hash__ %>',
+    locateFile: (fileName, scriptDirectory) => `${scriptDirectory}${fileName}?<%= __webpack_hash__ %>`,
     preRun: (module) => {
       module.setAutoDeleteLater(!document.referrer.includes('disableAutoDelete'));
       module.setDelayFunction(fn => {

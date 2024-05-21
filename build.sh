@@ -164,7 +164,7 @@ export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 # Dependency version numbers
 VERSION_ZLIB_NG=2.1.6       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
-VERSION_GLIB=2.80.0         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.80.2         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.6.2         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS

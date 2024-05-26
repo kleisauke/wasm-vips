@@ -117,6 +117,12 @@ describe('conversion', () => {
     expect(x.extractBand(4).avg()).to.equal(2);
   });
 
+  it('addalpha', function () {
+    const x = colour.addalpha();
+    expect(x.bands).to.equal(4);
+    expect(x.extractBand(3).avg()).to.equal(255);
+  });
+
   it('bandmean', function () {
     const bandmean = (x) => x instanceof vips.Image
       ? x.bandmean()

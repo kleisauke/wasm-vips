@@ -1474,6 +1474,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("XYZ2scRGB", &Image::XYZ2scRGB)
         .function("Yxy2XYZ", &Image::Yxy2XYZ)
         .function("abs", &Image::abs)
+        .function("addalpha", &Image::addalpha)
         .function("affine", &Image::affine)
         .function("affine", optional_override([](const Image &image, const std::vector<double> &matrix) {
                       return image.affine(matrix);
@@ -1885,9 +1886,13 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("rawsave", optional_override([](const Image &image, const std::string &filename) {
                       image.rawsave(filename);
                   }))
-        .function("rawsaveFd", &Image::rawsave_fd)
-        .function("rawsaveFd", optional_override([](const Image &image, int fd) {
-                      image.rawsave_fd(fd);
+        .function("rawsaveBuffer", &Image::rawsave_buffer)
+        .function("rawsaveBuffer", optional_override([](const Image &image) {
+                      return image.rawsave_buffer();
+                  }))
+        .function("rawsaveTarget", &Image::rawsave_target)
+        .function("rawsaveTarget", optional_override([](const Image &image, const Target &target) {
+                      image.rawsave_target(target);
                   }))
         .function("recomb", &Image::recomb)
         .function("reduce", &Image::reduce)

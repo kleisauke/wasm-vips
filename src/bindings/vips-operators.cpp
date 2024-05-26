@@ -1465,6 +1465,18 @@ Image Image::abs() const
     return out;
 }
 
+Image Image::addalpha() const
+{
+    Image out;
+
+    this->call("addalpha",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("out", &out));
+
+    return out;
+}
+
 Image Image::affine(const std::vector<double> &matrix, emscripten::val js_options) const
 {
     Image out;
@@ -3310,12 +3322,30 @@ void Image::rawsave(const std::string &filename, emscripten::val js_options) con
                js_options);
 }
 
-void Image::rawsave_fd(int fd, emscripten::val js_options) const
+emscripten::val Image::rawsave_buffer(emscripten::val js_options) const
 {
-    this->call("rawsave_fd",
+    VipsBlob *buffer;
+
+    this->call("rawsave_buffer",
                (new Option)
                    ->set("in", *this)
-                   ->set("fd", fd),
+                   ->set("buffer", &buffer),
+               js_options);
+
+    emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
+        VIPS_AREA(buffer)->length,
+        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+    vips_area_unref(VIPS_AREA(buffer));
+
+    return result;
+}
+
+void Image::rawsave_target(const Target &target, emscripten::val js_options) const
+{
+    this->call("rawsave_target",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("target", target),
                js_options);
 }
 

@@ -879,6 +879,12 @@ Image Yxy2XYZ() const;
 Image abs() const;
 
 /**
+ * Append an alpha channel.
+ * @return Output image.
+ */
+Image addalpha() const;
+
+/**
  * Affine transform of an image.
  * @param matrix Transformation matrix.
  * @param js_options Optional options.
@@ -1570,7 +1576,7 @@ Image join(emscripten::val in2, emscripten::val direction, emscripten::val js_op
 
 /**
  * Save image in jpeg2000 format.
- * @param filename Filename to load from.
+ * @param filename Filename to save to.
  * @param js_options Optional options.
  */
 void jp2ksave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
@@ -1618,7 +1624,7 @@ void jpegsave_target(const Target &target, emscripten::val js_options = emscript
 
 /**
  * Save image in jpeg-xl format.
- * @param filename Filename to load from.
+ * @param filename Filename to save to.
  * @param js_options Optional options.
  */
 void jxlsave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
@@ -1961,11 +1967,18 @@ Image rank(int width, int height, int index) const;
 void rawsave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
- * Write raw image to file descriptor.
- * @param fd File descriptor to write to.
+ * Write raw image to buffer.
+ * @param js_options Optional options.
+ * @return Buffer to save to.
+ */
+emscripten::val rawsave_buffer(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Write raw image to target.
+ * @param target Target to save to.
  * @param js_options Optional options.
  */
-void rawsave_fd(int fd, emscripten::val js_options = emscripten::val::null()) const;
+void rawsave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Linear recombination with matrix.

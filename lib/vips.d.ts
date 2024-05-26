@@ -3704,6 +3704,14 @@ declare module Vips {
          */
         static jxlload(filename: string, options?: {
             /**
+             * First page to load.
+             */
+            page?: number
+            /**
+             * Number of pages to load, -1 for all.
+             */
+            n?: number
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -3733,6 +3741,14 @@ declare module Vips {
          */
         static jxlloadBuffer(buffer: Blob, options?: {
             /**
+             * First page to load.
+             */
+            page?: number
+            /**
+             * Number of pages to load, -1 for all.
+             */
+            n?: number
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -3761,6 +3777,14 @@ declare module Vips {
          * @return Output image.
          */
         static jxlloadSource(source: Source, options?: {
+            /**
+             * First page to load.
+             */
+            page?: number
+            /**
+             * Number of pages to load, -1 for all.
+             */
+            n?: number
             /**
              * Force open via memory.
              */
@@ -5863,6 +5887,12 @@ declare module Vips {
         add(right: Image | ArrayConstant): Image;
 
         /**
+         * Append an alpha channel.
+         * @return Output image.
+         */
+        addalpha(): Image;
+
+        /**
          * Affine transform of an image.
          * @param matrix Transformation matrix.
          * @param options Optional options.
@@ -7574,7 +7604,7 @@ declare module Vips {
 
         /**
          * Save image in jpeg2000 format.
-         * @param filename Filename to load from.
+         * @param filename Filename to save to.
          * @param options Optional options.
          */
         jp2ksave(filename: string, options?: {
@@ -7945,7 +7975,7 @@ declare module Vips {
 
         /**
          * Save image in jpeg-xl format.
-         * @param filename Filename to load from.
+         * @param filename Filename to save to.
          * @param options Optional options.
          */
         jxlsave(filename: string, options?: {
@@ -9022,11 +9052,35 @@ declare module Vips {
         }): void;
 
         /**
-         * Write raw image to file descriptor.
-         * @param fd File descriptor to write to.
+         * Write raw image to buffer.
+         * @param options Optional options.
+         * @return Buffer to save to.
+         */
+        rawsaveBuffer(options?: {
+            /**
+             * Which metadata to retain.
+             */
+            keep?: ForeignKeep | Flag
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Set page height for multipage save.
+             */
+            page_height?: number
+            /**
+             * Filename of icc profile to embed.
+             */
+            profile?: string
+        }): Uint8Array;
+
+        /**
+         * Write raw image to target.
+         * @param target Target to save to.
          * @param options Optional options.
          */
-        rawsaveFd(fd: number, options?: {
+        rawsaveTarget(target: Target, options?: {
             /**
              * Which metadata to retain.
              */
@@ -10011,9 +10065,17 @@ declare module Vips {
              */
             effort?: number
             /**
+             * Desired target size in bytes.
+             */
+            target_size?: number
+            /**
              * Allow mixed encoding (might reduce file size).
              */
             mixed?: boolean
+            /**
+             * Number of entropy-analysis passes (in [1..10]).
+             */
+            passes?: number
             /**
              * Which metadata to retain.
              */
@@ -10079,9 +10141,17 @@ declare module Vips {
              */
             effort?: number
             /**
+             * Desired target size in bytes.
+             */
+            target_size?: number
+            /**
              * Allow mixed encoding (might reduce file size).
              */
             mixed?: boolean
+            /**
+             * Number of entropy-analysis passes (in [1..10]).
+             */
+            passes?: number
             /**
              * Which metadata to retain.
              */
@@ -10146,9 +10216,17 @@ declare module Vips {
              */
             effort?: number
             /**
+             * Desired target size in bytes.
+             */
+            target_size?: number
+            /**
              * Allow mixed encoding (might reduce file size).
              */
             mixed?: boolean
+            /**
+             * Number of entropy-analysis passes (in [1..10]).
+             */
+            passes?: number
             /**
              * Which metadata to retain.
              */
@@ -10214,9 +10292,17 @@ declare module Vips {
              */
             effort?: number
             /**
+             * Desired target size in bytes.
+             */
+            target_size?: number
+            /**
              * Allow mixed encoding (might reduce file size).
              */
             mixed?: boolean
+            /**
+             * Number of entropy-analysis passes (in [1..10]).
+             */
+            passes?: number
             /**
              * Which metadata to retain.
              */

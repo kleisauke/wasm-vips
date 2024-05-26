@@ -841,4 +841,41 @@ describe('arithmetic', () => {
       expect(im3.max()).to.be.closeTo(sum, 1e-6);
     }
   });
+
+  it('clamp', function () {
+    for (const fmt of Helpers.noncomplexFormats) {
+      for (let x = 0; x < 100; x += 10) {
+        const im2 = colour.add(x).cast(fmt);
+        let im3 = im2.clamp();
+        expect(im3.max()).to.be.at.most(1.0);
+        expect(im3.min()).to.be.at.least(0.0);
+
+        im3 = im2.clamp({ min: 14, max: 45 });
+        expect(im3.max()).to.be.at.most(45);
+        expect(im3.min()).to.be.at.least(14);
+      }
+    }
+  });
+
+  it('minpair', function () {
+    for (const fmt of Helpers.noncomplexFormats) {
+      for (let x = 0; x < 100; x += 10) {
+        const im2 = colour.subtract(x).multiply(5).cast(fmt);
+        const im3 = im2.minpair(colour);
+        const im4 = im2.less(colour).ifthenelse(im2, colour);
+        expect(im3.subtract(im4).abs().max()).to.equal(0.0);
+      }
+    }
+  });
+
+  it('maxpair', function () {
+    for (const fmt of Helpers.noncomplexFormats) {
+      for (let x = 0; x < 100; x += 10) {
+        const im2 = colour.subtract(x).multiply(5).cast(fmt);
+        const im3 = im2.maxpair(colour);
+        const im4 = im2.more(colour).ifthenelse(im2, colour);
+        expect(im3.subtract(im4).abs().max()).to.equal(0.0);
+      }
+    }
+  });
 });

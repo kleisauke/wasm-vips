@@ -47,7 +47,7 @@ jobs:
         include:
           - os: ubuntu-22.04
             nodejs_version: 16
-          - os: macos-11
+          - os: macos-12
             nodejs_version: 16
           - os: windows-2022
             nodejs_version: 16

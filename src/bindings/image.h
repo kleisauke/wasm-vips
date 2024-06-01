@@ -82,6 +82,10 @@ class Image : public Object {
         return vips_image_get_filename(get_image());
     }
 
+    int page_height() const {
+        return vips_image_get_page_height(get_image());
+    }
+
     bool is_killed() const {
         return vips_image_iskilled(get_image());
     }

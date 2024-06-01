@@ -743,7 +743,7 @@ describe('foreign', () => {
       expect(x1.width).to.equal(x2.width);
       expect(x1.height).to.equal(x2.height);
       expect(expectedDelay).to.deep.equal(x2.getArrayInt('delay'));
-      expect(x1.getInt('page-height')).to.equal(x2.getInt('page-height'));
+      expect(x1.pageHeight).to.equal(x2.pageHeight);
       expect(x1.getInt('gif-loop')).to.equal(x2.getInt('gif-loop'));
     }
 
@@ -792,8 +792,7 @@ describe('foreign', () => {
     x1 = vips.Image.newFromFile(Helpers.gifAnimFile);
     let x2 = vips.Image.newFromFile(Helpers.gifAnimFile, { n: 2 });
     expect(x2.height).to.equal(2 * x1.height);
-    const pageHeight = x2.getInt('page-height');
-    expect(pageHeight).to.equal(x1.height);
+    expect(x2.pageHeight).to.equal(x1.height);
 
     x2 = vips.Image.newFromFile(Helpers.gifAnimFile, { n: -1 });
     expect(x2.height).to.equal(5 * x1.height);
@@ -816,7 +815,7 @@ describe('foreign', () => {
     expect(x2.height).to.equal(x1.height);
     expect(x2.getInt('n-pages')).to.equal(x1.getInt('n-pages'));
     expect(x2.getArrayInt('delay')).to.deep.equal(x1.getArrayInt('delay'));
-    expect(x2.getInt('page-height')).to.equal(x1.getInt('page-height'));
+    expect(x2.pageHeight).to.equal(x1.pageHeight);
     expect(x2.getInt('loop')).to.equal(x1.getInt('loop'));
 
     // Interlaced GIFs are usually larger in file size
@@ -848,7 +847,7 @@ describe('foreign', () => {
       expect(x2.height).to.equal(x1.height);
       expect(x2.getInt('n-pages')).to.equal(x1.getInt('n-pages'));
       expect(x2.getArrayInt('delay')).to.deep.equal(x1.getArrayInt('delay'));
-      expect(x2.getInt('page-height')).to.equal(x1.getInt('page-height'));
+      expect(x2.pageHeight).to.equal(x1.pageHeight);
       expect(x2.getInt('loop')).to.equal(x1.getInt('loop'));
     }
   });

@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.15.2, compiled with Emscripten v3.1.60.
 
+### Added
+
+- Add `image.pageHeight` property for retrieving the page height in
+  multi-page images.
+
 ### Changed
 
 - Inline worker script (`.worker.js`) into the main output file.

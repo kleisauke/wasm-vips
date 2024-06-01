@@ -507,6 +507,11 @@ declare module Vips {
         readonly filename: string;
 
         /**
+         * Page height in pixels.
+         */
+        readonly pageHeight: number;
+
+        /**
          * Block evaluation on this image.
          */
         kill: boolean;

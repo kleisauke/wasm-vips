@@ -1104,6 +1104,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .property("xres", &Image::xres)
         .property("yres", &Image::yres)
         .property("filename", &Image::filename)
+        // Handwritten properties
+        .property("pageHeight", &Image::page_height)
         // Handwritten setters
         .property("kill", &Image::is_killed, &Image::set_kill)
         .property("onProgress", &Image::stub_getter,

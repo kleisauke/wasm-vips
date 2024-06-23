@@ -9,14 +9,6 @@ set -e
 
 SOURCE_DIR=$PWD
 
-# Build within the mounted volume, handy for debugging
-# and ensures that dependencies are not being rebuilt
-DEPS=$SOURCE_DIR/build/deps
-TARGET=$SOURCE_DIR/build/target
-rm -rf $DEPS/
-mkdir $DEPS
-mkdir -p $TARGET
-
 # Define default arguments
 
 # Specifies the environment(s) to target
@@ -82,7 +74,9 @@ while [ $# -gt 0 ]; do
       ;;
     --disable-bindings) BINDINGS=false ;;
     --enable-libvips-cpp) LIBVIPS_CPP=true ;;
+    --clean-build) CLEAN_BUILD=true ;;
     -e|--environment) ENVIRONMENT="$2"; shift ;;
+    --variant) BUILD_VARIANT="$2"; shift ;;
     *) echo "ERROR: Unknown parameter: $1" >&2; exit 1 ;;
   esac
   shift
@@ -96,6 +90,24 @@ for arg in SIMD WASM_BIGINT JXL AVIF SVG PIC MODULES BINDINGS; do
     declare DISABLE_$arg=true
   fi
 done
+
+# Build within the mounted volume, handy for debugging
+# and ensures that dependencies are not being rebuilt
+DEPS=$SOURCE_DIR/build/deps
+TARGET=$SOURCE_DIR/build/target
+rm -rf $DEPS/
+mkdir $DEPS
+
+if [ "$CLEAN_BUILD" = "true" ]; then
+  rm -rf $TARGET
+fi
+
+mkdir -p $TARGET
+
+OUTPUT_DIR=$SOURCE_DIR/lib
+if [ ! -z $BUILD_VARIANT ]; then
+  OUTPUT_DIR=$OUTPUT_DIR/$BUILD_VARIANT
+fi
 
 # Handy for debugging
 #COMMON_FLAGS="-Og -gsource-map -pthread"
@@ -507,7 +519,7 @@ node --version
   stage "Compiling JS bindings"
   mkdir $DEPS/wasm-vips
   cd $DEPS/wasm-vips
-  emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" \
+  emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$OUTPUT_DIR" \
     -DENVIRONMENT=${ENVIRONMENT//,/;} -DENABLE_MODULES=$MODULES -DENABLE_WASMFS=$WASM_FS
   make
 )
@@ -517,29 +529,29 @@ node --version
   stage "Prepare NPM package"
 
   # The produced binary should be the same across the different variants (sanity check)
-  expected_sha256=$(sha256sum "$SOURCE_DIR/lib/vips.wasm" | awk '{ print $1 }')
+  expected_sha256=$(sha256sum "$OUTPUT_DIR/vips.wasm" | awk '{ print $1 }')
   for file in vips-es6.wasm vips-node.wasm vips-node-es6.wasm; do
-    echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check --quiet
-    rm $SOURCE_DIR/lib/$file
+    echo "$expected_sha256 $OUTPUT_DIR/$file" | sha256sum --check --quiet
+    rm $OUTPUT_DIR/$file
   done
 
   # Use a single wasm binary for web and Node.js
   for file in vips-es6.js vips-node.js vips-node-es6.mjs; do
-    sed -i "s/${file%.*}.wasm/vips.wasm/g" $SOURCE_DIR/lib/$file
+    sed -i "s/${file%.*}.wasm/vips.wasm/g" $OUTPUT_DIR/$file
   done
 
   # Omit -es6 suffix from Node.js files
-  mv $SOURCE_DIR/lib/vips-node-es6.mjs $SOURCE_DIR/lib/vips-node.mjs
-  sed -i 's/vips-node-es6/vips-node/g' $SOURCE_DIR/lib/vips-node.mjs
+  mv $OUTPUT_DIR/vips-node-es6.mjs $OUTPUT_DIR/vips-node.mjs
+  sed -i 's/vips-node-es6/vips-node/g' $OUTPUT_DIR/vips-node.mjs
 
   # Print the target features section
   echo -n "Used Wasm features: "
-  $EMSDK/upstream/bin/wasm-opt --mvp-features --print-features -o /dev/null $SOURCE_DIR/lib/vips.wasm | \
+  $EMSDK/upstream/bin/wasm-opt --mvp-features --print-features -o /dev/null $OUTPUT_DIR/vips.wasm | \
     sed 's/^--enable-//' | paste -sd' '
 
   # Copy dynamic loadable modules
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
-  [ -d "$module_dir" ] && cp $module_dir/* $SOURCE_DIR/lib || true
+  [ -d "$module_dir" ] && cp $module_dir/* $OUTPUT_DIR || true
 
   # Copy versions.json
   cp $TARGET/versions.json $SOURCE_DIR

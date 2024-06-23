@@ -1,5 +1,5 @@
 {
-  "name": "wasm-vips",
+  "name": "@denodecom/wasm-vips",
   "version": "0.0.9",
   "description": "libvips for the browser and Node.js, compiled to WebAssembly with Emscripten",
   "homepage": "https://github.com/kleisauke/wasm-vips",
@@ -25,6 +25,17 @@
       },
       "default": "./lib/vips.js"
     },
+    "./nosimd": {
+      "browser": {
+        "import": "./lib/nosimd/vips-es6.js",
+        "require": "./lib/nosimd/vips.js"
+      },
+      "node": {
+        "import": "./lib/nosimd/vips-node.mjs",
+        "require": "./lib/nosimd/vips-node.js"
+      },
+      "default": "./lib/nosimd/vips.js"
+    },
     "./versions": "./versions.json"
   },
   "main": "lib/vips-node.js",
@@ -39,11 +50,16 @@
     "lib/vips-jxl.wasm",
     "lib/vips-resvg.wasm",
     "THIRD-PARTY-NOTICES.md",
-    "versions.json"
+    "versions.json",
+    "lib/nosimd/*"
   ],
   "scripts": {
-    "build": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh",
-    "test": "npm run test:lint && npm run test:node",
+    "build:base": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh --clean-build",
+    "build:nosimd": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh --clean-build --variant nosimd --disable-simd",
+    "build": "npm run build:base && npm run build:nosimd",
+    "test": "npm run test:lint && npm run test:base && npm run test:nosimd",
+    "test:base": "npm run test:node",
+    "test:nosimd": "VARIANT=nosimd npm run test:node",
     "test:lint": "semistandard",
     "test:node": "npm --prefix test/unit test",
     "test:web": "serve -c test/unit/serve.json",
@@ -52,6 +68,8 @@
     "bench:web": "serve -c test/bench/serve.json"
   },
   "devDependencies": {
+    "chai": "^5.1.1",
+    "mocha": "^10.4.0",
     "semistandard": "^17.0.0",
     "serve": "^14.2.3"
   },

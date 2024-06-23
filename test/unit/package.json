@@ -16,7 +16,7 @@
   "author": "Kleis Auke Wolthuizen",
   "type": "module",
   "scripts": {
-    "test": "mocha -s 5000 -t 120000 *.js -r node-helper.js"
+    "test": "mocha -s 5000 -t 120000 *.js -r node-helper.js --variant=$VARIANT"
   },
   "devDependencies": {
     "chai": "^5.1.1",

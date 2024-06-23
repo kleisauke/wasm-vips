@@ -1,11 +1,16 @@
 'use strict';
 
-import Vips from '../../lib/vips-node.mjs';
-
 import { tmpdir } from 'node:os';
 import { expect } from 'chai';
 
 globalThis.expect = expect;
+
+const variant = process.argv
+  .find(arg => arg.startsWith('--variant='))
+  ?.split('=')?.[1];
+const pkg = variant ? `../../lib/${variant}/vips-node.mjs` : '../../lib/vips-node.mjs';
+
+const { default: Vips } = await import(pkg);
 
 export async function mochaGlobalSetup () {
   const options = {

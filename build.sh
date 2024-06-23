@@ -162,9 +162,9 @@ export RUSTFLAGS+=" --remap-path-prefix=$CARGO_HOME/registry/src/="
 export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 
 # Dependency version numbers
-VERSION_ZLIB_NG=2.1.6       # https://github.com/zlib-ng/zlib-ng
+VERSION_ZLIB_NG=2.1.7       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
-VERSION_GLIB=2.80.2         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.80.3         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.6.2         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS
@@ -174,11 +174,11 @@ VERSION_MOZJPEG=4.1.5       # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.10.2          # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
-VERSION_CGIF=0.4.0          # https://github.com/dloebl/cgif
+VERSION_CGIF=0.4.1          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.4.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
-VERSION_RESVG=0.41.0        # https://github.com/RazrFalcon/resvg
-VERSION_AOM=3.9.0           # https://aomedia.googlesource.com/aom
+VERSION_RESVG=0.42.0        # https://github.com/RazrFalcon/resvg
+VERSION_AOM=3.9.1           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.17.6         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.15.2         # https://github.com/libvips/libvips
 
@@ -358,7 +358,7 @@ node --version
   make -C _build install
   if [ -n "$ENABLE_MODULES" ]; then
     # Ensure we don't link with highway in the vips-jxl side module
-    [ -z "$ENABLE_SIMD" ] || sed -i '/^Requires.private:/s/ libhwy//' $TARGET/lib/pkgconfig/libjxl.pc
+    [ -z "$ENABLE_SIMD" ] || sed -i '/^Requires:/s/ libhwy//' $TARGET/lib/pkgconfig/libjxl.pc
     # ... and the same for lcms2
     sed -i '/^Requires:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl_cms.pc
     # ... and the same for -lc++, see:

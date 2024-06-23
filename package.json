@@ -25,6 +25,28 @@
       },
       "default": "./lib/vips.js"
     },
+    "./nosimd/slim": {
+      "browser": {
+        "import": "./lib/nosimd/slim/vips-es6.js",
+        "require": "./lib/nosimd/slim/vips.js"
+      },
+      "node": {
+        "import": "./lib/nosimd/slim/vips-node.mjs",
+        "require": "./lib/nosimd/slim/vips-node.js"
+      },
+      "default": "./lib/nosimd/slim/vips.js"
+    },
+    "./nosimd/lowmem": {
+      "browser": {
+        "import": "./lib/nosimd/lowmem/vips-es6.js",
+        "require": "./lib/nosimd/lowmem/vips.js"
+      },
+      "node": {
+        "import": "./lib/nosimd/lowmem/vips-node.mjs",
+        "require": "./lib/nosimd/lowmem/vips-node.js"
+      },
+      "default": "./lib/nosimd/lowmem/vips.js"
+    },
     "./nosimd": {
       "browser": {
         "import": "./lib/nosimd/vips-es6.js",
@@ -35,6 +57,17 @@
         "require": "./lib/nosimd/vips-node.js"
       },
       "default": "./lib/nosimd/vips.js"
+    },
+    "./lowmem": {
+      "browser": {
+        "import": "./lib/lowmem/vips-es6.js",
+        "require": "./lib/lowmem/vips.js"
+      },
+      "node": {
+        "import": "./lib/lowmem/vips-node.mjs",
+        "require": "./lib/lowmem/vips-node.js"
+      },
+      "default": "./lib/lowmem/vips.js"
     },
     "./slim": {
       "browser": {
@@ -65,13 +98,24 @@
     "lib/nosimd/*"
   ],
   "scripts": {
-    "build:base": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh --clean-build",
-    "build:slim": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh --variant slim --disable-modules --disable-jxl --disable-avif --disable-svg --disable-analyze --disable-radiance --disable-ppm --disable-gif --disable-tiff --disable-fs",
-    "build:nosimd": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh --clean-build --variant nosimd --disable-simd",
-    "build": "npm run build:base && npm run build:slim && npm run build:nosimd",
-    "test": "npm run test:lint && npm run test:base && npm run test:nosimd && npm run test:slim",
-    "test:slim": "npm run test:lint && VARIANT=slim npm run test:node",
-    "test:nosimd": "npm run test:lint && VARIANT=nosimd npm run test:node",
+    "build:base": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh",
+    "build:slim": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh --slim --variant slim --disable-modules --disable-jxl --disable-avif --disable-svg --disable-analyze --disable-radiance --disable-ppm --disable-gif --disable-tiff --disable-fs",
+    "build:lowmem": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh --slim --variant lowmem",
+    "build:nosimd:slim": "npm run build:slim -- --variant nosimd/slim --disable-simd",
+    "build:nosimd:lowmem": "npm run build:lowmem -- --variant nosimd/lowmem --disable-simd",
+    "build:nosimd": "npm run build:base -- --variant nosimd --disable-simd",
+    "build": "npm run build:all:base && npm run build:all:nosimd",
+    "build:all:base": "npm run build:base -- --clean-build && npm run build:slim -- --clean-build && npm run build:lowmem -- --clean-build",
+    "build:all:nosimd": "npm run build:nosimd -- --clean-build && npm run build:nosimd:slim -- --clean-build && npm run build:nosimd:lowmem -- --clean-build",
+    "test": "npm run test:lint && npm run test:all:base && npm run test:all:nosimd",
+    "test:all:base": "npm run test:base && npm run test:lowmem && npm run test:slim",
+    "test:all:nosimd": "npm run test:nosimd && npm run test:nosimd:lowmem && npm run test:nosimd:slim",
+    "test:base": "npm run test:node",
+    "test:lowmem": "VARIANT=lowmem npm run test:node",
+    "test:slim": "VARIANT=slim npm run test:node",
+    "test:nosimd:lowmem": "VARIANT=nosimd/lowmem npm run test:node",
+    "test:nosimd:slim": "VARIANT=nosimd/slim npm run test:node",
+    "test:nosimd": "VARIANT=nosimd npm run test:node",
     "test:lint": "semistandard",
     "test:node": "npm --prefix test/unit test",
     "test:web": "serve -c test/unit/serve.json",

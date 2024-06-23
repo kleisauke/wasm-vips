@@ -14,6 +14,9 @@ SOURCE_DIR=$PWD
 # Specifies the environment(s) to target
 ENVIRONMENT="web,node"
 
+# Enable slim build with reduced features and memory usage
+SLIM_BUILD=false
+
 # Fixed-width SIMD, enabled by default
 # https://github.com/WebAssembly/simd
 SIMD=true
@@ -98,6 +101,7 @@ while [ $# -gt 0 ]; do
     -e|--environment) ENVIRONMENT="$2"; shift ;;
     --variant) BUILD_VARIANT="$2"; shift ;;
     --clean-build) CLEAN_BUILD=true ;;
+    --slim) SLIM_BUILD=true ;;
     *) echo "ERROR: Unknown parameter: $1" >&2; exit 1 ;;
   esac
   shift
@@ -542,7 +546,8 @@ node --version
   mkdir $DEPS/wasm-vips
   cd $DEPS/wasm-vips
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$OUTPUT_DIR" \
-    -DENVIRONMENT=${ENVIRONMENT//,/;} -DENABLE_MODULES=$MODULES -DENABLE_WASMFS=$WASM_FS -DENABLE_FS=$FS
+    -DENVIRONMENT=${ENVIRONMENT//,/;} -DENABLE_MODULES=$MODULES -DENABLE_WASMFS=$WASM_FS -DENABLE_FS=$FS \
+    -DSLIM_BUILD=${SLIM_BUILD}
   make
 )
 

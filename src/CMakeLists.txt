@@ -1,3 +1,5 @@
+option(SLIM_BUILD "Enable slim build with reduced memory usage" OFF)
+
 set(HEADERS
         bindings/connection.h
         bindings/error.h
@@ -96,9 +98,6 @@ endif()
 set(MAIN_COMPILE_OPTIONS
         $<$<BOOL:${ENABLE_MODULES}>:-sMAIN_MODULE=2>
         )
-set(MAIN_COMPILE_OPTIONS
-        $<$<BOOL:${ENABLE_FS}>:-sFORCE_FILESYSTEM=1>
-        )
 
 # Handy for debugging
 # --threadprofiler
@@ -132,7 +131,8 @@ set(MAIN_LINK_OPTIONS
         -sMODULARIZE
         -sEXPORT_NAME='Vips'
         -sEXIT_RUNTIME
-        -sINITIAL_MEMORY=1GB
+        $<$<NOT:$<BOOL:${SLIM_BUILD}>>:-sINITIAL_MEMORY=1GB>
+        $<$<BOOL:${SLIM_BUILD}>:-sINITIAL_MEMORY=256MB>
         -sSTACK_SIZE=256KB
         -sALLOW_TABLE_GROWTH
         -sALLOW_BLOCKING_ON_MAIN_THREAD

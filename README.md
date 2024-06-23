@@ -1,3 +1,4 @@
+
 # wasm-vips
 
 [libvips](https://libvips.github.io/libvips) for the browser and Node.js,
@@ -14,7 +15,44 @@ and because it doesn't need to keep entire images in memory, it's light.
 > This library is still under early development. See: [#1](
 https://github.com/kleisauke/wasm-vips/issues/1).
 
-## Engine support
+
+## Package Variants
+
+This **fork** of [`wasm-vips`](https://github.com/kleisauke/wasm-vips) provides different binaries in a single package to cater to different needs. Each variant is optimized for specific scenarios:
+- **`@denodecom/wasm-vips`**: The default build with full features and SIMD support.
+  - Supports all loaders.
+
+- **`@denodecom/wasm-vips/nosimd`**: Build without SIMD support.
+  - Supports all loaders.
+
+- **`@denodecom/wasm-vips/slim`**: A build with reduced features and memory usage.
+  - Supports only JPEG, PNG, and WebP loaders.
+  - Filesystem (FS) support is not available
+
+- **`@denodecom/wasm-vips/nosimd/slim`**: A slim build without SIMD support.
+  - Supports only JPEG, PNG, and WebP loaders.
+  - Filesystem (FS) support is not available
+
+- **`@denodecom/wasm-vips/lowmem`**: A build optimized for low memory usage with a maximum memory limit of 256MB to avoid out-of-memory (OOM) issues on iOS.
+  - Supports all loaders.
+
+- **`@denodecom/wasm-vips/nosimd/lowmem`**: A low memory build without SIMD support, with a maximum memory limit of 256MB to avoid out-of-memory (OOM) issues on iOS.
+  - Supports all loaders.
+
+
+
+### Low Memory Builds
+
+- **`./lowmem`**: A build optimized for low memory usage.
+  - **Browser**: `./lib/lowmem/vips-es6.js` (ES6 Module) or `./lib/lowmem/vips.js` (CommonJS Module)
+  - **Node.js**: `./lib/lowmem/vips-node.mjs` (ES6 Module) or `./lib/lowmem/vips-node.js` (CommonJS Module)
+
+- **`./nosimd/lowmem`**: A low memory build without SIMD support.
+  - **Browser**: `./lib/nosimd/lowmem/vips-es6.js` (ES6 Module) or `./lib/nosimd/lowmem/vips.js` (CommonJS Module)
+  - **Node.js**: `./lib/nosimd/lowmem/vips-node.mjs` (ES6 Module) or `./lib/nosimd/lowmem/vips-node.js` (CommonJS Module)
+
+
+## Engine support for default build
 
 An engine that [supports WebAssembly SIMD](https://webassembly.org/roadmap/).
 This is present on most major browser engines.
@@ -34,14 +72,14 @@ at least version 615.1.17 is required. This corresponds to Safari 16.4.
 
 ## Installation
 
-wasm-vips can be installed with your favorite package manager.
+`@denodecom/wasm-vips` can be installed with your favorite package manager.
 
 ```shell
-npm install wasm-vips
+npm install @denodecom/wasm-vips
 ```
 
 ```shell
-yarn add wasm-vips
+yarn add @denodecom/wasm-vips
 ```
 
 ## Usage
@@ -89,10 +127,10 @@ can be imported as both CommonJS and ES6 module:
 
 ```js
 // ES6 module
-import Vips from 'wasm-vips';
+import Vips from '@denodecom/wasm-vips';
 
 // CommonJS module
-const Vips = require('wasm-vips');
+const Vips = require('@denodecom/wasm-vips');
 ```
 
 Then, wasm-vips can be initialized like this:
@@ -109,11 +147,8 @@ Vips().then(vips => {
 
 ### Deno
 
-On Deno, the web ES6 module can be reused and imported from a CDN such as
-[jsDelivr](https://www.jsdelivr.com/):
-
 ```js
-import Vips from 'https://cdn.jsdelivr.net/npm/wasm-vips/lib/vips-es6.js';
+import Vips from 'npm:@denodecom/wasm-vips';
 
 const vips = await Vips();
 ```

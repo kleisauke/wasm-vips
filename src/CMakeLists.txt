@@ -96,6 +96,9 @@ endif()
 set(MAIN_COMPILE_OPTIONS
         $<$<BOOL:${ENABLE_MODULES}>:-sMAIN_MODULE=2>
         )
+set(MAIN_COMPILE_OPTIONS
+        $<$<BOOL:${ENABLE_FS}>:-sFORCE_FILESYSTEM=1>
+        )
 
 # Handy for debugging
 # --threadprofiler
@@ -120,6 +123,8 @@ set(MAIN_LINK_OPTIONS
         -lembind
         $<$<BOOL:${ENABLE_WASMFS}>:-sWASMFS>
         $<$<BOOL:${ENABLE_MODULES}>:-sMAIN_MODULE=2>
+        $<$<BOOL:${ENABLE_FS}>:-sFORCE_FILESYSTEM=1>
+        $<$<NOT:$<BOOL:${ENABLE_FS}>>:-sFORCE_FILESYSTEM=0>
         $<$<BOOL:${ENABLE_MODULES}>:--pre-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-pre.js>
         -sAUTOLOAD_DYLIBS=0
         -sABORTING_MALLOC=0
@@ -133,8 +138,8 @@ set(MAIN_LINK_OPTIONS
         -sALLOW_BLOCKING_ON_MAIN_THREAD
         -sTEXTDECODER=2
         -sASSERTIONS=0
-        -sFORCE_FILESYSTEM
-        -sEXPORTED_RUNTIME_METHODS=FS,ENV,deletionQueue,addFunction,bigintToI53Checked
+        $<$<BOOL:${ENABLE_FS}>:-sEXPORTED_RUNTIME_METHODS=FS,ENV,deletionQueue,addFunction,bigintToI53Checked>
+        $<$<NOT:$<BOOL:${ENABLE_FS}>>:-sEXPORTED_RUNTIME_METHODS=ENV,deletionQueue,addFunction,bigintToI53Checked>
         -sEXCEPTION_STACK_TRACES
         -sBINARYEN_EXTRA_PASSES=--emit-target-features
         )

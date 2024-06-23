@@ -59,7 +59,11 @@ describe('foreign', () => {
     cmyk = cmyk.copy({ interpretation: vips.Interpretation.cmyk });
     cmyk.remove('icc-profile-data');
 
-    const im = vips.Image.newFromFile(Helpers.gifFile);
+    const [file] = [
+      Helpers.have('gifload') && Helpers.gifFile,
+      Helpers.have('pngload') && Helpers.pngFile
+    ].filter(Boolean);
+    const im = vips.Image.newFromFile(file);
     onebit = im.extractBand(1).more(128);
 
     globalDeletionQueue = vips.deletionQueue.splice(0);

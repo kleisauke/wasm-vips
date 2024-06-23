@@ -26,6 +26,9 @@ WASM_BIGINT=true
 # https://github.com/emscripten-core/emscripten/issues/15041
 WASM_FS=false
 
+# Enable bundling of filesystem support code
+FS=true
+
 # Leverage Wasm EH instructions for setjmp/longjmp support
 # and throwing/catching exceptions, disabled by default
 # https://github.com/WebAssembly/exception-handling
@@ -51,11 +54,23 @@ AVIF=true
 # Partial support for SVG load via resvg, enabled by default
 SVG=true
 
+# Support for GIF load via cgif, enabled by default
+GIF=true
+
+# Support for TIFF load via libtiff, enabled by default
+TIFF=true
+
 # Build libvips C++ API, disabled by default
 LIBVIPS_CPP=false
 
 # Build bindings, enabled by default but can be disabled if you only need libvips
 BINDINGS=true
+
+ANALYZE=true
+
+RADIANCE=true
+
+PPM=true
 
 # Parse arguments
 while [ $# -gt 0 ]; do
@@ -63,27 +78,33 @@ while [ $# -gt 0 ]; do
     --enable-lto) LTO=true ;;
     --enable-wasm-fs) WASM_FS=true ;;
     --enable-wasm-eh) WASM_EH=true ;;
+    --disable-fs) FS=false ;;
     --disable-simd) SIMD=false ;;
     --disable-wasm-bigint) WASM_BIGINT=false ;;
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;
     --disable-svg) SVG=false ;;
+    --disable-gif) GIF=false ;;
+    --disable-tiff) TIFF=false ;;
+    --disable-analyze) ANALYZE=false ;;
+    --disable-radiance) RADIANCE=false ;;
+    --disable-ppm) PPM=false ;;
     --disable-modules)
       PIC=false
       MODULES=false
       ;;
     --disable-bindings) BINDINGS=false ;;
     --enable-libvips-cpp) LIBVIPS_CPP=true ;;
-    --clean-build) CLEAN_BUILD=true ;;
     -e|--environment) ENVIRONMENT="$2"; shift ;;
     --variant) BUILD_VARIANT="$2"; shift ;;
+    --clean-build) CLEAN_BUILD=true ;;
     *) echo "ERROR: Unknown parameter: $1" >&2; exit 1 ;;
   esac
   shift
 done
 
 # Configure the ENABLE_* and DISABLE_* expansion helpers
-for arg in SIMD WASM_BIGINT JXL AVIF SVG PIC MODULES BINDINGS; do
+for arg in SIMD WASM_BIGINT GIF TIFF JXL AVIF SVG PIC MODULES BINDINGS; do
   if [ "${!arg}" = "true" ]; then
     declare ENABLE_$arg=true
   else
@@ -124,7 +145,7 @@ fi
 export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+nontrapping-fptoint -Zdefault-hidden-visibility=yes"
 
 # Common compiler flags
-COMMON_FLAGS="-O3 -pthread"
+COMMON_FLAGS="-Oz -pthread"
 if [ "$LTO" = "true" ]; then
   COMMON_FLAGS+=" -flto"
   export RUSTFLAGS+=" -Clto -Cembed-bitcode=yes"
@@ -403,7 +424,7 @@ node --version
   meson install -C _build --tag devel
 )
 
-[ -f "$TARGET/lib/pkgconfig/cgif.pc" ] || (
+[ -f "$TARGET/lib/pkgconfig/cgif.pc" ] || [ -n "$DISABLE_GIF" ] || (
   stage "Compiling cgif"
   mkdir $DEPS/cgif
   curl -Ls https://github.com/dloebl/cgif/archive/refs/tags/v$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
@@ -428,7 +449,7 @@ node --version
   make install bin_PROGRAMS= noinst_PROGRAMS= man_MANS=
 )
 
-[ -f "$TARGET/lib/pkgconfig/libtiff-4.pc" ] || (
+[ -f "$TARGET/lib/pkgconfig/libtiff-4.pc" ] || [ -n "$DISABLE_TIFF" ] || (
   stage "Compiling tiff"
   mkdir $DEPS/tiff
   curl -Ls https://download.osgeo.org/libtiff/tiff-$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1 \
@@ -503,11 +524,12 @@ node --version
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \
     -Ddeprecated=false -Dexamples=false -Dcplusplus=$LIBVIPS_CPP -Dauto_features=disabled \
-    ${ENABLE_MODULES:+-Dmodules=enabled} -Dcgif=enabled -Dexif=enabled ${ENABLE_AVIF:+-Dheif=enabled} \
-    -Dheif-module=enabled -Dimagequant=enabled -Djpeg=enabled ${ENABLE_JXL:+-Djpeg-xl=enabled} \
-    -Djpeg-xl-module=enabled -Dlcms=enabled ${ENABLE_SIMD:+-Dhighway=enabled} ${ENABLE_SVG:+-Dresvg=enabled} \
-    -Dresvg-module=enabled -Dspng=enabled -Dtiff=enabled -Dwebp=enabled -Dnsgif=true -Dppm=true -Danalyze=true \
-    -Dradiance=true -Dzlib=enabled
+    -Dexif=enabled -Dimagequant=enabled -Djpeg=enabled -Dwebp=enabled -Dspng=enabled -Dlcms=enabled -Dzlib=enabled \
+    ${ENABLE_MODULES:+-Dmodules=enabled} ${ENABLE_GIF:+-Dcgif=enabled} ${ENABLE_TIFF:+-Dtiff=enabled} \
+    ${ENABLE_JXL:+-Djpeg-xl=enabled -Djpeg-xl-module=enabled} ${ENABLE_AVIF:+-Dheif=enabled -Dheif-module=enabled} \
+    ${ENABLE_SIMD:+-Dhighway=enabled} ${ENABLE_SVG:+-Dresvg=enabled -Dresvg-module=enabled} \
+    -Dppm=$PPM -Dnsgif=${ENABLE_GIF:-false} -Danalyze=$ANALYZE -Dradiance=$RADIANCE \
+
   meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)
@@ -520,7 +542,7 @@ node --version
   mkdir $DEPS/wasm-vips
   cd $DEPS/wasm-vips
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$OUTPUT_DIR" \
-    -DENVIRONMENT=${ENVIRONMENT//,/;} -DENABLE_MODULES=$MODULES -DENABLE_WASMFS=$WASM_FS
+    -DENVIRONMENT=${ENVIRONMENT//,/;} -DENABLE_MODULES=$MODULES -DENABLE_WASMFS=$WASM_FS -DENABLE_FS=$FS
   make
 )
 

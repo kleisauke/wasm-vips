@@ -36,6 +36,17 @@
       },
       "default": "./lib/nosimd/vips.js"
     },
+    "./slim": {
+      "browser": {
+        "import": "./lib/slim/vips-es6.js",
+        "require": "./lib/slim/vips.js"
+      },
+      "node": {
+        "import": "./lib/slim/vips-node.mjs",
+        "require": "./lib/slim/vips-node.js"
+      },
+      "default": "./lib/slim/vips.js"
+    },
     "./versions": "./versions.json"
   },
   "main": "lib/vips-node.js",
@@ -55,11 +66,12 @@
   ],
   "scripts": {
     "build:base": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh --clean-build",
+    "build:slim": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh --variant slim --disable-modules --disable-jxl --disable-avif --disable-svg --disable-analyze --disable-radiance --disable-ppm --disable-gif --disable-tiff --disable-fs",
     "build:nosimd": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh --clean-build --variant nosimd --disable-simd",
-    "build": "npm run build:base && npm run build:nosimd",
-    "test": "npm run test:lint && npm run test:base && npm run test:nosimd",
-    "test:base": "npm run test:node",
-    "test:nosimd": "VARIANT=nosimd npm run test:node",
+    "build": "npm run build:base && npm run build:slim && npm run build:nosimd",
+    "test": "npm run test:lint && npm run test:base && npm run test:nosimd && npm run test:slim",
+    "test:slim": "npm run test:lint && VARIANT=slim npm run test:node",
+    "test:nosimd": "npm run test:lint && VARIANT=nosimd npm run test:node",
     "test:lint": "semistandard",
     "test:node": "npm --prefix test/unit test",
     "test:web": "serve -c test/unit/serve.json",

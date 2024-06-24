@@ -149,7 +149,12 @@ fi
 export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+nontrapping-fptoint -Zdefault-hidden-visibility=yes"
 
 # Common compiler flags
-COMMON_FLAGS="-Oz -pthread"
+if [ $SLIM_BUILD = "true" ]; then
+  COMMON_FLAGS="-Oz -pthread"
+else
+  COMMON_FLAGS="-O3 -pthread"
+fi
+
 if [ "$LTO" = "true" ]; then
   COMMON_FLAGS+=" -flto"
   export RUSTFLAGS+=" -Clto -Cembed-bitcode=yes"

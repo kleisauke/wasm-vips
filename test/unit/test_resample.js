@@ -227,10 +227,15 @@ describe('resample', () => {
     expect(im.width).to.equal(100);
     expect(im.height).to.equal(300);
 
-    let im1 = vips.Image.thumbnail(Helpers.jpegFile, 100);
-    let buf = vips.FS.readFile(Helpers.jpegFile);
-    let im2 = vips.Image.thumbnailBuffer(buf, 100);
-    expect(Math.abs(im1.avg() - im2.avg())).to.be.below(1);
+    let im1;
+    let buf;
+    let im2;
+    if (vips.FS) {
+      im1 = vips.Image.thumbnail(Helpers.jpegFile, 100);
+      buf = vips.FS.readFile(Helpers.jpegFile);
+      im2 = vips.Image.thumbnailBuffer(buf, 100);
+      expect(Math.abs(im1.avg() - im2.avg())).to.be.below(1);
+    }
 
     // Needs TIFF support
     if (Helpers.have('tiffload')) {

@@ -13,7 +13,6 @@ const pkg = variant ? `../../lib/${variant}/vips-node.mjs` : '../../lib/vips-nod
 const { default: Vips } = await import(pkg);
 
 export async function mochaGlobalSetup () {
-
   // Test all available dynamic modules for non lowmem/slim builds
   const dynamicLibraries = /(lowmem|slim)$/.test(variant) ? [] : ['vips-jxl.wasm', 'vips-heif.wasm', 'vips-resvg.wasm'];
 

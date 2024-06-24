@@ -29,6 +29,9 @@ describe('connection', () => {
 
   describe('source', () => {
     it('newFromFile', function () {
+      if (!vips.FS) {
+        return this.skip();
+      }
       const x = vips.Source.newFromFile(Helpers.jpegFile);
 
       expect(x.filename).to.equal(Helpers.jpegFile);
@@ -43,6 +46,9 @@ describe('connection', () => {
 
   describe('target', () => {
     it('newToFile', function () {
+      if (!vips.FS) {
+        return this.skip();
+      }
       const filename = vips.Utils.tempName('%s.jpg');
       const x = vips.Target.newToFile(filename);
 
@@ -79,6 +85,9 @@ describe('connection', () => {
         expect(y.height).to.equal(442);
       });
       it('custom', function () {
+        if (!vips.FS) {
+          return this.skip();
+        }
         const stream = vips.FS.open(Helpers.jpegFile, 'r');
 
         const source = new vips.SourceCustom();
@@ -101,6 +110,9 @@ describe('connection', () => {
     });
     describe('writeToTarget', () => {
       it('file', function () {
+        if (!vips.FS) {
+          return this.skip();
+        }
         const filename = vips.Utils.tempName('%s.jpg');
 
         const x = vips.Target.newToFile(filename);
@@ -122,6 +134,9 @@ describe('connection', () => {
         expect(x.getBlob()).to.deep.equal(y);
       });
       it('custom', function () {
+        if (!vips.FS) {
+          return this.skip();
+        }
         const filename = vips.Utils.tempName('%s.png');
         const stream = vips.FS.open(filename, 'w');
 

@@ -2,6 +2,7 @@
 'use strict';
 
 import * as Helpers from './helpers.js';
+import fs from 'fs';
 
 describe('foreign', () => {
   let globalDeletionQueue;
@@ -87,7 +88,7 @@ describe('foreign', () => {
   }
 
   function bufferLoader (loader, testFile, validate) {
-    const buf = vips.FS.readFile(testFile);
+    const buf = fs.readFileSync(testFile);
 
     let im = bufferLoaders[loader](buf);
     validate(im);
@@ -151,6 +152,9 @@ describe('foreign', () => {
   }
 
   it('vips', function () {
+    if (!vips.FS) {
+      return this.skip();
+    }
     // ftruncate() is not yet available in the Node backend of WasmFS.
     // https://github.com/emscripten-core/emscripten/blob/3.1.48/system/lib/wasmfs/backends/node_backend.cpp#L120-L122
     if (typeof vips.FS.statBufToObject === 'function') {

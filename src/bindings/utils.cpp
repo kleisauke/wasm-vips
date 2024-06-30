@@ -2,6 +2,9 @@
 
 #include "option.h"
 
+#include <emscripten/proxying.h>
+#include <emscripten/threading.h>
+
 namespace vips {
 
 std::vector<int> blend_modes_to_int(emscripten::val v) {
@@ -37,6 +40,17 @@ std::vector<double> invert(const std::vector<double> &vector) {
         new_vector[i] = 1.0 / vector[i];
 
     return new_vector;
+}
+
+static void run(void *arg) {
+    std::function<void()> *f = reinterpret_cast<std::function<void()> *>(arg);
+    (*f)();
+}
+
+bool proxy_sync(const std::function<void()> &func) {
+    em_proxying_queue *q = emscripten_proxy_get_system_queue();
+    return emscripten_proxy_sync(q, emscripten_main_runtime_thread_id(), run,
+                                 (void *)&func);
 }
 
 }  // namespace vips

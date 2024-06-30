@@ -11,7 +11,6 @@
 #include <vector>
 
 #include <emscripten/val.h>
-#include <emscripten/threading.h>
 
 namespace vips {
 

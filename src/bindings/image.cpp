@@ -98,10 +98,9 @@ void Image::eval_handler(VipsImage *image, VipsProgress *progress, void *user) {
     if (self->progress_callback == nullptr)
         return;
 
-    // Ensure that we call the JS function on the main thread, see:
-    // https://github.com/emscripten-core/emscripten/issues/11317
-    emscripten_sync_run_in_main_runtime_thread(
-        EM_FUNC_SIG_VI, self->progress_callback, progress->percent);
+    proxy_sync([&]() {
+        self->progress_callback(progress->percent);
+    });
 }
 
 void Image::set_progress_callback(emscripten::val js_func) {

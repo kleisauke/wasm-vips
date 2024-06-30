@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -70,5 +71,11 @@ std::vector<int> blend_modes_to_int(emscripten::val v);
 std::vector<double> negate(const std::vector<double> &vector);
 
 std::vector<double> invert(const std::vector<double> &vector);
+
+/**
+ * Ensure that we call JS functions on the main runtime thread, see:
+ * https://github.com/emscripten-core/emscripten/issues/11317
+ */
+bool proxy_sync(const std::function<void()> &func);
 
 }  // namespace vips

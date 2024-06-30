@@ -1,8 +1,6 @@
 #include "connection.h"
 #include "error.h"
 
-#include <emscripten/threading.h>
-
 namespace vips {
 
 Source Source::new_from_file(const std::string &filename) {
@@ -35,10 +33,11 @@ int64_t SourceCustom::read_handler(VipsSourceCustom *source, void *buffer,
     if (self->read_callback == nullptr)
         return -1;
 
-    // Ensure that we call the JS function on the main thread, see:
-    // https://github.com/emscripten-core/emscripten/issues/11317
-    int64_t bytes_read = emscripten_sync_run_in_main_runtime_thread(
-        EM_FUNC_SIG_JPJ, self->read_callback, buffer, length);
+    int64_t bytes_read;
+    proxy_sync([&]() {
+        bytes_read = self->read_callback(buffer, length);
+    });
+
     return bytes_read;
 }
 
@@ -48,8 +47,11 @@ int64_t SourceCustom::seek_handler(VipsSourceCustom *source, int64_t offset,
     if (self->seek_callback == nullptr)
         return -1;
 
-    int64_t new_pos = emscripten_sync_run_in_main_runtime_thread(
-        EM_FUNC_SIG_JJI, self->seek_callback, offset, whence);
+    int64_t new_pos;
+    proxy_sync([&]() {
+        new_pos = self->seek_callback(offset, whence);
+    });
+
     return new_pos;
 }
 
@@ -91,8 +93,11 @@ int64_t TargetCustom::write_handler(VipsTargetCustom *target,
     if (self->write_callback == nullptr)
         return -1;
 
-    int64_t bytes_written = emscripten_sync_run_in_main_runtime_thread(
-        EM_FUNC_SIG_JPJ, self->write_callback, buffer, length);
+    int64_t bytes_written;
+    proxy_sync([&]() {
+        bytes_written = self->write_callback(buffer, length);
+    });
+
     return bytes_written;
 }
 
@@ -105,8 +110,11 @@ int64_t TargetCustom::read_handler(VipsTargetCustom *target, void *buffer,
     if (self->read_callback == nullptr)
         return -1;
 
-    int64_t bytes_read = emscripten_sync_run_in_main_runtime_thread(
-        EM_FUNC_SIG_JPJ, self->read_callback, buffer, length);
+    int64_t bytes_read;
+    proxy_sync([&]() {
+        bytes_read = self->read_callback(buffer, length);
+    });
+
     return bytes_read;
 }
 
@@ -116,8 +124,11 @@ int64_t TargetCustom::seek_handler(VipsTargetCustom *target, int64_t offset,
     if (self->seek_callback == nullptr)
         return -1;
 
-    int64_t new_pos = emscripten_sync_run_in_main_runtime_thread(
-        EM_FUNC_SIG_JJI, self->seek_callback, offset, whence);
+    int64_t new_pos;
+    proxy_sync([&]() {
+        new_pos = self->seek_callback(offset, whence);
+    });
+
     return new_pos;
 }
 
@@ -126,9 +137,14 @@ int TargetCustom::end_handler(VipsTargetCustom *target, void *user) {
     if (self->end_callback == nullptr)
         return 0;
 
-    return emscripten_sync_run_in_main_runtime_thread(EM_FUNC_SIG_I,
-                                                      self->end_callback);
+    int result;
+    proxy_sync([&]() {
+        result = self->end_callback();
+    });
+
+    return result;
 }
+
 void TargetCustom::set_write_callback(emscripten::val js_func) {
     emscripten::val ptr = emscripten::val::module_property("addFunction")(
         js_func, emscripten::val("jpj"));

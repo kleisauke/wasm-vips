@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <title>wasm-vips testsuite</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/10.4.0/mocha.min.css" crossorigin="anonymous">
+  <!-- FIXME(kleisauke): https://github.com/cdnjs/tools/issues/285 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/10.6.0/mocha.css" crossorigin="anonymous">
   <style>
     html,
     body {
@@ -13,25 +14,21 @@
       margin: 0;
     }
 
-    #mocha {
-      font: 13px "Segoe UI", Arial, "HelveticaNeue-Light", sans-serif;
-    }
-
     #mocha-stats {
       font-size: initial;
     }
 
     #mocha h1 {
-      font-size: 1.8em;
+      font-size: 23px;
       font-weight: initial;
     }
 
     #mocha .suite .suite h1 {
-      font-size: 1.4em;
+      font-size: 18px;
     }
 
     #mocha h2 {
-      font-size: 1.2em;
+      font-size: 16px;
       font-weight: initial;
       cursor: default;
     }
@@ -67,7 +64,7 @@
 </head>
 <body>
 <div id="mocha"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/10.4.0/mocha.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/10.6.0/mocha.min.js" crossorigin="anonymous"></script>
 <script class="mocha-init">
   mocha.setup({
     ui: 'bdd',

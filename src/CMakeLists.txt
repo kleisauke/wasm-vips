@@ -121,6 +121,7 @@ set(MAIN_LINK_OPTIONS
         $<$<BOOL:${ENABLE_WASMFS}>:-sWASMFS>
         $<$<BOOL:${ENABLE_MODULES}>:-sMAIN_MODULE=2>
         $<$<BOOL:${ENABLE_MODULES}>:--pre-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-pre.js>
+        --post-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-post.js
         -sAUTOLOAD_DYLIBS=0
         -sABORTING_MALLOC=0
         -sMALLOC=mimalloc

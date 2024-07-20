@@ -66,6 +66,7 @@
       "src/closure-externs/wasm-vips.js",
       "src/fixed-threadpool-web.js",
       "src/modules-pre.js",
+      "src/modules-post.js",
       "src/workaround-cors-pre.js"
     ],
     "env": [

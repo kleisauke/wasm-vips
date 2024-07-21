@@ -64,8 +64,8 @@
     ],
     "ignore": [
       "src/closure-externs/wasm-vips.js",
-      "src/fixed-threadpool-web.js",
       "src/modules-pre.js",
+      "src/vips-library.js",
       "src/workaround-cors-pre.js"
     ],
     "env": [

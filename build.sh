@@ -179,7 +179,7 @@ VERSION_WEBP=1.4.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.42.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.9.1           # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.17.6         # https://github.com/strukturag/libheif
+VERSION_HEIF=1.18.0         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.15.2         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
@@ -258,7 +258,7 @@ node --version
   sed -i 's/ -fexceptions//g' configure
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-builddir --disable-multi-os-directory --disable-raw-api --disable-structs --disable-docs
-  make install SUBDIRS='include'
+  make install
 )
 
 [ -f "$TARGET/lib/pkgconfig/glib-2.0.pc" ] || (
@@ -291,7 +291,7 @@ node --version
   cd $DEPS/exif
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix CPPFLAGS="-DNO_VERBOSE_TAG_DATA"
-  make install SUBDIRS='libexif' doc_DATA=
+  make install doc_DATA=
 )
 
 [ -f "$TARGET/lib/pkgconfig/lcms2.pc" ] || (
@@ -420,7 +420,7 @@ node --version
   cd $DEPS/tiff
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-tools --disable-tests --disable-contrib --disable-docs --disable-mdi --disable-pixarlog --disable-old-jpeg --disable-cxx
-  make install SUBDIRS='libtiff' noinst_PROGRAMS= dist_doc_DATA=
+  make install noinst_PROGRAMS= dist_doc_DATA=
 )
 
 [ -f "$TARGET/lib/libresvg.a" ] || [ -n "$DISABLE_SVG" ] || (

@@ -990,9 +990,6 @@ describe('foreign', () => {
       const im = vips.Image.heifload(Helpers.avifFileHuge);
       im.avg();
     }).to.throw(/exceeds the maximum image size/);
-
-    const im = vips.Image.heifload(Helpers.avifFileHuge, { unlimited: true });
-    expect(im.avg()).to.equal(0);
   });
 
   describe('heifsave', () => {

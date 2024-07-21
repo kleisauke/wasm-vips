@@ -142,8 +142,9 @@ declare module Vips {
 
         /**
          * Signal that a C++ object is no longer needed and can be deleted later.
+         * @return `this`.
          */
-        deleteLater(): void;
+        deleteLater(): T;
 
         /**
          * Check whether two Embind handles point to the same underlying object.

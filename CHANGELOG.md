@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.15.2, compiled with Emscripten v3.1.63.
 
+### Added
+
+- Add `preventAutoDelete()` method to ensure an object is not
+  automatically deleted when `setAutoDeleteLater(true)` is used.
+  [#70](https://github.com/kleisauke/wasm-vips/pull/70)
+  [@marcosc90](https://github.com/marcosc90)
+
 ## [v0.0.9] - 2024-06-01
 
 Uses libvips v8.15.2, compiled with Emscripten v3.1.60.

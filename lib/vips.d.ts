@@ -157,6 +157,12 @@ declare module Vips {
          * @return `true` if this handle is deleted.
          */
         isDeleted(): boolean;
+
+        /**
+         * Prevents the C++ object from being auto deleted.
+         * @return `this`.
+         */
+        preventAutoDelete(): T;
     }
 
     /**

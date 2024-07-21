@@ -159,8 +159,8 @@ declare module Vips {
         isDeleted(): boolean;
 
         /**
-         * Prevents the C++ object from being auto deleted
-         * @return `this`
+         * Prevents the C++ object from being auto deleted.
+         * @return `this`.
          */
         preventAutoDelete(): T;
     }

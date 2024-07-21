@@ -121,7 +121,7 @@ set(MAIN_LINK_OPTIONS
         $<$<BOOL:${ENABLE_WASMFS}>:-sWASMFS>
         $<$<BOOL:${ENABLE_MODULES}>:-sMAIN_MODULE=2>
         $<$<BOOL:${ENABLE_MODULES}>:--pre-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-pre.js>
-        --post-js=${CMAKE_CURRENT_SOURCE_DIR}/modules-post.js
+        --js-library=${CMAKE_CURRENT_SOURCE_DIR}/vips-library.js
         -sAUTOLOAD_DYLIBS=0
         -sABORTING_MALLOC=0
         -sMALLOC=mimalloc
@@ -169,9 +169,6 @@ if ("web" IN_LIST ENVIRONMENT)
     set(WEB_CORS_WORKAROUND
             --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/workaround-cors-pre.js
             )
-    set(WEB_FIXED_THREADPOOL
-            --js-library=${CMAKE_CURRENT_SOURCE_DIR}/fixed-threadpool-web.js
-            )
     set(WEB_MIN_TARGETS
             -sMIN_FIREFOX_VERSION=89
             -sMIN_CHROME_VERSION=91
@@ -183,7 +180,6 @@ if ("web" IN_LIST ENVIRONMENT)
     set(WEB_LINK_OPTIONS
             --use-preload-plugins
             -sPTHREAD_POOL_SIZE='navigator.hardwareConcurrency+2+1'
-            ${WEB_FIXED_THREADPOOL}
             ${WEB_MIN_TARGETS}
             )
 

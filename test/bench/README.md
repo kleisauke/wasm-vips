@@ -7,9 +7,9 @@ https://sharp.pixelplumbing.com/performance
 
 ## Environment
 
-* Intel Core i5-8600K CPU 3.60GHz (Coffee Lake), 1 CPU, 6 logical and 6 physical cores
-* Fedora 38
-* Node v18.16.0
+* AMD Ryzen 9 7900, 1 CPU, 24 logical and 12 physical cores
+* Fedora 40
+* Node v22.5.1
 
 ## Images
 
@@ -36,29 +36,29 @@ PNG images are compressed with no filtering and run through zlib with a
 
 | Module           | Format | Input  | Output | Ops/sec | Speed-up |
 |:-----------------|:-------|:-------|:-------|--------:|---------:|
-| jimp<sup>1</sup> | JPEG   | buffer | buffer |    0.99 |      1.0 |
-| squoosh-cli      | JPEG   | file   | file   |    1.36 |      1.4 |
-| squoosh-lib      | JPEG   | buffer | buffer |    2.23 |      2.3 |
-| wasm-vips        | JPEG   | buffer | buffer |    6.54 |      6.6 |
-| imagemagick      | JPEG   | file   | file   |    9.78 |      9.9 |
-| gm               | JPEG   | buffer | buffer |    9.78 |      9.9 |
-| gm               | JPEG   | file   | file   |    9.81 |      9.9 |
-| sharp            | JPEG   | stream | stream |   43.00 |     43.4 |
-| sharp            | JPEG   | file   | file   |   45.02 |     45.5 |
-| sharp            | JPEG   | buffer | buffer |   46.64 |     47.1 |
+| jimp<sup>1</sup> | JPEG   | buffer | buffer |    1.72 |      1.0 |
+| squoosh-cli      | JPEG   | file   | file   |    2.41 |      1.4 |
+| squoosh-lib      | JPEG   | buffer | buffer |    3.31 |      1.9 |
+| gm               | JPEG   | buffer | buffer |   15.60 |      9.1 |
+| gm               | JPEG   | file   | file   |   16.13 |      9.4 |
+| imagemagick      | JPEG   | file   | file   |   16.83 |      9.8 |
+| wasm-vips        | JPEG   | buffer | buffer |   20.12 |     11.7 |
+| sharp            | JPEG   | stream | stream |   79.27 |     46.1 |
+| sharp            | JPEG   | file   | file   |   81.25 |     47.2 |
+| sharp            | JPEG   | buffer | buffer |   83.31 |     48.4 |
 |                  |        |        |        |         |          |
-| squoosh-cli      | PNG    | file   | file   |    0.47 |      1.0 |
-| squoosh-lib      | PNG    | buffer | buffer |    0.55 |      1.2 |
-| jimp<sup>2</sup> | PNG    | buffer | buffer |    5.71 |     12.1 |
-| wasm-vips        | PNG    | buffer | buffer |    6.98 |     14.9 |
-| gm               | PNG    | file   | file   |    7.85 |     16.7 |
-| imagemagick      | PNG    | file   | file   |    8.55 |     18.2 |
-| sharp            | PNG    | file   | file   |   21.43 |     45.6 |
-| sharp            | PNG    | buffer | buffer |   21.72 |     46.2 |
+| squoosh-cli      | PNG    | file   | file   |    0.75 |      1.0 |
+| squoosh-lib      | PNG    | buffer | buffer |    0.99 |      1.3 |
+| jimp<sup>2</sup> | PNG    | buffer | buffer |    6.43 |      8.6 |
+| gm               | PNG    | file   | file   |   11.61 |     15.5 |
+| imagemagick      | PNG    | file   | file   |   12.36 |     16.5 |
+| wasm-vips        | PNG    | buffer | buffer |   14.52 |     19.4 |
+| sharp            | PNG    | file   | file   |   33.68 |     44.9 |
+| sharp            | PNG    | buffer | buffer |   34.27 |     45.7 |
 |                  |        |        |        |         |          |
-| wasm-vips        | WebP   | buffer | buffer |   11.84 |      1.0 |
-| sharp            | WebP   | file   | file   |   14.31 |      1.2 |
-| sharp            | WebP   | buffer | buffer |   14.39 |      1.2 |
+| wasm-vips        | WebP   | buffer | buffer |   19.42 |      1.0 |
+| sharp            | WebP   | file   | file   |   19.54 |      1.0 |
+| sharp            | WebP   | buffer | buffer |   19.66 |      1.0 |
 
 <sup>1</sup>: jimp does not support Lanczos 3, bicubic resampling used instead.  
 <sup>2</sup>: jimp does not support premultiply/unpremultiply.

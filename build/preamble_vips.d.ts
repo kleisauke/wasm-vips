@@ -976,7 +976,7 @@ declare module Vips {
          * @param name The name of the piece of metadata to remove.
          * @return `true` if successfully removed.
          */
-        remove(name: string): string;
+        remove(name: string): boolean;
 
         //#endregion
 

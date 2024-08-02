@@ -179,7 +179,7 @@ VERSION_WEBP=1.4.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.42.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.9.1           # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.18.0         # https://github.com/strukturag/libheif
+VERSION_HEIF=1.18.1         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.15.2         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"

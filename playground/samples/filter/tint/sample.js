@@ -2,7 +2,7 @@
 const tint = [74.93, 23.94, 78.96];
 
 // Load an image from a preloaded file
-// Image source: https://www.flickr.com/photos/jasonidzerda/3987784466
+// Image source: https://flickr.com/photos/jasonidzerda/3987784466
 const im = vips.Image.newFromFile('owl.jpg');
 
 // Get original colorspace

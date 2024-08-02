@@ -1,6 +1,6 @@
 // Smart crop to 500x500 using the attention strategy
 // (searches the image for features which might catch a human eye)
-// Image source: https://www.flickr.com/photos/jasonidzerda/3987784466
+// Image source: https://flickr.com/photos/jasonidzerda/3987784466
 const thumbnail = vips.Image.thumbnail('owl.jpg', 500, {
   height: 500,
   no_rotate: true,

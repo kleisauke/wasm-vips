@@ -1,5 +1,5 @@
 // Load an image from a preloaded file
-// Image source: https://www.flickr.com/photos/jasonidzerda/3987784466
+// Image source: https://flickr.com/photos/jasonidzerda/3987784466
 let im = vips.Image.newFromFile('owl.jpg');
 
 // Sharpen of the L channel in the LAB colour space

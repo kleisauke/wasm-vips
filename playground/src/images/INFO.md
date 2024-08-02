@@ -2,7 +2,7 @@
 
 [`owl.jpg`](owl.jpg):
 ```
-https://www.flickr.com/photos/jasonidzerda/3987784466
+https://flickr.com/photos/jasonidzerda/3987784466
 ```
 
 [`owl.tif`](owl.tif):

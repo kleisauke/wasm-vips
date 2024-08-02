@@ -1,5 +1,5 @@
 // Load an image from a preloaded file
-// Image source: https://www.flickr.com/photos/jasonidzerda/3987784466
+// Image source: https://flickr.com/photos/jasonidzerda/3987784466
 let im = vips.Image.newFromFile('owl.jpg');
 
 // Put im at position (im.width, im.height) in a (im.width * 2) * (im.height * 2) pixel

@@ -1,7 +1,7 @@
 # wasm-vips
 
-[libvips](https://libvips.github.io/libvips) for the browser and Node.js,
-compiled to WebAssembly with Emscripten.
+[libvips](https://www.libvips.org/) for the browser and Node.js, compiled
+to WebAssembly with Emscripten.
 
 Programs that use wasm-vips don't manipulate images directly, instead
 they create pipelines of image processing operations building on a source
@@ -16,7 +16,7 @@ https://github.com/kleisauke/wasm-vips/issues/1).
 
 ## Engine support
 
-An engine that [supports WebAssembly SIMD](https://webassembly.org/roadmap/).
+An engine that [supports WebAssembly SIMD](https://webassembly.org/features/).
 This is present on most major browser engines.
 
 For V8-based engines, at least version 9.1.54 is required to match the final
@@ -30,7 +30,7 @@ at least version 615.1.17 is required. This corresponds to Safari 16.4.
 
 | ![Chrome](https://github.com/alrra/browser-logos/raw/main/src/chrome/chrome_32x32.png)<br>Chrome | ![Firefox](https://github.com/alrra/browser-logos/raw/main/src/firefox/firefox_32x32.png)<br>Firefox | ![Safari](https://github.com/alrra/browser-logos/raw/main/src/safari/safari_32x32.png)<br>Safari | ![Edge](https://github.com/alrra/browser-logos/raw/main/src/edge/edge_32x32.png)<br>Edge | ![Node.js](https://github.com/alrra/browser-logos/raw/main/src/node.js/node.js_32x32.png)<br>Node.js | ![Deno](https://github.com/alrra/browser-logos/raw/main/src/deno/deno_32x32.png)<br>Deno |
 |:---:|:---:|:---:|:---:|:---:|:---:|
-| :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 89+](https://bugzilla.mozilla.org/show_bug.cgi?id=1695585) | :heavy_check_mark:<br>[version 16.4+](https://webkit.org/blog/13966/webkit-features-in-safari-16-4/#javascript-and-webassembly) | :heavy_check_mark:<br>[version 91+](https://www.chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 16.4+](https://github.com/nodejs/node/pull/38273) | :heavy_check_mark:<br>[version 1.9+](https://github.com/denoland/deno/pull/10152) |
+| :heavy_check_mark:<br>[version 91+](https://chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 89+](https://bugzilla.mozilla.org/show_bug.cgi?id=1695585) | :heavy_check_mark:<br>[version 16.4+](https://webkit.org/blog/13966/webkit-features-in-safari-16-4/#javascript-and-webassembly) | :heavy_check_mark:<br>[version 91+](https://chromestatus.com/feature/6533147810332672) | :heavy_check_mark:<br>[version 16.4+](https://github.com/nodejs/node/pull/38273) | :heavy_check_mark:<br>[version 1.9+](https://github.com/denoland/deno/pull/10152) |
 
 ## Installation
 
@@ -127,7 +127,7 @@ let im = vips.Image.newFromFile('owl.jpg');
 // Put im at position (100, 100) in a 3000 x 3000 pixel image,
 // make the other pixels in the image by mirroring im up / down /
 // left / right, see
-// https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-embed
+// https://www.libvips.org/API/current/libvips-conversion.html#vips-embed
 im = im.embed(100, 100, 3000, 3000, {
   extend: 'mirror'
 });

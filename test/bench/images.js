@@ -5,7 +5,7 @@ export function getPath (filename) {
   return './images/' + filename;
 }
 
-// https://www.flickr.com/photos/grizdave/2569067123/
+// https://flickr.com/photos/grizdave/2569067123/
 export const inputJpg = getPath('2569067123_aca715a2ee_o.jpg');
 
 // https://gist.github.com/gasi/769cfb9f2359a1fbedc5

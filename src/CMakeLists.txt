@@ -131,7 +131,6 @@ set(MAIN_LINK_OPTIONS
         -sINITIAL_MEMORY=1GB
         -sSTACK_SIZE=256KB
         -sALLOW_TABLE_GROWTH
-        -sALLOW_BLOCKING_ON_MAIN_THREAD
         -sTEXTDECODER=2
         -sASSERTIONS=0
         -sFORCE_FILESYSTEM
@@ -174,12 +173,14 @@ if ("web" IN_LIST ENVIRONMENT)
             -sMIN_CHROME_VERSION=91
             )
 
-    # Build with `-sPTHREAD_POOL_SIZE="navigator.hardwareConcurrency + 2 + 1"` since `vips_sink_disc` uses two
-    # write-behind background threads, plus we need another one to run a maximum of two pipelines simultaneously.
+    # libvips requires spawning at least VIPS_CONCURRENCY threads synchronously, with a minimum of 3 threads per
+    # pipeline. This count includes the two write-behind background threads used by `vips_sink_disc`. To support up to
+    # two concurrent pipelines, we need to double that number. Therefore, build with:
+    # `-sPTHREAD_POOL_SIZE='Math.max(navigator.hardwareConcurrency, 6)'`.
     # Only needed on the web, pthreads on Node.js can be spawned synchronously without waiting for an event loop tick.
     set(WEB_LINK_OPTIONS
             --use-preload-plugins
-            -sPTHREAD_POOL_SIZE='navigator.hardwareConcurrency+2+1'
+            -sPTHREAD_POOL_SIZE='navigator.hardwareConcurrency>6?navigator.hardwareConcurrency:6'
             ${WEB_MIN_TARGETS}
             )
 

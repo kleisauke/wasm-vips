@@ -15,6 +15,12 @@ Uses libvips v8.15.2, compiled with Emscripten v3.1.64.
   [#70](https://github.com/kleisauke/wasm-vips/pull/70)
   [@marcosc90](https://github.com/marcosc90)
 
+### Changed
+
+- Reduce concurrency to 1 when wasm-vips was initialized on the main
+  browser thread.
+  [#69](https://github.com/kleisauke/wasm-vips/issues/69)
+
 ## [v0.0.9] - 2024-06-01
 
 Uses libvips v8.15.2, compiled with Emscripten v3.1.60.

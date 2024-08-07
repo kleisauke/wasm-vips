@@ -14,12 +14,10 @@ var LibraryVips = {
         // Enforce a fixed thread pool by default on web
         ENV['VIPS_MAX_THREADS'] = {{{ PTHREAD_POOL_SIZE }}};
 
-        // We cannot safely spawn dedicated workers when wasm-vips was initialized on the main browser thread.
-        // Therefore, to avoid any potential deadlocks, we reduce the concurrency to 1. For more details,
-        // see: https://emscripten.org/docs/porting/pthreads.html#blocking-on-the-main-browser-thread
-        if (!ENVIRONMENT_IS_WORKER) {
-          ENV['VIPS_CONCURRENCY'] = 1;
-        }
+        // We cannot safely spawn dedicated workers on the web. Therefore, to avoid any potential deadlocks, we reduce
+        // the concurrency to 1. For more details, see:
+        // https://emscripten.org/docs/porting/pthreads.html#blocking-on-the-main-browser-thread
+        ENV['VIPS_CONCURRENCY'] = 1;
       });
 #endif
 

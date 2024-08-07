@@ -17,9 +17,9 @@ Uses libvips v8.15.2, compiled with Emscripten v3.1.64.
 
 ### Changed
 
-- Reduce concurrency to 1 when wasm-vips was initialized on the main
-  browser thread.
+- Reduce concurrency by default to 1 on the web.
   [#69](https://github.com/kleisauke/wasm-vips/issues/69)
+  [#71](https://github.com/kleisauke/wasm-vips/issues/71)
 
 ## [v0.0.9] - 2024-06-01
 

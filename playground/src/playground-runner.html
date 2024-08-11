@@ -17,30 +17,33 @@
 <body>
 <script src="/lib/vips.js?<%= __webpack_hash__ %>"></script>
 <script type="module">
+  /* global Vips, cleanup */
+
   // TODO: `dynamicModules` should be imported from './samples' instead.
   const dynamicModules = [
     {
-      id: "jxl",
-      file: "vips-jxl.wasm",
+      id: 'jxl',
+      file: 'vips-jxl.wasm'
     },
     {
-      id: "heif",
-      file: "vips-heif.wasm",
+      id: 'heif',
+      file: 'vips-heif.wasm'
     },
     {
-      id: "resvg",
-      file: "vips-resvg.wasm",
-    },
+      id: 'resvg',
+      file: 'vips-resvg.wasm'
+    }
   ];
 
   let loadedElements = [];
 
   window.addEventListener('message', load);
 
-  function load(event) {
+  function load (event) {
     loadedElements = loadedElements.filter(el => el.remove());
-    if (typeof cleanup === 'function')
+    if (typeof cleanup === 'function') {
       cleanup();
+    }
 
     const data = event.data;
 
@@ -60,19 +63,22 @@
     }
     if (data.js) {
       try {
-        eval("(async () => {\n" + data.js + "\n})()");
+        // eslint-disable-next-line no-eval
+        eval('(async () => {\n' + data.js + '\n})()');
       } catch (err) {
         const pre = document.createElement('pre');
         pre.appendChild(document.createTextNode(err));
         document.body.insertBefore(pre, document.body.firstChild);
-        loadedElements.push(pre)
+        loadedElements.push(pre);
       }
     }
   }
 
   const options = {
-    print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
+    print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, '')),
     locateFile: (fileName, scriptDirectory) => `${scriptDirectory}${fileName}?<%= __webpack_hash__ %>`,
+    // Avoid using the browser's image decoder to decode preloaded files
+    noImageDecoding: true,
     preRun: (module) => {
       module.setAutoDeleteLater(!document.referrer.includes('disableAutoDelete'));
       module.setDelayFunction(fn => {
@@ -89,8 +95,9 @@
         'banana.webp', 'banana.gif',
         'alphachannel.svg', 'transparency_demo.png'
       ];
-      for (const image of images)
+      for (const image of images) {
         module.FS.createPreloadedFile('/', image, 'assets/images/' + image, true, false);
+      }
     },
     postRun: (module) => {
       const pad = 30;

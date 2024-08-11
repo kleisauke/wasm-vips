@@ -89,6 +89,8 @@
 <script type="module" src="test_mosaicing.js"></script>
 <script type="module" src="test_resample.js"></script>
 <script type="module" class="mocha-exec">
+  /* global Vips */
+
   // Uncomment to test the web ES6 module
   // import Vips from './lib/vips-es6.js';
 
@@ -100,7 +102,9 @@
   globalThis.expect = expect;
 
   const options = {
-    print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, "")),
+    print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, '')),
+    // Avoid using the browser's image decoder to decode preloaded files
+    noImageDecoding: true,
     // Uncomment to disable dynamic modules
     // dynamicLibraries: [],
     // Test all available dynamic modules
@@ -116,8 +120,9 @@
       // module.ENV.VIPS_LEAK = 1;
 
       // Preload test files
-      for (const file of Helpers.testFiles)
+      for (const file of Helpers.testFiles) {
         module.FS.createPreloadedFile('/', file.split('/').pop(), 'test/unit/images/' + file, true, false);
+      }
     },
     postRun: (module) => {
       const pad = 30;

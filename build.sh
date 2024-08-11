@@ -164,7 +164,7 @@ export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 # Dependency version numbers
 VERSION_ZLIB_NG=2.2.1       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
-VERSION_GLIB=2.81.0         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.81.1         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.6.2         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS
@@ -177,9 +177,9 @@ VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.4.1          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.4.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
-VERSION_RESVG=0.42.0        # https://github.com/RazrFalcon/resvg
+VERSION_RESVG=0.43.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.9.1           # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.18.1         # https://github.com/strukturag/libheif
+VERSION_HEIF=1.18.2         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.15.2         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
@@ -431,6 +431,15 @@ node --version
   # Vendor dir doesn't work with -Zbuild-std due to https://github.com/rust-lang/wg-cargo-std-aware/issues/23
   # Just delete the config so that all deps are downloaded from the internet
   rm .cargo/config
+  # https://github.com/etemesi254/zune-image/pull/187
+  # https://github.com/bevyengine/bevy/issues/14117#issuecomment-2236518551
+  # https://doc.rust-lang.org/cargo/reference/overriding-dependencies.html#the-patch-section
+  cat >> Cargo.toml <<EOL
+[patch.crates-io]
+zune-jpeg = { git = "https://github.com/ironpeak/zune-image.git", rev = "eebb01b" }
+EOL
+  # Regenerate the lockfile after making the above changes
+  cargo generate-lockfile
   # We don't want to build the shared library
   sed -i '/^crate-type =/s/"cdylib", //' crates/c-api/Cargo.toml
   cargo build --manifest-path=crates/c-api/Cargo.toml --release --target wasm32-unknown-emscripten --locked \

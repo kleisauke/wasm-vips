@@ -25,7 +25,11 @@
       },
       "default": "./lib/vips.js"
     },
-    "./versions": "./versions.json"
+    "./versions": "./versions.json",
+    "./vips.wasm": "./lib/vips.wasm",
+    "./vips-heif.wasm": "./lib/vips-heif.wasm",
+    "./vips-jxl.wasm": "./lib/vips-jxl.wasm",
+    "./vips-resvg.wasm": "./lib/vips-resvg.wasm"
   },
   "main": "lib/vips-node.js",
   "browser": "lib/vips.js",

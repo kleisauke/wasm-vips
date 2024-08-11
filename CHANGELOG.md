@@ -14,6 +14,7 @@ Uses libvips v8.15.2, compiled with Emscripten v3.1.64.
   automatically deleted when `setAutoDeleteLater(true)` is used.
   [#70](https://github.com/kleisauke/wasm-vips/pull/70)
   [@marcosc90](https://github.com/marcosc90)
+- Add `*.wasm` files to the `exports` section of `package.json`.
 
 ### Changed
 

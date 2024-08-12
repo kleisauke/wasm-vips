@@ -180,7 +180,7 @@ VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.43.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.9.1           # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.18.2         # https://github.com/strukturag/libheif
-VERSION_VIPS=8.15.2         # https://github.com/libvips/libvips
+VERSION_VIPS=8.15.3         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
 
@@ -491,7 +491,7 @@ EOL
   # Emscripten specific patches
   curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-8.15.patch | patch -p1
   # Disable HBR support in heifsave
-  curl -Ls https://github.com/kleisauke/libvips/commit/ad921cf9396dc5a224e93c71b601e87bd3a8a521.patch | patch -p1
+  curl -Ls https://github.com/libvips/build-win64-mxe/raw/v$VERSION_VIPS/build/patches/vips-8-heifsave-disable-hbr-support.patch | patch -p1
   # Disable building man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET --cross-file=$MESON_CROSS --default-library=static --buildtype=release \

@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 project(wasm-vips
-        VERSION 0.0.9
+        VERSION 0.0.10
         DESCRIPTION "libvips for the browser and Node.js, compiled to WebAssembly with Emscripten"
         LANGUAGES
             CXX

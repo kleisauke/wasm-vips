@@ -344,11 +344,13 @@ declare module Vips {
     class SourceCustom extends Source {
         /**
          * Attach a read handler.
-         * @param ptr A pointer to an array of bytes where the read content is stored.
-         * @param size The maximum number of bytes to be read.
-         * @return The total number of bytes read into the buffer.
+         * The handler is given a number of bytes to fetch {@link length}, and should return a
+         * bytes-like object containing up to that number of bytes. If there's no more data
+         * available, it should return `undefined`.
+         * @param length The maximum number of bytes to be read.
+         * @return A blob up to {@link length} bytes or `undefined` if there's no more data available.
          */
-        onRead: (ptr: number, size: bigint) => bigint;
+        onRead: (length: number) => Blob | undefined;
 
         /**
          * Attach a seek handler.
@@ -358,7 +360,7 @@ declare module Vips {
          * @param size A value indicating the reference point used to obtain the new position.
          * @return The new position within the current source.
          */
-        onSeek: (offset: bigint, whence: number) => bigint;
+        onSeek: (offset: number, whence: number) => number;
     }
 
     /**
@@ -407,22 +409,20 @@ declare module Vips {
     class TargetCustom extends Target {
         /**
          * Attach a write handler.
-         * @param ptr A pointer to an array of bytes which will be written to.
-         * @param length The number of bytes to write.
+         * @param data A typed array of 8-bit unsigned integer values.
          * @return The number of bytes that were written.
          */
-        onWrite: (ptr: number, size: bigint) => bigint;
+        onWrite: (data: Uint8Array) => number;
 
         /* libtiff needs to be able to seek and read on targets, unfortunately.
          */
 
         /**
          * Attach a read handler.
-         * @param ptr A pointer to an array of bytes where the read content is stored.
-         * @param size The maximum number of bytes to be read.
-         * @return The total number of bytes read from the target.
+         * @param length The maximum number of bytes to be read.
+         * @return A blob up to {@link length} bytes or `undefined` if there's no more data available.
          */
-        onRead: (ptr: number, size: bigint) => bigint;
+        onRead: (length: number) => Blob | undefined;
 
         /**
          * Attach a seek handler.
@@ -430,7 +430,7 @@ declare module Vips {
          * @param size A value indicating the reference point used to obtain the new position.
          * @return The new position within the current target.
          */
-        onSeek: (offset: bigint, whence: number) => bigint;
+        onSeek: (offset: number, whence: number) => number;
 
         /**
          * Attach an end handler.

@@ -9,6 +9,14 @@
 
 namespace vips {
 
+// sig = ii
+using ReadCallback = emscripten::EM_VAL (*)(int length);
+using WriteCallback = int (*)(emscripten::EM_VAL data);
+// sig = iii
+using SeekCallback = int (*)(int offset, int whence);
+// sig = i
+using EndCallback = int (*)();
+
 class Connection : public Object {
  public:
     explicit Connection(VipsConnection *connection)
@@ -74,10 +82,8 @@ class SourceCustom : public Source {
     }
 
  private:
-    // sig = jpj
-    int64_t (*read_callback)(void *data, int64_t length) = nullptr;
-    // sig = jji
-    int64_t (*seek_callback)(int64_t offset, int whence) = nullptr;
+    ReadCallback read_callback = nullptr;
+    SeekCallback seek_callback = nullptr;
 };
 
 class Target : public Connection {
@@ -149,13 +155,10 @@ class TargetCustom : public Target {
     }
 
  private:
-    // sig = jpj
-    int64_t (*write_callback)(const void *data, int64_t length) = nullptr;
-    int64_t (*read_callback)(void *data, int64_t length) = nullptr;
-    // sig = jji
-    int64_t (*seek_callback)(int64_t offset, int whence) = nullptr;
-    // sig = i
-    int (*end_callback)() = nullptr;
+    WriteCallback write_callback = nullptr;
+    ReadCallback read_callback = nullptr;
+    SeekCallback seek_callback = nullptr;
+    EndCallback end_callback = nullptr;
 };
 
 }  // namespace vips

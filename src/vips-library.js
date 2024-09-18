@@ -4,6 +4,7 @@ var LibraryVips = {
     '$ENV',
 #endif
     '$ClassHandle',
+    '$Emval',
     '$deletionQueue',
   ],
   $VIPS__postset: 'VIPS.init();',
@@ -20,6 +21,23 @@ var LibraryVips = {
         ENV['VIPS_CONCURRENCY'] = 1;
       });
 #endif
+      addOnInit(() => {
+        // SourceCustom.onRead marshaller 
+        const sourceCustom = Object.getOwnPropertyDescriptor(Module['SourceCustom'].prototype, 'onRead');
+        Object.defineProperty(Module['SourceCustom'].prototype, 'onRead', {
+          set(cb) {
+            return sourceCustom.set.call(this, (length) => Emval.toHandle(cb(length)));
+          }
+        });
+
+        // TargetCustom.onWrite marshaller 
+        const targetCustom = Object.getOwnPropertyDescriptor(Module['TargetCustom'].prototype, 'onWrite');
+        Object.defineProperty(Module['TargetCustom'].prototype, 'onWrite', {
+          set(cb) {
+            return targetCustom.set.call(this, (data) => cb(Emval.toValue(data)));
+          }
+        });
+      });
 
       // Add preventAutoDelete method to ClassHandle
       Object.assign(ClassHandle.prototype, {

@@ -82,10 +82,13 @@ describe('connection', () => {
         const stream = vips.FS.open(Helpers.jpegFile, 'r');
 
         const source = new vips.SourceCustom();
-        source.onRead = (ptr, size) =>
-          BigInt(vips.FS.read(stream, vips.HEAPU8, ptr, vips.bigintToI53Checked(size)));
+        source.onRead = (length) => {
+          const data = new Uint8Array(length);
+          const bytesRead = vips.FS.read(stream, data, 0, length);
+          return data.subarray(0, bytesRead);
+        };
         source.onSeek = (offset, whence) =>
-          BigInt(vips.FS.llseek(stream, vips.bigintToI53Checked(offset), whence));
+          vips.FS.llseek(stream, offset, whence);
 
         const image = vips.Image.newFromSource(source, '', {
           access: 'sequential'
@@ -128,8 +131,8 @@ describe('connection', () => {
         let onEndCalled = false;
 
         const target = new vips.TargetCustom();
-        target.onWrite = (ptr, size) =>
-          BigInt(vips.FS.write(stream, vips.HEAPU8, ptr, vips.bigintToI53Checked(size)));
+        target.onWrite = (data) =>
+          vips.FS.write(stream, data, 0, data.length);
         target.onEnd = () => {
           vips.FS.close(stream);
           onEndCalled = true;

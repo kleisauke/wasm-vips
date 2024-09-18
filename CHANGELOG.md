@@ -14,6 +14,10 @@ Uses libvips v8.15.3, compiled with Emscripten v3.1.67.
   `TargetCustom.onWrite` callbacks.
   [#74](https://github.com/kleisauke/wasm-vips/issues/74)
 
+### Removed
+
+- Remove redundant `vips.bigintToI53Checked()` helper.
+
 ## [v0.0.10] - 2024-08-14
 
 Uses libvips v8.15.3, compiled with Emscripten v3.1.64.

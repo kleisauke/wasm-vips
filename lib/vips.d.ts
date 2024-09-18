@@ -112,14 +112,6 @@ declare module Vips {
      */
     function shutdown(): void;
 
-    /**
-     * Convert a bigint value (usually coming from Wasm->JS call) into an int53 JS Number.
-     * This is used when we have an incoming i64 that we know is a pointer or size_t and
-     * is expected to be withing the int53 range.
-     * @return The converted bigint value or NaN if the incoming bigint is outside the range.
-     */
-    function bigintToI53Checked(num: bigint): number;
-
     //#endregion
 
     //#region APIs

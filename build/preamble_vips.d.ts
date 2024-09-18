@@ -41,7 +41,7 @@ declare module Vips {
 
     /**
      * Queue of handles to be deleted.
-     * This is filled when [[deleteLater]] is called on the handle.
+     * This is filled when {@link deleteLater} is called on the handle.
      */
     const deletionQueue: DeletionFuncs<Image | Connection | Interpolate>;
 
@@ -129,8 +129,8 @@ declare module Vips {
      */
     abstract class EmbindClassHandle<T extends EmbindClassHandle<T>> {
         /**
-         * Returns a new handle. It must eventually also be disposed with [[delete]] or
-         * [[deleteLater]].
+         * Returns a new handle. It must eventually also be disposed with {@link delete} or
+         * {@link deleteLater}.
          * @return A new handle.
          */
         clone(): T;
@@ -317,7 +317,7 @@ declare module Vips {
          * ```js
          * const source = vips.Source.newFromFile('myfile.jpg');
          * ```
-         * You can pass this source to (for example) [[Image.newFromSource]].
+         * You can pass this source to (for example) {@link Image.newFromSource}.
          * @param filename The file.
          * @return A new source.
          */
@@ -331,7 +331,7 @@ declare module Vips {
          * const data = image.writeToBuffer('.jpg');
          * const source = vips.Source.newFromMemory(data);
          * ```
-         * You can pass this source to (for example) [[Image.newFromSource]].
+         * You can pass this source to (for example) {@link Image.newFromSource}.
          * @param memory The memory object.
          * @return A new source.
          */
@@ -372,7 +372,7 @@ declare module Vips {
          * ```js
          * const target = vips.Target.newToFile('myfile.jpg');
          * ```
-         * You can pass this target to (for example) [[image.writeToTarget]].
+         * You can pass this target to (for example) {@link image.writeToTarget}.
          * @param filename Write to this file.
          * @return A new target.
          */
@@ -385,9 +385,9 @@ declare module Vips {
          * ```js
          * const target = vips.Target.newToMemory();
          * ```
-         * You can pass this target to (for example) [[image.writeToTarget]].
+         * You can pass this target to (for example) {@link image.writeToTarget}.
          *
-         * After writing to the target, fetch the bytes from the target object with [[getBlob]].
+         * After writing to the target, fetch the bytes from the target object with {@link getBlob}.
          * @return A new target.
          */
         static newToMemory(): Target;
@@ -550,7 +550,7 @@ declare module Vips {
          * Make a new temporary image.
          *
          * Returns an image backed by a temporary file. When written to with
-         * [[write]], a temporary file will be created on disc in the
+         * {@link write}, a temporary file will be created on disc in the
          * specified format. When the image is closed, the file will be deleted
          * automatically.
          *
@@ -605,7 +605,7 @@ declare module Vips {
             access?: Access | Enum
             /**
              * The type of error that will cause load to fail. By default,
-             * loaders are permissive, that is, [[FailOn.none]].
+             * loaders are permissive, that is, {@link FailOn.none}.
              */
             fail_on?: FailOn | Enum
             /**
@@ -630,8 +630,8 @@ declare module Vips {
          * This method is useful for efficiently transferring images from WebGL into
          * libvips.
          *
-         * See [[writeToMemory]] for the opposite operation.
-         * Use [[copy]] to set other image attributes.
+         * See {@link writeToMemory} for the opposite operation.
+         * Use {@link copy} to set other image attributes.
          * @param data A C-style JavaScript array.
          * @param width Image width in pixels.
          * @param height Image height in pixels.
@@ -644,7 +644,7 @@ declare module Vips {
         /**
          * Wrap an image around a pointer.
          *
-         * This behaves exactly as [[newFromMemory]], but the image is
+         * This behaves exactly as {@link newFromMemory}, but the image is
          * loaded from a pointer rather than from a JavaScript array.
          * @param ptr A memory address.
          * @param size Length of memory area.
@@ -659,7 +659,7 @@ declare module Vips {
         /**
          * Load a formatted image from memory.
          *
-         * This behaves exactly as [[newFromFile]], but the image is
+         * This behaves exactly as {@link newFromFile}, but the image is
          * loaded from the memory object rather than from a file. The
          * memory object can be a string or buffer.
          * @param data The memory object to load the image from.
@@ -674,7 +674,7 @@ declare module Vips {
             access?: Access | Enum
             /**
              * The type of error that will cause load to fail. By default,
-             * loaders are permissive, that is, [[FailOn.none]].
+             * loaders are permissive, that is, {@link FailOn.none}.
              */
             fail_on?: FailOn | Enum
             /**
@@ -686,7 +686,7 @@ declare module Vips {
         /**
          * Load a formatted image from a source.
          *
-         * This behaves exactly as [[newFromFile]], but the image is
+         * This behaves exactly as {@link newFromFile}, but the image is
          * loaded from a source rather than from a file.
          * @param source The source to load the image from.
          * @param strOptions Load options as a string.
@@ -700,7 +700,7 @@ declare module Vips {
             access?: Access | Enum
             /**
              * The type of error that will cause load to fail. By default,
-             * loaders are permissive, that is, [[FailOn.none]].
+             * loaders are permissive, that is, {@link FailOn.none}.
              */
             fail_on?: FailOn | Enum
             /**
@@ -712,9 +712,9 @@ declare module Vips {
         /**
          * Create an image from a 1D array.
          *
-         * A new one-band image with [[BandFormat.double]] pixels is
+         * A new one-band image with {@link BandFormat.double} pixels is
          * created from the array. These images are useful with the libvips
-         * convolution operator [[conv]].
+         * convolution operator {@link conv}.
          * @param width Image width.
          * @param height Image height.
          * @param array Create the image from these values.
@@ -725,9 +725,9 @@ declare module Vips {
         /**
          * Create an image from a 2D array.
          *
-         * A new one-band image with [[BandFormat.double]] pixels is
+         * A new one-band image with {@link BandFormat.double} pixels is
          * created from the array. These images are useful with the libvips
-         * convolution operator [[conv]].
+         * convolution operator {@link conv}.
          * @param array Create the image from these values.
          * @param scale Default to 1.0. What to divide each pixel by after
          * convolution. Useful for integer convolution masks.
@@ -766,7 +766,7 @@ declare module Vips {
          * Write an image to another image.
          *
          * This function writes itself to another image. Use something like
-         * [[newTempFile]] to make an image that can be written to.
+         * {@link newTempFile} to make an image that can be written to.
          * @param other The image to write to.
          * @return A new image.
          */
@@ -777,7 +777,7 @@ declare module Vips {
          *
          * This method can save images in any format supported by libvips. The format
          * is selected from the filename suffix. The filename can include embedded
-         * save options, see [[newFromFile]].
+         * save options, see {@link newFromFile}.
          *
          * For example:
          * ```js
@@ -806,7 +806,7 @@ declare module Vips {
          *
          * This method can save images in any format supported by libvips. The format
          * is selected from the suffix in the format string. This can include
-         * embedded save options, see [[newFromFile]].
+         * embedded save options, see {@link newFromFile}.
          *
          * For example:
          * ```js
@@ -834,7 +834,7 @@ declare module Vips {
         /**
          * Write an image to a target.
          *
-         * This behaves exactly as [[writeToFile]], but the image is
+         * This behaves exactly as {@link writeToFile}, but the image is
          * written to a target rather than a file.
          * @param target Write to this target.
          * @param formatString The suffix, plus any string-form arguments.
@@ -991,7 +991,7 @@ declare module Vips {
         /**
          * Sets the `delete_on_close` flag for the image.
          * If this flag is set, when image is finalized, the filename held in
-         * [[image.filename]] at the time of this call is deleted.
+         * {@link image.filename} at the time of this call is deleted.
          * This function is clearly extremely dangerous, use with great caution.
          */
         setDeleteOnClose(flag: boolean): void;

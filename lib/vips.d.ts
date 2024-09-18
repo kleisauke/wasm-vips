@@ -373,7 +373,7 @@ declare module Vips {
          * const target = vips.Target.newToFile('myfile.jpg');
          * ```
          * You can pass this target to (for example) [[image.writeToTarget]].
-         * @param filename Write to this this file.
+         * @param filename Write to this file.
          * @return A new target.
          */
         static newToFile(filename: string): Target;
@@ -879,28 +879,28 @@ declare module Vips {
         setArrayInt(name: string, value: ArrayConstant): void;
 
         /**
-         * Set an double array on an image as metadata.
+         * Set a double array on an image as metadata.
          * @param name The name of the piece of metadata to set the value of.
          * @param value The metadata value.
          */
         setArrayDouble(name: string, value: ArrayConstant): void;
 
         /**
-         * Set an double on an image as metadata.
+         * Set a double on an image as metadata.
          * @param name The name of the piece of metadata to set the value of.
          * @param value The metadata value.
          */
         setDouble(name: string, value: number): void;
 
         /**
-         * Set an string on an image as metadata.
+         * Set a string on an image as metadata.
          * @param name The name of the piece of metadata to set the value of.
          * @param value The metadata value.
          */
         setString(name: string, value: string): void;
 
         /**
-         * Set an blob on an image as metadata.
+         * Set a blob on an image as metadata.
          * The value will internally be copied from JavaScript to WASM.
          * @param name The name of the piece of metadata to set the value of.
          * @param value The metadata value.
@@ -908,7 +908,7 @@ declare module Vips {
         setBlob(name: string, value: Blob): void;
 
         /**
-         * Set an blob pointer on an image as metadata.
+         * Set a blob pointer on an image as metadata.
          * @param name The name of the piece of metadata to set the value of.
          * @param ptr The metadata value as memory address.
          * @param size Length of blob.
@@ -938,30 +938,30 @@ declare module Vips {
         getArrayInt(name: string): number[];
 
         /**
-         * Get an double array from an image.
+         * Get a double array from an image.
          * @param name The name of the piece of metadata to get.
-         * @return The metadata item as an double array.
+         * @return The metadata item as a double array.
          */
         getArrayDouble(name: string): number[];
 
         /**
          * Get an double from an image.
          * @param name The name of the piece of metadata to get.
-         * @return The metadata item as an double.
+         * @return The metadata item as a double.
          */
         getDouble(name: string): number;
 
         /**
-         * Get an string from an image.
+         * Get a string from an image.
          * @param name The name of the piece of metadata to get.
-         * @return The metadata item as an string.
+         * @return The metadata item as a string.
          */
         getString(name: string): string;
 
         /**
-         * Get an blob from an image.
+         * Get a blob from an image.
          * @param name The name of the piece of metadata to get.
-         * @return The metadata item as an typed array of 8-bit unsigned integer values.
+         * @return The metadata item as a typed array of 8-bit unsigned integer values.
          */
         getBlob(name: string): Uint8Array;
 

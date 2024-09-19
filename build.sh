@@ -162,7 +162,7 @@ export RUSTFLAGS+=" --remap-path-prefix=$CARGO_HOME/registry/src/="
 export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 
 # Dependency version numbers
-VERSION_ZLIB_NG=2.2.1       # https://github.com/zlib-ng/zlib-ng
+VERSION_ZLIB_NG=2.2.2       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
 VERSION_GLIB=2.82.0         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.6.3         # https://github.com/libexpat/libexpat
@@ -171,12 +171,12 @@ VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.2.0           # https://github.com/google/highway
 VERSION_BROTLI=1.1.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=4.1.5       # https://github.com/mozilla/mozjpeg
-VERSION_JXL=0.10.3          # https://github.com/libjxl/libjxl
+VERSION_JXL=0.11.0          # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.4.1          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.4.0          # https://chromium.googlesource.com/webm/libwebp
-VERSION_TIFF=4.6.0          # https://gitlab.com/libtiff/libtiff
+VERSION_TIFF=4.7.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.43.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.10.0          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.18.2         # https://github.com/strukturag/libheif
@@ -349,7 +349,6 @@ node --version
     -DBUILD_SHARED_LIBS=FALSE -DBUILD_TESTING=FALSE -DJPEGXL_ENABLE_TOOLS=FALSE -DJPEGXL_ENABLE_JPEGLI=FALSE \
     -DJPEGXL_ENABLE_EXAMPLES=FALSE -DJPEGXL_ENABLE_SJPEG=FALSE -DJPEGXL_ENABLE_SKCMS=FALSE -DJPEGXL_BUNDLE_LIBPNG=FALSE \
     -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE -DJPEGXL_FORCE_SYSTEM_LCMS2=TRUE -DJPEGXL_FORCE_SYSTEM_HWY=TRUE \
-    -DCMAKE_C_FLAGS="$CFLAGS -DJXL_DEBUG_ON_ABORT=0" -DCMAKE_CXX_FLAGS="$CXXFLAGS -DJXL_DEBUG_ON_ABORT=0" \
     -DJPEGXL_ENABLE_TRANSCODE_JPEG=FALSE # libvips always decodes to pixels
   make -C _build install
   if [ -n "$ENABLE_MODULES" ]; then

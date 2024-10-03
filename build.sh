@@ -109,7 +109,7 @@ done
 #export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"
 
 # Rust flags
-export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+nontrapping-fptoint -Zdefault-hidden-visibility=yes"
+export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+nontrapping-fptoint -Zdefault-visibility=hidden"
 
 # Common compiler flags
 COMMON_FLAGS="-O3 -pthread"
@@ -164,7 +164,7 @@ export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 # Dependency version numbers
 VERSION_ZLIB_NG=2.2.2       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
-VERSION_GLIB=2.82.0         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.82.1         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.6.3         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS
@@ -177,7 +177,7 @@ VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.4.1          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.4.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.0          # https://gitlab.com/libtiff/libtiff
-VERSION_RESVG=0.43.0        # https://github.com/RazrFalcon/resvg
+VERSION_RESVG=0.44.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.10.0          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.18.2         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.15.3         # https://github.com/libvips/libvips

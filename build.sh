@@ -338,6 +338,9 @@ node --version
     -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE -DPNG_SUPPORTED=FALSE \
     -DCMAKE_C_FLAGS="$CFLAGS -DNO_GETENV -DNO_PUTENV"
   make -C _build install
+  # Fix missing prefix variables
+  sed -i 's/libdir=\/src\/build\/target/libdir=${exec_prefix}/' $TARGET/lib/pkgconfig/libjpeg.pc
+  sed -i 's/includedir=\/src\/build\/target/includedir=${prefix}/' $TARGET/lib/pkgconfig/libjpeg.pc
 )
 
 [ -f "$TARGET/lib/pkgconfig/libjxl.pc" ] || [ -n "$DISABLE_JXL" ] || (
@@ -360,6 +363,10 @@ node --version
     # ... and the same for -lc++, see:
     # https://github.com/emscripten-core/emscripten/issues/16680#issuecomment-1558015445
     sed -i '/^Libs/s/ -lc++//g' $TARGET/lib/pkgconfig/libjxl{,_cms}.pc
+  else
+    # Move -lc++ to private libs
+    sed -i '/^Libs:/s/ -lc++//g' $TARGET/lib/pkgconfig/libjxl.pc
+    sed -i '/^Libs.private:/s/$/ -lc++/' $TARGET/lib/pkgconfig/libjxl.pc
   fi
 )
 

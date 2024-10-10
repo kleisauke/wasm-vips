@@ -6,13 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.0.11] - TBD
 
-Uses libvips v8.15.5-rc1, compiled with Emscripten v3.1.68.
+Uses libvips v8.16.0-rc1, compiled with Emscripten v3.1.68.
 
 ### Changed
 
 - Avoid pointer arguments in `SourceCustom.onRead` and
   `TargetCustom.onWrite` callbacks.
   [#74](https://github.com/kleisauke/wasm-vips/issues/74)
+- Update methods/enums for libvips 8.16.
 
 ### Removed
 

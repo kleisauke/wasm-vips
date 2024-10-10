@@ -117,6 +117,12 @@ describe('conversion', () => {
     expect(x.extractBand(4).avg()).to.equal(2);
   });
 
+  it('addalpha', function () {
+    const x = colour.addalpha();
+    expect(x.bands).to.equal(4);
+    expect(x.extractBand(3).avg()).to.equal(255);
+  });
+
   it('bandmean', function () {
     const bandmean = (x) => x instanceof vips.Image
       ? x.bandmean()
@@ -138,12 +144,6 @@ describe('conversion', () => {
     const b = mono.less(2).ifthenelse(mono, 2);
 
     expect(a.subtract(b).abs().min()).to.equal(0);
-  });
-
-  it('cache', function () {
-    const cache = (x) => x instanceof vips.Image ? x.cache() : x;
-
-    runUnary(allImages, cache);
   });
 
   it('copy', function () {

@@ -570,6 +570,16 @@ static Image radload_source(const Source &source, emscripten::val js_options = e
 static Image rawload(const std::string &filename, int width, int height, int bands, emscripten::val js_options = emscripten::val::null());
 
 /**
+ * Create an sdf image.
+ * @param width Image width in pixels.
+ * @param height Image height in pixels.
+ * @param shape SDF shape to create.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image sdf(int width, int height, emscripten::val shape, emscripten::val js_options = emscripten::val::null());
+
+/**
  * Make a 2d sine wave.
  * @param width Image width in pixels.
  * @param height Image height in pixels.
@@ -879,6 +889,12 @@ Image Yxy2XYZ() const;
 Image abs() const;
 
 /**
+ * Append an alpha channel.
+ * @return Output image.
+ */
+Image addalpha() const;
+
+/**
  * Affine transform of an image.
  * @param matrix Transformation matrix.
  * @param js_options Optional options.
@@ -947,13 +963,6 @@ Image buildlut() const;
 Image byteswap() const;
 
 /**
- * Cache an image.
- * @param js_options Optional options.
- * @return Output image.
- */
-Image cache(emscripten::val js_options = emscripten::val::null()) const;
-
-/**
  * Canny edge detector.
  * @param js_options Optional options.
  * @return Output image.
@@ -974,6 +983,13 @@ Image case_image(emscripten::val cases) const;
  * @return Output image.
  */
 Image cast(emscripten::val format, emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Clamp values of an image.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+Image clamp(emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Convert to a new colorspace.
@@ -1346,9 +1362,10 @@ Image gaussblur(double sigma, emscripten::val js_options = emscripten::val::null
  * Read a point from an image.
  * @param x Point to read.
  * @param y Point to read.
+ * @param js_options Optional options.
  * @return Array of output values.
  */
-std::vector<double> getpoint(int x, int y) const;
+std::vector<double> getpoint(int x, int y, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Save as gif.
@@ -1570,7 +1587,7 @@ Image join(emscripten::val in2, emscripten::val direction, emscripten::val js_op
 
 /**
  * Save image in jpeg2000 format.
- * @param filename Filename to load from.
+ * @param filename Filename to save to.
  * @param js_options Optional options.
  */
 void jp2ksave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
@@ -1618,7 +1635,7 @@ void jpegsave_target(const Target &target, emscripten::val js_options = emscript
 
 /**
  * Save image in jpeg-xl format.
- * @param filename Filename to load from.
+ * @param filename Filename to save to.
  * @param js_options Optional options.
  */
 void jxlsave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
@@ -1755,6 +1772,13 @@ void matrixsave_target(const Target &target, emscripten::val js_options = emscri
 double max(emscripten::val js_options = emscripten::val::null()) const;
 
 /**
+ * Maximum of a pair of images.
+ * @param right Right-hand image argument.
+ * @return Output image.
+ */
+Image maxpair(emscripten::val right) const;
+
+/**
  * Measure a set of patches on a color chart.
  * @param h Number of patches across chart.
  * @param v Number of patches down chart.
@@ -1780,6 +1804,13 @@ Image merge(emscripten::val sec, emscripten::val direction, int dx, int dy, emsc
  * @return Output value.
  */
 double min(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Minimum of a pair of images.
+ * @param right Right-hand image argument.
+ * @return Output image.
+ */
+Image minpair(emscripten::val right) const;
 
 /**
  * Morphology operation.
@@ -1961,11 +1992,18 @@ Image rank(int width, int height, int index) const;
 void rawsave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
- * Write raw image to file descriptor.
- * @param fd File descriptor to write to.
+ * Write raw image to buffer.
+ * @param js_options Optional options.
+ * @return Buffer to save to.
+ */
+emscripten::val rawsave_buffer(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Write raw image to target.
+ * @param target Target to save to.
  * @param js_options Optional options.
  */
-void rawsave_fd(int fd, emscripten::val js_options = emscripten::val::null()) const;
+void rawsave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Linear recombination with matrix.
@@ -2046,7 +2084,7 @@ Image rot45(emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Rotate an image by a number of degrees.
- * @param angle Rotate anticlockwise by this many degrees.
+ * @param angle Rotate clockwise by this many degrees.
  * @param js_options Optional options.
  * @return Output image.
  */

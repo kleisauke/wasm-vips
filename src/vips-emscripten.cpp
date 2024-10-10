@@ -283,6 +283,12 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("word_char", VIPS_TEXT_WRAP_WORD_CHAR)
         .value("none", VIPS_TEXT_WRAP_NONE);
 
+    enum_<VipsSdfShape>("SdfShape")
+        .value("circle", VIPS_SDF_SHAPE_CIRCLE)
+        .value("box", VIPS_SDF_SHAPE_BOX)
+        .value("rounded_box", VIPS_SDF_SHAPE_ROUNDED_BOX)
+        .value("line", VIPS_SDF_SHAPE_LINE);
+
     enum_<VipsFailOn>("FailOn")
         .value("none", VIPS_FAIL_ON_NONE)
         .value("truncated", VIPS_FAIL_ON_TRUNCATED)
@@ -1362,6 +1368,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("rawload", optional_override([](const std::string &filename, int width, int height, int bands) {
                             return Image::rawload(filename, width, height, bands);
                         }))
+        .class_function("sdf", &Image::sdf)
+        .class_function("sdf", optional_override([](int width, int height, emscripten::val shape) {
+                            return Image::sdf(width, height, shape);
+                        }))
         .class_function("sines", &Image::sines)
         .class_function("sines", optional_override([](int width, int height) {
                             return Image::sines(width, height);
@@ -1474,6 +1484,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("XYZ2scRGB", &Image::XYZ2scRGB)
         .function("Yxy2XYZ", &Image::Yxy2XYZ)
         .function("abs", &Image::abs)
+        .function("addalpha", &Image::addalpha)
         .function("affine", &Image::affine)
         .function("affine", optional_override([](const Image &image, const std::vector<double> &matrix) {
                       return image.affine(matrix);
@@ -1494,10 +1505,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
                   }))
         .function("buildlut", &Image::buildlut)
         .function("byteswap", &Image::byteswap)
-        .function("cache", &Image::cache)
-        .function("cache", optional_override([](const Image &image) {
-                      return image.cache();
-                  }))
         .function("canny", &Image::canny)
         .function("canny", optional_override([](const Image &image) {
                       return image.canny();
@@ -1506,6 +1513,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("cast", &Image::cast)
         .function("cast", optional_override([](const Image &image, emscripten::val format) {
                       return image.cast(format);
+                  }))
+        .function("clamp", &Image::clamp)
+        .function("clamp", optional_override([](const Image &image) {
+                      return image.clamp();
                   }))
         .function("colourspace", &Image::colourspace)
         .function("colourspace", optional_override([](const Image &image, emscripten::val space) {
@@ -1623,6 +1634,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
                       return image.gaussblur(sigma);
                   }))
         .function("getpoint", &Image::getpoint)
+        .function("getpoint", optional_override([](const Image &image, int x, int y) {
+                      return image.getpoint(x, y);
+                  }))
         .function("gifsave", &Image::gifsave)
         .function("gifsave", optional_override([](const Image &image, const std::string &filename) {
                       image.gifsave(filename);
@@ -1808,6 +1822,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("max", optional_override([](const Image &image) {
                       return image.max();
                   }))
+        .function("maxpair", &Image::maxpair)
         .function("measure", &Image::measure)
         .function("measure", optional_override([](const Image &image, int h, int v) {
                       return image.measure(h, v);
@@ -1820,6 +1835,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("min", optional_override([](const Image &image) {
                       return image.min();
                   }))
+        .function("minpair", &Image::minpair)
         .function("mosaic", &Image::mosaic)
         .function("mosaic", optional_override([](const Image &image, emscripten::val sec, emscripten::val direction, int xref, int yref, int xsec, int ysec) {
                       return image.mosaic(sec, direction, xref, yref, xsec, ysec);
@@ -1885,9 +1901,13 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("rawsave", optional_override([](const Image &image, const std::string &filename) {
                       image.rawsave(filename);
                   }))
-        .function("rawsaveFd", &Image::rawsave_fd)
-        .function("rawsaveFd", optional_override([](const Image &image, int fd) {
-                      image.rawsave_fd(fd);
+        .function("rawsaveBuffer", &Image::rawsave_buffer)
+        .function("rawsaveBuffer", optional_override([](const Image &image) {
+                      return image.rawsave_buffer();
+                  }))
+        .function("rawsaveTarget", &Image::rawsave_target)
+        .function("rawsaveTarget", optional_override([](const Image &image, const Target &target) {
+                      image.rawsave_target(target);
                   }))
         .function("recomb", &Image::recomb)
         .function("reduce", &Image::reduce)

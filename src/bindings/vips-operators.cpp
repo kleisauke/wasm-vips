@@ -917,6 +917,21 @@ Image Image::rawload(const std::string &filename, int width, int height, int ban
     return out;
 }
 
+Image Image::sdf(int width, int height, emscripten::val shape, emscripten::val js_options)
+{
+    Image out;
+
+    Image::call("sdf", nullptr,
+                (new Option)
+                    ->set("out", &out)
+                    ->set("width", width)
+                    ->set("height", height)
+                    ->set("shape", VIPS_TYPE_SDF_SHAPE, shape),
+                js_options);
+
+    return out;
+}
+
 Image Image::sines(int width, int height, emscripten::val js_options)
 {
     Image out;
@@ -1465,6 +1480,18 @@ Image Image::abs() const
     return out;
 }
 
+Image Image::addalpha() const
+{
+    Image out;
+
+    this->call("addalpha",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("out", &out));
+
+    return out;
+}
+
 Image Image::affine(const std::vector<double> &matrix, emscripten::val js_options) const
 {
     Image out;
@@ -1593,19 +1620,6 @@ Image Image::byteswap() const
     return out;
 }
 
-Image Image::cache(emscripten::val js_options) const
-{
-    Image out;
-
-    this->call("cache",
-               (new Option)
-                   ->set("in", *this)
-                   ->set("out", &out),
-               js_options);
-
-    return out;
-}
-
 Image Image::canny(emscripten::val js_options) const
 {
     Image out;
@@ -1641,6 +1655,19 @@ Image Image::cast(emscripten::val format, emscripten::val js_options) const
                    ->set("in", *this)
                    ->set("out", &out)
                    ->set("format", VIPS_TYPE_BAND_FORMAT, format),
+               js_options);
+
+    return out;
+}
+
+Image Image::clamp(emscripten::val js_options) const
+{
+    Image out;
+
+    this->call("clamp",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("out", &out),
                js_options);
 
     return out;
@@ -2252,7 +2279,7 @@ Image Image::gaussblur(double sigma, emscripten::val js_options) const
     return out;
 }
 
-std::vector<double> Image::getpoint(int x, int y) const
+std::vector<double> Image::getpoint(int x, int y, emscripten::val js_options) const
 {
     std::vector<double> out_array;
 
@@ -2261,7 +2288,8 @@ std::vector<double> Image::getpoint(int x, int y) const
                    ->set("in", *this)
                    ->set("out_array", &out_array)
                    ->set("x", x)
-                   ->set("y", y));
+                   ->set("y", y),
+               js_options);
 
     return out_array;
 }
@@ -2970,6 +2998,19 @@ double Image::max(emscripten::val js_options) const
     return out;
 }
 
+Image Image::maxpair(emscripten::val right) const
+{
+    Image out;
+
+    this->call("maxpair",
+               (new Option)
+                   ->set("left", *this)
+                   ->set("out", &out)
+                   ->set("right", VIPS_TYPE_IMAGE, right, this));
+
+    return out;
+}
+
 Image Image::measure(int h, int v, emscripten::val js_options) const
 {
     Image out;
@@ -3011,6 +3052,19 @@ double Image::min(emscripten::val js_options) const
                    ->set("in", *this)
                    ->set("out", &out),
                js_options);
+
+    return out;
+}
+
+Image Image::minpair(emscripten::val right) const
+{
+    Image out;
+
+    this->call("minpair",
+               (new Option)
+                   ->set("left", *this)
+                   ->set("out", &out)
+                   ->set("right", VIPS_TYPE_IMAGE, right, this));
 
     return out;
 }
@@ -3310,12 +3364,30 @@ void Image::rawsave(const std::string &filename, emscripten::val js_options) con
                js_options);
 }
 
-void Image::rawsave_fd(int fd, emscripten::val js_options) const
+emscripten::val Image::rawsave_buffer(emscripten::val js_options) const
 {
-    this->call("rawsave_fd",
+    VipsBlob *buffer;
+
+    this->call("rawsave_buffer",
                (new Option)
                    ->set("in", *this)
-                   ->set("fd", fd),
+                   ->set("buffer", &buffer),
+               js_options);
+
+    emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
+        VIPS_AREA(buffer)->length,
+        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+    vips_area_unref(VIPS_AREA(buffer));
+
+    return result;
+}
+
+void Image::rawsave_target(const Target &target, emscripten::val js_options) const
+{
+    this->call("rawsave_target",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("target", target),
                js_options);
 }
 

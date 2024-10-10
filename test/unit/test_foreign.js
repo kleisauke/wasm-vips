@@ -148,7 +148,7 @@ describe('foreign', () => {
 
   it('vips', function () {
     // ftruncate() is not yet available in the Node backend of WasmFS.
-    // https://github.com/emscripten-core/emscripten/blob/3.1.48/system/lib/wasmfs/backends/node_backend.cpp#L120-L122
+    // https://github.com/emscripten-core/emscripten/blob/3.1.68/system/lib/wasmfs/backends/node_backend.cpp#L120-L122
     if (typeof vips.FS.statBufToObject === 'function') {
       return this.skip();
     }
@@ -400,6 +400,7 @@ describe('foreign', () => {
       expect(im.height).to.equal(442);
       expect(im.bands).to.equal(3);
       expect(im.getInt('bits-per-sample')).to.equal(16);
+      expect(im.getTypeof('palette')).to.equal(0);
     };
 
     fileLoader('pngload', Helpers.pngFile, pngValid);
@@ -752,6 +753,12 @@ describe('foreign', () => {
     expect(im.width).to.equal(13);
     expect(im.height).to.equal(16731);
     buf = im.webpsaveBuffer(); // eslint-disable-line no-unused-vars
+
+    // target_size should reasonably work, +/- 2% is fine
+    im = vips.Image.newFromFile(Helpers.webpFile);
+    buf = im.webpsaveBuffer({ target_size: 20000, keep: vips.ForeignKeep.none });
+    expect(buf.byteLength).to.be.below(20400);
+    expect(buf.byteLength).to.be.above(19600);
   });
 
   it('gifload', function () {
@@ -766,7 +773,6 @@ describe('foreign', () => {
       expect(im.width).to.equal(159);
       expect(im.height).to.equal(203);
       expect(im.bands).to.equal(3);
-      expect(im.getInt('bits-per-sample')).to.equal(4);
     };
 
     fileLoader('gifload', Helpers.gifFile, gifValid);
@@ -777,6 +783,8 @@ describe('foreign', () => {
     expect(x1.getInt('n-pages')).to.equal(1);
     expect(x1.getArrayDouble('background')).to.deep.equal([81.0, 81.0, 81.0]);
     expect(x1.getInt('interlaced')).to.equal(1);
+    expect(x1.getInt('bits-per-sample')).to.equal(4);
+    expect(x1.getInt('palette')).to.equal(1);
 
     x1 = vips.Image.newFromFile(Helpers.gifAnimFile, { n: -1 });
     // our test gif has delay 0 for the first frame set in error
@@ -784,6 +792,7 @@ describe('foreign', () => {
     expect(x1.getInt('loop')).to.equal(32761);
     expect(x1.getArrayDouble('background')).to.deep.equal([255.0, 255.0, 255.0]);
     expect(x1.getTypeof('interlaced')).to.equal(0);
+    expect(x1.getInt('palette')).to.equal(1);
     // test deprecated fields too
     expect(x1.getInt('gif-loop')).to.equal(32760);
     expect(x1.getInt('gif-delay')).to.equal(0);
@@ -883,22 +892,25 @@ describe('foreign', () => {
       return this.skip();
     }
 
-    saveLoad('%s.ppm', mono);
     saveLoad('%s.ppm', colour);
 
-    saveLoadFile('%s.ppm', '[ascii]', mono, 0);
+    saveLoadFile('%s.pgm', '[ascii]', mono, 0);
     saveLoadFile('%s.ppm', '[ascii]', colour, 0);
 
-    saveLoadFile('%s.ppm', '[ascii,bitdepth=1]', onebit, 0);
+    saveLoadFile('%s.pbm', '[ascii]', onebit, 0);
 
     const rgb16 = colour.colourspace('rgb16');
     const grey16 = mono.colourspace('rgb16');
 
-    saveLoad('%s.ppm', grey16);
     saveLoad('%s.ppm', rgb16);
 
     saveLoadFile('%s.ppm', '[ascii]', grey16, 0);
     saveLoadFile('%s.ppm', '[ascii]', rgb16, 0);
+
+    const source = vips.Source.newFromMemory('P1\n#\n#\n1 1\n0\n');
+    const im = vips.Image.ppmloadSource(source);
+    expect(im.width).to.equal(1);
+    expect(im.height).to.equal(1);
   });
 
   it('radload', function () {
@@ -964,6 +976,18 @@ describe('foreign', () => {
     im = vips.Image.newFromBuffer(svg, '');
     expect(im.width).to.equal(1);
     expect(im.height).to.equal(1);
+
+    // scale up
+    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>';
+    im = vips.Image.newFromBuffer(svg, '', { scale: 10000 });
+    expect(im.width).to.equal(10000);
+    expect(im.height).to.equal(10000);
+
+    // scale down
+    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100000" height="100000"></svg>';
+    im = vips.Image.newFromBuffer(svg, '', { scale: 0.0001 });
+    expect(im.width).to.equal(10);
+    expect(im.height).to.equal(10);
   });
 
   it('heifload', function () {
@@ -999,10 +1023,8 @@ describe('foreign', () => {
         return this.skip();
       }
 
-      // TODO(kleisauke): Remove `subsample_mode: 'off'` when libvips >= 8.16, see:
-      // https://github.com/libvips/libvips/commit/dbd298cc8c9789dfc0fc6917b2492cb570406a7a
       saveLoadBuffer('heifsave_buffer', 'heifload_buffer',
-        colour, 0, { compression: 'av1', lossless: true, subsample_mode: 'off' });
+        colour, 0, { compression: 'av1', lossless: true });
       saveLoad('%s.avif', colour);
     });
 

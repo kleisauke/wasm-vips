@@ -2339,6 +2339,30 @@ declare module Vips {
     }
 
     /**
+     * The SDF to generate,
+     *
+     * See also: vips_sdf().
+     */
+    enum SdfShape {
+        /**
+         * A circle at @a, radius @r
+         */
+        circle = 0, // 'circle'
+        /**
+         * A box from @a to @b
+         */
+        box = 1, // 'box'
+        /**
+         * A box with rounded @corners from @a to @b
+         */
+        rounded_box = 2, // 'rounded-box'
+        /**
+         * A line from @a to @b
+         */
+        line = 3 // 'line'
+    }
+
+    /**
      * How sensitive loaders are to errors, from never stop (very insensitive), to
      * stop on the smallest warning (very sensitive).
      *
@@ -3703,6 +3727,14 @@ declare module Vips {
          */
         static jxlload(filename: string, options?: {
             /**
+             * First page to load.
+             */
+            page?: number
+            /**
+             * Number of pages to load, -1 for all.
+             */
+            n?: number
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -3732,6 +3764,14 @@ declare module Vips {
          */
         static jxlloadBuffer(buffer: Blob, options?: {
             /**
+             * First page to load.
+             */
+            page?: number
+            /**
+             * Number of pages to load, -1 for all.
+             */
+            n?: number
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -3760,6 +3800,14 @@ declare module Vips {
          * @return Output image.
          */
         static jxlloadSource(source: Source, options?: {
+            /**
+             * First page to load.
+             */
+            page?: number
+            /**
+             * Number of pages to load, -1 for all.
+             */
+            n?: number
             /**
              * Force open via memory.
              */
@@ -4919,6 +4967,33 @@ declare module Vips {
         }): Image;
 
         /**
+         * Create an sdf image.
+         * @param width Image width in pixels.
+         * @param height Image height in pixels.
+         * @param shape SDF shape to create.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static sdf(width: number, height: number, shape: SdfShape | Enum, options?: {
+            /**
+             * Radius.
+             */
+            r?: number
+            /**
+             * Point a.
+             */
+            a?: ArrayConstant
+            /**
+             * Point b.
+             */
+            b?: ArrayConstant
+            /**
+             * Corner radii.
+             */
+            corners?: ArrayConstant
+        }): Image;
+
+        /**
          * Make a 2d sine wave.
          * @param width Image width in pixels.
          * @param height Image height in pixels.
@@ -5862,6 +5937,12 @@ declare module Vips {
         add(right: Image | ArrayConstant): Image;
 
         /**
+         * Append an alpha channel.
+         * @return Output image.
+         */
+        addalpha(): Image;
+
+        /**
          * Affine transform of an image.
          * @param matrix Transformation matrix.
          * @param options Optional options.
@@ -5986,26 +6067,6 @@ declare module Vips {
         byteswap(): Image;
 
         /**
-         * Cache an image.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        cache(options?: {
-            /**
-             * Maximum number of tiles to cache.
-             */
-            max_tiles?: number
-            /**
-             * Tile height in pixels.
-             */
-            tile_height?: number
-            /**
-             * Tile width in pixels.
-             */
-            tile_width?: number
-        }): Image;
-
-        /**
          * Canny edge detector.
          * @param options Optional options.
          * @return Output image.
@@ -6039,6 +6100,22 @@ declare module Vips {
              * Shift integer values up and down.
              */
             shift?: boolean
+        }): Image;
+
+        /**
+         * Clamp values of an image.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        clamp(options?: {
+            /**
+             * Minimum value.
+             */
+            min?: number
+            /**
+             * Maximum value.
+             */
+            max?: number
         }): Image;
 
         /**
@@ -6897,9 +6974,15 @@ declare module Vips {
          * Read a point from an image.
          * @param x Point to read.
          * @param y Point to read.
+         * @param options Optional options.
          * @return Array of output values.
          */
-        getpoint(x: number, y: number): number[];
+        getpoint(x: number, y: number, options?: {
+            /**
+             * Complex pixels should be unpacked.
+             */
+            unpack_complex?: boolean
+        }): number[];
 
         /**
          * Save as gif.
@@ -7573,7 +7656,7 @@ declare module Vips {
 
         /**
          * Save image in jpeg2000 format.
-         * @param filename Filename to load from.
+         * @param filename Filename to save to.
          * @param options Optional options.
          */
         jp2ksave(filename: string, options?: {
@@ -7944,7 +8027,7 @@ declare module Vips {
 
         /**
          * Save image in jpeg-xl format.
-         * @param filename Filename to load from.
+         * @param filename Filename to save to.
          * @param options Optional options.
          */
         jxlsave(filename: string, options?: {
@@ -8408,6 +8491,13 @@ declare module Vips {
         }): number;
 
         /**
+         * Maximum of a pair of images.
+         * @param right Right-hand image argument.
+         * @return Output image.
+         */
+        maxpair(right: Image | ArrayConstant): Image;
+
+        /**
          * Measure a set of patches on a color chart.
          * @param h Number of patches across chart.
          * @param v Number of patches down chart.
@@ -8480,6 +8570,13 @@ declare module Vips {
              */
             y_array?: number[] | undefined
         }): number;
+
+        /**
+         * Minimum of a pair of images.
+         * @param right Right-hand image argument.
+         * @return Output image.
+         */
+        minpair(right: Image | ArrayConstant): Image;
 
         /**
          * Morphology operation.
@@ -9021,11 +9118,35 @@ declare module Vips {
         }): void;
 
         /**
-         * Write raw image to file descriptor.
-         * @param fd File descriptor to write to.
+         * Write raw image to buffer.
+         * @param options Optional options.
+         * @return Buffer to save to.
+         */
+        rawsaveBuffer(options?: {
+            /**
+             * Which metadata to retain.
+             */
+            keep?: ForeignKeep | Flag
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Set page height for multipage save.
+             */
+            page_height?: number
+            /**
+             * Filename of icc profile to embed.
+             */
+            profile?: string
+        }): Uint8Array;
+
+        /**
+         * Write raw image to target.
+         * @param target Target to save to.
          * @param options Optional options.
          */
-        rawsaveFd(fd: number, options?: {
+        rawsaveTarget(target: Target, options?: {
             /**
              * Which metadata to retain.
              */
@@ -9168,7 +9289,7 @@ declare module Vips {
 
         /**
          * Rotate an image by a number of degrees.
-         * @param angle Rotate anticlockwise by this many degrees.
+         * @param angle Rotate clockwise by this many degrees.
          * @param options Optional options.
          * @return Output image.
          */
@@ -9371,7 +9492,7 @@ declare module Vips {
              */
             scale?: number
             /**
-             * Rotate anticlockwise by this many degrees.
+             * Rotate clockwise by this many degrees.
              */
             angle?: number
             /**
@@ -9610,7 +9731,7 @@ declare module Vips {
              */
             region_shrink?: RegionShrink | Enum
             /**
-             * Zstd compression level.
+             * Deflate (1-9, default 6) or zstd (1-22, default 9) compression level.
              */
             level?: number
             /**
@@ -9714,7 +9835,7 @@ declare module Vips {
              */
             region_shrink?: RegionShrink | Enum
             /**
-             * Zstd compression level.
+             * Deflate (1-9, default 6) or zstd (1-22, default 9) compression level.
              */
             level?: number
             /**
@@ -9818,7 +9939,7 @@ declare module Vips {
              */
             region_shrink?: RegionShrink | Enum
             /**
-             * Zstd compression level.
+             * Deflate (1-9, default 6) or zstd (1-22, default 9) compression level.
              */
             level?: number
             /**
@@ -10010,9 +10131,21 @@ declare module Vips {
              */
             effort?: number
             /**
+             * Desired target size in bytes.
+             */
+            target_size?: number
+            /**
              * Allow mixed encoding (might reduce file size).
              */
             mixed?: boolean
+            /**
+             * Enable auto-adjusting of the deblocking filter.
+             */
+            smart_deblock?: boolean
+            /**
+             * Number of entropy-analysis passes (in [1..10]).
+             */
+            passes?: number
             /**
              * Which metadata to retain.
              */
@@ -10078,9 +10211,21 @@ declare module Vips {
              */
             effort?: number
             /**
+             * Desired target size in bytes.
+             */
+            target_size?: number
+            /**
              * Allow mixed encoding (might reduce file size).
              */
             mixed?: boolean
+            /**
+             * Enable auto-adjusting of the deblocking filter.
+             */
+            smart_deblock?: boolean
+            /**
+             * Number of entropy-analysis passes (in [1..10]).
+             */
+            passes?: number
             /**
              * Which metadata to retain.
              */
@@ -10145,9 +10290,21 @@ declare module Vips {
              */
             effort?: number
             /**
+             * Desired target size in bytes.
+             */
+            target_size?: number
+            /**
              * Allow mixed encoding (might reduce file size).
              */
             mixed?: boolean
+            /**
+             * Enable auto-adjusting of the deblocking filter.
+             */
+            smart_deblock?: boolean
+            /**
+             * Number of entropy-analysis passes (in [1..10]).
+             */
+            passes?: number
             /**
              * Which metadata to retain.
              */
@@ -10213,9 +10370,21 @@ declare module Vips {
              */
             effort?: number
             /**
+             * Desired target size in bytes.
+             */
+            target_size?: number
+            /**
              * Allow mixed encoding (might reduce file size).
              */
             mixed?: boolean
+            /**
+             * Enable auto-adjusting of the deblocking filter.
+             */
+            smart_deblock?: boolean
+            /**
+             * Number of entropy-analysis passes (in [1..10]).
+             */
+            passes?: number
             /**
              * Which metadata to retain.
              */

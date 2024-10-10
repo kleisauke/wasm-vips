@@ -548,6 +548,53 @@ describe('create', () => {
     Helpers.assertAlmostEqualObjects(p, [45, 35]);
   });
 
+  it('sdf', function () {
+    let im = vips.Image.sdf(128, 128, vips.SdfShape.circle, {
+      a: [64, 64],
+      r: 32
+    });
+    expect(im.bands).to.equal(1);
+    expect(im.format).to.equal('float');
+    expect(im.width).to.equal(128);
+    expect(im.height).to.equal(128);
+    let p = im.getpoint(45, 35);
+    Helpers.assertAlmostEqualObjects(p, [2.670], 0.01);
+
+    im = vips.Image.sdf(128, 128, vips.SdfShape.box, {
+      a: [10, 10],
+      b: [50, 40]
+    });
+    expect(im.bands).to.equal(1);
+    expect(im.format).to.equal('float');
+    expect(im.width).to.equal(128);
+    expect(im.height).to.equal(128);
+    p = im.getpoint(45, 35);
+    Helpers.assertAlmostEqualObjects(p, [-5.0]);
+
+    im = vips.Image.sdf(128, 128, vips.SdfShape.rounded_box, {
+      a: [10, 10],
+      b: [50, 40],
+      corners: [50, 0, 0, 0]
+    });
+    expect(im.bands).to.equal(1);
+    expect(im.format).to.equal('float');
+    expect(im.width).to.equal(128);
+    expect(im.height).to.equal(128);
+    p = im.getpoint(45, 35);
+    Helpers.assertAlmostEqualObjects(p, [13.640], 0.01);
+
+    im = vips.Image.sdf(128, 128, vips.SdfShape.line, {
+      a: [10, 10],
+      b: [50, 40]
+    });
+    expect(im.bands).to.equal(1);
+    expect(im.format).to.equal('float');
+    expect(im.width).to.equal(128);
+    expect(im.height).to.equal(128);
+    p = im.getpoint(45, 35);
+    Helpers.assertAlmostEqualObjects(p, [1.0]);
+  });
+
   it('zone', function () {
     const im = vips.Image.zone(128, 128);
     expect(im.width).to.equal(128);

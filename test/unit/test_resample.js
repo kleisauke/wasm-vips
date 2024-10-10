@@ -268,6 +268,13 @@ describe('resample', () => {
       im2 = vips.Image.newFromFile(Helpers.rgbaCorrectFile);
       expect(Math.abs(im1.flatten({ background: 255 }).avg() - im2.avg())).to.be.below(1);
     }
+
+    // thumbnailing a 16-bit image should always make an 8-bit image
+    const rgb16Buffer = vips.Image.newFromFile(Helpers.jpegFile)
+      .colourspace(vips.Interpretation.rgb16)
+      .writeToBuffer('.png');
+    const thumb = vips.Image.thumbnailBuffer(rgb16Buffer, 128);
+    expect(thumb.format).to.equal('uchar');
   });
 
   describe('similarity', () => {

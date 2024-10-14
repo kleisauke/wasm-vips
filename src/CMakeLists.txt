@@ -134,7 +134,7 @@ set(MAIN_LINK_OPTIONS
         -sTEXTDECODER=2
         -sASSERTIONS=0
         -sFORCE_FILESYSTEM
-        -sEXPORTED_RUNTIME_METHODS=FS,ENV,deletionQueue,addFunction
+        -sEXPORTED_RUNTIME_METHODS=FS,ENV,deletionQueue,addFunction,setAutoDeleteLater,setDelayFunction
         -sEXCEPTION_STACK_TRACES
         -sBINARYEN_EXTRA_PASSES=--emit-target-features
         )

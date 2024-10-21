@@ -29,6 +29,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Find libvips (required)
 find_package(PkgConfig)
-pkg_check_modules(VIPS vips>=8.15 REQUIRED)
+pkg_check_modules(VIPS vips>=8.16 REQUIRED)
 
 add_subdirectory(src)

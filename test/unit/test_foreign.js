@@ -1047,8 +1047,8 @@ describe('foreign', () => {
       }
 
       // Chroma subsampling should produce smaller file size for same Q
-      const b1 = mono.heifsaveBuffer({ compression: 'av1', subsample_mode: 'on' });
-      const b2 = mono.heifsaveBuffer({ compression: 'av1', subsample_mode: 'off' });
+      const b1 = colour.heifsaveBuffer({ compression: 'av1', subsample_mode: 'on' });
+      const b2 = colour.heifsaveBuffer({ compression: 'av1', subsample_mode: 'off' });
       expect(b2.byteLength).to.be.above(b1.byteLength);
     });
 

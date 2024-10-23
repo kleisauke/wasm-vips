@@ -15,6 +15,11 @@ Uses libvips v8.16.0-rc1, compiled with Emscripten v3.1.69.
   [#74](https://github.com/kleisauke/wasm-vips/issues/74)
 - Update methods/enums for libvips 8.16.
 
+### Fixed
+
+- Fix Deno compatibility (regression in 0.0.9).
+  [#81](https://github.com/kleisauke/wasm-vips/issues/81)
+
 ### Removed
 
 - Remove redundant `vips.bigintToI53Checked()` helper.

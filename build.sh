@@ -195,7 +195,7 @@ VERSION_TIFF=4.7.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.44.0        # https://github.com/RazrFalcon/resvg
 VERSION_AOM=3.10.0          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.18.2         # https://github.com/strukturag/libheif
-VERSION_VIPS=8.16.0-rc2     # https://github.com/libvips/libvips
+VERSION_VIPS=8.16.0         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
 

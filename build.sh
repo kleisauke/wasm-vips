@@ -192,7 +192,7 @@ VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.4.1          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.4.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.0          # https://gitlab.com/libtiff/libtiff
-VERSION_RESVG=0.44.0        # https://github.com/RazrFalcon/resvg
+VERSION_RESVG=0.44.0        # https://github.com/linebender/resvg
 VERSION_AOM=3.10.0          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.18.2         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.16.0         # https://github.com/libvips/libvips
@@ -442,7 +442,7 @@ node --version
 [ -f "$TARGET/lib/libresvg.a" ] || [ -n "$DISABLE_SVG" ] || (
   stage "Compiling resvg"
   mkdir -p $DEPS/resvg
-  curl -Ls https://github.com/RazrFalcon/resvg/releases/download/v$VERSION_RESVG/resvg-$VERSION_RESVG.tar.xz | tar xJC $DEPS/resvg --strip-components=1
+  curl -Ls https://github.com/linebender/resvg/releases/download/v$VERSION_RESVG/resvg-$VERSION_RESVG.tar.xz | tar xJC $DEPS/resvg --strip-components=1
   cd $DEPS/resvg
   # Vendor dir doesn't work with -Zbuild-std due to https://github.com/rust-lang/wg-cargo-std-aware/issues/23
   # Just delete the config so that all deps are downloaded from the internet

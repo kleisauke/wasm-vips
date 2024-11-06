@@ -194,7 +194,7 @@ VERSION_WEBP=1.4.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.44.0        # https://github.com/linebender/resvg
 VERSION_AOM=3.10.0          # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.18.2         # https://github.com/strukturag/libheif
+VERSION_HEIF=1.19.1         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.16.0         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
@@ -486,7 +486,7 @@ EOL
   # Compile with -D__EMSCRIPTEN_STANDALONE_WASM__ to disable the Embind implementation.
   emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=$TARGET \
     -DBUILD_SHARED_LIBS=FALSE -DCMAKE_POSITION_INDEPENDENT_CODE=$PIC -DENABLE_PLUGIN_LOADING=FALSE \
-    -DBUILD_TESTING=FALSE -DWITH_EXAMPLES=FALSE -DWITH_LIBDE265=FALSE -DWITH_X265=FALSE \
+    -DBUILD_TESTING=FALSE -DWITH_EXAMPLES=FALSE -DWITH_LIBDE265=FALSE -DWITH_X265=FALSE -DWITH_OpenH264_DECODER=FALSE \
     -DCMAKE_CXX_FLAGS="$CXXFLAGS -D__EMSCRIPTEN_STANDALONE_WASM__" \
     -DENABLE_MULTITHREADING_SUPPORT=FALSE # Disable threading support, we rely on libvips' thread pool.
   make -C _build install

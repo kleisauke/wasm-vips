@@ -4,6 +4,10 @@ All notable changes to wasm-vips will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.0.12] - TBD
+
+Uses libvips v8.16.0, compiled with Emscripten v3.1.71.
+
 ## [v0.0.11] - 2024-10-31
 
 Uses libvips v8.16.0, compiled with Emscripten v3.1.70.
@@ -205,6 +209,7 @@ Uses libvips v8.10.0, compiled with Emscripten v2.0.0.
 
 - Initial release.
 
+[v0.0.12]: https://github.com/kleisauke/wasm-vips/compare/v0.0.11...v0.0.12
 [v0.0.11]: https://github.com/kleisauke/wasm-vips/compare/v0.0.10...v0.0.11
 [v0.0.10]: https://github.com/kleisauke/wasm-vips/compare/v0.0.9...v0.0.10
 [v0.0.9]: https://github.com/kleisauke/wasm-vips/compare/v0.0.8...v0.0.9

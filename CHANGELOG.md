@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.16.0, compiled with Emscripten v3.1.71.
 
+### Fixed
+
+- Prevent use of the `/tmp` directory for Node.js on Windows.
+  [#84](https://github.com/kleisauke/wasm-vips/issues/84)
+
 ## [v0.0.11] - 2024-10-31
 
 Uses libvips v8.16.0, compiled with Emscripten v3.1.70.

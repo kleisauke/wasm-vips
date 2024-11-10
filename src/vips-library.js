@@ -10,8 +10,8 @@ var LibraryVips = {
   $VIPS__postset: 'VIPS.init();',
   $VIPS: {
     init() {
-#if ENVIRONMENT_MAY_BE_WEB
       addOnPreRun(() => {
+#if ENVIRONMENT_MAY_BE_WEB
         // Enforce a fixed thread pool by default on web
         ENV['VIPS_MAX_THREADS'] = {{{ PTHREAD_POOL_SIZE }}};
 
@@ -19,8 +19,14 @@ var LibraryVips = {
         // the concurrency to 1. For more details, see:
         // https://emscripten.org/docs/porting/pthreads.html#blocking-on-the-main-browser-thread
         ENV['VIPS_CONCURRENCY'] = 1;
-      });
 #endif
+#if ENVIRONMENT_MAY_BE_NODE
+        // libvips stores temporary files by default in `/tmp`;
+        // set the TMPDIR env variable to override this directory
+        ENV['TMPDIR'] = require('os').tmpdir();
+#endif
+      });
+
       addOnInit(() => {
         // SourceCustom.onRead marshaller 
         const sourceCustom = Object.getOwnPropertyDescriptor(Module['SourceCustom'].prototype, 'onRead');

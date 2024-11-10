@@ -3,7 +3,6 @@
 import Benchmark from 'benchmark';
 
 import Vips from '../../lib/vips-node.mjs';
-import { tmpdir } from 'node:os';
 import { inputJpg, inputPng, inputWebP, getPath } from './images.js';
 
 const width = 720;
@@ -19,12 +18,7 @@ const webpOut = getPath('output.webp');
 
 const vips = await Vips({
   // Disable dynamic modules
-  dynamicLibraries: [],
-  preRun: (module) => {
-    // libvips stores temporary files by default in `/tmp`;
-    // set the TMPDIR env variable to override this directory
-    module.ENV.TMPDIR = tmpdir();
-  }
+  dynamicLibraries: []
 });
 
 // Disable libvips cache to ensure tests are as fair as they can be

@@ -179,8 +179,8 @@ export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 # Dependency version numbers
 VERSION_ZLIB_NG=2.2.2       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
-VERSION_GLIB=2.82.2         # https://gitlab.gnome.org/GNOME/glib
-VERSION_EXPAT=2.6.3         # https://github.com/libexpat/libexpat
+VERSION_GLIB=2.83.0         # https://gitlab.gnome.org/GNOME/glib
+VERSION_EXPAT=2.6.4         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.2.0           # https://github.com/google/highway
@@ -193,8 +193,8 @@ VERSION_CGIF=0.4.1          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.4.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.44.0        # https://github.com/linebender/resvg
-VERSION_AOM=3.10.0          # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.19.1         # https://github.com/strukturag/libheif
+VERSION_AOM=3.11.0          # https://aomedia.googlesource.com/aom
+VERSION_HEIF=1.19.3         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.16.0         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
@@ -285,7 +285,7 @@ node --version
   curl -Ls https://github.com/GNOME/glib/compare/$VERSION_GLIB...kleisauke:wasm-vips-$VERSION_GLIB.patch | patch -p1
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
     --force-fallback-for=gvdb -Dintrospection=disabled -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dsysprof=disabled -Dnls=disabled \
-    -Dtests=false -Dglib_assert=false -Dglib_checks=false
+    -Dglib_debug=disabled -Dtests=false -Dglib_assert=false -Dglib_checks=false
   meson install -C _build --tag devel
 )
 
@@ -447,12 +447,11 @@ node --version
   # Vendor dir doesn't work with -Zbuild-std due to https://github.com/rust-lang/wg-cargo-std-aware/issues/23
   # Just delete the config so that all deps are downloaded from the internet
   rm .cargo/config
-  # https://github.com/etemesi254/zune-image/pull/187
-  # https://github.com/bevyengine/bevy/issues/14117#issuecomment-2236518551
+  # https://github.com/etemesi254/zune-image/pull/242
   # https://doc.rust-lang.org/cargo/reference/overriding-dependencies.html#the-patch-section
   cat >> Cargo.toml <<EOL
 [patch.crates-io]
-zune-jpeg = { git = "https://github.com/ironpeak/zune-image.git", rev = "eebb01b" }
+zune-jpeg = { git = "https://github.com/etemesi254/zune-image.git", rev = "80e1957" }
 EOL
   # Regenerate the lockfile for zune-jpeg
   cargo update zune-jpeg

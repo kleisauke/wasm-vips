@@ -13,7 +13,6 @@ RUN \
     build-essential \
     ccache \
     libglib2.0-dev \
-    patchutils \
     pkgconf \
     # needed for Meson
     ninja-build \
@@ -26,7 +25,6 @@ RUN \
 # Emscripten patches
 RUN \
   curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.73...kleisauke:wasm-vips-3.1.73.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
-  curl -Ls https://github.com/emscripten-core/emscripten/compare/55934a5...kleisauke:mimalloc-update-9b75377.patch | filterdiff -p1 -x ChangeLog.md | patch -p1 -d $EMSDK/upstream/emscripten && \
   emcc --clear-cache && embuilder build sysroot --force
 
 # Rust

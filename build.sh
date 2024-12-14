@@ -179,7 +179,7 @@ export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 # Dependency version numbers
 VERSION_ZLIB_NG=2.2.2       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
-VERSION_GLIB=2.83.0         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.83.2         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.6.4         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS
@@ -304,6 +304,10 @@ node --version
   mkdir $DEPS/exif
   curl -Ls https://github.com/libexif/libexif/releases/download/v$VERSION_EXIF/libexif-$VERSION_EXIF.tar.bz2 | tar xjC $DEPS/exif --strip-components=1
   cd $DEPS/exif
+  # https://github.com/libexif/libexif/pull/147
+  curl -Ls https://github.com/libexif/libexif/commit/00ee559ac8293c6ab9b0b4d26d3650ec89d2b1fc.patch | patch -p1
+  # https://github.com/libexif/libexif/pull/183
+  curl -Ls https://github.com/lovell/libexif/commit/ef0887f2635180d1e7197c92756d1dc0243f9a35.patch | patch -p1
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix CPPFLAGS="-DNO_VERBOSE_TAG_DATA"
   make install doc_DATA=
@@ -447,13 +451,8 @@ node --version
   # Vendor dir doesn't work with -Zbuild-std due to https://github.com/rust-lang/wg-cargo-std-aware/issues/23
   # Just delete the config so that all deps are downloaded from the internet
   rm .cargo/config
+  # Update and regenerate the lockfile for zune-jpeg
   # https://github.com/etemesi254/zune-image/pull/242
-  # https://doc.rust-lang.org/cargo/reference/overriding-dependencies.html#the-patch-section
-  cat >> Cargo.toml <<EOL
-[patch.crates-io]
-zune-jpeg = { git = "https://github.com/etemesi254/zune-image.git", rev = "80e1957" }
-EOL
-  # Regenerate the lockfile for zune-jpeg
   cargo update zune-jpeg
   # We don't want to build the shared library
   sed -i '/^crate-type =/s/"cdylib", //' crates/c-api/Cargo.toml

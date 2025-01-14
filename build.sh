@@ -128,8 +128,8 @@ if [ "$LTO" = "true" ]; then
 fi
 if [ "$WASM_EH" = "true" ]; then
   COMMON_FLAGS+=" -fwasm-exceptions -sSUPPORT_LONGJMP=wasm"
-  # https://github.com/rust-lang/rust/issues/112195
-  export RUSTFLAGS+=" -Cllvm-args=-enable-emscripten-cxx-exceptions=0 -Cllvm-args=-wasm-enable-sjlj"
+  # https://github.com/rust-lang/rust/pull/131830
+  export RUSTFLAGS+=" -Zemscripten-wasm-eh"
 else
   COMMON_FLAGS+=" -fexceptions"
 fi
@@ -177,7 +177,7 @@ export RUSTFLAGS+=" --remap-path-prefix=$CARGO_HOME/registry/src/="
 export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 
 # Dependency version numbers
-VERSION_ZLIB_NG=2.2.2       # https://github.com/zlib-ng/zlib-ng
+VERSION_ZLIB_NG=2.2.3       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
 VERSION_GLIB=2.83.2         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.6.4         # https://github.com/libexpat/libexpat
@@ -190,7 +190,7 @@ VERSION_JXL=0.11.1          # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.4.1          # https://github.com/dloebl/cgif
-VERSION_WEBP=1.4.0          # https://chromium.googlesource.com/webm/libwebp
+VERSION_WEBP=1.5.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.44.0        # https://github.com/linebender/resvg
 VERSION_AOM=3.11.0          # https://aomedia.googlesource.com/aom
@@ -307,7 +307,7 @@ node --version
   # https://github.com/libexif/libexif/pull/147
   curl -Ls https://github.com/libexif/libexif/commit/00ee559ac8293c6ab9b0b4d26d3650ec89d2b1fc.patch | patch -p1
   # https://github.com/libexif/libexif/pull/183
-  curl -Ls https://github.com/lovell/libexif/commit/ef0887f2635180d1e7197c92756d1dc0243f9a35.patch | patch -p1
+  curl -Ls https://github.com/libexif/libexif/commit/180c1201dc494a06335b3b42bce5d4e07e6ae38c.patch | patch -p1
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix CPPFLAGS="-DNO_VERBOSE_TAG_DATA"
   make install doc_DATA=

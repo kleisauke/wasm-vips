@@ -169,8 +169,9 @@ if ("web" IN_LIST ENVIRONMENT)
             --pre-js=${CMAKE_CURRENT_SOURCE_DIR}/workaround-cors-pre.js
             )
     set(WEB_MIN_TARGETS
-            -sMIN_FIREFOX_VERSION=89
             -sMIN_CHROME_VERSION=91
+            -sMIN_FIREFOX_VERSION=89
+            -sMIN_SAFARI_VERSION=160400
             )
 
     # libvips requires spawning at least VIPS_CONCURRENCY threads synchronously, with a minimum of 3 threads per

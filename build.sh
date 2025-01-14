@@ -39,7 +39,7 @@ WASM_FS=false
 # https://github.com/WebAssembly/exception-handling
 WASM_EH=false
 
-# Emit instructions for the new Wasm EH proposal with exnref
+# Emit instructions for the standardized Wasm EH proposal with exnref
 # (adopted on Oct 2023), disabled by default
 # https://github.com/WebAssembly/exception-handling/issues/280
 WASM_EXNREF=false
@@ -145,7 +145,7 @@ export CXXFLAGS="$CFLAGS"
 
 export LDFLAGS="$COMMON_FLAGS -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
 if [ "$WASM_BIGINT" = "false" ]; then export LDFLAGS+=" -sWASM_BIGINT=0"; fi
-if [ "$WASM_EXNREF" = "true" ]; then export LDFLAGS+=" -sWASM_EXNREF"; fi
+if [ "$WASM_EXNREF" = "true" ]; then export LDFLAGS+=" -sWASM_LEGACY_EXCEPTIONS=0"; fi
 
 # Build paths
 export CPATH="$TARGET/include"

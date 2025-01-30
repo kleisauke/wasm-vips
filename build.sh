@@ -179,9 +179,9 @@ export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 # Dependency version numbers
 VERSION_ZLIB_NG=2.2.3       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
-VERSION_GLIB=2.83.2         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.83.3         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.6.4         # https://github.com/libexpat/libexpat
-VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
+VERSION_EXIF=0.6.25         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.2.0           # https://github.com/google/highway
 VERSION_BROTLI=1.1.0        # https://github.com/google/brotli
@@ -302,12 +302,8 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/libexif.pc" ] || (
   stage "Compiling exif"
   mkdir $DEPS/exif
-  curl -Ls https://github.com/libexif/libexif/releases/download/v$VERSION_EXIF/libexif-$VERSION_EXIF.tar.bz2 | tar xjC $DEPS/exif --strip-components=1
+  curl -Ls https://github.com/libexif/libexif/releases/download/v$VERSION_EXIF/libexif-$VERSION_EXIF.tar.xz | tar xJC $DEPS/exif --strip-components=1
   cd $DEPS/exif
-  # https://github.com/libexif/libexif/pull/147
-  curl -Ls https://github.com/libexif/libexif/commit/00ee559ac8293c6ab9b0b4d26d3650ec89d2b1fc.patch | patch -p1
-  # https://github.com/libexif/libexif/pull/183
-  curl -Ls https://github.com/libexif/libexif/commit/180c1201dc494a06335b3b42bce5d4e07e6ae38c.patch | patch -p1
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix CPPFLAGS="-DNO_VERBOSE_TAG_DATA"
   make install doc_DATA=

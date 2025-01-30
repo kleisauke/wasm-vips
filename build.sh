@@ -130,6 +130,10 @@ if [ "$WASM_EH" = "true" ]; then
   COMMON_FLAGS+=" -fwasm-exceptions -sSUPPORT_LONGJMP=wasm"
   # https://github.com/rust-lang/rust/pull/131830
   export RUSTFLAGS+=" -Zemscripten-wasm-eh"
+  if [ "$WASM_EXNREF" = "true" ]; then
+    COMMON_FLAGS+=" -sWASM_LEGACY_EXCEPTIONS=0"
+    export RUSTFLAGS+=" -Cllvm-args=-wasm-enable-exnref"
+  fi
 else
   COMMON_FLAGS+=" -fexceptions"
 fi
@@ -145,7 +149,6 @@ export CXXFLAGS="$CFLAGS"
 
 export LDFLAGS="$COMMON_FLAGS -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
 if [ "$WASM_BIGINT" = "false" ]; then export LDFLAGS+=" -sWASM_BIGINT=0"; fi
-if [ "$WASM_EXNREF" = "true" ]; then export LDFLAGS+=" -sWASM_LEGACY_EXCEPTIONS=0"; fi
 
 # Build paths
 export CPATH="$TARGET/include"

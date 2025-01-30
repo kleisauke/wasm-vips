@@ -118,6 +118,8 @@ done
 #export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"
 
 # Rust flags
+# TODO(kleisauke): Remove +bulk-memory,+nontrapping-fptoint once Rust updates LLVM to 20, see:
+# https://github.com/llvm/llvm-project/commit/1bc2cd98c58a1059170dc38697c7a29a8e21160b
 export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+nontrapping-fptoint -Zdefault-visibility=hidden"
 
 # Common compiler flags
@@ -132,6 +134,8 @@ if [ "$WASM_EH" = "true" ]; then
   export RUSTFLAGS+=" -Zemscripten-wasm-eh"
   if [ "$WASM_EXNREF" = "true" ]; then
     COMMON_FLAGS+=" -sWASM_LEGACY_EXCEPTIONS=0"
+    # TODO(kleisauke): Switch to -wasm-use-legacy-eh=0 once Rust updates LLVM to 20, see:
+    # https://github.com/llvm/llvm-project/commit/a8e1135baa9074f7c088c8e1999561f88699b56e
     export RUSTFLAGS+=" -Cllvm-args=-wasm-enable-exnref"
   fi
 else

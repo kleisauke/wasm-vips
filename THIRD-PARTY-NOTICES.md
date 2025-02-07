@@ -24,7 +24,7 @@ used under the terms of the following licences:
 | libvips       | LGPLv3                                                                                                    |
 | libwebp       | New BSD License                                                                                           |
 | mozjpeg       | [zlib License, IJG License, BSD-3-Clause](https://github.com/mozilla/mozjpeg/blob/master/LICENSE.md)      |
-| resvg         | MPL-2.0 License                                                                                           |
+| resvg         | MIT Licence                                                                                               |
 | zlib-ng       | [zlib Licence](https://github.com/zlib-ng/zlib-ng/blob/develop/LICENSE.md)                                |
 
 Use of libraries under the terms of the LGPLv3 is via the

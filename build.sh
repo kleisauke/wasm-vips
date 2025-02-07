@@ -39,7 +39,7 @@ WASM_FS=false
 # https://github.com/WebAssembly/exception-handling
 WASM_EH=false
 
-# Emit instructions for the new Wasm EH proposal with exnref
+# Emit instructions for the standardized Wasm EH proposal with exnref
 # (adopted on Oct 2023), disabled by default
 # https://github.com/WebAssembly/exception-handling/issues/280
 WASM_EXNREF=false
@@ -118,6 +118,8 @@ done
 #export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"
 
 # Rust flags
+# TODO(kleisauke): Remove +bulk-memory,+nontrapping-fptoint once Rust updates LLVM to 20, see:
+# https://github.com/llvm/llvm-project/commit/1bc2cd98c58a1059170dc38697c7a29a8e21160b
 export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+nontrapping-fptoint -Zdefault-visibility=hidden"
 
 # Common compiler flags
@@ -128,13 +130,19 @@ if [ "$LTO" = "true" ]; then
 fi
 if [ "$WASM_EH" = "true" ]; then
   COMMON_FLAGS+=" -fwasm-exceptions -sSUPPORT_LONGJMP=wasm"
-  # https://github.com/rust-lang/rust/issues/112195
-  export RUSTFLAGS+=" -Cllvm-args=-enable-emscripten-cxx-exceptions=0 -Cllvm-args=-wasm-enable-sjlj"
+  # https://github.com/rust-lang/rust/pull/131830
+  export RUSTFLAGS+=" -Zemscripten-wasm-eh"
+  if [ "$WASM_EXNREF" = "true" ]; then
+    COMMON_FLAGS+=" -sWASM_LEGACY_EXCEPTIONS=0"
+    # TODO(kleisauke): Switch to -wasm-use-legacy-eh=0 once Rust updates LLVM to 20, see:
+    # https://github.com/llvm/llvm-project/commit/a8e1135baa9074f7c088c8e1999561f88699b56e
+    export RUSTFLAGS+=" -Cllvm-args=-wasm-enable-exnref"
+  fi
 else
   COMMON_FLAGS+=" -fexceptions"
 fi
 
-export CFLAGS="$COMMON_FLAGS -mnontrapping-fptoint -fvisibility=hidden"
+export CFLAGS="$COMMON_FLAGS -fvisibility=hidden"
 if [ "$SIMD" = "true" ]; then
   export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"
   export RUSTFLAGS+=" -Ctarget-feature=+simd128"
@@ -144,8 +152,7 @@ if [ "$PIC" = "true" ]; then export CFLAGS+=" -fPIC"; fi
 export CXXFLAGS="$CFLAGS"
 
 export LDFLAGS="$COMMON_FLAGS -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
-if [ "$WASM_BIGINT" = "true" ]; then export LDFLAGS+=" -sWASM_BIGINT"; fi
-if [ "$WASM_EXNREF" = "true" ]; then export LDFLAGS+=" -sWASM_EXNREF"; fi
+if [ "$WASM_BIGINT" = "false" ]; then export LDFLAGS+=" -sWASM_BIGINT=0"; fi
 
 # Build paths
 export CPATH="$TARGET/include"
@@ -177,24 +184,24 @@ export RUSTFLAGS+=" --remap-path-prefix=$CARGO_HOME/registry/src/="
 export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 
 # Dependency version numbers
-VERSION_ZLIB_NG=2.2.2       # https://github.com/zlib-ng/zlib-ng
+VERSION_ZLIB_NG=2.2.3       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
-VERSION_GLIB=2.83.0         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.83.3         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.6.4         # https://github.com/libexpat/libexpat
-VERSION_EXIF=0.6.24         # https://github.com/libexif/libexif
+VERSION_EXIF=0.6.25         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.2.0           # https://github.com/google/highway
 VERSION_BROTLI=1.1.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=4.1.5       # https://github.com/mozilla/mozjpeg
-VERSION_JXL=0.11.0          # https://github.com/libjxl/libjxl
+VERSION_JXL=0.11.1          # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.4.1          # https://github.com/dloebl/cgif
-VERSION_WEBP=1.4.0          # https://chromium.googlesource.com/webm/libwebp
+VERSION_WEBP=1.5.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.44.0        # https://github.com/linebender/resvg
 VERSION_AOM=3.11.0          # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.19.3         # https://github.com/strukturag/libheif
+VERSION_HEIF=1.19.5         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.16.0         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
@@ -302,7 +309,7 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/libexif.pc" ] || (
   stage "Compiling exif"
   mkdir $DEPS/exif
-  curl -Ls https://github.com/libexif/libexif/releases/download/v$VERSION_EXIF/libexif-$VERSION_EXIF.tar.bz2 | tar xjC $DEPS/exif --strip-components=1
+  curl -Ls https://github.com/libexif/libexif/releases/download/v$VERSION_EXIF/libexif-$VERSION_EXIF.tar.xz | tar xJC $DEPS/exif --strip-components=1
   cd $DEPS/exif
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix CPPFLAGS="-DNO_VERBOSE_TAG_DATA"
@@ -447,13 +454,8 @@ node --version
   # Vendor dir doesn't work with -Zbuild-std due to https://github.com/rust-lang/wg-cargo-std-aware/issues/23
   # Just delete the config so that all deps are downloaded from the internet
   rm .cargo/config
+  # Update and regenerate the lockfile for zune-jpeg
   # https://github.com/etemesi254/zune-image/pull/242
-  # https://doc.rust-lang.org/cargo/reference/overriding-dependencies.html#the-patch-section
-  cat >> Cargo.toml <<EOL
-[patch.crates-io]
-zune-jpeg = { git = "https://github.com/etemesi254/zune-image.git", rev = "80e1957" }
-EOL
-  # Regenerate the lockfile for zune-jpeg
   cargo update zune-jpeg
   # We don't want to build the shared library
   sed -i '/^crate-type =/s/"cdylib", //' crates/c-api/Cargo.toml

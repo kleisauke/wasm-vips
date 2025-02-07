@@ -1,5 +1,5 @@
 # https://github.com/emscripten-core/emsdk
-FROM docker.io/emscripten/emsdk:3.1.73
+FROM docker.io/emscripten/emsdk:4.0.2
 
 # Path settings
 ENV \
@@ -13,7 +13,6 @@ RUN \
     build-essential \
     ccache \
     libglib2.0-dev \
-    patchutils \
     pkgconf \
     # needed for Meson
     ninja-build \
@@ -25,8 +24,8 @@ RUN \
 
 # Emscripten patches
 RUN \
-  curl -Ls https://github.com/emscripten-core/emscripten/compare/3.1.73...kleisauke:wasm-vips-3.1.73.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
-  curl -Ls https://github.com/emscripten-core/emscripten/compare/06cebfc...kleisauke:mimalloc-update-577246d.patch | filterdiff -p1 -x ChangeLog.md | patch -p1 -d $EMSDK/upstream/emscripten && \
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/4.0.2...kleisauke:wasm-vips-4.0.2.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/a9651ff...kleisauke:mimalloc-update-3.0.1.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
   emcc --clear-cache && embuilder build sysroot --force
 
 # Rust
@@ -35,7 +34,7 @@ RUN \
     --no-modify-path \
     --profile minimal \
     --target wasm32-unknown-emscripten \
-    --default-toolchain nightly-2024-11-19 \
+    --default-toolchain nightly-2025-01-30 \
     --component rust-src
 
 # Cache settings

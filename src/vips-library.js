@@ -1,11 +1,11 @@
 var LibraryVips = {
   $VIPS__deps: [
-#if ENVIRONMENT_MAY_BE_WEB
     '$ENV',
-#endif
     '$ClassHandle',
     '$Emval',
     '$deletionQueue',
+    '$addOnPreRun',
+    '$addOnPostCtor',
   ],
   $VIPS__postset: 'VIPS.init();',
   $VIPS: {
@@ -27,7 +27,7 @@ var LibraryVips = {
 #endif
       });
 
-      addOnInit(() => {
+      addOnPostCtor(() => {
         // SourceCustom.onRead marshaller 
         const sourceCustom = Object.getOwnPropertyDescriptor(Module['SourceCustom'].prototype, 'onRead');
         Object.defineProperty(Module['SourceCustom'].prototype, 'onRead', {

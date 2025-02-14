@@ -98,7 +98,7 @@ while [ $# -gt 0 ]; do
 done
 
 # Configure the ENABLE_* and DISABLE_* expansion helpers
-for arg in SIMD WASM_BIGINT JXL AVIF SVG PIC MODULES BINDINGS; do
+for arg in SIMD JXL AVIF SVG PIC MODULES BINDINGS; do
   if [ "${!arg}" = "true" ]; then
     declare ENABLE_$arg=true
   else
@@ -147,12 +147,12 @@ if [ "$SIMD" = "true" ]; then
   export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"
   export RUSTFLAGS+=" -Ctarget-feature=+simd128"
 fi
-if [ "$PIC" = "true" ]; then export CFLAGS+=" -fPIC"; fi
+[ "$PIC" = "false" ] || export CFLAGS+=" -fPIC"
 
 export CXXFLAGS="$CFLAGS"
 
 export LDFLAGS="$COMMON_FLAGS -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
-if [ "$WASM_BIGINT" = "false" ]; then export LDFLAGS+=" -sWASM_BIGINT=0"; fi
+[ "$WASM_BIGINT" = "true" ] || export LDFLAGS+=" -sWASM_BIGINT=0"
 
 # Build paths
 export CPATH="$TARGET/include"
@@ -184,23 +184,23 @@ export RUSTFLAGS+=" --remap-path-prefix=$CARGO_HOME/registry/src/="
 export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
 
 # Dependency version numbers
-VERSION_ZLIB_NG=2.2.3       # https://github.com/zlib-ng/zlib-ng
-VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
+VERSION_ZLIB_NG=2.2.4       # https://github.com/zlib-ng/zlib-ng
+VERSION_FFI=3.4.7           # https://github.com/libffi/libffi
 VERSION_GLIB=2.83.3         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.6.4         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.25         # https://github.com/libexif/libexif
-VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS
+VERSION_LCMS2=2.17          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.2.0           # https://github.com/google/highway
 VERSION_BROTLI=1.1.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=4.1.5       # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.11.1          # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
-VERSION_CGIF=0.4.1          # https://github.com/dloebl/cgif
+VERSION_CGIF=0.5.0          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.5.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.44.0        # https://github.com/linebender/resvg
-VERSION_AOM=3.11.0          # https://aomedia.googlesource.com/aom
+VERSION_AOM=3.12.0          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.19.5         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.16.0         # https://github.com/libvips/libvips
 
@@ -274,8 +274,7 @@ node --version
   mkdir $DEPS/ffi
   curl -Ls https://github.com/libffi/libffi/releases/download/v$VERSION_FFI/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
   cd $DEPS/ffi
-  # TODO(kleisauke): Discuss this patch upstream
-  curl -Ls https://github.com/libffi/libffi/compare/v$VERSION_FFI...kleisauke:cleanup${ENABLE_WASM_BIGINT:+-bigint}.patch | patch -p1
+  [ "$WASM_BIGINT" = "true" ] || curl -Ls https://github.com/libffi/libffi/compare/v$VERSION_FFI...kleisauke:disable-wasm-bigint.patch | patch -p1
   # Compile without -fexceptions
   sed -i 's/ -fexceptions//g' configure
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
@@ -322,7 +321,7 @@ node --version
   curl -Ls https://github.com/mm2/Little-CMS/releases/download/lcms$VERSION_LCMS2/lcms2-$VERSION_LCMS2.tar.gz | tar xzC $DEPS/lcms2 --strip-components=1
   cd $DEPS/lcms2
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
-    -Djpeg=disabled -Dtiff=disabled
+    -Dtests=disabled -Djpeg=disabled -Dtiff=disabled
   meson install -C _build --tag devel
 )
 
@@ -377,7 +376,7 @@ node --version
   make -C _build install
   if [ -n "$ENABLE_MODULES" ]; then
     # Ensure we don't link with highway in the vips-jxl side module
-    [ -z "$ENABLE_SIMD" ] || sed -i '/^Requires:/s/ libhwy//' $TARGET/lib/pkgconfig/libjxl.pc
+    [ -n "$DISABLE_SIMD" ] || sed -i '/^Requires:/s/ libhwy//' $TARGET/lib/pkgconfig/libjxl.pc
     # ... and the same for lcms2
     sed -i '/^Requires:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl_cms.pc
     # ... and the same for -lc++, see:

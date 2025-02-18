@@ -118,9 +118,7 @@ done
 #export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"
 
 # Rust flags
-# TODO(kleisauke): Remove +bulk-memory,+nontrapping-fptoint once Rust updates LLVM to 20, see:
-# https://github.com/llvm/llvm-project/commit/1bc2cd98c58a1059170dc38697c7a29a8e21160b
-export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+nontrapping-fptoint -Zdefault-visibility=hidden"
+export RUSTFLAGS="-Ctarget-feature=+atomics -Zdefault-visibility=hidden"
 
 # Common compiler flags
 COMMON_FLAGS="-O3 -pthread"
@@ -134,9 +132,7 @@ if [ "$WASM_EH" = "true" ]; then
   export RUSTFLAGS+=" -Zemscripten-wasm-eh"
   if [ "$WASM_EXNREF" = "true" ]; then
     COMMON_FLAGS+=" -sWASM_LEGACY_EXCEPTIONS=0"
-    # TODO(kleisauke): Switch to -wasm-use-legacy-eh=0 once Rust updates LLVM to 20, see:
-    # https://github.com/llvm/llvm-project/commit/a8e1135baa9074f7c088c8e1999561f88699b56e
-    export RUSTFLAGS+=" -Cllvm-args=-wasm-enable-exnref"
+    export RUSTFLAGS+=" -Cllvm-args=-wasm-use-legacy-eh=0"
   fi
 else
   COMMON_FLAGS+=" -fexceptions"
@@ -178,10 +174,7 @@ export PKG_CONFIG="pkg-config --static"
 
 # Ensure Rust build path prefixes are removed from the resulting binaries
 # https://reproducible-builds.org/docs/build-path/
-# TODO(kleisauke): Switch to -Ztrim-paths=all once supported - https://github.com/rust-lang/rust/issues/111540
-export RUSTFLAGS+=" --remap-path-prefix=$(rustc --print sysroot)/lib/rustlib/src/rust/library/="
-export RUSTFLAGS+=" --remap-path-prefix=$CARGO_HOME/registry/src/="
-export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
+export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 
 # Dependency version numbers
 VERSION_ZLIB_NG=2.2.4       # https://github.com/zlib-ng/zlib-ng
@@ -459,7 +452,7 @@ node --version
   # We don't want to build the shared library
   sed -i '/^crate-type =/s/"cdylib", //' crates/c-api/Cargo.toml
   cargo build --manifest-path=crates/c-api/Cargo.toml --release --target wasm32-unknown-emscripten --locked \
-    -Zbuild-std=panic_abort,std --no-default-features --features raster-images
+    -Zbuild-std=panic_abort,std -Ztrim-paths --no-default-features --features raster-images
   cp target/wasm32-unknown-emscripten/release/libresvg.a $TARGET/lib/
   cp crates/c-api/resvg.h $TARGET/include/
 )

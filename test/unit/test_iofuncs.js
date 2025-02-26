@@ -64,12 +64,6 @@ describe('iofuncs', () => {
   });
 
   it('revalidate', function () {
-    // ftruncate() is not yet available in the Node backend of WasmFS.
-    // https://github.com/emscripten-core/emscripten/blob/3.1.68/system/lib/wasmfs/backends/node_backend.cpp#L120-L122
-    if (typeof vips.FS.statBufToObject === 'function') {
-      return this.skip();
-    }
-
     const filename = vips.Utils.tempName('%s.v');
 
     const im1 = vips.Image.black(10, 10);

@@ -1,5 +1,5 @@
 # https://github.com/emscripten-core/emsdk
-FROM docker.io/emscripten/emsdk:4.0.3
+FROM docker.io/emscripten/emsdk:4.0.4
 
 # Path settings
 ENV \
@@ -24,7 +24,7 @@ RUN \
 
 # Emscripten patches
 RUN \
-  curl -Ls https://github.com/emscripten-core/emscripten/compare/4.0.3...kleisauke:wasm-vips-4.0.3.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/4.0.4...kleisauke:wasm-vips-4.0.4.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
   emcc --clear-cache && embuilder build sysroot --force
 
 # Rust

@@ -120,32 +120,36 @@ const vips = await Vips();
 
 ## Example
 
-```js
+```ts
 // Load an image from a file
-let im = vips.Image.newFromFile('owl.jpg');
+using im = vips.Image.newFromFile('owl.jpg');
 
 // Put im at position (100, 100) in a 3000 x 3000 pixel image,
 // make the other pixels in the image by mirroring im up / down /
 // left / right, see
 // https://www.libvips.org/API/current/libvips-conversion.html#vips-embed
-im = im.embed(100, 100, 3000, 3000, {
+using embed = im.embed(100, 100, 3000, 3000, {
   extend: 'mirror'
 });
 
 // Multiply the green (middle) band by 2, leave the other two alone
-im = im.multiply([1, 2, 1]);
+using multiply = embed.multiply([1, 2, 1]);
 
 // Make an image from an array constant, convolve with it
-const mask = vips.Image.newFromArray([
+using mask = vips.Image.newFromArray([
   [-1, -1, -1],
   [-1, 16, -1],
   [-1, -1, -1]
 ], 8.0);
 
-im = im.conv(mask, {
+using convolve = multiply.conv(mask, {
   precision: 'integer'
 });
 
 // Finally, write the result to a buffer
-const outBuffer = im.writeToBuffer('.jpg');
+const outBuffer = convolve.writeToBuffer('.jpg');
 ```
+<sup>If not transpiling, this requires support for the [`using`](
+https://caniuse.com/mdn-javascript_statements_using) keyword. On Node.js,
+you can enable it with the `--js-explicit-resource-management` CLI flag.
+</sup>

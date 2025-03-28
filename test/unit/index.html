@@ -5,10 +5,10 @@
   <title>wasm-vips testsuite</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- FIXME(kleisauke): https://github.com/cdnjs/tools/issues/285 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/11.1.0/mocha.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/11.2.0/mocha.css" crossorigin="anonymous">
   <link rel="modulepreload" href="helpers.js">
   <!-- FIXME(kleisauke): https://github.com/cdnjs/packages/issues/1748 -->
-  <link rel="modulepreload" href="https://cdnjs.cloudflare.com/ajax/libs/chai/5.1.2/chai.js" crossorigin="anonymous">
+  <link rel="modulepreload" href="https://cdnjs.cloudflare.com/ajax/libs/chai/5.2.0/chai.js" crossorigin="anonymous">
   <style>
     html,
     body {
@@ -69,7 +69,7 @@
 </head>
 <body>
 <div id="mocha"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/11.1.0/mocha.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/11.2.0/mocha.min.js" crossorigin="anonymous"></script>
 <script class="mocha-init">
   mocha.setup({
     ui: 'bdd',
@@ -100,7 +100,7 @@
   // import Vips from './lib/vips-es6.js';
 
   import * as Helpers from './helpers.js';
-  import { expect } from 'https://cdnjs.cloudflare.com/ajax/libs/chai/5.1.2/chai.js';
+  import { expect } from 'https://cdnjs.cloudflare.com/ajax/libs/chai/5.2.0/chai.js';
 
   // Global variables used throughout the unit tests
   globalThis.expect = expect;

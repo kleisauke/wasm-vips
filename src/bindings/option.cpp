@@ -351,16 +351,16 @@ void Option::get_operation(VipsOperation *operation, emscripten::val kwargs) {
             } else if (type == VIPS_TYPE_BLOB) {
                 if (option->type == Type::JS_OUTPUT) {
                     VipsBlob *blob =
-                        reinterpret_cast<VipsBlob *>(g_value_dup_boxed(value));
+                        static_cast<VipsBlob *>(g_value_dup_boxed(value));
                     kwargs.set(name, BlobVal.new_(emscripten::typed_memory_view(
                                          VIPS_AREA(blob)->length,
-                                         reinterpret_cast<uint8_t *>(
+                                         static_cast<uint8_t *>(
                                              VIPS_AREA(blob)->data))));
                     vips_area_unref(VIPS_AREA(blob));
                 } else {
                     // our caller gets a reference
                     *(option->vblob) =
-                        reinterpret_cast<VipsBlob *>(g_value_dup_boxed(value));
+                        static_cast<VipsBlob *>(g_value_dup_boxed(value));
                 }
             }
         }

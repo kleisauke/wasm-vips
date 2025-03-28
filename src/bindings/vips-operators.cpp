@@ -854,7 +854,7 @@ emscripten::val Image::profile_load(const std::string &name)
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(profile)->length,
-        reinterpret_cast<uint8_t *>(VIPS_AREA(profile)->data)));
+        static_cast<uint8_t *>(VIPS_AREA(profile)->data)));
     vips_area_unref(VIPS_AREA(profile));
 
     return result;
@@ -2064,7 +2064,7 @@ emscripten::val Image::dzsave_buffer(emscripten::val js_options) const
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(buffer)->length,
-        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+        static_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
     vips_area_unref(VIPS_AREA(buffer));
 
     return result;
@@ -2315,7 +2315,7 @@ emscripten::val Image::gifsave_buffer(emscripten::val js_options) const
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(buffer)->length,
-        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+        static_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
     vips_area_unref(VIPS_AREA(buffer));
 
     return result;
@@ -2395,7 +2395,7 @@ emscripten::val Image::heifsave_buffer(emscripten::val js_options) const
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(buffer)->length,
-        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+        static_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
     vips_area_unref(VIPS_AREA(buffer));
 
     return result;
@@ -2707,7 +2707,7 @@ emscripten::val Image::jp2ksave_buffer(emscripten::val js_options) const
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(buffer)->length,
-        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+        static_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
     vips_area_unref(VIPS_AREA(buffer));
 
     return result;
@@ -2743,7 +2743,7 @@ emscripten::val Image::jpegsave_buffer(emscripten::val js_options) const
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(buffer)->length,
-        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+        static_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
     vips_area_unref(VIPS_AREA(buffer));
 
     return result;
@@ -2787,7 +2787,7 @@ emscripten::val Image::jxlsave_buffer(emscripten::val js_options) const
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(buffer)->length,
-        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+        static_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
     vips_area_unref(VIPS_AREA(buffer));
 
     return result;
@@ -2864,7 +2864,7 @@ emscripten::val Image::magicksave_buffer(emscripten::val js_options) const
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(buffer)->length,
-        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+        static_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
     vips_area_unref(VIPS_AREA(buffer));
 
     return result;
@@ -3194,7 +3194,7 @@ emscripten::val Image::pngsave_buffer(emscripten::val js_options) const
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(buffer)->length,
-        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+        static_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
     vips_area_unref(VIPS_AREA(buffer));
 
     return result;
@@ -3325,7 +3325,7 @@ emscripten::val Image::radsave_buffer(emscripten::val js_options) const
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(buffer)->length,
-        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+        static_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
     vips_area_unref(VIPS_AREA(buffer));
 
     return result;
@@ -3376,7 +3376,7 @@ emscripten::val Image::rawsave_buffer(emscripten::val js_options) const
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(buffer)->length,
-        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+        static_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
     vips_area_unref(VIPS_AREA(buffer));
 
     return result;
@@ -3865,7 +3865,7 @@ emscripten::val Image::tiffsave_buffer(emscripten::val js_options) const
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(buffer)->length,
-        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+        static_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
     vips_area_unref(VIPS_AREA(buffer));
 
     return result;
@@ -3958,7 +3958,7 @@ emscripten::val Image::webpsave_buffer(emscripten::val js_options) const
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(buffer)->length,
-        reinterpret_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+        static_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
     vips_area_unref(VIPS_AREA(buffer));
 
     return result;

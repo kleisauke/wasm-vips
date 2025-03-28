@@ -103,7 +103,7 @@ class Target : public Connection {
 
         emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
             VIPS_AREA(blob)->length,
-            reinterpret_cast<uint8_t *>(VIPS_AREA(blob)->data)));
+            static_cast<uint8_t *>(VIPS_AREA(blob)->data)));
         vips_area_unref(VIPS_AREA(blob));
 
         return result;

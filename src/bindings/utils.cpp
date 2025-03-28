@@ -43,7 +43,7 @@ std::vector<double> invert(const std::vector<double> &vector) {
 }
 
 static void run(void *arg) {
-    std::function<void()> *f = reinterpret_cast<std::function<void()> *>(arg);
+    std::function<void()> *f = static_cast<std::function<void()> *>(arg);
     (*f)();
 }
 

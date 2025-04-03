@@ -496,6 +496,8 @@ node --version
   cd $DEPS/vips
   # Emscripten specific patches
   curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-$VERSION_VIPS.patch | patch -p1
+  # Backport commit libvips/libvips@c8266c3
+  curl -Ls https://github.com/libvips/libvips/commit/c8266c3b8bc2cc69944688b085b05a7d87ebd47e.patch | patch -p1
   # Disable building man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \

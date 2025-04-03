@@ -13,6 +13,11 @@ Uses libvips v8.16.1, compiled with Emscripten v4.0.6.
 - Add type definition for the [explicit resource management proposal](
 https://github.com/tc39/proposal-explicit-resource-management).
 
+### Fixed
+
+- Fix possible thread oversubscription with some pipelines.
+  [#92](https://github.com/kleisauke/wasm-vips/issues/92)
+
 ## [v0.0.12] - 2025-03-16
 
 Uses libvips v8.16.1, compiled with Emscripten v4.0.5.

@@ -17,6 +17,8 @@ https://github.com/tc39/proposal-explicit-resource-management).
 
 - Fix possible thread oversubscription with some pipelines.
   [#92](https://github.com/kleisauke/wasm-vips/issues/92)
+- Silence bundler warnings related to `new URL('./', import.meta.url)`.
+  [#94](https://github.com/kleisauke/wasm-vips/issues/94)
 
 ## [v0.0.12] - 2025-03-16
 

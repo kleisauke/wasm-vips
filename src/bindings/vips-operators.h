@@ -1739,10 +1739,17 @@ Image math(emscripten::val math) const;
 Image math2_const(emscripten::val math2, const std::vector<double> &c) const;
 
 /**
- * Invert an matrix.
+ * Invert a matrix.
  * @return Output matrix.
  */
 Image matrixinvert() const;
+
+/**
+ * Multiply two matrices.
+ * @param right Second matrix to multiply.
+ * @return Output matrix.
+ */
+Image matrixmultiply(emscripten::val right) const;
 
 /**
  * Print matrix.
@@ -2053,6 +2060,14 @@ Image relational_const(emscripten::val relational, const std::vector<double> &c)
 Image remainder_const(const std::vector<double> &c) const;
 
 /**
+ * Rebuild an mosaiced image.
+ * @param old_str Search for this string.
+ * @param new_str And swap for this string.
+ * @return Output image.
+ */
+Image remosaic(const std::string &old_str, const std::string &new_str) const;
+
+/**
  * Replicate an image.
  * @param across Repeat this many times horizontally.
  * @param down Repeat this many times vertically.
@@ -2123,7 +2138,7 @@ Image scRGB2BW(emscripten::val js_options = emscripten::val::null()) const;
 Image scRGB2XYZ() const;
 
 /**
- * Convert an scrgb image to srgb.
+ * Convert scrgb to srgb.
  * @param js_options Optional options.
  * @return Output image.
  */

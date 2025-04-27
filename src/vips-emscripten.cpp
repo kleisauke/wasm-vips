@@ -384,7 +384,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("perceptual", VIPS_INTENT_PERCEPTUAL)
         .value("relative", VIPS_INTENT_RELATIVE)
         .value("saturation", VIPS_INTENT_SATURATION)
-        .value("absolute", VIPS_INTENT_ABSOLUTE);
+        .value("absolute", VIPS_INTENT_ABSOLUTE)
+        .value("auto", VIPS_INTENT_AUTO);
 
     enum_<VipsKernel>("Kernel")
         .value("nearest", VIPS_KERNEL_NEAREST)
@@ -392,7 +393,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("cubic", VIPS_KERNEL_CUBIC)
         .value("mitchell", VIPS_KERNEL_MITCHELL)
         .value("lanczos2", VIPS_KERNEL_LANCZOS2)
-        .value("lanczos3", VIPS_KERNEL_LANCZOS3);
+        .value("lanczos3", VIPS_KERNEL_LANCZOS3)
+        .value("mks2013", VIPS_KERNEL_MKS2013)
+        .value("mks2021", VIPS_KERNEL_MKS2021);
 
     enum_<VipsPCS>("PCS")
         .value("lab", VIPS_PCS_LAB)
@@ -1807,6 +1810,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
                       return image.match(sec, xr1, yr1, xs1, ys1, xr2, yr2, xs2, ys2);
                   }))
         .function("matrixinvert", &Image::matrixinvert)
+        .function("matrixmultiply", &Image::matrixmultiply)
         .function("matrixprint", &Image::matrixprint)
         .function("matrixprint", optional_override([](const Image &image) {
                       image.matrixprint();
@@ -1923,6 +1927,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("reducev", optional_override([](const Image &image, double vshrink) {
                       return image.reducev(vshrink);
                   }))
+        .function("remosaic", &Image::remosaic)
         .function("replicate", &Image::replicate)
         .function("resize", &Image::resize)
         .function("resize", optional_override([](const Image &image, double scale) {

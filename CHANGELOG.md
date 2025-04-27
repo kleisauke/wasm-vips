@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.0.14] - TBD
 
-Uses libvips v8.16.1, compiled with Emscripten v4.0.8.
+Uses libvips v8.17.0, compiled with Emscripten v4.0.8.
+
+### Changed
+
+- Update methods/enums for libvips 8.17.
 
 ## [v0.0.13] - 2025-04-16
 

@@ -2959,6 +2959,19 @@ Image Image::matrixinvert() const
     return out;
 }
 
+Image Image::matrixmultiply(emscripten::val right) const
+{
+    Image out;
+
+    this->call("matrixmultiply",
+               (new Option)
+                   ->set("left", *this)
+                   ->set("out", &out)
+                   ->set("right", VIPS_TYPE_IMAGE, right, this));
+
+    return out;
+}
+
 void Image::matrixprint(emscripten::val js_options) const
 {
     this->call("matrixprint",
@@ -3470,6 +3483,20 @@ Image Image::remainder_const(const std::vector<double> &c) const
                    ->set("in", *this)
                    ->set("out", &out)
                    ->set("c", c));
+
+    return out;
+}
+
+Image Image::remosaic(const std::string &old_str, const std::string &new_str) const
+{
+    Image out;
+
+    this->call("remosaic",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("out", &out)
+                   ->set("old_str", old_str)
+                   ->set("new_str", new_str));
 
     return out;
 }

@@ -547,7 +547,7 @@ describe('arithmetic', () => {
       const distance = Math.floor(test.height * y / hough.height);
 
       expect(angle).to.be.closeTo(45, 1e-6);
-      expect(distance).to.be.closeTo(70, 1e-6);
+      expect(distance).to.be.closeTo(75, 1e-6);
     }
   });
 

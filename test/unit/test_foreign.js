@@ -982,6 +982,14 @@ describe('foreign', () => {
     im = vips.Image.newFromBuffer(svg, '', { scale: 0.0001 });
     expect(im.width).to.equal(10);
     expect(im.height).to.equal(10);
+
+    // Custom CSS stylesheet
+    im = vips.Image.newFromFile(Helpers.svgFile);
+    expect(im.avg()).to.be.below(5);
+    im = vips.Image.newFromFile(Helpers.svgFile, {
+      stylesheet: 'path{stroke:#f00;stroke-width:1em;}'
+    });
+    expect(im.avg()).to.be.above(5);
   });
 
   it('heifload', function () {

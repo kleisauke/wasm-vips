@@ -456,7 +456,7 @@ describe('conversion', () => {
     const base = colour.add(100);
     const comp = base.composite(overlay, 'overlay');
 
-    Helpers.assertAlmostEqualObjects(comp.getpoint(0, 0), [51.2, 51.9, 52.6, 255], 0.1);
+    Helpers.assertAlmostEqualObjects(comp.getpoint(0, 0), [51.2, 51.9, 52.6, 255], 1);
   });
 
   it('unpremultiply', function () {

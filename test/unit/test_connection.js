@@ -48,7 +48,8 @@ describe('connection', () => {
 
       expect(x.filename).to.equal(filename);
 
-      vips.FS.unlink(filename);
+      // After PR https://github.com/libvips/libvips/pull/4482 the file
+      // is created lazily, so we no longer need to unlink it here.
     });
     it('newToMemory', function () {
       const x = vips.Target.newToMemory();

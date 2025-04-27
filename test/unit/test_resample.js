@@ -96,7 +96,11 @@ describe('resample', () => {
 
     for (const fac of [1, 1.1, 1.5, 1.999]) {
       for (const fmt of Helpers.allFormats) {
-        for (const kernel of ['nearest', 'linear', 'cubic', 'lanczos2', 'lanczos3']) {
+        for (const kernel of [
+          'nearest', 'linear', 'cubic',
+          'lanczos2', 'lanczos3',
+          'mks2013', 'mks2021'
+        ]) {
           const x = im.cast(fmt);
           const r = x.reduce(fac, fac, {
             kernel
@@ -112,7 +116,11 @@ describe('resample', () => {
     for (const constant of [0, 1, 2, 254, 255]) {
       const im = vips.Image.black(10, 10).add(constant).cast('uchar');
 
-      for (const kernel of ['nearest', 'linear', 'cubic', 'lanczos2', 'lanczos3']) {
+      for (const kernel of [
+        'nearest', 'linear', 'cubic',
+        'lanczos2', 'lanczos3',
+        'mks2013', 'mks2021'
+      ]) {
         // console.log(`testing kernel = ${kernel}`);
         // console.log(`testing const = ${constant}`);
 

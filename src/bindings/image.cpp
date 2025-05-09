@@ -94,7 +94,7 @@ void Image::call(const char *operation_name, Option *args,
 }
 
 void Image::eval_handler(VipsImage *image, VipsProgress *progress, void *user) {
-    Image *self = reinterpret_cast<Image *>(user);
+    Image *self = static_cast<Image *>(user);
     if (self->progress_callback == nullptr)
         return;
 
@@ -410,7 +410,7 @@ emscripten::val Image::write_to_buffer(const std::string &suffix,
 
     emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
         VIPS_AREA(blob)->length,
-        reinterpret_cast<uint8_t *>(VIPS_AREA(blob)->data)));
+        static_cast<uint8_t *>(VIPS_AREA(blob)->data)));
     vips_area_unref(VIPS_AREA(blob));
 
     return result;
@@ -441,7 +441,7 @@ emscripten::val Image::write_to_memory() const {
         throw Error("unable to write to memory");
 
     emscripten::val result = BlobVal.new_(
-        emscripten::typed_memory_view(size, reinterpret_cast<uint8_t *>(mem)));
+        emscripten::typed_memory_view(size, static_cast<uint8_t *>(mem)));
     g_free(mem);
     return result;
 }

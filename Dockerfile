@@ -1,5 +1,5 @@
 # https://github.com/emscripten-core/emsdk
-FROM docker.io/emscripten/emsdk:4.0.3
+FROM docker.io/emscripten/emsdk:4.0.8
 
 # Path settings
 ENV \
@@ -24,7 +24,7 @@ RUN \
 
 # Emscripten patches
 RUN \
-  curl -Ls https://github.com/emscripten-core/emscripten/compare/4.0.3...kleisauke:wasm-vips-4.0.3.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/4.0.8...kleisauke:wasm-vips-4.0.8.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
   curl -Ls https://github.com/emscripten-core/emscripten/compare/a9651ff...kleisauke:mimalloc-update-3.0.1.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
   emcc --clear-cache && embuilder build sysroot --force
 
@@ -34,7 +34,7 @@ RUN \
     --no-modify-path \
     --profile minimal \
     --target wasm32-unknown-emscripten \
-    --default-toolchain nightly-2025-01-30 \
+    --default-toolchain nightly-2025-05-01 \
     --component rust-src
 
 # Cache settings

@@ -147,12 +147,6 @@ describe('foreign', () => {
   }
 
   it('vips', function () {
-    // ftruncate() is not yet available in the Node backend of WasmFS.
-    // https://github.com/emscripten-core/emscripten/blob/3.1.68/system/lib/wasmfs/backends/node_backend.cpp#L120-L122
-    if (typeof vips.FS.statBufToObject === 'function') {
-      return this.skip();
-    }
-
     saveLoadFile('%s.v', '', colour, 0);
 
     // check we can save and restore metadata

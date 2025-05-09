@@ -121,14 +121,21 @@ declare module Vips {
      */
     abstract class EmbindClassHandle<T extends EmbindClassHandle<T>> {
         /**
-         * Returns a new handle. It must eventually also be disposed with {@link delete} or
+         * Returns a new handle. It must eventually also be disposed with {@link [Symbol.dispose]} or
          * {@link deleteLater}.
          * @return A new handle.
          */
         clone(): T;
 
         /**
+         * Support for `using ...`.
+         * See also: https://github.com/tc39/proposal-explicit-resource-management
+         */
+        [Symbol.dispose](): void;
+
+        /**
          * Signal that a C++ object is no longer needed and can be deleted.
+         * Alias for {@link [Symbol.dispose]}.
          */
         delete(): void;
 

@@ -207,7 +207,7 @@ class Image : public Object {
             throw Error("unable to get " + field);
 
         return emscripten::val(emscripten::typed_memory_view(
-            length, reinterpret_cast<const uint8_t *>(value)));
+            length, static_cast<const uint8_t *>(value)));
     }
 
     std::vector<std::string> get_fields() const {

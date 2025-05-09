@@ -29,7 +29,7 @@ int64_t SourceCustom::read_handler(VipsSourceCustom *source, void *data,
     if (length <= 0)
         return 0;
 
-    SourceCustom *self = reinterpret_cast<SourceCustom *>(user);
+    SourceCustom *self = static_cast<SourceCustom *>(user);
     if (self->read_callback == nullptr)
         return -1;
 
@@ -52,7 +52,7 @@ int64_t SourceCustom::read_handler(VipsSourceCustom *source, void *data,
 
 int64_t SourceCustom::seek_handler(VipsSourceCustom *source, int64_t offset,
                                    int whence, void *user) {
-    SourceCustom *self = reinterpret_cast<SourceCustom *>(user);
+    SourceCustom *self = static_cast<SourceCustom *>(user);
     if (self->seek_callback == nullptr)
         return -1;
 
@@ -96,7 +96,7 @@ Target Target::new_to_memory() {
 
 int64_t TargetCustom::write_handler(VipsTargetCustom *target, const void *data,
                                     int64_t length, void *user) {
-    TargetCustom *self = reinterpret_cast<TargetCustom *>(user);
+    TargetCustom *self = static_cast<TargetCustom *>(user);
     if (self->write_callback == nullptr)
         return -1;
 
@@ -115,7 +115,7 @@ int64_t TargetCustom::read_handler(VipsTargetCustom *target, void *data,
     if (length <= 0)
         return 0;
 
-    TargetCustom *self = reinterpret_cast<TargetCustom *>(user);
+    TargetCustom *self = static_cast<TargetCustom *>(user);
     if (self->read_callback == nullptr)
         return -1;
 
@@ -138,7 +138,7 @@ int64_t TargetCustom::read_handler(VipsTargetCustom *target, void *data,
 
 int64_t TargetCustom::seek_handler(VipsTargetCustom *target, int64_t offset,
                                    int whence, void *user) {
-    TargetCustom *self = reinterpret_cast<TargetCustom *>(user);
+    TargetCustom *self = static_cast<TargetCustom *>(user);
     if (self->seek_callback == nullptr)
         return -1;
 
@@ -151,7 +151,7 @@ int64_t TargetCustom::seek_handler(VipsTargetCustom *target, int64_t offset,
 }
 
 int TargetCustom::end_handler(VipsTargetCustom *target, void *user) {
-    TargetCustom *self = reinterpret_cast<TargetCustom *>(user);
+    TargetCustom *self = static_cast<TargetCustom *>(user);
     if (self->end_callback == nullptr)
         return 0;
 

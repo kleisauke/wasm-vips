@@ -98,7 +98,7 @@ while [ $# -gt 0 ]; do
 done
 
 # Configure the ENABLE_* and DISABLE_* expansion helpers
-for arg in SIMD WASM_BIGINT JXL AVIF SVG PIC MODULES BINDINGS; do
+for arg in SIMD JXL AVIF SVG PIC MODULES BINDINGS; do
   if [ "${!arg}" = "true" ]; then
     declare ENABLE_$arg=true
   else
@@ -118,9 +118,7 @@ done
 #export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"
 
 # Rust flags
-# TODO(kleisauke): Remove +bulk-memory,+nontrapping-fptoint once Rust updates LLVM to 20, see:
-# https://github.com/llvm/llvm-project/commit/1bc2cd98c58a1059170dc38697c7a29a8e21160b
-export RUSTFLAGS="-Ctarget-feature=+atomics,+bulk-memory,+nontrapping-fptoint -Zdefault-visibility=hidden"
+export RUSTFLAGS="-Ctarget-feature=+atomics -Zdefault-visibility=hidden"
 
 # Common compiler flags
 COMMON_FLAGS="-O3 -pthread"
@@ -134,9 +132,7 @@ if [ "$WASM_EH" = "true" ]; then
   export RUSTFLAGS+=" -Zemscripten-wasm-eh"
   if [ "$WASM_EXNREF" = "true" ]; then
     COMMON_FLAGS+=" -sWASM_LEGACY_EXCEPTIONS=0"
-    # TODO(kleisauke): Switch to -wasm-use-legacy-eh=0 once Rust updates LLVM to 20, see:
-    # https://github.com/llvm/llvm-project/commit/a8e1135baa9074f7c088c8e1999561f88699b56e
-    export RUSTFLAGS+=" -Cllvm-args=-wasm-enable-exnref"
+    export RUSTFLAGS+=" -Cllvm-args=-wasm-use-legacy-eh=0"
   fi
 else
   COMMON_FLAGS+=" -fexceptions"
@@ -147,12 +143,12 @@ if [ "$SIMD" = "true" ]; then
   export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"
   export RUSTFLAGS+=" -Ctarget-feature=+simd128"
 fi
-if [ "$PIC" = "true" ]; then export CFLAGS+=" -fPIC"; fi
+[ "$PIC" = "false" ] || export CFLAGS+=" -fPIC"
 
 export CXXFLAGS="$CFLAGS"
 
 export LDFLAGS="$COMMON_FLAGS -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
-if [ "$WASM_BIGINT" = "false" ]; then export LDFLAGS+=" -sWASM_BIGINT=0"; fi
+[ "$WASM_BIGINT" = "true" ] || export LDFLAGS+=" -sWASM_BIGINT=0"
 
 # Build paths
 export CPATH="$TARGET/include"
@@ -178,31 +174,28 @@ export PKG_CONFIG="pkg-config --static"
 
 # Ensure Rust build path prefixes are removed from the resulting binaries
 # https://reproducible-builds.org/docs/build-path/
-# TODO(kleisauke): Switch to -Ztrim-paths=all once supported - https://github.com/rust-lang/rust/issues/111540
-export RUSTFLAGS+=" --remap-path-prefix=$(rustc --print sysroot)/lib/rustlib/src/rust/library/="
-export RUSTFLAGS+=" --remap-path-prefix=$CARGO_HOME/registry/src/="
-export RUSTFLAGS+=" --remap-path-prefix=$DEPS/="
+export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 
 # Dependency version numbers
-VERSION_ZLIB_NG=2.2.3       # https://github.com/zlib-ng/zlib-ng
-VERSION_FFI=3.4.6           # https://github.com/libffi/libffi
-VERSION_GLIB=2.83.3         # https://gitlab.gnome.org/GNOME/glib
-VERSION_EXPAT=2.6.4         # https://github.com/libexpat/libexpat
+VERSION_ZLIB_NG=2.2.4       # https://github.com/zlib-ng/zlib-ng
+VERSION_FFI=3.4.8           # https://github.com/libffi/libffi
+VERSION_GLIB=2.84.1         # https://gitlab.gnome.org/GNOME/glib
+VERSION_EXPAT=2.7.1         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.25         # https://github.com/libexif/libexif
-VERSION_LCMS2=2.16          # https://github.com/mm2/Little-CMS
+VERSION_LCMS2=2.17          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.2.0           # https://github.com/google/highway
 VERSION_BROTLI=1.1.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=4.1.5       # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.11.1          # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
-VERSION_CGIF=0.4.1          # https://github.com/dloebl/cgif
+VERSION_CGIF=0.5.0          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.5.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.0          # https://gitlab.com/libtiff/libtiff
-VERSION_RESVG=0.44.0        # https://github.com/linebender/resvg
-VERSION_AOM=3.11.0          # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.19.5         # https://github.com/strukturag/libheif
-VERSION_VIPS=8.16.0         # https://github.com/libvips/libvips
+VERSION_RESVG=0.45.1        # https://github.com/linebender/resvg
+VERSION_AOM=3.12.1          # https://aomedia.googlesource.com/aom
+VERSION_HEIF=1.19.8         # https://github.com/strukturag/libheif
+VERSION_VIPS=8.16.1         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
 
@@ -274,8 +267,7 @@ node --version
   mkdir $DEPS/ffi
   curl -Ls https://github.com/libffi/libffi/releases/download/v$VERSION_FFI/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
   cd $DEPS/ffi
-  # TODO(kleisauke): Discuss this patch upstream
-  curl -Ls https://github.com/libffi/libffi/compare/v$VERSION_FFI...kleisauke:cleanup${ENABLE_WASM_BIGINT:+-bigint}.patch | patch -p1
+  [ "$WASM_BIGINT" = "true" ] || curl -Ls https://github.com/libffi/libffi/compare/v$VERSION_FFI...kleisauke:disable-wasm-bigint.patch | patch -p1
   # Compile without -fexceptions
   sed -i 's/ -fexceptions//g' configure
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
@@ -322,7 +314,7 @@ node --version
   curl -Ls https://github.com/mm2/Little-CMS/releases/download/lcms$VERSION_LCMS2/lcms2-$VERSION_LCMS2.tar.gz | tar xzC $DEPS/lcms2 --strip-components=1
   cd $DEPS/lcms2
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
-    -Djpeg=disabled -Dtiff=disabled
+    -Dtests=disabled -Djpeg=disabled -Dtiff=disabled
   meson install -C _build --tag devel
 )
 
@@ -377,7 +369,7 @@ node --version
   make -C _build install
   if [ -n "$ENABLE_MODULES" ]; then
     # Ensure we don't link with highway in the vips-jxl side module
-    [ -z "$ENABLE_SIMD" ] || sed -i '/^Requires:/s/ libhwy//' $TARGET/lib/pkgconfig/libjxl.pc
+    [ -n "$DISABLE_SIMD" ] || sed -i '/^Requires:/s/ libhwy//' $TARGET/lib/pkgconfig/libjxl.pc
     # ... and the same for lcms2
     sed -i '/^Requires:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl_cms.pc
     # ... and the same for -lc++, see:
@@ -454,13 +446,10 @@ node --version
   # Vendor dir doesn't work with -Zbuild-std due to https://github.com/rust-lang/wg-cargo-std-aware/issues/23
   # Just delete the config so that all deps are downloaded from the internet
   rm .cargo/config
-  # Update and regenerate the lockfile for zune-jpeg
-  # https://github.com/etemesi254/zune-image/pull/242
-  cargo update zune-jpeg
   # We don't want to build the shared library
   sed -i '/^crate-type =/s/"cdylib", //' crates/c-api/Cargo.toml
   cargo build --manifest-path=crates/c-api/Cargo.toml --release --target wasm32-unknown-emscripten --locked \
-    -Zbuild-std=panic_abort,std --no-default-features --features raster-images
+    -Zbuild-std=panic_abort,std -Ztrim-paths --no-default-features --features raster-images
   cp target/wasm32-unknown-emscripten/release/libresvg.a $TARGET/lib/
   cp crates/c-api/resvg.h $TARGET/include/
 )
@@ -506,7 +495,9 @@ node --version
   curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$VERSION_VIPS.tar.xz | tar xJC $DEPS/vips --strip-components=1
   cd $DEPS/vips
   # Emscripten specific patches
-  curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-8.16.patch | patch -p1
+  curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-$VERSION_VIPS.patch | patch -p1
+  # Backport commit libvips/libvips@c8266c3
+  curl -Ls https://github.com/libvips/libvips/commit/c8266c3b8bc2cc69944688b085b05a7d87ebd47e.patch | patch -p1
   # Disable building man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \

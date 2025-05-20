@@ -131,6 +131,7 @@ declare module Vips {
          * Support for `using ...`.
          * See also: https://github.com/tc39/proposal-explicit-resource-management
          */
+        // @ts-ignore - If targeting lower than ESNext, this symbol might not exist.
         [Symbol.dispose](): void;
 
         /**

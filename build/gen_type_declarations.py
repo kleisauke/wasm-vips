@@ -255,8 +255,8 @@ def generate_enums_flags(gir_file, out_file, indent='    '):
     type_map(type_from_name('GEnum'), add_enum)
     type_map(type_from_name('GFlags'), add_flag)
 
-    # Filter internal flags
-    filter = ['VipsForeignFlags']
+    # Filter internal enums/flags
+    filter = ['VipsDemandStyle', 'VipsForeignFlags']
     all_nicknames = [name for name in all_nicknames if name not in filter]
 
     with open('preamble_vips.d.ts', 'r') as f:

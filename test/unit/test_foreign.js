@@ -901,8 +901,7 @@ describe('foreign', () => {
     saveLoadFile('%s.ppm', '[ascii]', grey16, 0);
     saveLoadFile('%s.ppm', '[ascii]', rgb16, 0);
 
-    const source = vips.Source.newFromMemory('P1\n#\n#\n1 1\n0\n');
-    const im = vips.Image.ppmloadSource(source);
+    const im = vips.Image.newFromBuffer('P1\n#\n#\n1 1\n0\n');
     expect(im.width).to.equal(1);
     expect(im.height).to.equal(1);
   });
@@ -982,6 +981,14 @@ describe('foreign', () => {
     im = vips.Image.newFromBuffer(svg, '', { scale: 0.0001 });
     expect(im.width).to.equal(10);
     expect(im.height).to.equal(10);
+
+    // Custom CSS stylesheet
+    im = vips.Image.newFromFile(Helpers.svgFile);
+    expect(im.avg()).to.be.below(5);
+    im = vips.Image.newFromFile(Helpers.svgFile, {
+      stylesheet: 'path{stroke:#f00;stroke-width:1em;}'
+    });
+    expect(im.avg()).to.be.above(5);
   });
 
   it('heifload', function () {

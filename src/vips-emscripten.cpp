@@ -149,12 +149,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("scrgb", VIPS_INTERPRETATION_scRGB)
         .value("hsv", VIPS_INTERPRETATION_HSV);
 
-    enum_<VipsDemandStyle>("DemandStyle")
-        .value("error", VIPS_DEMAND_STYLE_ERROR)
-        .value("smalltile", VIPS_DEMAND_STYLE_SMALLTILE)
-        .value("fatstrip", VIPS_DEMAND_STYLE_FATSTRIP)
-        .value("thinstrip", VIPS_DEMAND_STYLE_THINSTRIP);
-
     enum_<VipsOperationRelational>("OperationRelational")
         .value("equal", VIPS_OPERATION_RELATIONAL_EQUAL)
         .value("noteq", VIPS_OPERATION_RELATIONAL_NOTEQ)
@@ -384,7 +378,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("perceptual", VIPS_INTENT_PERCEPTUAL)
         .value("relative", VIPS_INTENT_RELATIVE)
         .value("saturation", VIPS_INTENT_SATURATION)
-        .value("absolute", VIPS_INTENT_ABSOLUTE);
+        .value("absolute", VIPS_INTENT_ABSOLUTE)
+        .value("auto", VIPS_INTENT_AUTO);
 
     enum_<VipsKernel>("Kernel")
         .value("nearest", VIPS_KERNEL_NEAREST)
@@ -392,7 +387,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("cubic", VIPS_KERNEL_CUBIC)
         .value("mitchell", VIPS_KERNEL_MITCHELL)
         .value("lanczos2", VIPS_KERNEL_LANCZOS2)
-        .value("lanczos3", VIPS_KERNEL_LANCZOS3);
+        .value("lanczos3", VIPS_KERNEL_LANCZOS3)
+        .value("mks2013", VIPS_KERNEL_MKS2013)
+        .value("mks2021", VIPS_KERNEL_MKS2021);
 
     enum_<VipsPCS>("PCS")
         .value("lab", VIPS_PCS_LAB)
@@ -583,9 +580,13 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("newFromBuffer", &Image::new_from_buffer)
         .class_function("newFromBuffer",
                         optional_override([](const std::string &buffer,
-                                             const std::string &option_string) {
-                            return Image::new_from_buffer(buffer,
-                                                          option_string);
+                                             emscripten::val options) {
+                            if (options.isString()) {
+                                return Image::new_from_buffer(
+                                    buffer, options.as<std::string>());
+                            }
+
+                            return Image::new_from_buffer(buffer, "", options);
                         }))
         .class_function("newFromBuffer",
                         optional_override([](const std::string &buffer) {
@@ -594,9 +595,13 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("newFromSource", &Image::new_from_source)
         .class_function("newFromSource",
                         optional_override([](const Source &source,
-                                             const std::string &option_string) {
-                            return Image::new_from_source(source,
-                                                          option_string);
+                                             emscripten::val options) {
+                            if (options.isString()) {
+                                return Image::new_from_source(
+                                    source, options.as<std::string>());
+                            }
+
+                            return Image::new_from_source(source, "", options);
                         }))
         .class_function("newFromSource",
                         optional_override([](const Source &source) {
@@ -808,9 +813,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
                   select_overload<Image(emscripten::val, emscripten::val,
                                         emscripten::val) const>(&Image::linear))
         .function("linear",
-                  optional_override(
-                      [](const Image &image, emscripten::val a,
-                         emscripten::val b) { return image.linear(a, b); }))
+                  optional_override([](const Image &image, emscripten::val a,
+                                       emscripten::val b) {
+                      return image.linear(a, b);
+                  }))
         // enum functions
         .function("flip",
                   select_overload<Image(emscripten::val) const>(&Image::flip))
@@ -1348,6 +1354,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("ppmload", optional_override([](const std::string &filename) {
                             return Image::ppmload(filename);
                         }))
+        .class_function("ppmloadBuffer", &Image::ppmload_buffer)
+        .class_function("ppmloadBuffer", optional_override([](const std::string &buffer) {
+                            return Image::ppmload_buffer(buffer);
+                        }))
         .class_function("ppmloadSource", &Image::ppmload_source)
         .class_function("ppmloadSource", optional_override([](const Source &source) {
                             return Image::ppmload_source(source);
@@ -1807,6 +1817,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
                       return image.match(sec, xr1, yr1, xs1, ys1, xr2, yr2, xs2, ys2);
                   }))
         .function("matrixinvert", &Image::matrixinvert)
+        .function("matrixmultiply", &Image::matrixmultiply)
         .function("matrixprint", &Image::matrixprint)
         .function("matrixprint", optional_override([](const Image &image) {
                       image.matrixprint();
@@ -1923,6 +1934,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("reducev", optional_override([](const Image &image, double vshrink) {
                       return image.reducev(vshrink);
                   }))
+        .function("remosaic", &Image::remosaic)
         .function("replicate", &Image::replicate)
         .function("resize", &Image::resize)
         .function("resize", optional_override([](const Image &image, double scale) {

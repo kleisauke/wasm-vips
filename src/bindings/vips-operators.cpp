@@ -830,6 +830,21 @@ Image Image::ppmload(const std::string &filename, emscripten::val js_options)
     return out;
 }
 
+Image Image::ppmload_buffer(const std::string &buffer, emscripten::val js_options)
+{
+    Image out;
+
+    VipsBlob *blob = vips_blob_copy(buffer.c_str(), buffer.size());
+    Option *options = (new Option)
+                          ->set("out", &out)
+                          ->set("buffer", blob);
+    vips_area_unref(VIPS_AREA(blob));
+
+    Image::call("ppmload_buffer", nullptr, options, js_options);
+
+    return out;
+}
+
 Image Image::ppmload_source(const Source &source, emscripten::val js_options)
 {
     Image out;
@@ -2959,6 +2974,19 @@ Image Image::matrixinvert() const
     return out;
 }
 
+Image Image::matrixmultiply(emscripten::val right) const
+{
+    Image out;
+
+    this->call("matrixmultiply",
+               (new Option)
+                   ->set("left", *this)
+                   ->set("out", &out)
+                   ->set("right", VIPS_TYPE_IMAGE, right, this));
+
+    return out;
+}
+
 void Image::matrixprint(emscripten::val js_options) const
 {
     this->call("matrixprint",
@@ -3470,6 +3498,20 @@ Image Image::remainder_const(const std::vector<double> &c) const
                    ->set("in", *this)
                    ->set("out", &out)
                    ->set("c", c));
+
+    return out;
+}
+
+Image Image::remosaic(const std::string &old_str, const std::string &new_str) const
+{
+    Image out;
+
+    this->call("remosaic",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("out", &out)
+                   ->set("old_str", old_str)
+                   ->set("new_str", new_str));
 
     return out;
 }

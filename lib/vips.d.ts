@@ -1496,7 +1496,7 @@ declare module Vips {
      * The format used for each band element.
      *
      * Each corresponds to a native C type for the current machine. For example,
-     * #VIPS_FORMAT_USHORT is <type>unsigned short</type>.
+     * [enum@Vips.BandFormat.USHORT] is `unsigned short`.
      */
     enum BandFormat {
         /**
@@ -1542,12 +1542,11 @@ declare module Vips {
     }
 
     /**
-     * The various Porter-Duff and PDF blend modes. See vips_composite(),
+     * The various Porter-Duff and PDF blend modes. See [func@Image.composite],
      * for example.
      *
-     * The Cairo docs have a nice explanation of all the blend modes:
-     *
-     * https://www.cairographics.org/operators
+     * The Cairo docs have [a nice explanation of all the blend
+     * modes](https://www.cairographics.org/operators).
      *
      * The non-separable modes are not implemented.
      */
@@ -1681,7 +1680,7 @@ declare module Vips {
 
     /**
      * How the values in an image should be interpreted. For example, a
-     * three-band float image of type #VIPS_INTERPRETATION_LAB should have its
+     * three-band float image of type [enum@Vips.Interpretation.LAB] should have its
      * pixels interpreted as coordinates in CIE Lab space.
      *
      * RGB and sRGB are treated in the same way. Use the colourspace functions if
@@ -1716,7 +1715,7 @@ declare module Vips {
          */
         cmyk = 15, // 'cmyk'
         /**
-         * Implies #VIPS_CODING_LABQ
+         * Implies [enum@Vips.Coding.LABQ]
          */
         labq = 16, // 'labq'
         /**
@@ -1770,126 +1769,81 @@ declare module Vips {
     }
 
     /**
-     * See vips_image_pipelinev(). Operations can hint
-     * the kind of demand geometry they prefer
-     * to the VIPS image IO system.
-     *
-     * These demand styles are given below in order of increasing
-     * specialisation.  When demanding output from a pipeline,
-     * vips_image_generate()
-     * will use the most general style requested by the operations
-     * in the pipeline.
-     *
-     * #VIPS_DEMAND_STYLE_SMALLTILE --- This is the most general demand format.
-     * Output is demanded in small (around 100x100 pel) sections. This style works
-     * reasonably efficiently, even for bizarre operations like 45 degree rotate.
-     *
-     * #VIPS_DEMAND_STYLE_FATSTRIP --- This operation would like to output strips
-     * the width of the image and as high as possible. This option is suitable
-     * for area operations which do not violently transform coordinates, such
-     * as vips_conv().
-     *
-     * #VIPS_DEMAND_STYLE_THINSTRIP --- This operation would like to output strips
-     * the width of the image and a few pels high. This option is suitable for
-     * point-to-point operations, such as those in the arithmetic package.
-     *
-     * #VIPS_DEMAND_STYLE_ANY --- This image is not being demand-read from a disc
-     * file (even indirectly) so any demand style is OK. It's used for things like
-     * vips_black() where the pixels are calculated.
-     *
-     * See also: vips_image_pipelinev().
-     */
-    enum DemandStyle {
-        /**
-         * Demand in small (typically 128x128 pixel) tiles
-         */
-        smalltile = 0, // 'smalltile'
-        /**
-         * Demand in fat (typically 16 pixel high) strips
-         */
-        fatstrip = 1, // 'fatstrip'
-        /**
-         * Demand in thin (typically 1 pixel high) strips
-         */
-        thinstrip = 2 // 'thinstrip'
-    }
-
-    /**
-     * See also: vips_relational().
+     * See also: [method@Image.relational].
      */
     enum OperationRelational {
         /**
-         * ==
+         * `==`
          */
         equal = 0, // 'equal'
         /**
-         * !=
+         * `!=`
          */
         noteq = 1, // 'noteq'
         /**
-         * <
+         * `<`
          */
         less = 2, // 'less'
         /**
-         * <=
+         * `<=`
          */
         lesseq = 3, // 'lesseq'
         /**
-         * >
+         * `>`
          */
         more = 4, // 'more'
         /**
-         * >=
+         * `>=`
          */
         moreeq = 5 // 'moreeq'
     }
 
     /**
-     * See also: vips_boolean().
+     * See also: [method@Image.boolean].
      */
     enum OperationBoolean {
         /**
-         * &
+         * `&`
          */
         and = 0, // 'and'
         /**
-         * |
+         * `|`
          */
         or = 1, // 'or'
         /**
-         * ^
+         * `^`
          */
         eor = 2, // 'eor'
         /**
-         * >>
+         * `>>`
          */
         lshift = 3, // 'lshift'
         /**
-         * <<
+         * `<<`
          */
         rshift = 4 // 'rshift'
     }
 
     /**
-     * See also: vips_math().
+     * See also: [method@Image.math].
      */
     enum OperationMath2 {
         /**
-         * Pow(left, right)
+         * `pow(left, right)`
          */
         pow = 0, // 'pow'
         /**
-         * Pow(right, left)
+         * `pow(right, left)`
          */
         wop = 1, // 'wop'
         /**
-         * Atan2(left, right)
+         * `atan2(left, right)`
          */
         atan2 = 2 // 'atan2'
     }
 
     /**
-     * See also: vips_complex2().
+     * See also: [method@Image.complex2].
      */
     enum OperationComplex2 {
         /**
@@ -1899,31 +1853,31 @@ declare module Vips {
     }
 
     /**
-     * See also: vips_math().
+     * See also: [method@Image.math].
      */
     enum OperationMath {
         /**
-         * Sin(), angles in degrees
+         * `sin()`, angles in degrees
          */
         sin = 0, // 'sin'
         /**
-         * Cos(), angles in degrees
+         * `cos()`, angles in degrees
          */
         cos = 1, // 'cos'
         /**
-         * Tan(), angles in degrees
+         * `tan()`, angles in degrees
          */
         tan = 2, // 'tan'
         /**
-         * Asin(), angles in degrees
+         * `asin()`, angles in degrees
          */
         asin = 3, // 'asin'
         /**
-         * Acos(), angles in degrees
+         * `acos()`, angles in degrees
          */
         acos = 4, // 'acos'
         /**
-         * Atan(), angles in degrees
+         * `atan()`, angles in degrees
          */
         atan = 5, // 'atan'
         /**
@@ -1943,33 +1897,33 @@ declare module Vips {
          */
         exp10 = 9, // 'exp10'
         /**
-         * Sinh(), angles in radians
+         * `sinh()`, angles in radians
          */
         sinh = 10, // 'sinh'
         /**
-         * Cosh(), angles in radians
+         * `cosh()`, angles in radians
          */
         cosh = 11, // 'cosh'
         /**
-         * Tanh(), angles in radians
+         * `tanh()`, angles in radians
          */
         tanh = 12, // 'tanh'
         /**
-         * Asinh(), angles in radians
+         * `asinh()`, angles in radians
          */
         asinh = 13, // 'asinh'
         /**
-         * Acosh(), angles in radians
+         * `acosh()`, angles in radians
          */
         acosh = 14, // 'acosh'
         /**
-         * Atanh(), angles in radians
+         * `atanh()`, angles in radians
          */
         atanh = 15 // 'atanh'
     }
 
     /**
-     * See also: vips_round().
+     * See also: [method@Image.round].
      */
     enum OperationRound {
         /**
@@ -1987,7 +1941,7 @@ declare module Vips {
     }
 
     /**
-     * See also: vips_complex().
+     * See also: [method@Image.complex].
      */
     enum OperationComplex {
         /**
@@ -2005,7 +1959,7 @@ declare module Vips {
     }
 
     /**
-     * See also: vips_complexget().
+     * See also: [method@Image.complexget].
      */
     enum OperationComplexget {
         /**
@@ -2019,7 +1973,7 @@ declare module Vips {
     }
 
     /**
-     * How to combine values. See vips_compass(), for example.
+     * How to combine values. See [method@Image.compass], for example.
      */
     enum Combine {
         /**
@@ -2037,12 +1991,12 @@ declare module Vips {
     }
 
     /**
-     * The type of access an operation has to supply. See vips_tilecache()
-     * and #VipsForeign.
+     * The type of access an operation has to supply. See [method@Image.tilecache]
+     * and [class@Foreign].
      *
-     * @VIPS_ACCESS_RANDOM means requests can come in any order.
+     * [enum@Vips.Access.RANDOM] means requests can come in any order.
      *
-     * @VIPS_ACCESS_SEQUENTIAL means requests will be top-to-bottom, but with some
+     * [enum@Vips.Access.SEQUENTIAL] means requests will be top-to-bottom, but with some
      * amount of buffering behind the read point for small non-local accesses.
      */
     enum Access {
@@ -2058,29 +2012,30 @@ declare module Vips {
     }
 
     /**
-     * See vips_embed(), vips_conv(), vips_affine() and so on.
+     * See [method@Image.embed], [method@Image.conv], [method@Image.affine] and so on.
      *
      * When the edges of an image are extended, you can specify
      * how you want the extension done.
      *
-     * #VIPS_EXTEND_BLACK --- new pixels are black, ie. all bits are zero.
+     * [enum@Vips.Extend.BLACK] -- new pixels are black, ie. all bits are zero.
      *
-     * #VIPS_EXTEND_COPY --- each new pixel takes the value of the nearest edge
+     * [enum@Vips.Extend.COPY] -- each new pixel takes the value of the nearest edge
      * pixel
      *
-     * #VIPS_EXTEND_REPEAT --- the image is tiled to fill the new area
+     * [enum@Vips.Extend.REPEAT] -- the image is tiled to fill the new area
      *
-     * #VIPS_EXTEND_MIRROR --- the image is reflected and tiled to reduce hash
+     * [enum@Vips.Extend.MIRROR] -- the image is reflected and tiled to reduce hash
      * edges
      *
-     * #VIPS_EXTEND_WHITE --- new pixels are white, ie. all bits are set
+     * [enum@Vips.Extend.WHITE] -- new pixels are white, ie. all bits are set
      *
-     * #VIPS_EXTEND_BACKGROUND --- colour set from the @background property
+     * [enum@Vips.Extend.BACKGROUND] -- colour set from the @background property
      *
      * We have to specify the exact value of each enum member since we have to
      * keep these frozen for back compat with vips7.
      *
-     * See also: vips_embed().
+     * ::: seealso
+     *     [method@Image.embed].
      */
     enum Extend {
         /**
@@ -2110,7 +2065,7 @@ declare module Vips {
     }
 
     /**
-     * A direction on a compass. Used for vips_gravity(), for example.
+     * A direction on a compass. Used for [method@Image.gravity], for example.
      */
     enum CompassDirection {
         /**
@@ -2152,12 +2107,13 @@ declare module Vips {
     }
 
     /**
-     * See vips_flip(), vips_join() and so on.
+     * See [method@Image.flip], [method@Image.join] and so on.
      *
-     * Operations like vips_flip() need to be told whether to flip left-right or
+     * Operations like [method@Image.flip] need to be told whether to flip left-right or
      * top-bottom.
      *
-     * See also: vips_flip(), vips_join().
+     * ::: seealso
+     *     [method@Image.flip], [method@Image.join].
      */
     enum Direction {
         /**
@@ -2171,12 +2127,13 @@ declare module Vips {
     }
 
     /**
-     * See vips_join() and so on.
+     * See [method@Image.join] and so on.
      *
-     * Operations like vips_join() need to be told whether to align images on the
+     * Operations like [method@Image.join] need to be told whether to align images on the
      * low or high coordinate edge, or centre.
      *
-     * See also: vips_join().
+     * ::: seealso
+     *     [method@Image.join].
      */
     enum Align {
         /**
@@ -2195,14 +2152,15 @@ declare module Vips {
 
     /**
      * Pick the algorithm vips uses to decide image "interestingness". This is used
-     * by vips_smartcrop(), for example, to decide what parts of the image to
+     * by [method@Image.smartcrop], for example, to decide what parts of the image to
      * keep.
      *
-     * #VIPS_INTERESTING_NONE and #VIPS_INTERESTING_LOW mean the same -- the
-     * crop is positioned at the top or left. #VIPS_INTERESTING_HIGH positions at
+     * [enum@Vips.Interesting.NONE] and [enum@Vips.Interesting.LOW] mean the same -- the
+     * crop is positioned at the top or left. [enum@Vips.Interesting.HIGH] positions at
      * the bottom or right.
      *
-     * See also: vips_smartcrop().
+     * ::: seealso
+     *     [method@Image.smartcrop].
      */
     enum Interesting {
         /**
@@ -2236,11 +2194,12 @@ declare module Vips {
     }
 
     /**
-     * See vips_rot() and so on.
+     * See [method@Image.rot] and so on.
      *
      * Fixed rotate angles.
      *
-     * See also: vips_rot().
+     * ::: seealso
+     *     [method@Image.rot].
      */
     enum Angle {
         /**
@@ -2262,11 +2221,12 @@ declare module Vips {
     }
 
     /**
-     * See vips_rot45() and so on.
+     * See [method@Image.rot45] and so on.
      *
      * Fixed rotate angles.
      *
-     * See also: vips_rot45().
+     * ::: seealso
+     *     [method@Image.rot45].
      */
     enum Angle45 {
         /**
@@ -2322,10 +2282,11 @@ declare module Vips {
     }
 
     /**
-     * Sets the word wrapping style for vips_text() when used with a maximum
+     * Sets the word wrapping style for [ctor@Image.text] when used with a maximum
      * width.
      *
-     * See also: vips_text().
+     * ::: seealso
+     *     [ctor@Image.text].
      */
     enum TextWrap {
         /**
@@ -2349,7 +2310,8 @@ declare module Vips {
     /**
      * The SDF to generate,
      *
-     * See also: vips_sdf().
+     * ::: seealso
+     *     [ctor@Image.sdf].
      */
     enum SdfShape {
         /**
@@ -2374,8 +2336,8 @@ declare module Vips {
      * How sensitive loaders are to errors, from never stop (very insensitive), to
      * stop on the smallest warning (very sensitive).
      *
-     * Each one implies the ones before it, so #VIPS_FAIL_ON_ERROR implies
-     * #VIPS_FAIL_ON_TRUNCATED.
+     * Each one implies the ones before it, so [enum@Vips.FailOn.ERROR] implies
+     * [enum@Vips.FailOn.TRUNCATED].
      */
     enum FailOn {
         /**
@@ -2399,15 +2361,15 @@ declare module Vips {
     /**
      * The netpbm file format to save as.
      *
-     * #VIPS_FOREIGN_PPM_FORMAT_PBM images are single bit.
+     * [enum@Vips.ForeignPpmFormat.PBM] images are single bit.
      *
-     * #VIPS_FOREIGN_PPM_FORMAT_PGM images are 8, 16, or 32-bits, one band.
+     * [enum@Vips.ForeignPpmFormat.PGM] images are 8, 16, or 32-bits, one band.
      *
-     * #VIPS_FOREIGN_PPM_FORMAT_PPM images are 8, 16, or 32-bits, three bands.
+     * [enum@Vips.ForeignPpmFormat.PPM] images are 8, 16, or 32-bits, three bands.
      *
-     * #VIPS_FOREIGN_PPM_FORMAT_PFM images are 32-bit float pixels.
+     * [enum@Vips.ForeignPpmFormat.PFM] images are 32-bit float pixels.
      *
-     * #VIPS_FOREIGN_PPM_FORMAT_PNM images are anymap images -- the image format
+     * [enum@Vips.ForeignPpmFormat.PNM] images are anymap images -- the image format
      * is used to pick the saver.
      */
     enum ForeignPpmFormat {
@@ -2659,7 +2621,7 @@ declare module Vips {
     /**
      * The compression format to use inside a HEIF container.
      *
-     * This is assumed to use the same numbering as %heif_compression_format.
+     * This is assumed to use the same numbering as `heif_compression_format`.
      */
     enum ForeignHeifCompression {
         /**
@@ -2712,7 +2674,8 @@ declare module Vips {
      * Controls whether an operation should upsize, downsize, both up and
      * downsize, or force a size.
      *
-     * See also: vips_thumbnail().
+     * ::: seealso
+     *     [ctor@Image.thumbnail].
      */
     enum Size {
         /**
@@ -2734,8 +2697,8 @@ declare module Vips {
     }
 
     /**
-     * The rendering intent. #VIPS_INTENT_ABSOLUTE is best for
-     * scientific work, #VIPS_INTENT_RELATIVE is usually best for
+     * The rendering intent. [enum@Vips.Intent.ABSOLUTE] is best for
+     * scientific work, [enum@Vips.Intent.RELATIVE] is usually best for
      * accurate communication with other imaging libraries.
      */
     enum Intent {
@@ -2754,11 +2717,15 @@ declare module Vips {
         /**
          * Absolute colorimetric rendering intent
          */
-        absolute = 3 // 'absolute'
+        absolute = 3, // 'absolute'
+        /**
+         * The rendering intent that the profile suggests
+         */
+        auto = 32 // 'auto'
     }
 
     /**
-     * The resampling kernels vips supports. See vips_reduce(), for example.
+     * The resampling kernels vips supports. See [method@Image.reduce], for example.
      */
     enum Kernel {
         /**
@@ -2784,12 +2751,20 @@ declare module Vips {
         /**
          * Convolve with a three-lobe Lanczos kernel.
          */
-        lanczos3 = 5 // 'lanczos3'
+        lanczos3 = 5, // 'lanczos3'
+        /**
+         * Convolve with Magic Kernel Sharp 2013.
+         */
+        mks2013 = 6, // 'mks2013'
+        /**
+         * Convolve with Magic Kernel Sharp 2021.
+         */
+        mks2021 = 7 // 'mks2021'
     }
 
     /**
-     * Pick a Profile Connection Space for vips_icc_import() and
-     * vips_icc_export(). LAB is usually best, XYZ can be more convenient in some
+     * Pick a Profile Connection Space for [method@Image.icc_import] and
+     * [method@Image.icc_export]. LAB is usually best, XYZ can be more convenient in some
      * cases.
      */
     enum PCS {
@@ -2806,7 +2781,8 @@ declare module Vips {
     /**
      * More like hit-miss, really.
      *
-     * See also: vips_morph().
+     * ::: seealso
+     *     [method@Image.morph].
      */
     enum OperationMorphology {
         /**
@@ -2820,12 +2796,13 @@ declare module Vips {
     }
 
     /**
-     * See vips_draw_image() and so on.
+     * See [method@Image.draw_image] and so on.
      *
-     * Operations like vips_draw_image() need to be told how to combine images
+     * Operations like [method@Image.draw_image] need to be told how to combine images
      * from two sources.
      *
-     * See also: vips_join().
+     * ::: seealso
+     *     [method@Image.join].
      */
     enum CombineMode {
         /**
@@ -3517,6 +3494,10 @@ declare module Vips {
              */
             page?: number
             /**
+             * Load images a frame at a time.
+             */
+            oneshot?: boolean
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -3550,6 +3531,10 @@ declare module Vips {
              */
             page?: number
             /**
+             * Load images a frame at a time.
+             */
+            oneshot?: boolean
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -3582,6 +3567,10 @@ declare module Vips {
              * Load this page from the image.
              */
             page?: number
+            /**
+             * Load images a frame at a time.
+             */
+            oneshot?: boolean
             /**
              * Force open via memory.
              */
@@ -4808,7 +4797,36 @@ declare module Vips {
         }): Image;
 
         /**
-         * Load ppm base class.
+         * Load ppm from buffer.
+         * @param buffer Buffer to load from.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static ppmloadBuffer(buffer: Blob, options?: {
+            /**
+             * Force open via memory.
+             */
+            memory?: boolean
+            /**
+             * Required access pattern for this file.
+             */
+            access?: Access | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
+            /**
+             * Don't use a cached result for this operation.
+             */
+            revalidate?: boolean
+            /**
+             * Flags for this file (output).
+             */
+            flags?: number | undefined
+        }): Image;
+
+        /**
+         * Load ppm from source.
          * @param source Source to load from.
          * @param options Optional options.
          * @return Output image.
@@ -5050,6 +5068,14 @@ declare module Vips {
              */
             unlimited?: boolean
             /**
+             * Custom css.
+             */
+            stylesheet?: string
+            /**
+             * Enable scrgb 128-bit output (32-bit per channel).
+             */
+            high_bitdepth?: boolean
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -5091,6 +5117,14 @@ declare module Vips {
              */
             unlimited?: boolean
             /**
+             * Custom css.
+             */
+            stylesheet?: string
+            /**
+             * Enable scrgb 128-bit output (32-bit per channel).
+             */
+            high_bitdepth?: boolean
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -5131,6 +5165,14 @@ declare module Vips {
              * Allow svg of any size.
              */
             unlimited?: boolean
+            /**
+             * Custom css.
+             */
+            stylesheet?: string
+            /**
+             * Enable scrgb 128-bit output (32-bit per channel).
+             */
+            high_bitdepth?: boolean
             /**
              * Force open via memory.
              */
@@ -5270,13 +5312,13 @@ declare module Vips {
              */
             linear?: boolean
             /**
-             * Fallback import profile.
+             * Fallback input profile.
              */
-            import_profile?: string
+            input_profile?: string
             /**
-             * Fallback export profile.
+             * Fallback output profile.
              */
-            export_profile?: string
+            output_profile?: string
             /**
              * Rendering intent.
              */
@@ -5320,13 +5362,13 @@ declare module Vips {
              */
             linear?: boolean
             /**
-             * Fallback import profile.
+             * Fallback input profile.
              */
-            import_profile?: string
+            input_profile?: string
             /**
-             * Fallback export profile.
+             * Fallback output profile.
              */
-            export_profile?: string
+            output_profile?: string
             /**
              * Rendering intent.
              */
@@ -5370,13 +5412,13 @@ declare module Vips {
              */
             linear?: boolean
             /**
-             * Fallback import profile.
+             * Fallback input profile.
              */
-            import_profile?: string
+            input_profile?: string
             /**
-             * Fallback export profile.
+             * Fallback output profile.
              */
-            export_profile?: string
+            output_profile?: string
             /**
              * Rendering intent.
              */
@@ -5399,10 +5441,6 @@ declare module Vips {
              */
             page?: number
             /**
-             * Subifd index.
-             */
-            subifd?: number
-            /**
              * Number of pages to load, -1 for all.
              */
             n?: number
@@ -5410,6 +5448,14 @@ declare module Vips {
              * Rotate image using orientation tag.
              */
             autorotate?: boolean
+            /**
+             * Subifd index.
+             */
+            subifd?: number
+            /**
+             * Remove all denial of service limits.
+             */
+            unlimited?: boolean
             /**
              * Force open via memory.
              */
@@ -5444,10 +5490,6 @@ declare module Vips {
              */
             page?: number
             /**
-             * Subifd index.
-             */
-            subifd?: number
-            /**
              * Number of pages to load, -1 for all.
              */
             n?: number
@@ -5455,6 +5497,14 @@ declare module Vips {
              * Rotate image using orientation tag.
              */
             autorotate?: boolean
+            /**
+             * Subifd index.
+             */
+            subifd?: number
+            /**
+             * Remove all denial of service limits.
+             */
+            unlimited?: boolean
             /**
              * Force open via memory.
              */
@@ -5489,10 +5539,6 @@ declare module Vips {
              */
             page?: number
             /**
-             * Subifd index.
-             */
-            subifd?: number
-            /**
              * Number of pages to load, -1 for all.
              */
             n?: number
@@ -5500,6 +5546,14 @@ declare module Vips {
              * Rotate image using orientation tag.
              */
             autorotate?: boolean
+            /**
+             * Subifd index.
+             */
+            subifd?: number
+            /**
+             * Remove all denial of service limits.
+             */
+            unlimited?: boolean
             /**
              * Force open via memory.
              */
@@ -7027,6 +7081,10 @@ declare module Vips {
              */
             interlace?: boolean
             /**
+             * Keep duplicate frames in the output instead of combining them.
+             */
+            keep_duplicate_frames?: boolean
+            /**
              * Which metadata to retain.
              */
             keep?: ForeignKeep | Flag
@@ -7079,6 +7137,10 @@ declare module Vips {
              */
             interlace?: boolean
             /**
+             * Keep duplicate frames in the output instead of combining them.
+             */
+            keep_duplicate_frames?: boolean
+            /**
              * Which metadata to retain.
              */
             keep?: ForeignKeep | Flag
@@ -7130,6 +7192,10 @@ declare module Vips {
              * Generate an interlaced (progressive) gif.
              */
             interlace?: boolean
+            /**
+             * Keep duplicate frames in the output instead of combining them.
+             */
+            keep_duplicate_frames?: boolean
             /**
              * Which metadata to retain.
              */
@@ -8390,10 +8456,17 @@ declare module Vips {
         math2(right: Image | ArrayConstant, math2: OperationMath2 | Enum): Image;
 
         /**
-         * Invert an matrix.
+         * Invert a matrix.
          * @return Output matrix.
          */
         matrixinvert(): Image;
+
+        /**
+         * Multiply two matrices.
+         * @param right Second matrix to multiply.
+         * @return Output matrix.
+         */
+        matrixmultiply(right: Image | ArrayConstant): Image;
 
         /**
          * Print matrix.
@@ -9248,6 +9321,14 @@ declare module Vips {
         remainder(right: Image | ArrayConstant): Image;
 
         /**
+         * Rebuild an mosaiced image.
+         * @param old_str Search for this string.
+         * @param new_str And swap for this string.
+         * @return Output image.
+         */
+        remosaic(old_str: string, new_str: string): Image;
+
+        /**
          * Replicate an image.
          * @param across Repeat this many times horizontally.
          * @param down Repeat this many times vertically.
@@ -9366,7 +9447,7 @@ declare module Vips {
         scRGB2XYZ(): Image;
 
         /**
-         * Convert an scrgb image to srgb.
+         * Convert scrgb to srgb.
          * @param options Optional options.
          * @return Output image.
          */
@@ -9655,13 +9736,13 @@ declare module Vips {
              */
             linear?: boolean
             /**
-             * Fallback import profile.
+             * Fallback input profile.
              */
-            import_profile?: string
+            input_profile?: string
             /**
-             * Fallback export profile.
+             * Fallback output profile.
              */
-            export_profile?: string
+            output_profile?: string
             /**
              * Rendering intent.
              */

@@ -6,11 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.0.14] - TBD
 
-Uses libvips v8.16.1, compiled with Emscripten v4.0.9.
+Uses libvips v8.17.0, compiled with Emscripten v4.0.10.
 
 ### Fixed
 
 - Ensure compatibility with TypeScript versions below ESNext.
+- Allow omitting the `strOptions` argument in `Image.newFromBuffer()`
+  and `Image.newFromSource()` constructors.
+  [#96](https://github.com/kleisauke/wasm-vips/issues/96)
+
+### Changed
+
+- Update methods/enums for libvips 8.17.
 
 ## [v0.0.13] - 2025-04-16
 

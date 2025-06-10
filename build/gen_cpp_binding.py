@@ -230,6 +230,10 @@ def generate_enums_flags(file):
     type_map(type_from_name('GEnum'), add_enum)
     type_map(type_from_name('GFlags'), add_flag)
 
+    # Filter internal enums
+    filter_enums = ['VipsDemandStyle']
+    all_enums = [name for name in all_enums if name not in filter_enums]
+
     # Filter internal flags
     filter_flags = ['VipsForeignFlags']
     all_flags = [name for name in all_flags if name not in filter_flags]

@@ -428,7 +428,7 @@ describe('foreign', () => {
     const buf = onebit.writeToBuffer('.png', {
       bitdepth: 1
     });
-    const after = vips.Image.newFromBuffer(buf, '');
+    const after = vips.Image.newFromBuffer(buf);
     expect(onebit.subtract(after).abs().max()).to.equal(0);
     expect(after.getInt('bits-per-sample')).to.equal(1);
 
@@ -446,14 +446,14 @@ describe('foreign', () => {
       x.setInt('orientation', 2);
 
       const buf = x.pngsaveBuffer();
-      const y = vips.Image.newFromBuffer(buf, '');
+      const y = vips.Image.newFromBuffer(buf);
       expect(y.getInt('orientation')).to.equal(2);
     }
 
     // Add EXIF to new PNG
     const im1 = vips.Image.black(8, 8);
     im1.setString('exif-ifd0-ImageDescription', 'test description');
-    const im2 = vips.Image.newFromBuffer(im1.pngsaveBuffer(), '');
+    const im2 = vips.Image.newFromBuffer(im1.pngsaveBuffer());
     expect(im2.getString('exif-ifd0-ImageDescription')).to.satisfy(desc =>
       desc.startsWith('test description'));
   });
@@ -646,8 +646,8 @@ describe('foreign', () => {
     let b = rgba.premultiply().cast('uchar').unpremultiply().cast('uchar');
     expect(a.equal(b).min()).to.equal(255);
 
-    a = vips.Image.newFromBuffer(buf, '', { page: 2 });
-    b = vips.Image.newFromBuffer(buf2, '', { page: 2 });
+    a = vips.Image.newFromBuffer(buf, { page: 2 });
+    b = vips.Image.newFromBuffer(buf2, { page: 2 });
     expect(a.width).to.equal(b.width);
     expect(a.height).to.equal(b.height);
     expect(a.equal(b).min()).to.equal(255);
@@ -657,7 +657,7 @@ describe('foreign', () => {
     x = vips.Image.newFromFile(Helpers.tifFile).more(128);
     for (const shrink of ['mode', 'median', 'max', 'min']) {
       buf = x.tiffsaveBuffer({ pyramid: true, region_shrink: shrink });
-      y = vips.Image.newFromBuffer(buf, '', { page: 1 });
+      y = vips.Image.newFromBuffer(buf, { page: 1 });
       const z = y.histFind({ band: 0 });
       expect(z.getpoint(0, 0)[0] + z.getpoint(255, 0)[0]).to.equal(y.width * y.height);
     }
@@ -687,7 +687,7 @@ describe('foreign', () => {
     // test lossless mode
     let im = vips.Image.newFromFile(Helpers.webpFile);
     let buf = im.webpsaveBuffer({ lossless: true });
-    const im2 = vips.Image.newFromBuffer(buf, '');
+    const im2 = vips.Image.newFromBuffer(buf);
     expect(im.subtract(im2).abs().max()).to.be.below(1);
 
     // higher Q should mean a bigger buffer
@@ -698,7 +698,7 @@ describe('foreign', () => {
     // try saving an image with an ICC profile and reading it back ... if we
     // can do it, our webp supports metadata load/save
     buf = colour.webpsaveBuffer();
-    im = vips.Image.newFromBuffer(buf, '');
+    im = vips.Image.newFromBuffer(buf);
     if (im.getTypeof('icc-profile-data') !== 0) {
       // verify that the profile comes back unharmed
       const p1 = colour.getBlob('icc-profile-data');
@@ -717,7 +717,7 @@ describe('foreign', () => {
         const x = colour.copy();
         x.setInt('orientation', 6);
         buf = x.webpsaveBuffer();
-        const y = vips.Image.newFromBuffer(buf, '');
+        const y = vips.Image.newFromBuffer(buf);
         expect(y.getInt('orientation')).to.equal(6);
       }
     }
@@ -734,7 +734,7 @@ describe('foreign', () => {
         expectedDelay[i] = expectedDelay[i] <= 10 ? 100 : expectedDelay[i];
       }
 
-      const x2 = vips.Image.newFromBuffer(w1, '', { n: -1 });
+      const x2 = vips.Image.newFromBuffer(w1, { n: -1 });
       expect(x1.width).to.equal(x2.width);
       expect(x1.height).to.equal(x2.height);
       expect(expectedDelay).to.deep.equal(x2.getArrayInt('delay'));
@@ -813,7 +813,7 @@ describe('foreign', () => {
     // Animated GIF round trip
     let x1 = vips.Image.newFromFile(Helpers.gifAnimFile, { n: -1 });
     let b1 = x1.gifsaveBuffer();
-    let x2 = vips.Image.newFromBuffer(b1, '', { n: -1 });
+    let x2 = vips.Image.newFromBuffer(b1, { n: -1 });
     expect(x2.width).to.equal(x1.width);
     expect(x2.height).to.equal(x1.height);
     expect(x2.getInt('n-pages')).to.equal(x1.getInt('n-pages'));
@@ -845,7 +845,7 @@ describe('foreign', () => {
     if (Helpers.have('webpload')) {
       x1 = vips.Image.newFromFile(Helpers.webpAnimFile, { n: -1 });
       b1 = x1.gifsaveBuffer();
-      x2 = vips.Image.newFromBuffer(b1, '', { n: -1 });
+      x2 = vips.Image.newFromBuffer(b1, { n: -1 });
       expect(x2.width).to.equal(x1.width);
       expect(x2.height).to.equal(x1.height);
       expect(x2.getInt('n-pages')).to.equal(x1.getInt('n-pages'));
@@ -950,35 +950,35 @@ describe('foreign', () => {
 
     expect(() => {
       const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0"></svg>';
-      vips.Image.newFromBuffer(svg, '');
+      vips.Image.newFromBuffer(svg);
     }).to.throw(/SVG doesn't have a valid size/);
 
     // recognize dimensions for SVGs without width/height
     let svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"></svg>';
-    im = vips.Image.newFromBuffer(svg, '');
+    im = vips.Image.newFromBuffer(svg);
     expect(im.width).to.equal(100);
     expect(im.height).to.equal(100);
 
     svg = '<svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>';
-    im = vips.Image.newFromBuffer(svg, '');
+    im = vips.Image.newFromBuffer(svg);
     expect(im.width).to.equal(100);
     expect(im.height).to.equal(100);
 
     // width and height of 0.5 is valid
     svg = '<svg xmlns="http://www.w3.org/2000/svg" width="0.5" height="0.5"></svg>';
-    im = vips.Image.newFromBuffer(svg, '');
+    im = vips.Image.newFromBuffer(svg);
     expect(im.width).to.equal(1);
     expect(im.height).to.equal(1);
 
     // scale up
     svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>';
-    im = vips.Image.newFromBuffer(svg, '', { scale: 10000 });
+    im = vips.Image.newFromBuffer(svg, '[scale=10000]');
     expect(im.width).to.equal(10000);
     expect(im.height).to.equal(10000);
 
     // scale down
     svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100000" height="100000"></svg>';
-    im = vips.Image.newFromBuffer(svg, '', { scale: 0.0001 });
+    im = vips.Image.newFromBuffer(svg, '[scale=0.0001]');
     expect(im.width).to.equal(10);
     expect(im.height).to.equal(10);
 
@@ -1061,7 +1061,7 @@ describe('foreign', () => {
 
       // try saving an image with an ICC profile and reading it back
       const buf = colour.heifsaveBuffer({ Q: 10, compression: 'av1' });
-      const im = vips.Image.newFromBuffer(buf, '');
+      const im = vips.Image.newFromBuffer(buf);
       if (im.getTypeof('icc-profile-data') !== 0) {
         // verify that the profile comes back unharmed
         const p1 = colour.getBlob('icc-profile-data');
@@ -1087,7 +1087,7 @@ describe('foreign', () => {
         x = x.copy();
         x.setString('exif-ifd0-XPComment', 'banana');
         const buf = x.heifsaveBuffer({ Q: 10, compression: 'av1' });
-        const y = vips.Image.newFromBuffer(buf, '');
+        const y = vips.Image.newFromBuffer(buf);
         expect(y.getString('exif-ifd0-XPComment')).to.satisfy(comment => comment.startsWith('banana'));
       }
     });

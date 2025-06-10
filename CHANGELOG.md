@@ -11,6 +11,9 @@ Uses libvips v8.17.0, compiled with Emscripten v4.0.10.
 ### Fixed
 
 - Ensure compatibility with TypeScript versions below ESNext.
+- Allow omitting the `strOptions` argument in `Image.newFromBuffer()`
+  and `Image.newFromSource()` constructors.
+  [#96](https://github.com/kleisauke/wasm-vips/issues/96)
 
 ### Changed
 

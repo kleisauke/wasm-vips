@@ -580,9 +580,13 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("newFromBuffer", &Image::new_from_buffer)
         .class_function("newFromBuffer",
                         optional_override([](const std::string &buffer,
-                                             const std::string &option_string) {
-                            return Image::new_from_buffer(buffer,
-                                                          option_string);
+                                             emscripten::val options) {
+                            if (options.isString()) {
+                                return Image::new_from_buffer(
+                                    buffer, options.as<std::string>());
+                            }
+
+                            return Image::new_from_buffer(buffer, "", options);
                         }))
         .class_function("newFromBuffer",
                         optional_override([](const std::string &buffer) {
@@ -591,9 +595,13 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("newFromSource", &Image::new_from_source)
         .class_function("newFromSource",
                         optional_override([](const Source &source,
-                                             const std::string &option_string) {
-                            return Image::new_from_source(source,
-                                                          option_string);
+                                             emscripten::val options) {
+                            if (options.isString()) {
+                                return Image::new_from_source(
+                                    source, options.as<std::string>());
+                            }
+
+                            return Image::new_from_source(source, "", options);
                         }))
         .class_function("newFromSource",
                         optional_override([](const Source &source) {
@@ -805,9 +813,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
                   select_overload<Image(emscripten::val, emscripten::val,
                                         emscripten::val) const>(&Image::linear))
         .function("linear",
-                  optional_override(
-                      [](const Image &image, emscripten::val a,
-                         emscripten::val b) { return image.linear(a, b); }))
+                  optional_override([](const Image &image, emscripten::val a,
+                                       emscripten::val b) {
+                      return image.linear(a, b);
+                  }))
         // enum functions
         .function("flip",
                   select_overload<Image(emscripten::val) const>(&Image::flip))

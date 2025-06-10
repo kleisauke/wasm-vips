@@ -62,7 +62,7 @@ describe('connection', () => {
     describe('newFromSource', () => {
       it('file', function () {
         const x = vips.Source.newFromFile(Helpers.jpegFile);
-        const y = vips.Image.newFromSource(x, '', {
+        const y = vips.Image.newFromSource(x, {
           access: 'sequential'
         });
 
@@ -72,7 +72,7 @@ describe('connection', () => {
       it('memory', function () {
         const data = colour.writeToBuffer('.jpg');
         const x = vips.Source.newFromMemory(data);
-        const y = vips.Image.newFromSource(x, '', {
+        const y = vips.Image.newFromSource(x, {
           access: 'sequential'
         });
 
@@ -91,7 +91,7 @@ describe('connection', () => {
         source.onSeek = (offset, whence) =>
           vips.FS.llseek(stream, offset, whence);
 
-        const image = vips.Image.newFromSource(source, '', {
+        const image = vips.Image.newFromSource(source, {
           access: 'sequential'
         });
         const image2 = vips.Image.newFromFile(Helpers.jpegFile, {

@@ -25,6 +25,7 @@ RUN \
 # Emscripten patches
 RUN \
   curl -Ls https://github.com/emscripten-core/emscripten/compare/4.0.10...kleisauke:wasm-vips-4.0.10.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/357a773...kleisauke:mimalloc-update-3.1.5.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
   emcc --clear-cache && embuilder build sysroot --force
 
 # Rust

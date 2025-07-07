@@ -118,7 +118,7 @@ done
 #export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"
 
 # Rust flags
-export RUSTFLAGS="-Ctarget-feature=+atomics -Zdefault-visibility=hidden"
+export RUSTFLAGS="-Ctarget-feature=+atomics -Zdefault-visibility=hidden -Zlocation-detail=none -Zfmt-debug=none"
 
 # Common compiler flags
 COMMON_FLAGS="-O3 -pthread"

@@ -178,8 +178,8 @@ export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 
 # Dependency version numbers
 VERSION_ZLIB_NG=2.2.4       # https://github.com/zlib-ng/zlib-ng
-VERSION_FFI=3.4.8           # https://github.com/libffi/libffi
-VERSION_GLIB=2.85.0         # https://gitlab.gnome.org/GNOME/glib
+VERSION_FFI=3.5.1           # https://github.com/libffi/libffi
+VERSION_GLIB=2.85.1         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.7.1         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.25         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.17          # https://github.com/mm2/Little-CMS

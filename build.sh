@@ -511,6 +511,21 @@ node --version
   sed -i "/^Libs:/ s/$/${modules//\//\\/}/" $TARGET/lib/pkgconfig/vips.pc
 )
 
+patch -p1 -d $EMSDK/upstream/emscripten <<'EOF'
+--- a/src/lib/libpthread.js
++++ b/src/lib/libpthread.js
+@@ -48,6 +48,7 @@ const pthreadWorkerOptions = `{
+         // This is the way that we signal to the node worker that it is hosting
+         // a pthread.
+         'workerData': 'em-pthread',
++        'trackUnmanagedFds': false,
+ #endif
+ #if ENVIRONMENT_MAY_BE_WEB || ENVIRONMENT_MAY_BE_WORKER
+         // This is the way that we signal to the Web Worker that it is hosting
+EOF
+emcc --clear-cache
+embuilder build sysroot --force
+
 [ -n "$DISABLE_BINDINGS" ] || (
   stage "Compiling JS bindings"
   mkdir $DEPS/wasm-vips

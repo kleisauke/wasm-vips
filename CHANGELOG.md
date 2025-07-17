@@ -26,6 +26,7 @@ Uses libvips v8.18.0, compiled with Emscripten v4.0.23.
   [#105](https://github.com/kleisauke/wasm-vips/pull/105)
 - Make `filename` properties optional.
 - Update methods/enums for libvips 8.18.
+- Enable WasmFS by default.
 - Build with `-sALLOW_MEMORY_GROWTH -sGROWABLE_ARRAYBUFFERS`.
 - Drop support for Node.js 16, now requires Node.js >= 24.
 

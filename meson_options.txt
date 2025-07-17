@@ -11,5 +11,5 @@ option('modules',
 
 option('wasmfs',
        type: 'boolean',
-       value: false,
+       value: true,
        description: 'Build with WasmFS')

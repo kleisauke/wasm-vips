@@ -14,6 +14,10 @@ Uses libvips v8.18.3, compiled with Emscripten v6.0.2.
   [#106](https://github.com/kleisauke/wasm-vips/issues/106)
 - Support for `workaroundCors` setting in ES6 module.
 
+### Changed
+
+- Enable WasmFS by default.
+
 ## [v0.0.18] - 2026-06-09
 
 Uses libvips v8.18.3, compiled with Emscripten v6.0.0.

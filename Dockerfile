@@ -23,6 +23,7 @@ RUN \
 # Emscripten patches
 RUN \
   curl -Ls https://github.com/emscripten-core/emscripten/compare/6.0.2...kleisauke:wasm-vips-6.0.2.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/6.0.2...kleisauke:wasmfs-noderawfs-abspath-debug.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
   emcc --clear-cache && embuilder build sysroot --force
 
 # Rust

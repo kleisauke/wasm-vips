@@ -10,6 +10,7 @@ Uses libvips v8.18.1, compiled with Emscripten v5.0.3.
 
 ### Changed
 
+- Enable WasmFS by default.
 - Build with `-sALLOW_MEMORY_GROWTH -sGROWABLE_ARRAYBUFFERS`.
 - Drop support for Node.js 17, now requires Node.js >= 24.
 

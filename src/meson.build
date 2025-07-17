@@ -132,7 +132,7 @@ if 'web' in get_option('environments')
 endif
 
 if 'node' in get_option('environments')
-    node_link_args = ['-sENVIRONMENT=node']
+    node_link_args = ['-sENVIRONMENT=node', '-sNODE_HOST_ENV']
     if not get_option('wasmfs')
         node_link_args += ['-sNODERAWFS']
     endif

@@ -22,9 +22,9 @@ mkdir -p $TARGET
 # Specifies the environment(s) to target
 ENVIRONMENT="web,node"
 
-# WebAssembly-based file system layer for Emscripten, disabled by default
+# WebAssembly-based file system layer for Emscripten, enabled by default
 # https://github.com/emscripten-core/emscripten/issues/15041
-WASM_FS=false
+WASM_FS=true
 
 # Emit instructions for the standardized Wasm EH proposal with exnref
 # (adopted on Oct 2023), disabled by default
@@ -60,8 +60,8 @@ BINDINGS=true
 while [ $# -gt 0 ]; do
   case $1 in
     --enable-lto) LTO=true ;;
-    --enable-wasm-fs) WASM_FS=true ;;
     --enable-new-wasm-eh) WASM_EXNREF=true ;;
+    --disable-wasm-fs) WASM_FS=false ;;
     --disable-uhdr) UHDR=false ;;
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;

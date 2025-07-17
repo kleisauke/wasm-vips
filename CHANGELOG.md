@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.17.2, compiled with Emscripten v4.0.17.
 
+### Changed
+
+- Enable WasmFS by default.
+
 ## [v0.0.15] - 2025-09-17
 
 Uses libvips v8.17.2, compiled with Emscripten v4.0.15.

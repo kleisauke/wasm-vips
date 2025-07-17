@@ -16,7 +16,7 @@
   "author": "Kleis Auke Wolthuizen",
   "type": "module",
   "scripts": {
-    "test": "mocha -s 5000 -t 120000 *.js -r node-helper.js"
+    "test": "node --trace-warnings node_modules/mocha/bin/mocha -s 5000 -t 120000 *.js -r node-helper.js"
   },
   "devDependencies": {
     "chai": "^5.2.1",

@@ -30,9 +30,9 @@ SIMD=true
 # https://github.com/WebAssembly/JS-BigInt-integration
 WASM_BIGINT=true
 
-# WebAssembly-based file system layer for Emscripten, disabled by default
+# WebAssembly-based file system layer for Emscripten, enabled by default
 # https://github.com/emscripten-core/emscripten/issues/15041
-WASM_FS=false
+WASM_FS=true
 
 # Leverage Wasm EH instructions for setjmp/longjmp support
 # and throwing/catching exceptions, disabled by default
@@ -74,7 +74,6 @@ BINDINGS=true
 while [ $# -gt 0 ]; do
   case $1 in
     --enable-lto) LTO=true ;;
-    --enable-wasm-fs) WASM_FS=true ;;
     --enable-wasm-eh) WASM_EH=true ;;
     --enable-new-wasm-eh)
       WASM_EH=true
@@ -82,6 +81,7 @@ while [ $# -gt 0 ]; do
       ;;
     --disable-simd) SIMD=false ;;
     --disable-wasm-bigint) WASM_BIGINT=false ;;
+    --disable-wasm-fs) WASM_FS=false ;;
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;
     --disable-svg) SVG=false ;;

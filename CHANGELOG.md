@@ -20,6 +20,7 @@ Uses libvips v8.18.1, compiled with Emscripten v5.0.3.
 - Allow Deno to reuse Node.js ES6 module.
 - Reduce size of binaries by ~11%.
   [#113](https://github.com/kleisauke/wasm-vips/pull/113)
+- Enable WasmFS by default.
 
 ## [v0.0.17] - 2026-03-20
 

@@ -23,7 +23,7 @@ var LibraryVips = {
 #if ENVIRONMENT_MAY_BE_NODE
         // libvips stores temporary files by default in `/tmp`;
         // set the TMPDIR env variable to override this directory
-        ENV['TMPDIR'] = require('os').tmpdir();
+        //ENV['TMPDIR'] = require('os').tmpdir();
 #endif
       });
 

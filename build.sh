@@ -178,8 +178,8 @@ export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 
 # Dependency version numbers
 VERSION_ZLIB_NG=2.2.4       # https://github.com/zlib-ng/zlib-ng
-VERSION_FFI=3.5.1           # https://github.com/libffi/libffi
-VERSION_GLIB=2.85.1         # https://gitlab.gnome.org/GNOME/glib
+VERSION_FFI=3.5.2           # https://github.com/libffi/libffi
+VERSION_GLIB=2.85.2         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.7.1         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.25         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.17          # https://github.com/mm2/Little-CMS
@@ -267,7 +267,7 @@ node --version
   mkdir $DEPS/ffi
   curl -Ls https://github.com/libffi/libffi/releases/download/v$VERSION_FFI/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
   cd $DEPS/ffi
-  [ "$WASM_BIGINT" = "true" ] || curl -Ls https://github.com/libffi/libffi/compare/v$VERSION_FFI...kleisauke:disable-wasm-bigint.patch | patch -p1
+  [ "$WASM_BIGINT" = "true" ] || curl -Ls https://github.com/libffi/libffi/compare/v$VERSION_FFI...kleisauke:disable-wasm-bigint-$VERSION_FFI.patch | patch -p1
   # Compile without -fexceptions
   sed -i 's/ -fexceptions//g' configure
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \

@@ -17,8 +17,6 @@ RUN \
     # needed for Meson
     ninja-build \
     python3-pip \
-    # needed by GLib
-    python3-packaging \
     && \
   pip3 install meson
 
@@ -34,7 +32,7 @@ RUN \
     --no-modify-path \
     --profile minimal \
     --target wasm32-unknown-emscripten \
-    --default-toolchain nightly-2025-07-15 \
+    --default-toolchain nightly-2025-08-03 \
     --component rust-src
 
 # Cache settings

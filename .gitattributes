@@ -1,5 +1,5 @@
-# Shell scripts sources can't have CRLF line endings
-*.sh eol=lf
+# Shell scripts can't have CRLF line endings
+*.sh	eol=lf
 
-# Ignore repository language statistics and hide diffs for generated files
-lib/* linguist-generated=true
+# Excluded from stats, hidden in diffs
+lib/*	linguist-generated

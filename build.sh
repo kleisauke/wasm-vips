@@ -177,13 +177,13 @@ export PKG_CONFIG="pkg-config --static"
 export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 
 # Dependency version numbers
-VERSION_ZLIB_NG=2.2.4       # https://github.com/zlib-ng/zlib-ng
+VERSION_ZLIB_NG=2.2.5       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.5.2           # https://github.com/libffi/libffi
-VERSION_GLIB=2.85.2         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.85.3         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.7.1         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.25         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.17          # https://github.com/mm2/Little-CMS
-VERSION_HWY=1.2.0           # https://github.com/google/highway
+VERSION_HWY=1.3.0           # https://github.com/google/highway
 VERSION_BROTLI=1.1.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=4.1.5       # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.11.1          # https://github.com/libjxl/libjxl
@@ -194,7 +194,7 @@ VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.0          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.45.1        # https://github.com/linebender/resvg
 VERSION_AOM=3.12.1          # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.20.1         # https://github.com/strukturag/libheif
+VERSION_HEIF=1.20.2         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.17.1         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"

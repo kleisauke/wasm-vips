@@ -128,7 +128,7 @@ using im = vips.Image.newFromFile('owl.jpg');
 // Put im at position (100, 100) in a 3000 x 3000 pixel image,
 // make the other pixels in the image by mirroring im up / down /
 // left / right, see
-// https://www.libvips.org/API/current/libvips-conversion.html#vips-embed
+// https://www.libvips.org/API/current/method.Image.embed.html
 using embed = im.embed(100, 100, 3000, 3000, {
   extend: 'mirror'
 });

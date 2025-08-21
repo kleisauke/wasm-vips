@@ -4,7 +4,7 @@ let im = vips.Image.newFromFile('owl.jpg');
 
 // Put im at position (im.width, im.height) in a (im.width * 2) * (im.height * 2) pixel
 // image, make the other pixels in the image by mirroring im up / down / left / right, see
-// https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-embed
+// https://www.libvips.org/API/current/method.Image.embed.html
 im = im.embed(im.width, im.height, im.width * 2, im.height * 2, {
   extend: vips.Extend.mirror // 'mirror'
 });

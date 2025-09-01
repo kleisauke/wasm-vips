@@ -83,8 +83,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          registry-url: https://registry.npmjs.org
+          node-version: 24
       - uses: actions/cache/restore@v4
         with:
           path: |
@@ -92,8 +91,6 @@ jobs:
             versions.json
           key: ${{ needs.build.outputs.cache-key }}
           fail-on-cache-miss: true
-      # Ensure npm 11.5.1 or later for trusted publishing
-      - run: npm install -g npm@latest
       - name: Publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

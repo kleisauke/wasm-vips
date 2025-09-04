@@ -59,6 +59,7 @@ _DEPRECATED = 64
 _MODIFY = 128
 
 # for VipsOperationFlags
+_OPERATION_NOCACHE = 4
 _OPERATION_DEPRECATED = 8
 
 
@@ -112,9 +113,16 @@ def generate_operation(operation_name, indent='        '):
 
     required_output = [name for name in intro.required_output if name != intro.member_x]
 
+    # Drop "revalidate" flag from buffer loaders and operations marked
+    # "nocache" as they are already uncached
+    doc_optional_input = [name for name in intro.doc_optional_input if
+                          name != 'revalidate' or
+                          ('_buffer' not in operation_name and
+                           (intro.flags & _OPERATION_NOCACHE) == 0)]
+
     has_input = len(intro.method_args) >= 1
     has_output = len(required_output) >= 1
-    has_optional_options = len(intro.doc_optional_input) + len(intro.doc_optional_output) >= 1
+    has_optional_options = len(doc_optional_input) + len(intro.doc_optional_output) >= 1
 
     # Add a comment block with some additional markings (@param, @return)
     result = f'\n{indent}/**'
@@ -146,7 +154,7 @@ def generate_operation(operation_name, indent='        '):
         if has_input:
             result += ', '
         result += 'options?: {'
-        for name in intro.doc_optional_input:
+        for name in doc_optional_input:
             result += f'\n{indent}    /**'
             result += f"\n{indent}     * {intro.details[name]['blurb'].capitalize()}."
             result += f'\n{indent}     */'

@@ -677,10 +677,6 @@ declare module Vips {
              * loaders are permissive, that is, {@link FailOn.none}.
              */
             fail_on?: FailOn | Enum
-            /**
-             * Don't use a cached result for this operation.
-             */
-            revalidate?: boolean
         }): Image;
 
         /**
@@ -703,10 +699,6 @@ declare module Vips {
              * loaders are permissive, that is, {@link FailOn.none}.
              */
             fail_on?: FailOn | Enum
-            /**
-             * Don't use a cached result for this operation.
-             */
-            revalidate?: boolean
         }): Image;
 
         /**

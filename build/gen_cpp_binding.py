@@ -238,6 +238,12 @@ def generate_enums_flags(file):
     filter_flags = ['VipsForeignFlags']
     all_flags = [name for name in all_flags if name not in filter_flags]
 
+    # Filter values
+    filter_values = [
+        # VIPS_ACCESS_SEQUENTIAL_UNBUFFERED is deprecated
+        'VIPS_ACCESS_SEQUENTIAL_UNBUFFERED'
+    ]
+
     print(f'Generating {file}...')
 
     with open(file, 'w') as f:
@@ -261,6 +267,8 @@ def generate_enums_flags(file):
                     cpp_value = 'VIPS_INTERPRETATION_sRGB'
                 elif cpp_value == 'VIPS_INTERPRETATION_SCRGB':
                     cpp_value = 'VIPS_INTERPRETATION_scRGB'
+                elif cpp_value in filter_values:
+                    continue
 
                 f.write(f'\n        .value("{js_key}", {cpp_value})')
 

@@ -596,6 +596,17 @@ describe('foreign', () => {
     expect(x1.xres).to.equal(100);
     expect(x1.yres).to.equal(200);
 
+    filename = vips.Utils.tempName('%s.tif');
+    x = vips.Image.newFromFile(Helpers.tifFile);
+    x = x.copy({ xres: 100, yres: 200 });
+    x.remove('resolution-unit');
+    x.writeToFile(filename);
+    x1 = vips.Image.newFromFile(filename);
+    x1.setDeleteOnClose(true);
+    expect(x1.getString('resolution-unit')).to.equal('in');
+    expect(x1.xres).to.equal(100);
+    expect(x1.yres).to.equal(200);
+
     // OME support in 8.5
     x = vips.Image.newFromFile(Helpers.omeFile);
     expect(x.width).to.equal(439);
@@ -661,6 +672,13 @@ describe('foreign', () => {
       const z = y.histFind({ band: 0 });
       expect(z.getpoint(0, 0)[0] + z.getpoint(255, 0)[0]).to.equal(y.width * y.height);
     }
+
+    // metadata tile-width and tile-height should be correct
+    x = vips.Image.newFromFile(Helpers.tifFile);
+    buf = x.tiffsaveBuffer({ tile: true, tile_width: 192, tile_height: 224 });
+    y = vips.Image.newFromBuffer(buf);
+    expect(y.getInt('tile-width')).to.equal(192);
+    expect(y.getInt('tile-height')).to.equal(224);
   });
 
   it('webp', function () {
@@ -687,13 +705,22 @@ describe('foreign', () => {
     // test lossless mode
     let im = vips.Image.newFromFile(Helpers.webpFile);
     let buf = im.webpsaveBuffer({ lossless: true });
-    const im2 = vips.Image.newFromBuffer(buf);
+    let im2 = vips.Image.newFromBuffer(buf);
     expect(im.subtract(im2).abs().max()).to.be.below(1);
 
     // higher Q should mean a bigger buffer
     const b1 = im.webpsaveBuffer({ Q: 10 });
     const b2 = im.webpsaveBuffer({ Q: 90 });
     expect(b2.byteLength).to.be.above(b1.byteLength);
+
+    // test exact mode
+    im = vips.Image.newFromFile(Helpers.rgbaFile);
+    buf = im.webpsaveBuffer({ lossless: true, exact: true });
+    im2 = vips.Image.newFromBuffer(buf);
+    expect(im.subtract(im2).abs().max()).to.equal(0);
+    buf = im.webpsaveBuffer({ lossless: true });
+    im2 = vips.Image.newFromBuffer(buf);
+    expect(im.subtract(im2).abs().max()).to.not.equal(0);
 
     // try saving an image with an ICC profile and reading it back ... if we
     // can do it, our webp supports metadata load/save
@@ -1162,6 +1189,13 @@ describe('foreign', () => {
     const lossy = colour.jxlsaveBuffer();
     const lossless = colour.jxlsaveBuffer({ lossless: true });
     expect(lossy.byteLength).to.be.below(lossless.byteLength / 5);
+
+    // bitdepth=1 should be smaller
+    const buf8 = colour.jxlsaveBuffer();
+    const buf1 = colour.jxlsaveBuffer({ bitdepth: 1 });
+    expect(buf1.byteLength).to.be.below(buf8.byteLength);
+    const im = vips.Image.jxlloadBuffer(buf1);
+    expect(im.getInt('bits-per-sample')).to.equal(1);
   });
 
   it('fail_on', function () {

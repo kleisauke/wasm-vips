@@ -1766,7 +1766,15 @@ declare module Vips {
         /**
          * Pixels are HSV
          */
-        hsv = 29 // 'hsv'
+        hsv = 29, // 'hsv'
+        /**
+         * Pixels are in Oklab colourspace
+         */
+        oklab = 30, // 'oklab'
+        /**
+         * Pixels are in Oklch colourspace
+         */
+        oklch = 31 // 'oklch'
     }
 
     /**
@@ -2008,8 +2016,7 @@ declare module Vips {
         /**
          * Top-to-bottom reading only, but with a small buffer
          */
-        sequential = 1, // 'sequential'
-        sequential_unbuffered = 2 // 'sequential-unbuffered'
+        sequential = 1 // 'sequential'
     }
 
     /**
@@ -2503,6 +2510,12 @@ declare module Vips {
 
     /**
      * How to calculate the output pixels when shrinking a 2x2 region.
+     *
+     * Images with alpha (see [method@Image.hasalpha]) always shrink with
+     * [enum@Vips.RegionShrink.MEAN] and pixels scaled by alpha to avoid fringing.
+     *
+     * Set the image interpretation to [enum@Vips.Interpretation.MULTIBAND] to
+     * treat all bands equally.
      */
     enum RegionShrink {
         /**
@@ -2660,35 +2673,35 @@ declare module Vips {
      */
     enum Kernel {
         /**
-         * The nearest pixel to the point.
+         * The nearest pixel to the point
          */
         nearest = 0, // 'nearest'
         /**
-         * Convolve with a triangle filter.
+         * Convolve with a triangle filter
          */
         linear = 1, // 'linear'
         /**
-         * Convolve with a cubic filter.
+         * Convolve with a cubic filter
          */
         cubic = 2, // 'cubic'
         /**
-         * Convolve with a Mitchell kernel.
+         * Convolve with a Mitchell kernel
          */
         mitchell = 3, // 'mitchell'
         /**
-         * Convolve with a two-lobe Lanczos kernel.
+         * Convolve with a two-lobe Lanczos kernel
          */
         lanczos2 = 4, // 'lanczos2'
         /**
-         * Convolve with a three-lobe Lanczos kernel.
+         * Convolve with a three-lobe Lanczos kernel
          */
         lanczos3 = 5, // 'lanczos3'
         /**
-         * Convolve with Magic Kernel Sharp 2013.
+         * Convolve with Magic Kernel Sharp 2013
          */
         mks2013 = 6, // 'mks2013'
         /**
-         * Convolve with Magic Kernel Sharp 2021.
+         * Convolve with Magic Kernel Sharp 2021
          */
         mks2021 = 7 // 'mks2021'
     }
@@ -2771,13 +2784,17 @@ declare module Vips {
          */
         icc = 8, // 'icc'
         /**
-         * Keep other metadata (e.g. PNG comments and some TIFF tags)
+         * Keep other metadata (e.g. PNG comments)
          */
         other = 16, // 'other'
         /**
+         * Keep the gainmap metadata
+         */
+        gainmap = 32, // 'gainmap'
+        /**
          * Keep all metadata
          */
-        all = 31 // 'all'
+        all = 63 // 'all'
     }
 
     /**
@@ -4403,13 +4420,17 @@ declare module Vips {
              */
             _in?: ArrayImage | ArrayConstant
             /**
+             * Format for input filename.
+             */
+            in_format?: string
+            /**
              * Format for output filename.
              */
             out_format?: string
             /**
-             * Format for input filename.
+             * Cache this call.
              */
-            in_format?: string
+            cache?: boolean
             /**
              * Output image (output).
              */
@@ -5067,6 +5088,24 @@ declare module Vips {
         LabS2LabQ(): Image;
 
         /**
+         * Transform oklab to oklch.
+         * @return Output image.
+         */
+        Oklab2Oklch(): Image;
+
+        /**
+         * Transform oklab to xyz.
+         * @return Output image.
+         */
+        Oklab2XYZ(): Image;
+
+        /**
+         * Transform oklch to oklab.
+         * @return Output image.
+         */
+        Oklch2Oklab(): Image;
+
+        /**
          * Transform xyz to cmyk.
          * @return Output image.
          */
@@ -5083,6 +5122,12 @@ declare module Vips {
              */
             temp?: ArrayConstant
         }): Image;
+
+        /**
+         * Transform xyz to oklab.
+         * @return Output image.
+         */
+        XYZ2Oklab(): Image;
 
         /**
          * Transform xyz to yxy.
@@ -6140,6 +6185,10 @@ declare module Vips {
              */
             encoder?: ForeignHeifEncoder | Enum
             /**
+             * Tuning parameters.
+             */
+            tune?: string
+            /**
              * Which metadata to retain.
              */
             keep?: ForeignKeep | Flag
@@ -6192,6 +6241,10 @@ declare module Vips {
              */
             encoder?: ForeignHeifEncoder | Enum
             /**
+             * Tuning parameters.
+             */
+            tune?: string
+            /**
              * Which metadata to retain.
              */
             keep?: ForeignKeep | Flag
@@ -6243,6 +6296,10 @@ declare module Vips {
              * Select encoder to use.
              */
             encoder?: ForeignHeifEncoder | Enum
+            /**
+             * Tuning parameters.
+             */
+            tune?: string
             /**
              * Which metadata to retain.
              */
@@ -6564,7 +6621,7 @@ declare module Vips {
         }): Image;
 
         /**
-         * Save image to jpeg file.
+         * Save as jpeg.
          * @param filename Filename to save to.
          * @param options Optional options.
          */
@@ -6624,7 +6681,7 @@ declare module Vips {
         }): void;
 
         /**
-         * Save image to jpeg buffer.
+         * Save as jpeg.
          * @param options Optional options.
          * @return Buffer to save to.
          */
@@ -6743,7 +6800,7 @@ declare module Vips {
         }): void;
 
         /**
-         * Save image to jpeg target.
+         * Save as jpeg.
          * @param target Target to save to.
          * @param options Optional options.
          */
@@ -6829,6 +6886,10 @@ declare module Vips {
              */
             Q?: number
             /**
+             * Bit depth.
+             */
+            bitdepth?: number
+            /**
              * Which metadata to retain.
              */
             keep?: ForeignKeep | Flag
@@ -6873,6 +6934,10 @@ declare module Vips {
              */
             Q?: number
             /**
+             * Bit depth.
+             */
+            bitdepth?: number
+            /**
              * Which metadata to retain.
              */
             keep?: ForeignKeep | Flag
@@ -6916,6 +6981,10 @@ declare module Vips {
              * Quality factor.
              */
             Q?: number
+            /**
+             * Bit depth.
+             */
+            bitdepth?: number
             /**
              * Which metadata to retain.
              */
@@ -7422,7 +7491,7 @@ declare module Vips {
              */
             interlace?: boolean
             /**
-             * Libspng row filter flag(s).
+             * Libpng row filter flag(s).
              */
             filter?: ForeignPngFilter | Flag
             /**
@@ -7478,7 +7547,7 @@ declare module Vips {
              */
             interlace?: boolean
             /**
-             * Libspng row filter flag(s).
+             * Libpng row filter flag(s).
              */
             filter?: ForeignPngFilter | Flag
             /**
@@ -7534,7 +7603,7 @@ declare module Vips {
              */
             interlace?: boolean
             /**
-             * Libspng row filter flag(s).
+             * Libpng row filter flag(s).
              */
             filter?: ForeignPngFilter | Flag
             /**
@@ -8701,6 +8770,12 @@ declare module Vips {
         }): Image;
 
         /**
+         * Transform uhdr to scrgb.
+         * @return Output image.
+         */
+        uhdr2scRGB(): Image;
+
+        /**
          * Unpremultiply image alpha.
          * @param options Optional options.
          * @return Output image.
@@ -8778,6 +8853,10 @@ declare module Vips {
              * Enable lossless compression.
              */
             lossless?: boolean
+            /**
+             * Preserve color values from transparent pixels.
+             */
+            exact?: boolean
             /**
              * Preset for lossy compression.
              */
@@ -8859,6 +8938,10 @@ declare module Vips {
              */
             lossless?: boolean
             /**
+             * Preserve color values from transparent pixels.
+             */
+            exact?: boolean
+            /**
              * Preset for lossy compression.
              */
             preset?: ForeignWebpPreset | Enum
@@ -8937,6 +9020,10 @@ declare module Vips {
              * Enable lossless compression.
              */
             lossless?: boolean
+            /**
+             * Preserve color values from transparent pixels.
+             */
+            exact?: boolean
             /**
              * Preset for lossy compression.
              */
@@ -9017,6 +9104,10 @@ declare module Vips {
              * Enable lossless compression.
              */
             lossless?: boolean
+            /**
+             * Preserve color values from transparent pixels.
+             */
+            exact?: boolean
             /**
              * Preset for lossy compression.
              */

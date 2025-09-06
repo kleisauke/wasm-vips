@@ -75,7 +75,10 @@ export const intFormats = unsignedFormats.concat(signedFormats);
 export const noncomplexFormats = intFormats.concat(floatFormats);
 export const allFormats = noncomplexFormats.concat(complexFormats);
 
-export const colourColourspaces = ['xyz', 'lab', 'lch', 'cmc', 'labs', 'scrgb', 'hsv', 'srgb', 'yxy'];
+export const colourColourspaces = [
+  'xyz', 'lab', 'lch', 'cmc', 'labs', 'scrgb',
+  'hsv', 'srgb', 'yxy', 'oklab', 'oklch'
+];
 export const cmykColourspaces = ['cmyk'];
 export const codedColourspaces = ['labq'];
 export const monoColourspaces = ['b-w'];

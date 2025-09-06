@@ -187,7 +187,7 @@ VERSION_TIFF=4.7.1          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.45.1        # https://github.com/linebender/resvg
 VERSION_AOM=3.13.1          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.20.2         # https://github.com/strukturag/libheif
-VERSION_VIPS=8.17.3         # https://github.com/libvips/libvips
+VERSION_VIPS=8.18.0-rc2     # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
 
@@ -483,7 +483,7 @@ node --version
   curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$VERSION_VIPS.tar.xz | tar xJC $DEPS/vips --strip-components=1
   cd $DEPS/vips
   # Emscripten specific patches
-  curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-$VERSION_VIPS.patch | patch -p1
+  curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-8.18.patch | patch -p1
   # Disable building man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
@@ -493,7 +493,7 @@ node --version
     ${DISABLE_SIMD:+-Dhighway=disabled} ${DISABLE_JXL:+-Djpeg-xl=disabled} -Dmagick=disabled \
     -Dmatio=disabled -Dnifti=disabled -Dopenexr=disabled -Dopenjpeg=disabled \
     -Dopenslide=disabled -Dpangocairo=disabled -Dpdfium=disabled -Dpoppler=disabled \
-    ${DISABLE_SVG:+-Dresvg=disabled} -Drsvg=disabled -Dspng=disabled
+    -Draw=disabled ${DISABLE_SVG:+-Dresvg=disabled} -Drsvg=disabled -Duhdr=disabled
   meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)

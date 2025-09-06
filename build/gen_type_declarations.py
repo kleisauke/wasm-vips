@@ -267,6 +267,12 @@ def generate_enums_flags(gir_file, out_file, indent='    '):
     filter = ['VipsDemandStyle', 'VipsForeignFlags']
     all_nicknames = [name for name in all_nicknames if name not in filter]
 
+    # Filter values
+    filter_values_dict = {
+        # VIPS_ACCESS_SEQUENTIAL_UNBUFFERED is deprecated
+        'Access': ['sequential-unbuffered']
+    }
+
     with open('preamble_vips.d.ts', 'r') as f:
         preamble = f.read()
 
@@ -285,6 +291,10 @@ def generate_enums_flags(gir_file, out_file, indent='    '):
                 values = flags_dict(gtype)
             else:
                 continue
+
+            filter_values = filter_values_dict.get(name, [])
+            for key in filter_values:
+                values.pop(key, None)
 
             enum_doc = node.find('goi:doc', namespace)
 

@@ -147,7 +147,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("grey16", VIPS_INTERPRETATION_GREY16)
         .value("matrix", VIPS_INTERPRETATION_MATRIX)
         .value("scrgb", VIPS_INTERPRETATION_scRGB)
-        .value("hsv", VIPS_INTERPRETATION_HSV);
+        .value("hsv", VIPS_INTERPRETATION_HSV)
+        .value("oklab", VIPS_INTERPRETATION_OKLAB)
+        .value("oklch", VIPS_INTERPRETATION_OKLCH);
 
     enum_<VipsOperationRelational>("OperationRelational")
         .value("equal", VIPS_OPERATION_RELATIONAL_EQUAL)
@@ -211,8 +213,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
 
     enum_<VipsAccess>("Access")
         .value("random", VIPS_ACCESS_RANDOM)
-        .value("sequential", VIPS_ACCESS_SEQUENTIAL)
-        .value("sequential_unbuffered", VIPS_ACCESS_SEQUENTIAL_UNBUFFERED);
+        .value("sequential", VIPS_ACCESS_SEQUENTIAL);
 
     enum_<VipsExtend>("Extend")
         .value("black", VIPS_EXTEND_BLACK)
@@ -392,6 +393,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("iptc", VIPS_FOREIGN_KEEP_IPTC)
         .value("icc", VIPS_FOREIGN_KEEP_ICC)
         .value("other", VIPS_FOREIGN_KEEP_OTHER)
+        .value("gainmap", VIPS_FOREIGN_KEEP_GAINMAP)
         .value("all", VIPS_FOREIGN_KEEP_ALL);
 
     enum_<VipsForeignPngFilter>("ForeignPngFilter")
@@ -1399,11 +1401,15 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("LabQ2sRGB", &Image::LabQ2sRGB)
         .function("LabS2Lab", &Image::LabS2Lab)
         .function("LabS2LabQ", &Image::LabS2LabQ)
+        .function("Oklab2Oklch", &Image::Oklab2Oklch)
+        .function("Oklab2XYZ", &Image::Oklab2XYZ)
+        .function("Oklch2Oklab", &Image::Oklch2Oklab)
         .function("XYZ2CMYK", &Image::XYZ2CMYK)
         .function("XYZ2Lab", &Image::XYZ2Lab)
         .function("XYZ2Lab", optional_override([](const Image &image) {
                       return image.XYZ2Lab();
                   }))
+        .function("XYZ2Oklab", &Image::XYZ2Oklab)
         .function("XYZ2Yxy", &Image::XYZ2Yxy)
         .function("XYZ2scRGB", &Image::XYZ2scRGB)
         .function("Yxy2XYZ", &Image::Yxy2XYZ)
@@ -1897,6 +1903,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("transpose3d", optional_override([](const Image &image) {
                       return image.transpose3d();
                   }))
+        .function("uhdr2scRGB", &Image::uhdr2scRGB)
         .function("unpremultiply", &Image::unpremultiply)
         .function("unpremultiply", optional_override([](const Image &image) {
                       return image.unpremultiply();

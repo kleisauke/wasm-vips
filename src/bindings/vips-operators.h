@@ -716,6 +716,24 @@ Image LabS2Lab() const;
 Image LabS2LabQ() const;
 
 /**
+ * Transform oklab to oklch.
+ * @return Output image.
+ */
+Image Oklab2Oklch() const;
+
+/**
+ * Transform oklab to xyz.
+ * @return Output image.
+ */
+Image Oklab2XYZ() const;
+
+/**
+ * Transform oklch to oklab.
+ * @return Output image.
+ */
+Image Oklch2Oklab() const;
+
+/**
  * Transform xyz to cmyk.
  * @return Output image.
  */
@@ -727,6 +745,12 @@ Image XYZ2CMYK() const;
  * @return Output image.
  */
 Image XYZ2Lab(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Transform xyz to oklab.
+ * @return Output image.
+ */
+Image XYZ2Oklab() const;
 
 /**
  * Transform xyz to yxy.
@@ -1409,14 +1433,14 @@ Image invertlut(emscripten::val js_options = emscripten::val::null()) const;
 Image join(emscripten::val in2, emscripten::val direction, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
- * Save image to jpeg file.
+ * Save as jpeg.
  * @param filename Filename to save to.
  * @param js_options Optional options.
  */
 void jpegsave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
- * Save image to jpeg buffer.
+ * Save as jpeg.
  * @param js_options Optional options.
  * @return Buffer to save to.
  */
@@ -1429,7 +1453,7 @@ emscripten::val jpegsave_buffer(emscripten::val js_options = emscripten::val::nu
 void jpegsave_mime(emscripten::val js_options = emscripten::val::null()) const;
 
 /**
- * Save image to jpeg target.
+ * Save as jpeg.
  * @param target Target to save to.
  * @param js_options Optional options.
  */
@@ -2084,6 +2108,12 @@ Image tilecache(emscripten::val js_options = emscripten::val::null()) const;
  * @return Output image.
  */
 Image transpose3d(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Transform uhdr to scrgb.
+ * @return Output image.
+ */
+Image uhdr2scRGB() const;
 
 /**
  * Unpremultiply image alpha.

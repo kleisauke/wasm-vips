@@ -29,6 +29,10 @@ describe('iofuncs', () => {
 
     expect(im2.bands).to.equal(3);
     expect(im2.avg()).to.equal(2);
+
+    im2 = im.newFromImage([0, 0, 0, 0]);
+
+    expect(im2.bands).to.equal(4);
   });
 
   it('newFromMemory', function () {

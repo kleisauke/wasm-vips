@@ -1149,6 +1149,18 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("csvloadSource", optional_override([](const Source &source) {
                             return Image::csvload_source(source);
                         }))
+        .class_function("dcrawload", &Image::dcrawload)
+        .class_function("dcrawload", optional_override([](const std::string &filename) {
+                            return Image::dcrawload(filename);
+                        }))
+        .class_function("dcrawloadBuffer", &Image::dcrawload_buffer)
+        .class_function("dcrawloadBuffer", optional_override([](const std::string &buffer) {
+                            return Image::dcrawload_buffer(buffer);
+                        }))
+        .class_function("dcrawloadSource", &Image::dcrawload_source)
+        .class_function("dcrawloadSource", optional_override([](const Source &source) {
+                            return Image::dcrawload_source(source);
+                        }))
         .class_function("eye", &Image::eye)
         .class_function("eye", optional_override([](int width, int height) {
                             return Image::eye(width, height);
@@ -1249,6 +1261,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("magickloadBuffer", &Image::magickload_buffer)
         .class_function("magickloadBuffer", optional_override([](const std::string &buffer) {
                             return Image::magickload_buffer(buffer);
+                        }))
+        .class_function("magickloadSource", &Image::magickload_source)
+        .class_function("magickloadSource", optional_override([](const Source &source) {
+                            return Image::magickload_source(source);
                         }))
         .class_function("maskButterworth", &Image::mask_butterworth)
         .class_function("maskButterworth", optional_override([](int width, int height, double order, double frequency_cutoff, double amplitude_cutoff) {
@@ -1436,6 +1452,18 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("tonelut", &Image::tonelut)
         .class_function("tonelut", optional_override([]() {
                             return Image::tonelut();
+                        }))
+        .class_function("uhdrload", &Image::uhdrload)
+        .class_function("uhdrload", optional_override([](const std::string &filename) {
+                            return Image::uhdrload(filename);
+                        }))
+        .class_function("uhdrloadBuffer", &Image::uhdrload_buffer)
+        .class_function("uhdrloadBuffer", optional_override([](const std::string &buffer) {
+                            return Image::uhdrload_buffer(buffer);
+                        }))
+        .class_function("uhdrloadSource", &Image::uhdrload_source)
+        .class_function("uhdrloadSource", optional_override([](const Source &source) {
+                            return Image::uhdrload_source(source);
                         }))
         .class_function("vipsload", &Image::vipsload)
         .class_function("vipsload", optional_override([](const std::string &filename) {
@@ -2028,6 +2056,18 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("transpose3d", &Image::transpose3d)
         .function("transpose3d", optional_override([](const Image &image) {
                       return image.transpose3d();
+                  }))
+        .function("uhdrsave", &Image::uhdrsave)
+        .function("uhdrsave", optional_override([](const Image &image, const std::string &filename) {
+                      image.uhdrsave(filename);
+                  }))
+        .function("uhdrsaveBuffer", &Image::uhdrsave_buffer)
+        .function("uhdrsaveBuffer", optional_override([](const Image &image) {
+                      return image.uhdrsave_buffer();
+                  }))
+        .function("uhdrsaveTarget", &Image::uhdrsave_target)
+        .function("uhdrsaveTarget", optional_override([](const Image &image, const Target &target) {
+                      image.uhdrsave_target(target);
                   }))
         .function("unpremultiply", &Image::unpremultiply)
         .function("unpremultiply", optional_override([](const Image &image) {

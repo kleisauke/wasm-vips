@@ -2351,6 +2351,21 @@ declare module Vips {
     }
 
     /**
+     * Each page of a PDF document can contain multiple page boxes,
+     * also known as boundary boxes or print marks.
+     *
+     * Each page box defines a region of the complete page that
+     * should be rendered. The default region is the crop box.
+     */
+    enum ForeignPdfPageBox {
+        media = 0, // 'media'
+        crop = 1, // 'crop'
+        trim = 2, // 'trim'
+        bleed = 3, // 'bleed'
+        art = 4 // 'art'
+    }
+
+    /**
      * The netpbm file format to save as.
      *
      * [enum@Vips.ForeignPpmFormat.PBM] images are single bit.
@@ -2450,7 +2465,7 @@ declare module Vips {
     }
 
     /**
-     * How many pyramid layers to create.
+     * What container format to use.
      */
     enum ForeignDzContainer {
         /**
@@ -2469,6 +2484,12 @@ declare module Vips {
 
     /**
      * How to calculate the output pixels when shrinking a 2x2 region.
+     *
+     * Images with alpha (see [method@Image.hasalpha]) always shrink with
+     * [enum@Vips.RegionShrink.MEAN] and pixels scaled by alpha to avoid fringing.
+     *
+     * Set the image interpretation to [enum@Vips.Interpretation.MULTIBAND] to
+     * treat all bands equally.
      */
     enum RegionShrink {
         /**
@@ -2721,35 +2742,35 @@ declare module Vips {
      */
     enum Kernel {
         /**
-         * The nearest pixel to the point.
+         * The nearest pixel to the point
          */
         nearest = 0, // 'nearest'
         /**
-         * Convolve with a triangle filter.
+         * Convolve with a triangle filter
          */
         linear = 1, // 'linear'
         /**
-         * Convolve with a cubic filter.
+         * Convolve with a cubic filter
          */
         cubic = 2, // 'cubic'
         /**
-         * Convolve with a Mitchell kernel.
+         * Convolve with a Mitchell kernel
          */
         mitchell = 3, // 'mitchell'
         /**
-         * Convolve with a two-lobe Lanczos kernel.
+         * Convolve with a two-lobe Lanczos kernel
          */
         lanczos2 = 4, // 'lanczos2'
         /**
-         * Convolve with a three-lobe Lanczos kernel.
+         * Convolve with a three-lobe Lanczos kernel
          */
         lanczos3 = 5, // 'lanczos3'
         /**
-         * Convolve with Magic Kernel Sharp 2013.
+         * Convolve with Magic Kernel Sharp 2013
          */
         mks2013 = 6, // 'mks2013'
         /**
-         * Convolve with Magic Kernel Sharp 2021.
+         * Convolve with Magic Kernel Sharp 2021
          */
         mks2021 = 7 // 'mks2021'
     }
@@ -3047,6 +3068,97 @@ declare module Vips {
              * Set of separator characters.
              */
             separator?: string
+            /**
+             * Force open via memory.
+             */
+            memory?: boolean
+            /**
+             * Required access pattern for this file.
+             */
+            access?: Access | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
+            /**
+             * Flags for this file (output).
+             */
+            flags?: number | undefined
+        }): Image;
+
+        /**
+         * Load raw camera files.
+         * @param filename Filename to load from.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static dcrawload(filename: string, options?: {
+            /**
+             * Number of bits per pixel.
+             */
+            bitdepth?: number
+            /**
+             * Force open via memory.
+             */
+            memory?: boolean
+            /**
+             * Required access pattern for this file.
+             */
+            access?: Access | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
+            /**
+             * Don't use a cached result for this operation.
+             */
+            revalidate?: boolean
+            /**
+             * Flags for this file (output).
+             */
+            flags?: number | undefined
+        }): Image;
+
+        /**
+         * Load raw camera files.
+         * @param buffer Buffer to load from.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static dcrawloadBuffer(buffer: Blob, options?: {
+            /**
+             * Number of bits per pixel.
+             */
+            bitdepth?: number
+            /**
+             * Force open via memory.
+             */
+            memory?: boolean
+            /**
+             * Required access pattern for this file.
+             */
+            access?: Access | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
+            /**
+             * Flags for this file (output).
+             */
+            flags?: number | undefined
+        }): Image;
+
+        /**
+         * Load raw camera files.
+         * @param source Source to load from.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static dcrawloadSource(source: Source, options?: {
+            /**
+             * Number of bits per pixel.
+             */
+            bitdepth?: number
             /**
              * Force open via memory.
              */
@@ -3864,6 +3976,43 @@ declare module Vips {
         }): Image;
 
         /**
+         * Load source with imagemagick.
+         * @param source Source to load from.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static magickloadSource(source: Source, options?: {
+            /**
+             * Canvas resolution for rendering vector formats like svg.
+             */
+            density?: string
+            /**
+             * First page to load.
+             */
+            page?: number
+            /**
+             * Number of pages to load, -1 for all.
+             */
+            n?: number
+            /**
+             * Force open via memory.
+             */
+            memory?: boolean
+            /**
+             * Required access pattern for this file.
+             */
+            access?: Access | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
+            /**
+             * Flags for this file (output).
+             */
+            flags?: number | undefined
+        }): Image;
+
+        /**
          * Make a butterworth filter.
          * @param width Image width in pixels.
          * @param height Image height in pixels.
@@ -4443,6 +4592,10 @@ declare module Vips {
              */
             password?: string
             /**
+             * The region of the page to render.
+             */
+            page_box?: ForeignPdfPageBox | Enum
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -4496,6 +4649,10 @@ declare module Vips {
              */
             password?: string
             /**
+             * The region of the page to render.
+             */
+            page_box?: ForeignPdfPageBox | Enum
+            /**
              * Force open via memory.
              */
             memory?: boolean
@@ -4544,6 +4701,10 @@ declare module Vips {
              * Password to decrypt with.
              */
             password?: string
+            /**
+             * The region of the page to render.
+             */
+            page_box?: ForeignPdfPageBox | Enum
             /**
              * Force open via memory.
              */
@@ -5097,13 +5258,17 @@ declare module Vips {
              */
             _in?: ArrayImage | ArrayConstant
             /**
+             * Format for input filename.
+             */
+            in_format?: string
+            /**
              * Format for output filename.
              */
             out_format?: string
             /**
-             * Format for input filename.
+             * Cache this call.
              */
-            in_format?: string
+            cache?: boolean
             /**
              * Output image (output).
              */
@@ -5498,6 +5663,109 @@ declare module Vips {
              * Adjust highlights by this much.
              */
             H?: number
+        }): Image;
+
+        /**
+         * Load a uhdr image.
+         * @param filename Filename to load from.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static uhdrload(filename: string, options?: {
+            /**
+             * Decode to scrgb.
+             */
+            hdr?: boolean
+            /**
+             * Shrink factor on load.
+             */
+            shrink?: number
+            /**
+             * Force open via memory.
+             */
+            memory?: boolean
+            /**
+             * Required access pattern for this file.
+             */
+            access?: Access | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
+            /**
+             * Don't use a cached result for this operation.
+             */
+            revalidate?: boolean
+            /**
+             * Flags for this file (output).
+             */
+            flags?: number | undefined
+        }): Image;
+
+        /**
+         * Load a uhdr image.
+         * @param buffer Buffer to load from.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static uhdrloadBuffer(buffer: Blob, options?: {
+            /**
+             * Decode to scrgb.
+             */
+            hdr?: boolean
+            /**
+             * Shrink factor on load.
+             */
+            shrink?: number
+            /**
+             * Force open via memory.
+             */
+            memory?: boolean
+            /**
+             * Required access pattern for this file.
+             */
+            access?: Access | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
+            /**
+             * Flags for this file (output).
+             */
+            flags?: number | undefined
+        }): Image;
+
+        /**
+         * Load a uhdr image.
+         * @param source Source to load from.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static uhdrloadSource(source: Source, options?: {
+            /**
+             * Decode to scrgb.
+             */
+            hdr?: boolean
+            /**
+             * Shrink factor on load.
+             */
+            shrink?: number
+            /**
+             * Force open via memory.
+             */
+            memory?: boolean
+            /**
+             * Required access pattern for this file.
+             */
+            access?: Access | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
+            /**
+             * Flags for this file (output).
+             */
+            flags?: number | undefined
         }): Image;
 
         /**
@@ -9972,6 +10240,90 @@ declare module Vips {
              */
             page_height?: number
         }): Image;
+
+        /**
+         * Save image in ultrahdr format.
+         * @param filename Filename to save to.
+         * @param options Optional options.
+         */
+        uhdrsave(filename: string, options?: {
+            /**
+             * Q factor.
+             */
+            Q?: number
+            /**
+             * Which metadata to retain.
+             */
+            keep?: ForeignKeep | Flag
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Set page height for multipage save.
+             */
+            page_height?: number
+            /**
+             * Filename of icc profile to embed.
+             */
+            profile?: string
+        }): void;
+
+        /**
+         * Save image in ultrahdr format.
+         * @param options Optional options.
+         * @return Buffer to save to.
+         */
+        uhdrsaveBuffer(options?: {
+            /**
+             * Q factor.
+             */
+            Q?: number
+            /**
+             * Which metadata to retain.
+             */
+            keep?: ForeignKeep | Flag
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Set page height for multipage save.
+             */
+            page_height?: number
+            /**
+             * Filename of icc profile to embed.
+             */
+            profile?: string
+        }): Uint8Array;
+
+        /**
+         * Save image in ultrahdr format.
+         * @param target Target to save to.
+         * @param options Optional options.
+         */
+        uhdrsaveTarget(target: Target, options?: {
+            /**
+             * Q factor.
+             */
+            Q?: number
+            /**
+             * Which metadata to retain.
+             */
+            keep?: ForeignKeep | Flag
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Set page height for multipage save.
+             */
+            page_height?: number
+            /**
+             * Filename of icc profile to embed.
+             */
+            profile?: string
+        }): void;
 
         /**
          * Unpremultiply image alpha.

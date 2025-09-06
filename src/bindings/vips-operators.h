@@ -60,6 +60,30 @@ static Image csvload(const std::string &filename, emscripten::val js_options = e
 static Image csvload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
 
 /**
+ * Load raw camera files.
+ * @param filename Filename to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image dcrawload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load raw camera files.
+ * @param buffer Buffer to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image dcrawload_buffer(const std::string &buffer, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load raw camera files.
+ * @param source Source to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image dcrawload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
+
+/**
  * Make an image showing the eye's spatial response.
  * @param width Image width in pixels.
  * @param height Image height in pixels.
@@ -271,6 +295,14 @@ static Image magickload(const std::string &filename, emscripten::val js_options 
  * @return Output image.
  */
 static Image magickload_buffer(const std::string &buffer, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load source with imagemagick.
+ * @param source Source to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image magickload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
 
 /**
  * Make a butterworth filter.
@@ -706,6 +738,30 @@ static Image tiffload_source(const Source &source, emscripten::val js_options = 
  * @return Output image.
  */
 static Image tonelut(emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load a uhdr image.
+ * @param filename Filename to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image uhdrload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load a uhdr image.
+ * @param buffer Buffer to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image uhdrload_buffer(const std::string &buffer, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load a uhdr image.
+ * @param source Source to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image uhdrload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
 
 /**
  * Load vips from file.
@@ -2311,6 +2367,27 @@ Image tilecache(emscripten::val js_options = emscripten::val::null()) const;
  * @return Output image.
  */
 Image transpose3d(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image in ultrahdr format.
+ * @param filename Filename to save to.
+ * @param js_options Optional options.
+ */
+void uhdrsave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image in ultrahdr format.
+ * @param js_options Optional options.
+ * @return Buffer to save to.
+ */
+emscripten::val uhdrsave_buffer(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image in ultrahdr format.
+ * @param target Target to save to.
+ * @param js_options Optional options.
+ */
+void uhdrsave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Unpremultiply image alpha.

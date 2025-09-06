@@ -25,7 +25,7 @@ endif
 
 cpp = meson.get_compiler('cpp')
 
-vips_dep = dependency('vips', version: '>=8.17.0')
+vips_dep = dependency('vips', version: '>=8.18.0')
 embind_dep = cpp.find_library('embind')
 
 summary('Compiler', cpp.get_id(), section: 'Toolchain')

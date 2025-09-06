@@ -1182,6 +1182,42 @@ Image Image::LabS2LabQ() const
     return out;
 }
 
+Image Image::Oklab2Oklch() const
+{
+    Image out;
+
+    this->call("Oklab2Oklch",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("out", &out));
+
+    return out;
+}
+
+Image Image::Oklab2XYZ() const
+{
+    Image out;
+
+    this->call("Oklab2XYZ",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("out", &out));
+
+    return out;
+}
+
+Image Image::Oklch2Oklab() const
+{
+    Image out;
+
+    this->call("Oklch2Oklab",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("out", &out));
+
+    return out;
+}
+
 Image Image::XYZ2CMYK() const
 {
     Image out;
@@ -1203,6 +1239,18 @@ Image Image::XYZ2Lab(emscripten::val js_options) const
                    ->set("in", *this)
                    ->set("out", &out),
                js_options);
+
+    return out;
+}
+
+Image Image::XYZ2Oklab() const
+{
+    Image out;
+
+    this->call("XYZ2Oklab",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("out", &out));
 
     return out;
 }
@@ -3562,6 +3610,18 @@ Image Image::transpose3d(emscripten::val js_options) const
                    ->set("in", *this)
                    ->set("out", &out),
                js_options);
+
+    return out;
+}
+
+Image Image::uhdr2scRGB() const
+{
+    Image out;
+
+    this->call("uhdr2scRGB",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("out", &out));
 
     return out;
 }

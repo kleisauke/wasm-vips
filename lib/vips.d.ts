@@ -2000,6 +2000,9 @@ declare module Vips {
          * Top-to-bottom reading only, but with a small buffer
          */
         sequential = 1, // 'sequential'
+        /**
+         * Deprecated, use [enum@Vips.Access.SEQUENTIAL] instead
+         */
         sequential_unbuffered = 2 // 'sequential-unbuffered'
     }
 
@@ -2494,6 +2497,12 @@ declare module Vips {
 
     /**
      * How to calculate the output pixels when shrinking a 2x2 region.
+     *
+     * Images with alpha (see [method@Image.hasalpha]) always shrink with
+     * [enum@Vips.RegionShrink.MEAN] and pixels scaled by alpha to avoid fringing.
+     *
+     * Set the image interpretation to [enum@Vips.Interpretation.MULTIBAND] to
+     * treat all bands equally.
      */
     enum RegionShrink {
         /**
@@ -2651,35 +2660,35 @@ declare module Vips {
      */
     enum Kernel {
         /**
-         * The nearest pixel to the point.
+         * The nearest pixel to the point
          */
         nearest = 0, // 'nearest'
         /**
-         * Convolve with a triangle filter.
+         * Convolve with a triangle filter
          */
         linear = 1, // 'linear'
         /**
-         * Convolve with a cubic filter.
+         * Convolve with a cubic filter
          */
         cubic = 2, // 'cubic'
         /**
-         * Convolve with a Mitchell kernel.
+         * Convolve with a Mitchell kernel
          */
         mitchell = 3, // 'mitchell'
         /**
-         * Convolve with a two-lobe Lanczos kernel.
+         * Convolve with a two-lobe Lanczos kernel
          */
         lanczos2 = 4, // 'lanczos2'
         /**
-         * Convolve with a three-lobe Lanczos kernel.
+         * Convolve with a three-lobe Lanczos kernel
          */
         lanczos3 = 5, // 'lanczos3'
         /**
-         * Convolve with Magic Kernel Sharp 2013.
+         * Convolve with Magic Kernel Sharp 2013
          */
         mks2013 = 6, // 'mks2013'
         /**
-         * Convolve with Magic Kernel Sharp 2021.
+         * Convolve with Magic Kernel Sharp 2021
          */
         mks2021 = 7 // 'mks2021'
     }
@@ -4394,13 +4403,17 @@ declare module Vips {
              */
             _in?: ArrayImage | ArrayConstant
             /**
+             * Format for input filename.
+             */
+            in_format?: string
+            /**
              * Format for output filename.
              */
             out_format?: string
             /**
-             * Format for input filename.
+             * Cache this call.
              */
-            in_format?: string
+            cache?: boolean
             /**
              * Output image (output).
              */

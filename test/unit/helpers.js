@@ -30,6 +30,7 @@ export const mosaicFiles = [
   getPath('cd3.1.jpg'), getPath('cd3.2.jpg'),
   getPath('cd4.1.jpg'), getPath('cd4.2.jpg')
 ];
+export const uhdrFile = getPath('ultra-hdr.jpg');
 export const testFiles = [
   jpegFile,
   jxlFile,
@@ -52,7 +53,8 @@ export const testFiles = [
   rgbaCorrectFile,
   svgFile,
   svgzFile,
-  svgGzFile
+  svgGzFile,
+  uhdrFile
 ].concat(analyzeFiles).concat(mosaicFiles);
 
 export const mosaicMarks = [

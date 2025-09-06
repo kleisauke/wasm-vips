@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.18.0, compiled with Emscripten v4.0.15.
 
+### Added
+
+- Support for UltraHDR images.
+
 ### Changed
 
 - Update methods/enums for libvips 8.18.

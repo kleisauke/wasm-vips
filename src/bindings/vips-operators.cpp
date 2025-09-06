@@ -904,6 +904,47 @@ Image Image::tonelut(emscripten::val js_options)
     return out;
 }
 
+Image Image::uhdrload(const std::string &filename, emscripten::val js_options)
+{
+    Image out;
+
+    Image::call("uhdrload", nullptr,
+                (new Option)
+                    ->set("out", &out)
+                    ->set("filename", filename),
+                js_options);
+
+    return out;
+}
+
+Image Image::uhdrload_buffer(const std::string &buffer, emscripten::val js_options)
+{
+    Image out;
+
+    VipsBlob *blob = vips_blob_copy(buffer.c_str(), buffer.size());
+    Option *options = (new Option)
+                          ->set("out", &out)
+                          ->set("buffer", blob);
+    vips_area_unref(VIPS_AREA(blob));
+
+    Image::call("uhdrload_buffer", nullptr, options, js_options);
+
+    return out;
+}
+
+Image Image::uhdrload_source(const Source &source, emscripten::val js_options)
+{
+    Image out;
+
+    Image::call("uhdrload_source", nullptr,
+                (new Option)
+                    ->set("out", &out)
+                    ->set("source", source),
+                js_options);
+
+    return out;
+}
+
 Image Image::vipsload(const std::string &filename, emscripten::val js_options)
 {
     Image out;
@@ -3624,6 +3665,42 @@ Image Image::uhdr2scRGB() const
                    ->set("out", &out));
 
     return out;
+}
+
+void Image::uhdrsave(const std::string &filename, emscripten::val js_options) const
+{
+    this->call("uhdrsave",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("filename", filename),
+               js_options);
+}
+
+emscripten::val Image::uhdrsave_buffer(emscripten::val js_options) const
+{
+    VipsBlob *buffer;
+
+    this->call("uhdrsave_buffer",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("buffer", &buffer),
+               js_options);
+
+    emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
+        VIPS_AREA(buffer)->length,
+        static_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+    vips_area_unref(VIPS_AREA(buffer));
+
+    return result;
+}
+
+void Image::uhdrsave_target(const Target &target, emscripten::val js_options) const
+{
+    this->call("uhdrsave_target",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("target", target),
+               js_options);
 }
 
 Image Image::unpremultiply(emscripten::val js_options) const

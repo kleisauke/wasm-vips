@@ -51,6 +51,9 @@ LTO=false
 # Dynamic loadable modules, enabled by default
 MODULES=true
 
+# Support for UltraHDR images, enabled by default
+UHDR=true
+
 # Support for JPEG XL images, enabled by default
 JXL=true
 
@@ -78,6 +81,7 @@ while [ $# -gt 0 ]; do
       ;;
     --disable-simd) SIMD=false ;;
     --disable-wasm-bigint) WASM_BIGINT=false ;;
+    --disable-uhdr) UHDR=false ;;
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;
     --disable-svg) SVG=false ;;
@@ -91,7 +95,7 @@ while [ $# -gt 0 ]; do
 done
 
 # Configure the ENABLE_* and DISABLE_* expansion helpers
-for arg in SIMD JXL AVIF SVG MODULES BINDINGS; do
+for arg in SIMD UHDR JXL AVIF SVG MODULES BINDINGS; do
   if [ "${!arg}" = "true" ]; then
     declare ENABLE_$arg=true
   else
@@ -178,6 +182,7 @@ VERSION_LCMS2=2.17          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.3.0           # https://github.com/google/highway
 VERSION_BROTLI=1.2.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=0826579     # https://github.com/mozilla/mozjpeg
+VERSION_UHDR=1.4.0          # https://github.com/google/libultrahdr
 VERSION_JXL=0.11.1          # https://github.com/libjxl/libjxl
 VERSION_PNG=1.6.52          # https://github.com/pnggroup/libpng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
@@ -210,6 +215,7 @@ VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
   printf "  \"png\": \"${VERSION_PNG}\",\n"; \
   [ -n "$DISABLE_SVG" ] || printf "  \"resvg\": \"${VERSION_RESVG}\",\n"; \
   printf "  \"tiff\": \"${VERSION_TIFF}\",\n"; \
+  [ -n "$DISABLE_UHDR" ] || printf "  \"uhdr\": \"${VERSION_UHDR}\",\n"; \
   printf "  \"vips\": \"${VERSION_VIPS}\",\n"; \
   printf "  \"webp\": \"${VERSION_WEBP}\",\n"; \
   printf "  \"zlib-ng\": \"${VERSION_ZLIB_NG}\"\n"; \
@@ -345,6 +351,20 @@ node --version
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=FALSE \
     -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE -DPNG_SUPPORTED=FALSE \
     -DCMAKE_C_FLAGS="$CFLAGS -DNO_GETENV -DNO_PUTENV"
+  make -C _build install
+)
+
+[ -f "$TARGET/lib/pkgconfig/libuhdr.pc" ] || [ -n "$DISABLE_UHDR" ] || (
+  stage "Compiling uhdr"
+  mkdir $DEPS/uhdr
+  curl -Ls https://github.com/google/libultrahdr/archive/refs/tags/v$VERSION_UHDR.tar.gz | tar xzC $DEPS/uhdr --strip-components=1
+  cd $DEPS/uhdr
+  # Ensure install targets are enabled when cross-compiling
+  sed -i 's/CMAKE_CROSSCOMPILING AND UHDR_ENABLE_INSTALL/FALSE/' CMakeLists.txt
+  # Disable threading support, we rely on libvips' thread pool
+  sed -i 's/(std::max)(1u, std::thread::hardware_concurrency())/1u/' lib/src/jpegr.cpp
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=FALSE \
+    -DCMAKE_POSITION_INDEPENDENT_CODE=$MODULES -DUHDR_BUILD_EXAMPLES=FALSE -DUHDR_MAX_DIMENSION=65500
   make -C _build install
 )
 
@@ -493,7 +513,7 @@ node --version
     ${DISABLE_SIMD:+-Dhighway=disabled} ${DISABLE_JXL:+-Djpeg-xl=disabled} -Dmagick=disabled \
     -Dmatio=disabled -Dnifti=disabled -Dopenexr=disabled -Dopenjpeg=disabled \
     -Dopenslide=disabled -Dpangocairo=disabled -Dpdfium=disabled -Dpoppler=disabled \
-    -Draw=disabled ${DISABLE_SVG:+-Dresvg=disabled} -Drsvg=disabled -Duhdr=disabled
+    -Draw=disabled ${DISABLE_SVG:+-Dresvg=disabled} -Drsvg=disabled ${DISABLE_UHDR:+-Duhdr=disabled}
   meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)

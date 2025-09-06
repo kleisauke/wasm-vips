@@ -564,6 +564,30 @@ static Image tiffload_source(const Source &source, emscripten::val js_options = 
 static Image tonelut(emscripten::val js_options = emscripten::val::null());
 
 /**
+ * Load a uhdr image.
+ * @param filename Filename to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image uhdrload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load a uhdr image.
+ * @param buffer Buffer to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image uhdrload_buffer(const std::string &buffer, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load a uhdr image.
+ * @param source Source to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image uhdrload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
+
+/**
  * Load vips from file.
  * @param filename Filename to load from.
  * @param js_options Optional options.
@@ -2114,6 +2138,27 @@ Image transpose3d(emscripten::val js_options = emscripten::val::null()) const;
  * @return Output image.
  */
 Image uhdr2scRGB() const;
+
+/**
+ * Save image in ultrahdr format.
+ * @param filename Filename to save to.
+ * @param js_options Optional options.
+ */
+void uhdrsave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image in ultrahdr format.
+ * @param js_options Optional options.
+ * @return Buffer to save to.
+ */
+emscripten::val uhdrsave_buffer(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image in ultrahdr format.
+ * @param target Target to save to.
+ * @param js_options Optional options.
+ */
+void uhdrsave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Unpremultiply image alpha.

@@ -12,6 +12,7 @@ Uses libvips v8.18.0, compiled with Emscripten v4.0.21.
 
 - Support all typed array variants in `Image.newFromMemory()` and
   `image.writeToMemory()`.
+- Support for UltraHDR images.
 
 ### Changed
 

@@ -275,6 +275,13 @@ declare module Vips {
      */
     abstract class Utils {
         /**
+         * Return the GType for a name.
+         * @param name Type name to lookup.
+         * @return Corresponding type ID, or `0` if not found.
+         */
+        static typeFromName(name: string): number;
+
+        /**
          * Get the GType for a name.
          * Looks up the GType for a nickname. Types below basename in the type hierarchy are searched.
          * @param basename Name of base class.

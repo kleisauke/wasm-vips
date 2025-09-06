@@ -489,6 +489,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
     class_<Utils>("Utils")
         .constructor<>()
         .class_function(
+            "typeFromName", optional_override([](const std::string &name) {
+                return g_type_from_name(name.c_str());
+            }))
+        .class_function(
             "typeFind", optional_override([](const std::string &basename,
                                              const std::string &nickname) {
                 return vips_type_find(basename.c_str(), nickname.c_str());

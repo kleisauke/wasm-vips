@@ -284,6 +284,13 @@ declare module Vips {
      */
     abstract class Utils {
         /**
+         * Return the GType for a name.
+         * @param name Type name to lookup.
+         * @return Corresponding type ID, or `0` if not found.
+         */
+        static typeFromName(name: string): number;
+
+        /**
          * Get the GType for a name.
          * Looks up the GType for a nickname. Types below basename in the type hierarchy are searched.
          * @param basename Name of base class.
@@ -521,6 +528,11 @@ declare module Vips {
          * Image filename, if any.
          */
         readonly filename?: string;
+
+        /**
+         * The associated gainmap image, if any.
+         */
+        readonly gainmap?: Image;
 
         /**
          * Page height in pixels.
@@ -899,6 +911,14 @@ declare module Vips {
          * @param value The metadata value.
          */
         setString(name: string, value: string): void;
+
+        /**
+         * Set an image to another image as metadata.
+         * This is typically used to update the gainmap.
+         * @param name The name of the piece of metadata to set the value of.
+         * @param value The metadata value.
+         */
+        setImage(name: string, value: Image): void;
 
         /**
          * Set a blob on an image as metadata.
@@ -4772,6 +4792,97 @@ declare module Vips {
              * Adjust highlights by this much.
              */
             H?: number
+        }): Image;
+
+        /**
+         * Load a uhdr image.
+         * @param filename Filename to load from.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static uhdrload(filename: string, options?: {
+            /**
+             * Shrink factor on load.
+             */
+            shrink?: number
+            /**
+             * Force open via memory.
+             */
+            memory?: boolean
+            /**
+             * Required access pattern for this file.
+             */
+            access?: Access | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
+            /**
+             * Don't use a cached result for this operation.
+             */
+            revalidate?: boolean
+            /**
+             * Flags for this file (output).
+             */
+            flags?: number | undefined
+        }): Image;
+
+        /**
+         * Load a uhdr image.
+         * @param buffer Buffer to load from.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static uhdrloadBuffer(buffer: Blob, options?: {
+            /**
+             * Shrink factor on load.
+             */
+            shrink?: number
+            /**
+             * Force open via memory.
+             */
+            memory?: boolean
+            /**
+             * Required access pattern for this file.
+             */
+            access?: Access | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
+            /**
+             * Flags for this file (output).
+             */
+            flags?: number | undefined
+        }): Image;
+
+        /**
+         * Load a uhdr image.
+         * @param source Source to load from.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static uhdrloadSource(source: Source, options?: {
+            /**
+             * Shrink factor on load.
+             */
+            shrink?: number
+            /**
+             * Force open via memory.
+             */
+            memory?: boolean
+            /**
+             * Required access pattern for this file.
+             */
+            access?: Access | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
+            /**
+             * Flags for this file (output).
+             */
+            flags?: number | undefined
         }): Image;
 
         /**
@@ -8774,6 +8885,90 @@ declare module Vips {
          * @return Output image.
          */
         uhdr2scRGB(): Image;
+
+        /**
+         * Save image in ultrahdr format.
+         * @param filename Filename to save to.
+         * @param options Optional options.
+         */
+        uhdrsave(filename: string, options?: {
+            /**
+             * Q factor.
+             */
+            Q?: number
+            /**
+             * Which metadata to retain.
+             */
+            keep?: ForeignKeep | Flag
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Set page height for multipage save.
+             */
+            page_height?: number
+            /**
+             * Filename of icc profile to embed.
+             */
+            profile?: string
+        }): void;
+
+        /**
+         * Save image in ultrahdr format.
+         * @param options Optional options.
+         * @return Buffer to save to.
+         */
+        uhdrsaveBuffer(options?: {
+            /**
+             * Q factor.
+             */
+            Q?: number
+            /**
+             * Which metadata to retain.
+             */
+            keep?: ForeignKeep | Flag
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Set page height for multipage save.
+             */
+            page_height?: number
+            /**
+             * Filename of icc profile to embed.
+             */
+            profile?: string
+        }): Uint8Array;
+
+        /**
+         * Save image in ultrahdr format.
+         * @param target Target to save to.
+         * @param options Optional options.
+         */
+        uhdrsaveTarget(target: Target, options?: {
+            /**
+             * Q factor.
+             */
+            Q?: number
+            /**
+             * Which metadata to retain.
+             */
+            keep?: ForeignKeep | Flag
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Set page height for multipage save.
+             */
+            page_height?: number
+            /**
+             * Filename of icc profile to embed.
+             */
+            profile?: string
+        }): void;
 
         /**
          * Unpremultiply image alpha.

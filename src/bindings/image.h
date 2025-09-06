@@ -89,6 +89,14 @@ class Image : public Object {
         return vips_image_get_page_height(get_image());
     }
 
+    std::optional<Image> gainmap() const {
+        VipsImage *image = vips_image_get_gainmap(get_image());
+        if (image == nullptr) 
+            return {};
+
+        return Image(image);
+    }
+
     bool is_killed() const {
         return vips_image_iskilled(get_image());
     }
@@ -131,6 +139,10 @@ class Image : public Object {
 
     void set(const std::string &field, const std::string &value) const {
         vips_image_set_string(get_image(), field.c_str(), value.c_str());
+    }
+
+    void set(const std::string &field, const Image &value) const {
+        vips_image_set_image(get_image(), field.c_str(), value.get_image());
     }
 
     void set_blob(const std::string &field, const std::string &data) const {

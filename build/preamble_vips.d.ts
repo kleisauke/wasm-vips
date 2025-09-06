@@ -284,6 +284,13 @@ declare module Vips {
      */
     abstract class Utils {
         /**
+         * Return the GType for a name.
+         * @param name Type name to lookup.
+         * @return Corresponding type ID, or `0` if not found.
+         */
+        static typeFromName(name: string): number;
+
+        /**
          * Get the GType for a name.
          * Looks up the GType for a nickname. Types below basename in the type hierarchy are searched.
          * @param basename Name of base class.
@@ -521,6 +528,11 @@ declare module Vips {
          * Image filename, if any.
          */
         readonly filename?: string;
+
+        /**
+         * The associated gainmap image, if any.
+         */
+        readonly gainmap?: Image;
 
         /**
          * Page height in pixels.
@@ -899,6 +911,14 @@ declare module Vips {
          * @param value The metadata value.
          */
         setString(name: string, value: string): void;
+
+        /**
+         * Set an image to another image as metadata.
+         * This is typically used to update the gainmap.
+         * @param name The name of the piece of metadata to set the value of.
+         * @param value The metadata value.
+         */
+        setImage(name: string, value: Image): void;
 
         /**
          * Set a blob on an image as metadata.

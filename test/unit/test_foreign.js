@@ -361,6 +361,137 @@ describe('foreign', () => {
     expect(im0.avg()).to.equal(im10.avg());
   });
 
+  it('uhdrload', function () {
+    // Needs UltraHDR support
+    if (!Helpers.have('uhdrload')) {
+      return this.skip();
+    }
+
+    // decode as sRGB + gainmap
+    const im = vips.Image.uhdrload(Helpers.uhdrFile);
+
+    expect(im.width).to.equal(3840);
+    expect(im.height).to.equal(2160);
+    expect(im.bands).to.equal(3);
+    expect(im.format).to.equal('uchar');
+    expect(im.interpretation).to.equal('srgb');
+    expect(im.gainmap).to.not.equal(undefined);
+
+    for (const name of [
+      'gainmap-max-content-boost',
+      'gainmap-min-content-boost',
+      'gainmap-gamma',
+      'gainmap-offset-sdr',
+      'gainmap-offset-hdr'
+    ]) {
+      expect(im.getTypeof(name)).to.equal(vips.Utils.typeFromName('VipsArrayDouble'));
+
+      const value = im.getArrayDouble(name);
+      expect(value.length).to.equal(3);
+    }
+
+    for (const name of [
+      'gainmap-hdr-capacity-min',
+      'gainmap-hdr-capacity-max',
+      'gainmap-use-base-cg'
+    ]) {
+      expect(im.getTypeof(name)).to.be.oneOf([
+        /* G_TYPE_INT */ 6 << 2,
+        /* G_TYPE_DOUBLE */ 15 << 2
+      ]);
+    }
+
+    let value = im.getBlob('gainmap-data');
+    expect(value.byteLength).to.be.above(10000);
+
+    value = im.getBlob('icc-profile-data');
+    expect(value.byteLength).to.be.above(100);
+  });
+
+  describe('uhdrsave', () => {
+    it('sRGB', function () {
+      // Needs UltraHDR support
+      if (!Helpers.have('uhdrsave')) {
+        return this.skip();
+      }
+
+      const im = vips.Image.uhdrload(Helpers.uhdrFile);
+      const data = im.uhdrsaveBuffer();
+      const im2 = vips.Image.uhdrloadBuffer(data);
+
+      expect(im2.width).to.equal(3840);
+      expect(im2.height).to.equal(2160);
+      expect(im2.bands).to.equal(3);
+      expect(im2.format).to.equal('uchar');
+      expect(im2.interpretation).to.equal('srgb');
+
+      const value = im2.getBlob('gainmap-data');
+      expect(value.byteLength).to.be.above(10000);
+    });
+
+    it('roundtrip', function () {
+      // Needs UltraHDR support
+      if (!Helpers.have('uhdrsave')) {
+        return this.skip();
+      }
+
+      const im = vips.Image.uhdrload(Helpers.uhdrFile);
+      const data = im.uhdrsaveBuffer();
+      const imHdr2 = vips.Image.uhdrloadBuffer(data).uhdr2scRGB();
+      const imHdr = vips.Image.uhdrload(Helpers.uhdrFile).uhdr2scRGB();
+
+      expect(imHdr2.subtract(imHdr).abs().avg()).to.be.below(0.02);
+    });
+
+    it('roundtrip HDR', function () {
+      // Needs UltraHDR support
+      if (!Helpers.have('uhdrsave')) {
+        return this.skip();
+      }
+
+      const im = vips.Image.uhdrload(Helpers.uhdrFile).uhdr2scRGB();
+      const data = im.uhdrsaveBuffer();
+      const im2 = vips.Image.uhdrloadBuffer(data).uhdr2scRGB();
+
+      expect(im2.subtract(im).abs().avg()).to.be.below(0.05);
+    });
+
+    it('thumbnail', function () {
+      // Needs UltraHDR support
+      if (!Helpers.have('uhdrsave')) {
+        return this.skip();
+      }
+
+      const im = vips.Image.uhdrload(Helpers.uhdrFile);
+      const thumb = vips.Image.thumbnail(Helpers.uhdrFile, 128);
+      const buf = thumb.uhdrsaveBuffer();
+      const im2 = vips.Image.uhdrloadBuffer(buf);
+
+      const gainmapDataBefore = im.getBlob('gainmap-data');
+      const gainmapDataAfter = im2.getBlob('gainmap-data');
+      expect(gainmapDataAfter.byteLength).to.be.below(gainmapDataBefore.byteLength);
+
+      const gainmapBefore = im.gainmap;
+      const gainmapAfter = im2.gainmap;
+      expect(gainmapBefore.width).to.be.above(gainmapAfter.width);
+      expect(gainmapBefore.height).to.be.above(gainmapAfter.height);
+    });
+
+    it('thumbnail with crop', function () {
+      // Needs UltraHDR support
+      if (!Helpers.have('uhdrsave')) {
+        return this.skip();
+      }
+
+      const thumb = vips.Image.thumbnail(Helpers.uhdrFile, 128, { crop: 'centre' });
+      const buf = thumb.uhdrsaveBuffer();
+      const im2 = vips.Image.uhdrloadBuffer(buf);
+
+      const gainmapAfter = im2.gainmap;
+      expect(Math.abs(gainmapAfter.width - gainmapAfter.height)).to.be.below(5);
+    });
+  });
+
   it('truncated', function () {
     // Needs JPEG support
     if (!Helpers.have('jpegload')) {

@@ -424,6 +424,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
     register_vector<double>("VectorDouble");
 
     // Register optional bindings
+    register_optional<Image>();
     register_optional<std::string>();
 
     function("concurrency", &vips_concurrency_set);
@@ -475,6 +476,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
     // Utils class
     class_<Utils>("Utils")
         .constructor<>()
+        .class_function(
+            "typeFromName", optional_override([](const std::string &name) {
+                return g_type_from_name(name.c_str());
+            }))
         .class_function(
             "typeFind", optional_override([](const std::string &basename,
                                              const std::string &nickname) {
@@ -657,6 +662,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("setString",
                   select_overload<void(const std::string &, const std::string &)
                                       const>(&Image::set))
+        .function(
+            "setImage",
+            select_overload<void(const std::string &, const Image &) const>(
+                &Image::set))
         .function("setBlob",
                   select_overload<void(const std::string &, const std::string &)
                                       const>(&Image::set_blob))
@@ -1105,6 +1114,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .property("yres", &Image::yres)
         .property("filename", &Image::filename)
         // Handwritten properties
+        .property("gainmap", &Image::gainmap)
         .property("pageHeight", &Image::page_height)
         // Handwritten setters
         .property("kill", &Image::is_killed, &Image::set_kill)
@@ -1351,6 +1361,18 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("tonelut", &Image::tonelut)
         .class_function("tonelut", optional_override([]() {
                             return Image::tonelut();
+                        }))
+        .class_function("uhdrload", &Image::uhdrload)
+        .class_function("uhdrload", optional_override([](const std::string &filename) {
+                            return Image::uhdrload(filename);
+                        }))
+        .class_function("uhdrloadBuffer", &Image::uhdrload_buffer)
+        .class_function("uhdrloadBuffer", optional_override([](const std::string &buffer) {
+                            return Image::uhdrload_buffer(buffer);
+                        }))
+        .class_function("uhdrloadSource", &Image::uhdrload_source)
+        .class_function("uhdrloadSource", optional_override([](const Source &source) {
+                            return Image::uhdrload_source(source);
                         }))
         .class_function("vipsload", &Image::vipsload)
         .class_function("vipsload", optional_override([](const std::string &filename) {
@@ -1904,6 +1926,18 @@ EMSCRIPTEN_BINDINGS(my_module) {
                       return image.transpose3d();
                   }))
         .function("uhdr2scRGB", &Image::uhdr2scRGB)
+        .function("uhdrsave", &Image::uhdrsave)
+        .function("uhdrsave", optional_override([](const Image &image, const std::string &filename) {
+                      image.uhdrsave(filename);
+                  }))
+        .function("uhdrsaveBuffer", &Image::uhdrsave_buffer)
+        .function("uhdrsaveBuffer", optional_override([](const Image &image) {
+                      return image.uhdrsave_buffer();
+                  }))
+        .function("uhdrsaveTarget", &Image::uhdrsave_target)
+        .function("uhdrsaveTarget", optional_override([](const Image &image, const Target &target) {
+                      image.uhdrsave_target(target);
+                  }))
         .function("unpremultiply", &Image::unpremultiply)
         .function("unpremultiply", optional_override([](const Image &image) {
                       return image.unpremultiply();

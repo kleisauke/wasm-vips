@@ -21,6 +21,7 @@ used under the terms of the following licences:
 | libnsgif      | MIT Licence                                                                                               |
 | libpng        | [libpng License](https://github.com/pnggroup/libpng/blob/master/LICENSE)                                  |
 | libtiff       | [libtiff License](https://gitlab.com/libtiff/libtiff/blob/master/LICENSE.md) (BSD-like)                   |
+| libultrahdr   | Apache-2.0 License                                                                                        |
 | libvips       | LGPLv3                                                                                                    |
 | libwebp       | New BSD License                                                                                           |
 | mozjpeg       | [zlib License, IJG License, BSD-3-Clause](https://github.com/mozilla/mozjpeg/blob/master/LICENSE.md)      |

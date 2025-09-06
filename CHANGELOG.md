@@ -12,6 +12,11 @@ Uses libvips v8.18.0-rc2, compiled with Emscripten v4.0.21.
 
 - Support all typed array variants in `Image.newFromMemory()` and
   `image.writeToMemory()`.
+- Support for UltraHDR images.
+- Add `image.gainmap` property to retrieve the gainmap from
+  Ultra HDR images.
+- Add `image.setImage()` method to attach an image as metadata.
+- Add `vips.Utils.typeFromName()` helper.
 
 ### Changed
 

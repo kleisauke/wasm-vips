@@ -11,6 +11,7 @@ Uses libvips v8.17.1, compiled with Emscripten v4.0.14.
 ### Removed
 
 - Remove redundant `revalidate` flag from type definitions.
+- Remove unsupported operations from public API.
 
 ## [v0.0.14] - 2025-07-10
 

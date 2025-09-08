@@ -69,22 +69,6 @@ static Image csvload_source(const Source &source, emscripten::val js_options = e
 static Image eye(int width, int height, emscripten::val js_options = emscripten::val::null());
 
 /**
- * Load a fits image.
- * @param filename Filename to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image fitsload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
-
-/**
- * Load fits from a source.
- * @param source Source to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image fitsload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
-
-/**
  * Make a fractal surface.
  * @param width Image width in pixels.
  * @param height Image height in pixels.
@@ -176,30 +160,6 @@ static Image heifload_source(const Source &source, emscripten::val js_options = 
 static Image identity(emscripten::val js_options = emscripten::val::null());
 
 /**
- * Load jpeg2000 image.
- * @param filename Filename to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image jp2kload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
-
-/**
- * Load jpeg2000 image.
- * @param buffer Buffer to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image jp2kload_buffer(const std::string &buffer, emscripten::val js_options = emscripten::val::null());
-
-/**
- * Load jpeg2000 image.
- * @param source Source to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image jp2kload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
-
-/**
  * Load jpeg from file.
  * @param filename Filename to load from.
  * @param js_options Optional options.
@@ -255,22 +215,6 @@ static Image jxlload_source(const Source &source, emscripten::val js_options = e
  * @return Output image.
  */
 static Image logmat(double sigma, double min_ampl, emscripten::val js_options = emscripten::val::null());
-
-/**
- * Load file with imagemagick.
- * @param filename Filename to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image magickload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
-
-/**
- * Load buffer with imagemagick.
- * @param buffer Buffer to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image magickload_buffer(const std::string &buffer, emscripten::val js_options = emscripten::val::null());
 
 /**
  * Make a butterworth filter.
@@ -391,14 +335,6 @@ static Image mask_ideal_band(int width, int height, double frequency_cutoff_x, d
 static Image mask_ideal_ring(int width, int height, double frequency_cutoff, double ringwidth, emscripten::val js_options = emscripten::val::null());
 
 /**
- * Load mat from file.
- * @param filename Filename to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image matload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
-
-/**
  * Load matrix.
  * @param filename Filename to load from.
  * @param js_options Optional options.
@@ -413,70 +349,6 @@ static Image matrixload(const std::string &filename, emscripten::val js_options 
  * @return Output image.
  */
 static Image matrixload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
-
-/**
- * Load nifti volume.
- * @param filename Filename to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image niftiload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
-
-/**
- * Load nifti volumes.
- * @param source Source to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image niftiload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
-
-/**
- * Load an openexr image.
- * @param filename Filename to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image openexrload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
-
-/**
- * Load file with openslide.
- * @param filename Filename to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image openslideload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
-
-/**
- * Load source with openslide.
- * @param source Source to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image openslideload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
-
-/**
- * Load pdf from file.
- * @param filename Filename to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image pdfload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
-
-/**
- * Load pdf from buffer.
- * @param buffer Buffer to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image pdfload_buffer(const std::string &buffer, emscripten::val js_options = emscripten::val::null());
-
-/**
- * Load pdf from source.
- * @param source Source to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image pdfload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
 
 /**
  * Make a perlin noise image.
@@ -620,14 +492,6 @@ static Image svgload(const std::string &filename, emscripten::val js_options = e
 static Image svgload_buffer(const std::string &buffer, emscripten::val js_options = emscripten::val::null());
 
 /**
- * Load svg from source.
- * @param source Source to load from.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image svgload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
-
-/**
  * Find the index of the first non-zero pixel in tests.
  * @param tests Table of images to test.
  * @return Output image.
@@ -640,14 +504,6 @@ static Image switch_image(emscripten::val tests);
  * @param js_options Optional options.
  */
 static void system(const std::string &cmd_format, emscripten::val js_options = emscripten::val::null());
-
-/**
- * Make a text image.
- * @param text Text to render.
- * @param js_options Optional options.
- * @return Output image.
- */
-static Image text(const std::string &text, emscripten::val js_options = emscripten::val::null());
 
 /**
  * Generate thumbnail from file.
@@ -1232,27 +1088,6 @@ void draw_rect(const std::vector<double> &ink, int left, int top, int width, int
 void draw_smudge(int left, int top, int width, int height) const;
 
 /**
- * Save image to deepzoom file.
- * @param filename Filename to save to.
- * @param js_options Optional options.
- */
-void dzsave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
-
-/**
- * Save image to dz buffer.
- * @param js_options Optional options.
- * @return Buffer to save to.
- */
-emscripten::val dzsave_buffer(emscripten::val js_options = emscripten::val::null()) const;
-
-/**
- * Save image to deepzoom target.
- * @param target Target to save to.
- * @param js_options Optional options.
- */
-void dzsave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
-
-/**
  * Embed an image in a larger image.
  * @param x Left edge of input in output.
  * @param y Top edge of input in output.
@@ -1312,13 +1147,6 @@ Image fill_nearest(emscripten::val js_options = emscripten::val::null()) const;
 int find_trim(int *top, int *width, int *height, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
- * Save image to fits file.
- * @param filename Filename to save to.
- * @param js_options Optional options.
- */
-void fitssave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
-
-/**
  * Flatten alpha out of an image.
  * @param js_options Optional options.
  * @return Output image.
@@ -1344,12 +1172,6 @@ Image float2rad() const;
  * @return Output image.
  */
 Image freqmult(emscripten::val mask) const;
-
-/**
- * Forward fft.
- * @return Output image.
- */
-Image fwfft() const;
 
 /**
  * Gamma an image.
@@ -1578,13 +1400,6 @@ Image invert() const;
 Image invertlut(emscripten::val js_options = emscripten::val::null()) const;
 
 /**
- * Inverse fft.
- * @param js_options Optional options.
- * @return Output image.
- */
-Image invfft(emscripten::val js_options = emscripten::val::null()) const;
-
-/**
  * Join a pair of images.
  * @param in2 Second input image.
  * @param direction Join left-right or up-down.
@@ -1592,27 +1407,6 @@ Image invfft(emscripten::val js_options = emscripten::val::null()) const;
  * @return Output image.
  */
 Image join(emscripten::val in2, emscripten::val direction, emscripten::val js_options = emscripten::val::null()) const;
-
-/**
- * Save image in jpeg2000 format.
- * @param filename Filename to save to.
- * @param js_options Optional options.
- */
-void jp2ksave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
-
-/**
- * Save image in jpeg2000 format.
- * @param js_options Optional options.
- * @return Buffer to save to.
- */
-emscripten::val jp2ksave_buffer(emscripten::val js_options = emscripten::val::null()) const;
-
-/**
- * Save image in jpeg2000 format.
- * @param target Target to save to.
- * @param js_options Optional options.
- */
-void jp2ksave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Save image to jpeg file.
@@ -1684,20 +1478,6 @@ Image linear(const std::vector<double> &a, const std::vector<double> &b, emscrip
  * @return Output image.
  */
 Image linecache(emscripten::val js_options = emscripten::val::null()) const;
-
-/**
- * Save file with imagemagick.
- * @param filename Filename to save to.
- * @param js_options Optional options.
- */
-void magicksave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
-
-/**
- * Save image to magick buffer.
- * @param js_options Optional options.
- * @return Buffer to save to.
- */
-emscripten::val magicksave_buffer(emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Resample with a map image.
@@ -1871,13 +1651,6 @@ Image mosaic1(emscripten::val sec, emscripten::val direction, int xr1, int yr1, 
  * @return Output image.
  */
 Image msb(emscripten::val js_options = emscripten::val::null()) const;
-
-/**
- * Save image to nifti file.
- * @param filename Filename to save to.
- * @param js_options Optional options.
- */
-void niftisave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Find threshold for percent of pixels.

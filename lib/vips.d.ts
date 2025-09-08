@@ -2274,32 +2274,6 @@ declare module Vips {
     }
 
     /**
-     * Sets the word wrapping style for [ctor@Image.text] when used with a maximum
-     * width.
-     *
-     * ::: seealso
-     *     [ctor@Image.text].
-     */
-    enum TextWrap {
-        /**
-         * Wrap at word boundaries
-         */
-        word = 0, // 'word'
-        /**
-         * Wrap at character boundaries
-         */
-        char = 1, // 'char'
-        /**
-         * Wrap at word boundaries, but fall back to character boundaries if there is not enough space for a full word
-         */
-        word_char = 2, // 'word-char'
-        /**
-         * No wrapping
-         */
-        none = 3 // 'none'
-    }
-
-    /**
      * The SDF to generate,
      *
      * ::: seealso
@@ -2403,98 +2377,6 @@ declare module Vips {
          * Never perform subsampling
          */
         off = 2 // 'off'
-    }
-
-    /**
-     * What directory layout and metadata standard to use.
-     */
-    enum ForeignDzLayout {
-        /**
-         * Use DeepZoom directory layout
-         */
-        dz = 0, // 'dz'
-        /**
-         * Use Zoomify directory layout
-         */
-        zoomify = 1, // 'zoomify'
-        /**
-         * Use Google maps directory layout
-         */
-        google = 2, // 'google'
-        /**
-         * Use IIIF v2 directory layout
-         */
-        iiif = 3, // 'iiif'
-        /**
-         * Use IIIF v3 directory layout
-         */
-        iiif3 = 4 // 'iiif3'
-    }
-
-    /**
-     * How many pyramid layers to create.
-     */
-    enum ForeignDzDepth {
-        /**
-         * Create layers down to 1x1 pixel
-         */
-        onepixel = 0, // 'onepixel'
-        /**
-         * Create layers down to 1x1 tile
-         */
-        onetile = 1, // 'onetile'
-        /**
-         * Only create a single layer
-         */
-        one = 2 // 'one'
-    }
-
-    /**
-     * How many pyramid layers to create.
-     */
-    enum ForeignDzContainer {
-        /**
-         * Write tiles to the filesystem
-         */
-        fs = 0, // 'fs'
-        /**
-         * Write tiles to a zip file
-         */
-        zip = 1, // 'zip'
-        /**
-         * Write to a szi file
-         */
-        szi = 2 // 'szi'
-    }
-
-    /**
-     * How to calculate the output pixels when shrinking a 2x2 region.
-     */
-    enum RegionShrink {
-        /**
-         * Use the average
-         */
-        mean = 0, // 'mean'
-        /**
-         * Use the median
-         */
-        median = 1, // 'median'
-        /**
-         * Use the mode
-         */
-        mode = 2, // 'mode'
-        /**
-         * Use the maximum
-         */
-        max = 3, // 'max'
-        /**
-         * Use the minimum
-         */
-        min = 4, // 'min'
-        /**
-         * Use the top-left pixel
-         */
-        nearest = 5 // 'nearest'
     }
 
     /**
@@ -2608,6 +2490,54 @@ declare module Vips {
          * Use inches
          */
         inch = 1 // 'inch'
+    }
+
+    /**
+     * How to calculate the output pixels when shrinking a 2x2 region.
+     */
+    enum RegionShrink {
+        /**
+         * Use the average
+         */
+        mean = 0, // 'mean'
+        /**
+         * Use the median
+         */
+        median = 1, // 'median'
+        /**
+         * Use the mode
+         */
+        mode = 2, // 'mode'
+        /**
+         * Use the maximum
+         */
+        max = 3, // 'max'
+        /**
+         * Use the minimum
+         */
+        min = 4, // 'min'
+        /**
+         * Use the top-left pixel
+         */
+        nearest = 5 // 'nearest'
+    }
+
+    /**
+     * How many pyramid layers to create.
+     */
+    enum ForeignDzDepth {
+        /**
+         * Create layers down to 1x1 pixel
+         */
+        onepixel = 0, // 'onepixel'
+        /**
+         * Create layers down to 1x1 tile
+         */
+        onetile = 1, // 'onetile'
+        /**
+         * Only create a single layer
+         */
+        one = 2 // 'one'
     }
 
     /**
@@ -3084,60 +3014,6 @@ declare module Vips {
         }): Image;
 
         /**
-         * Load a fits image.
-         * @param filename Filename to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static fitsload(filename: string, options?: {
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Don't use a cached result for this operation.
-             */
-            revalidate?: boolean
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
-         * Load fits from a source.
-         * @param source Source to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static fitsloadSource(source: Source, options?: {
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
          * Make a fractal surface.
          * @param width Image width in pixels.
          * @param height Image height in pixels.
@@ -3451,109 +3327,6 @@ declare module Vips {
         }): Image;
 
         /**
-         * Load jpeg2000 image.
-         * @param filename Filename to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static jp2kload(filename: string, options?: {
-            /**
-             * Load this page from the image.
-             */
-            page?: number
-            /**
-             * Load images a frame at a time.
-             */
-            oneshot?: boolean
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Don't use a cached result for this operation.
-             */
-            revalidate?: boolean
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
-         * Load jpeg2000 image.
-         * @param buffer Buffer to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static jp2kloadBuffer(buffer: Blob, options?: {
-            /**
-             * Load this page from the image.
-             */
-            page?: number
-            /**
-             * Load images a frame at a time.
-             */
-            oneshot?: boolean
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
-         * Load jpeg2000 image.
-         * @param source Source to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static jp2kloadSource(source: Source, options?: {
-            /**
-             * Load this page from the image.
-             */
-            page?: number
-            /**
-             * Load images a frame at a time.
-             */
-            oneshot?: boolean
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
          * Load jpeg from file.
          * @param filename Filename to load from.
          * @param options Optional options.
@@ -3787,80 +3560,6 @@ declare module Vips {
              * Generate with this precision.
              */
             precision?: Precision | Enum
-        }): Image;
-
-        /**
-         * Load file with imagemagick.
-         * @param filename Filename to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static magickload(filename: string, options?: {
-            /**
-             * Canvas resolution for rendering vector formats like svg.
-             */
-            density?: string
-            /**
-             * First page to load.
-             */
-            page?: number
-            /**
-             * Number of pages to load, -1 for all.
-             */
-            n?: number
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
-         * Load buffer with imagemagick.
-         * @param buffer Buffer to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static magickloadBuffer(buffer: Blob, options?: {
-            /**
-             * Canvas resolution for rendering vector formats like svg.
-             */
-            density?: string
-            /**
-             * First page to load.
-             */
-            page?: number
-            /**
-             * Number of pages to load, -1 for all.
-             */
-            n?: number
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
         }): Image;
 
         /**
@@ -4152,35 +3851,6 @@ declare module Vips {
         }): Image;
 
         /**
-         * Load mat from file.
-         * @param filename Filename to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static matload(filename: string, options?: {
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Don't use a cached result for this operation.
-             */
-            revalidate?: boolean
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
          * Load matrix.
          * @param filename Filename to load from.
          * @param options Optional options.
@@ -4216,334 +3886,6 @@ declare module Vips {
          * @return Output image.
          */
         static matrixloadSource(source: Source, options?: {
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
-         * Load nifti volume.
-         * @param filename Filename to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static niftiload(filename: string, options?: {
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Don't use a cached result for this operation.
-             */
-            revalidate?: boolean
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
-         * Load nifti volumes.
-         * @param source Source to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static niftiloadSource(source: Source, options?: {
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
-         * Load an openexr image.
-         * @param filename Filename to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static openexrload(filename: string, options?: {
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Don't use a cached result for this operation.
-             */
-            revalidate?: boolean
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
-         * Load file with openslide.
-         * @param filename Filename to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static openslideload(filename: string, options?: {
-            /**
-             * Load this level from the file.
-             */
-            level?: number
-            /**
-             * Crop to image bounds.
-             */
-            autocrop?: boolean
-            /**
-             * Load this associated image.
-             */
-            associated?: string
-            /**
-             * Attach all associated images.
-             */
-            attach_associated?: boolean
-            /**
-             * Output rgb (not rgba).
-             */
-            rgb?: boolean
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Don't use a cached result for this operation.
-             */
-            revalidate?: boolean
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
-         * Load source with openslide.
-         * @param source Source to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static openslideloadSource(source: Source, options?: {
-            /**
-             * Load this level from the file.
-             */
-            level?: number
-            /**
-             * Crop to image bounds.
-             */
-            autocrop?: boolean
-            /**
-             * Load this associated image.
-             */
-            associated?: string
-            /**
-             * Attach all associated images.
-             */
-            attach_associated?: boolean
-            /**
-             * Output rgb (not rgba).
-             */
-            rgb?: boolean
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
-         * Load pdf from file.
-         * @param filename Filename to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static pdfload(filename: string, options?: {
-            /**
-             * First page to load.
-             */
-            page?: number
-            /**
-             * Number of pages to load, -1 for all.
-             */
-            n?: number
-            /**
-             * Dpi to render at.
-             */
-            dpi?: number
-            /**
-             * Factor to scale by.
-             */
-            scale?: number
-            /**
-             * Background colour.
-             */
-            background?: ArrayConstant
-            /**
-             * Password to decrypt with.
-             */
-            password?: string
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Don't use a cached result for this operation.
-             */
-            revalidate?: boolean
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
-         * Load pdf from buffer.
-         * @param buffer Buffer to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static pdfloadBuffer(buffer: Blob, options?: {
-            /**
-             * First page to load.
-             */
-            page?: number
-            /**
-             * Number of pages to load, -1 for all.
-             */
-            n?: number
-            /**
-             * Dpi to render at.
-             */
-            dpi?: number
-            /**
-             * Factor to scale by.
-             */
-            scale?: number
-            /**
-             * Background colour.
-             */
-            background?: ArrayConstant
-            /**
-             * Password to decrypt with.
-             */
-            password?: string
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
-         * Load pdf from source.
-         * @param source Source to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static pdfloadSource(source: Source, options?: {
-            /**
-             * First page to load.
-             */
-            page?: number
-            /**
-             * Number of pages to load, -1 for all.
-             */
-            n?: number
-            /**
-             * Dpi to render at.
-             */
-            dpi?: number
-            /**
-             * Factor to scale by.
-             */
-            scale?: number
-            /**
-             * Background colour.
-             */
-            background?: ArrayConstant
-            /**
-             * Password to decrypt with.
-             */
-            password?: string
             /**
              * Force open via memory.
              */
@@ -5035,51 +4377,6 @@ declare module Vips {
         }): Image;
 
         /**
-         * Load svg from source.
-         * @param source Source to load from.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static svgloadSource(source: Source, options?: {
-            /**
-             * Render at this dpi.
-             */
-            dpi?: number
-            /**
-             * Scale output by this factor.
-             */
-            scale?: number
-            /**
-             * Allow svg of any size.
-             */
-            unlimited?: boolean
-            /**
-             * Custom css.
-             */
-            stylesheet?: string
-            /**
-             * Enable scrgb 128-bit output (32-bit per channel).
-             */
-            high_bitdepth?: boolean
-            /**
-             * Force open via memory.
-             */
-            memory?: boolean
-            /**
-             * Required access pattern for this file.
-             */
-            access?: Access | Enum
-            /**
-             * Error level to fail on.
-             */
-            fail_on?: FailOn | Enum
-            /**
-             * Flags for this file (output).
-             */
-            flags?: number | undefined
-        }): Image;
-
-        /**
          * Find the index of the first non-zero pixel in tests.
          * @param tests Table of images to test.
          * @return Output image.
@@ -5113,59 +4410,6 @@ declare module Vips {
              */
             log?: string | undefined
         }): void;
-
-        /**
-         * Make a text image.
-         * @param text Text to render.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        static text(text: string, options?: {
-            /**
-             * Font to render with.
-             */
-            font?: string
-            /**
-             * Maximum image width in pixels.
-             */
-            width?: number
-            /**
-             * Maximum image height in pixels.
-             */
-            height?: number
-            /**
-             * Align on the low, centre or high edge.
-             */
-            align?: Align | Enum
-            /**
-             * Justify lines.
-             */
-            justify?: boolean
-            /**
-             * Dpi to render at.
-             */
-            dpi?: number
-            /**
-             * Line spacing.
-             */
-            spacing?: number
-            /**
-             * Load this font file.
-             */
-            fontfile?: string
-            /**
-             * Enable rgba output.
-             */
-            rgba?: boolean
-            /**
-             * Wrap lines on word or character boundaries.
-             */
-            wrap?: TextWrap | Enum
-            /**
-             * Dpi selected by autofit (output).
-             */
-            autofit_dpi?: number | undefined
-        }): Image;
 
         /**
          * Generate thumbnail from file.
@@ -6494,246 +5738,6 @@ declare module Vips {
         drawSmudge(left: number, top: number, width: number, height: number): void;
 
         /**
-         * Save image to deepzoom file.
-         * @param filename Filename to save to.
-         * @param options Optional options.
-         */
-        dzsave(filename: string, options?: {
-            /**
-             * Image name.
-             */
-            imagename?: string
-            /**
-             * Directory layout.
-             */
-            layout?: ForeignDzLayout | Enum
-            /**
-             * Filename suffix for tiles.
-             */
-            suffix?: string
-            /**
-             * Tile overlap in pixels.
-             */
-            overlap?: number
-            /**
-             * Tile size in pixels.
-             */
-            tile_size?: number
-            /**
-             * Center image in tile.
-             */
-            centre?: boolean
-            /**
-             * Pyramid depth.
-             */
-            depth?: ForeignDzDepth | Enum
-            /**
-             * Rotate image during save.
-             */
-            angle?: Angle | Enum
-            /**
-             * Pyramid container type.
-             */
-            container?: ForeignDzContainer | Enum
-            /**
-             * Zip deflate compression level.
-             */
-            compression?: number
-            /**
-             * Method to shrink regions.
-             */
-            region_shrink?: RegionShrink | Enum
-            /**
-             * Skip tiles which are nearly equal to the background.
-             */
-            skip_blanks?: number
-            /**
-             * Resource id.
-             */
-            id?: string
-            /**
-             * Q factor.
-             */
-            Q?: number
-            /**
-             * Which metadata to retain.
-             */
-            keep?: ForeignKeep | Flag
-            /**
-             * Background value.
-             */
-            background?: ArrayConstant
-            /**
-             * Set page height for multipage save.
-             */
-            page_height?: number
-            /**
-             * Filename of icc profile to embed.
-             */
-            profile?: string
-        }): void;
-
-        /**
-         * Save image to dz buffer.
-         * @param options Optional options.
-         * @return Buffer to save to.
-         */
-        dzsaveBuffer(options?: {
-            /**
-             * Image name.
-             */
-            imagename?: string
-            /**
-             * Directory layout.
-             */
-            layout?: ForeignDzLayout | Enum
-            /**
-             * Filename suffix for tiles.
-             */
-            suffix?: string
-            /**
-             * Tile overlap in pixels.
-             */
-            overlap?: number
-            /**
-             * Tile size in pixels.
-             */
-            tile_size?: number
-            /**
-             * Center image in tile.
-             */
-            centre?: boolean
-            /**
-             * Pyramid depth.
-             */
-            depth?: ForeignDzDepth | Enum
-            /**
-             * Rotate image during save.
-             */
-            angle?: Angle | Enum
-            /**
-             * Pyramid container type.
-             */
-            container?: ForeignDzContainer | Enum
-            /**
-             * Zip deflate compression level.
-             */
-            compression?: number
-            /**
-             * Method to shrink regions.
-             */
-            region_shrink?: RegionShrink | Enum
-            /**
-             * Skip tiles which are nearly equal to the background.
-             */
-            skip_blanks?: number
-            /**
-             * Resource id.
-             */
-            id?: string
-            /**
-             * Q factor.
-             */
-            Q?: number
-            /**
-             * Which metadata to retain.
-             */
-            keep?: ForeignKeep | Flag
-            /**
-             * Background value.
-             */
-            background?: ArrayConstant
-            /**
-             * Set page height for multipage save.
-             */
-            page_height?: number
-            /**
-             * Filename of icc profile to embed.
-             */
-            profile?: string
-        }): Uint8Array;
-
-        /**
-         * Save image to deepzoom target.
-         * @param target Target to save to.
-         * @param options Optional options.
-         */
-        dzsaveTarget(target: Target, options?: {
-            /**
-             * Image name.
-             */
-            imagename?: string
-            /**
-             * Directory layout.
-             */
-            layout?: ForeignDzLayout | Enum
-            /**
-             * Filename suffix for tiles.
-             */
-            suffix?: string
-            /**
-             * Tile overlap in pixels.
-             */
-            overlap?: number
-            /**
-             * Tile size in pixels.
-             */
-            tile_size?: number
-            /**
-             * Center image in tile.
-             */
-            centre?: boolean
-            /**
-             * Pyramid depth.
-             */
-            depth?: ForeignDzDepth | Enum
-            /**
-             * Rotate image during save.
-             */
-            angle?: Angle | Enum
-            /**
-             * Pyramid container type.
-             */
-            container?: ForeignDzContainer | Enum
-            /**
-             * Zip deflate compression level.
-             */
-            compression?: number
-            /**
-             * Method to shrink regions.
-             */
-            region_shrink?: RegionShrink | Enum
-            /**
-             * Skip tiles which are nearly equal to the background.
-             */
-            skip_blanks?: number
-            /**
-             * Resource id.
-             */
-            id?: string
-            /**
-             * Q factor.
-             */
-            Q?: number
-            /**
-             * Which metadata to retain.
-             */
-            keep?: ForeignKeep | Flag
-            /**
-             * Background value.
-             */
-            background?: ArrayConstant
-            /**
-             * Set page height for multipage save.
-             */
-            page_height?: number
-            /**
-             * Filename of icc profile to embed.
-             */
-            profile?: string
-        }): void;
-
-        /**
          * Embed an image in a larger image.
          * @param x Left edge of input in output.
          * @param y Top edge of input in output.
@@ -6802,30 +5806,6 @@ declare module Vips {
         }): Image;
 
         /**
-         * Save image to fits file.
-         * @param filename Filename to save to.
-         * @param options Optional options.
-         */
-        fitssave(filename: string, options?: {
-            /**
-             * Which metadata to retain.
-             */
-            keep?: ForeignKeep | Flag
-            /**
-             * Background value.
-             */
-            background?: ArrayConstant
-            /**
-             * Set page height for multipage save.
-             */
-            page_height?: number
-            /**
-             * Filename of icc profile to embed.
-             */
-            profile?: string
-        }): void;
-
-        /**
          * Flatten alpha out of an image.
          * @param options Optional options.
          * @return Output image.
@@ -6860,12 +5840,6 @@ declare module Vips {
          * @return Output image.
          */
         freqmult(mask: Image | ArrayConstant): Image;
-
-        /**
-         * Forward fft.
-         * @return Output image.
-         */
-        fwfft(): Image;
 
         /**
          * Gamma an image.
@@ -7555,18 +6529,6 @@ declare module Vips {
         }): Image;
 
         /**
-         * Inverse fft.
-         * @param options Optional options.
-         * @return Output image.
-         */
-        invfft(options?: {
-            /**
-             * Output only the real part of the transform.
-             */
-            real?: boolean
-        }): Image;
-
-        /**
          * Join a pair of images.
          * @param in2 Second input image.
          * @param direction Join left-right or up-down.
@@ -7591,138 +6553,6 @@ declare module Vips {
              */
             align?: Align | Enum
         }): Image;
-
-        /**
-         * Save image in jpeg2000 format.
-         * @param filename Filename to save to.
-         * @param options Optional options.
-         */
-        jp2ksave(filename: string, options?: {
-            /**
-             * Tile width in pixels.
-             */
-            tile_width?: number
-            /**
-             * Tile height in pixels.
-             */
-            tile_height?: number
-            /**
-             * Enable lossless compression.
-             */
-            lossless?: boolean
-            /**
-             * Q factor.
-             */
-            Q?: number
-            /**
-             * Select chroma subsample operation mode.
-             */
-            subsample_mode?: ForeignSubsample | Enum
-            /**
-             * Which metadata to retain.
-             */
-            keep?: ForeignKeep | Flag
-            /**
-             * Background value.
-             */
-            background?: ArrayConstant
-            /**
-             * Set page height for multipage save.
-             */
-            page_height?: number
-            /**
-             * Filename of icc profile to embed.
-             */
-            profile?: string
-        }): void;
-
-        /**
-         * Save image in jpeg2000 format.
-         * @param options Optional options.
-         * @return Buffer to save to.
-         */
-        jp2ksaveBuffer(options?: {
-            /**
-             * Tile width in pixels.
-             */
-            tile_width?: number
-            /**
-             * Tile height in pixels.
-             */
-            tile_height?: number
-            /**
-             * Enable lossless compression.
-             */
-            lossless?: boolean
-            /**
-             * Q factor.
-             */
-            Q?: number
-            /**
-             * Select chroma subsample operation mode.
-             */
-            subsample_mode?: ForeignSubsample | Enum
-            /**
-             * Which metadata to retain.
-             */
-            keep?: ForeignKeep | Flag
-            /**
-             * Background value.
-             */
-            background?: ArrayConstant
-            /**
-             * Set page height for multipage save.
-             */
-            page_height?: number
-            /**
-             * Filename of icc profile to embed.
-             */
-            profile?: string
-        }): Uint8Array;
-
-        /**
-         * Save image in jpeg2000 format.
-         * @param target Target to save to.
-         * @param options Optional options.
-         */
-        jp2ksaveTarget(target: Target, options?: {
-            /**
-             * Tile width in pixels.
-             */
-            tile_width?: number
-            /**
-             * Tile height in pixels.
-             */
-            tile_height?: number
-            /**
-             * Enable lossless compression.
-             */
-            lossless?: boolean
-            /**
-             * Q factor.
-             */
-            Q?: number
-            /**
-             * Select chroma subsample operation mode.
-             */
-            subsample_mode?: ForeignSubsample | Enum
-            /**
-             * Which metadata to retain.
-             */
-            keep?: ForeignKeep | Flag
-            /**
-             * Background value.
-             */
-            background?: ArrayConstant
-            /**
-             * Set page height for multipage save.
-             */
-            page_height?: number
-            /**
-             * Filename of icc profile to embed.
-             */
-            profile?: string
-        }): void;
 
         /**
          * Save image to jpeg file.
@@ -8146,94 +6976,6 @@ declare module Vips {
         }): Image;
 
         /**
-         * Save file with imagemagick.
-         * @param filename Filename to save to.
-         * @param options Optional options.
-         */
-        magicksave(filename: string, options?: {
-            /**
-             * Format to save in.
-             */
-            format?: string
-            /**
-             * Quality to use.
-             */
-            quality?: number
-            /**
-             * Apply gif frames optimization.
-             */
-            optimize_gif_frames?: boolean
-            /**
-             * Apply gif transparency optimization.
-             */
-            optimize_gif_transparency?: boolean
-            /**
-             * Number of bits per pixel.
-             */
-            bitdepth?: number
-            /**
-             * Which metadata to retain.
-             */
-            keep?: ForeignKeep | Flag
-            /**
-             * Background value.
-             */
-            background?: ArrayConstant
-            /**
-             * Set page height for multipage save.
-             */
-            page_height?: number
-            /**
-             * Filename of icc profile to embed.
-             */
-            profile?: string
-        }): void;
-
-        /**
-         * Save image to magick buffer.
-         * @param options Optional options.
-         * @return Buffer to save to.
-         */
-        magicksaveBuffer(options?: {
-            /**
-             * Format to save in.
-             */
-            format?: string
-            /**
-             * Quality to use.
-             */
-            quality?: number
-            /**
-             * Apply gif frames optimization.
-             */
-            optimize_gif_frames?: boolean
-            /**
-             * Apply gif transparency optimization.
-             */
-            optimize_gif_transparency?: boolean
-            /**
-             * Number of bits per pixel.
-             */
-            bitdepth?: number
-            /**
-             * Which metadata to retain.
-             */
-            keep?: ForeignKeep | Flag
-            /**
-             * Background value.
-             */
-            background?: ArrayConstant
-            /**
-             * Set page height for multipage save.
-             */
-            page_height?: number
-            /**
-             * Filename of icc profile to embed.
-             */
-            profile?: string
-        }): Uint8Array;
-
-        /**
          * Resample with a map image.
          * @param index Index pixels with this.
          * @param options Optional options.
@@ -8641,30 +7383,6 @@ declare module Vips {
          * @return Output image.
          */
         multiply(right: Image | ArrayConstant): Image;
-
-        /**
-         * Save image to nifti file.
-         * @param filename Filename to save to.
-         * @param options Optional options.
-         */
-        niftisave(filename: string, options?: {
-            /**
-             * Which metadata to retain.
-             */
-            keep?: ForeignKeep | Flag
-            /**
-             * Background value.
-             */
-            background?: ArrayConstant
-            /**
-             * Set page height for multipage save.
-             */
-            page_height?: number
-            /**
-             * Filename of icc profile to embed.
-             */
-            profile?: string
-        }): void;
 
         /**
          * Find threshold for percent of pixels.

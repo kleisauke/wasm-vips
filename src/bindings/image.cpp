@@ -71,13 +71,16 @@ void Image::call(const char *operation_name, const char *option_string,
     if (args != nullptr)
         args->get_operation(operation, kwargs);
 
-    // We're done with args!
-    delete args;
+    // Unref all unassigned outputs.
+    vips_object_unref_outputs(object);
 
     // The operation we have built should now have been reffed by
     // one of its arguments or have finished its work. Either
     // way, we can unref.
     g_object_unref(operation);
+
+    // We're done with args!
+    delete args;
 
     return;
 

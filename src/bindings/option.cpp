@@ -312,6 +312,7 @@ void Option::get_operation(VipsOperation *operation, emscripten::val kwargs) {
             if (type == VIPS_TYPE_IMAGE) {
                 // rebox object
                 VipsImage *image = VIPS_IMAGE(g_value_get_object(value));
+                g_object_ref(image);
                 if (option->type == Type::JS_OUTPUT) {
                     kwargs.set(name, Image(image));
                 } else {

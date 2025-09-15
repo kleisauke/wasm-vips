@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.17.2, compiled with Emscripten v4.0.14.
 
+### Fixed
+
+- Fix a reference leak in `image.fillNearest()`.
+
 ### Removed
 
 - Remove redundant `revalidate` flag from type definitions.

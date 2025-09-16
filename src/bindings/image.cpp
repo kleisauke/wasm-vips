@@ -17,17 +17,19 @@ void Image::call(const char *operation_name, const char *option_string,
         throw Error("no such operation " + std::string(operation_name));
     }
 
-    VipsObject *object = VIPS_OBJECT(operation);
-
 #ifdef VIPS_DEBUG_VERBOSE
     printf("call: starting for %s ...\n", operation_name);
 #endif /*VIPS_DEBUG_VERBOSE*/
 
     // Set str options before kwargs options, so the user can't
     // override things we set deliberately.
-    if (option_string != nullptr &&
-        vips_object_set_from_string(object, option_string) != 0)
-        goto error;
+    if (option_string &&
+        vips_object_set_from_string(VIPS_OBJECT(operation), option_string)) {
+        vips_object_unref_outputs(VIPS_OBJECT(operation));
+        g_object_unref(operation);
+        delete args;
+        throw Error("unable to call " + std::string(operation_name));
+    }
 
     // Set keyword args
     if (!kwargs.isNull()) {
@@ -47,10 +49,14 @@ void Image::call(const char *operation_name, const char *option_string,
             VipsArgumentClass *argument_class;
             VipsArgumentInstance *argument_instance;
 
-            if (vips_object_get_argument(object, key.c_str(), &pspec,
-                                         &argument_class,
-                                         &argument_instance) != 0)
-                goto error;
+            if (vips_object_get_argument(VIPS_OBJECT(operation), key.c_str(),
+                                         &pspec, &argument_class,
+                                         &argument_instance)) {
+                vips_object_unref_outputs(VIPS_OBJECT(operation));
+                g_object_unref(operation);
+                delete args;
+                throw Error("unable to call " + std::string(operation_name));
+            }
 
             args = (argument_class->flags & VIPS_ARGUMENT_OUTPUT) &&
                            !(argument_class->flags & VIPS_ARGUMENT_REQUIRED)
@@ -60,19 +66,23 @@ void Image::call(const char *operation_name, const char *option_string,
     }
 
     // Set args
-    if (args != nullptr)
+    if (args)
         args->set_operation(operation);
 
     // Build from cache.
-    if (vips_cache_operation_buildp(&operation) != 0)
-        goto error;
+    if (vips_cache_operation_buildp(&operation)) {
+        vips_object_unref_outputs(VIPS_OBJECT(operation));
+        g_object_unref(operation);
+        delete args;
+        throw Error("unable to call " + std::string(operation_name));
+    }
 
     // Walk args again, writing output.
-    if (args != nullptr)
+    if (args)
         args->get_operation(operation, kwargs);
 
     // Unref all unassigned outputs.
-    vips_object_unref_outputs(object);
+    vips_object_unref_outputs(VIPS_OBJECT(operation));
 
     // The operation we have built should now have been reffed by
     // one of its arguments or have finished its work. Either
@@ -81,14 +91,6 @@ void Image::call(const char *operation_name, const char *option_string,
 
     // We're done with args!
     delete args;
-
-    return;
-
-error:
-    vips_object_unref_outputs(object);
-    g_object_unref(operation);
-    delete args;
-    throw Error("unable to call " + std::string(operation_name));
 }
 
 void Image::call(const char *operation_name, Option *args,
@@ -289,7 +291,7 @@ Image Image::new_from_image(emscripten::val pixel) const {
 }
 
 Image Image::imageize(emscripten::val v, const Image *match_image) {
-    if (match_image != nullptr)
+    if (match_image)
         return match_image->imageize(v);
 
     return is_image(v) ? v.as<Image>() : Image::new_from_array(v);
@@ -306,7 +308,7 @@ Image Image::imageize(emscripten::val v) const {
 
 std::vector<Image> Image::imageize_vector(emscripten::val v,
                                           const Image *match_image) {
-    if (match_image != nullptr)
+    if (match_image)
         return match_image->imageize_vector(v);
 
     std::vector<Image> rv;
@@ -353,7 +355,7 @@ Image Image::copy_memory() const {
 }
 
 Image Image::write(Image out) const {
-    if (vips_image_write(get_image(), out.get_image()) != 0)
+    if (vips_image_write(get_image(), out.get_image()))
         throw Error("unable to write to image");
 
     return out;
@@ -394,7 +396,7 @@ emscripten::val Image::write_to_buffer(const std::string &suffix,
     operation_name = vips_foreign_find_save_target(filename);
     vips_error_thaw();
 
-    if (operation_name != nullptr) {
+    if (operation_name) {
         Target target = Target::new_to_memory();
 
         Image::call(operation_name, option_string,
@@ -402,8 +404,7 @@ emscripten::val Image::write_to_buffer(const std::string &suffix,
                     js_options);
 
         g_object_get(target.get_target(), "blob", &blob, nullptr);
-    } else if ((operation_name = vips_foreign_find_save_buffer(filename)) !=
-               nullptr) {
+    } else if ((operation_name = vips_foreign_find_save_buffer(filename))) {
         Image::call(operation_name, option_string,
                     (new Option)->set("in", *this)->set("buffer", &blob),
                     js_options);

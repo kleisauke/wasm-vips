@@ -19,7 +19,7 @@ Option::Pair::Pair(std::string name)
 Option::Pair::Pair(std::string name, bool vbool)
     : name(std::move(name)), value(G_VALUE_INIT), type(Type::INPUT) {
     g_value_init(&value, G_TYPE_BOOLEAN);
-    g_value_set_boolean(&value, vbool ? 1 : 0);
+    g_value_set_boolean(&value, vbool);
 }
 
 // input int ... this path is used for enums as well
@@ -275,96 +275,99 @@ static void set_property(VipsObject *object, const std::string &name,
 
 // walk the options and set props on the operation
 void Option::set_operation(VipsOperation *operation) {
-    for (Pair *option : options)
-        if (option->type == Type::INPUT) {
+    for (Pair *option : options) {
+        if (option->type != Type::INPUT)
+            continue;
+
 #ifdef VIPS_DEBUG_VERBOSE
-            printf("set_operation: ");
-            vips_object_print_name(VIPS_OBJECT(operation));
-            char *str_value = g_strdup_value_contents(&(*i)->value);
-            printf(".%s = %s\n", (*i)->name, str_value);
-            g_free(str_value);
+        printf("set_operation: ");
+        vips_object_print_name(VIPS_OBJECT(operation));
+        char *str_value = g_strdup_value_contents(&option->value);
+        printf(".%s = %s\n", option->name.c_str(), str_value);
+        g_free(str_value);
 #endif /*VIPS_DEBUG_VERBOSE*/
 
-            set_property(VIPS_OBJECT(operation), option->name, &option->value);
-        }
+        set_property(VIPS_OBJECT(operation), option->name, &option->value);
+    }
 }
 
 // walk the options and fetch any requested outputs
 void Option::get_operation(VipsOperation *operation, emscripten::val kwargs) {
-    for (Pair *option : options)
-        if (option->type != Type::INPUT) {
-            std::string name = option->name;
+    for (Pair *option : options) {
+        if (option->type == Type::INPUT)
+            continue;
 
-            g_object_get_property(G_OBJECT(operation), name.c_str(),
-                                  &option->value);
+        std::string name = option->name;
+
+        g_object_get_property(G_OBJECT(operation), name.c_str(),
+                              &option->value);
 
 #ifdef VIPS_DEBUG_VERBOSE
-            printf("get_operation: ");
-            vips_object_print_name(VIPS_OBJECT(operation));
-            char *str_value = g_strdup_value_contents(&(*i)->value);
-            printf(".%s = %s\n", name, str_value);
-            g_free(str_value);
+        printf("get_operation: ");
+        vips_object_print_name(VIPS_OBJECT(operation));
+        char *str_value = g_strdup_value_contents(&option->value);
+        printf(".%s = %s\n", name.c_str(), str_value);
+        g_free(str_value);
 #endif /*VIPS_DEBUG_VERBOSE*/
 
-            GValue *value = &option->value;
-            GType type = G_VALUE_TYPE(value);
+        GValue *value = &option->value;
+        GType type = G_VALUE_TYPE(value);
 
-            if (type == VIPS_TYPE_IMAGE) {
-                // rebox object
-                VipsImage *image = VIPS_IMAGE(g_value_get_object(value));
-                g_object_ref(image);
-                if (option->type == Type::JS_OUTPUT) {
-                    kwargs.set(name, Image(image));
-                } else {
-                    *(option->vimage) = Image(image);
-                }
-            } else if (type == G_TYPE_INT) {
-                if (option->type == Type::JS_OUTPUT) {
-                    kwargs.set(name, g_value_get_int(value));
-                } else {
-                    *(option->vint) = g_value_get_int(value);
-                }
-            } else if (type == G_TYPE_BOOLEAN) {
-                if (option->type == Type::JS_OUTPUT) {
-                    kwargs.set(name, g_value_get_boolean(value) == 1);
-                } else {
-                    *(option->vbool) = g_value_get_boolean(value) == 1;
-                }
-            } else if (type == G_TYPE_DOUBLE) {
-                if (option->type == Type::JS_OUTPUT) {
-                    kwargs.set(name, g_value_get_double(value));
-                } else {
-                    *(option->vdouble) = g_value_get_double(value);
-                }
-            } else if (type == VIPS_TYPE_ARRAY_DOUBLE) {
-                int length;
-                double *array = vips_value_get_array_double(value, &length);
+        if (type == VIPS_TYPE_IMAGE) {
+            // rebox object
+            VipsImage *image = VIPS_IMAGE(g_value_get_object(value));
+            g_object_ref(image);
+            if (option->type == Type::JS_OUTPUT) {
+                kwargs.set(name, Image(image));
+            } else {
+                *(option->vimage) = Image(image);
+            }
+        } else if (type == G_TYPE_INT) {
+            if (option->type == Type::JS_OUTPUT) {
+                kwargs.set(name, g_value_get_int(value));
+            } else {
+                *(option->vint) = g_value_get_int(value);
+            }
+        } else if (type == G_TYPE_BOOLEAN) {
+            if (option->type == Type::JS_OUTPUT) {
+                kwargs.set(name, g_value_get_boolean(value));
+            } else {
+                *(option->vbool) = g_value_get_boolean(value);
+            }
+        } else if (type == G_TYPE_DOUBLE) {
+            if (option->type == Type::JS_OUTPUT) {
+                kwargs.set(name, g_value_get_double(value));
+            } else {
+                *(option->vdouble) = g_value_get_double(value);
+            }
+        } else if (type == VIPS_TYPE_ARRAY_DOUBLE) {
+            int length;
+            double *array = vips_value_get_array_double(value, &length);
 
-                if (option->type == Type::JS_OUTPUT) {
-                    kwargs.set(name,
-                               std::vector<double>(array, array + length));
-                } else {
-                    (option->vvector)->resize(length);
-                    for (int j = 0; j < length; j++)
-                        (*(option->vvector))[j] = array[j];
-                }
+            if (option->type == Type::JS_OUTPUT) {
+                kwargs.set(name, std::vector<double>(array, array + length));
+            } else {
+                (option->vvector)->resize(length);
+                for (int j = 0; j < length; j++)
+                    (*(option->vvector))[j] = array[j];
+            }
 
-            } else if (type == VIPS_TYPE_BLOB) {
-                if (option->type == Type::JS_OUTPUT) {
-                    VipsBlob *blob =
-                        static_cast<VipsBlob *>(g_value_dup_boxed(value));
-                    kwargs.set(name, BlobVal.new_(emscripten::typed_memory_view(
-                                         VIPS_AREA(blob)->length,
-                                         static_cast<uint8_t *>(
-                                             VIPS_AREA(blob)->data))));
-                    vips_area_unref(VIPS_AREA(blob));
-                } else {
-                    // our caller gets a reference
-                    *(option->vblob) =
-                        static_cast<VipsBlob *>(g_value_dup_boxed(value));
-                }
+        } else if (type == VIPS_TYPE_BLOB) {
+            if (option->type == Type::JS_OUTPUT) {
+                VipsBlob *blob =
+                    static_cast<VipsBlob *>(g_value_dup_boxed(value));
+                kwargs.set(name,
+                           BlobVal.new_(emscripten::typed_memory_view(
+                               VIPS_AREA(blob)->length,
+                               static_cast<uint8_t *>(VIPS_AREA(blob)->data))));
+                vips_area_unref(VIPS_AREA(blob));
+            } else {
+                // our caller gets a reference
+                *(option->vblob) =
+                    static_cast<VipsBlob *>(g_value_dup_boxed(value));
             }
         }
+    }
 }
 
 }  // namespace vips

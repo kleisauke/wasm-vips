@@ -21,7 +21,7 @@ class Object {
 
 #ifdef VIPS_DEBUG_VERBOSE
         printf("Object constructor, obj = %p\n", new_vobject);
-        if (new_vobject != nullptr) {
+        if (new_vobject) {
             printf("   obj ");
             vips_object_print_name(VIPS_OBJECT(new_vobject));
             printf("\n");
@@ -91,12 +91,12 @@ class Object {
     VipsObject *vobject;
 
     inline void unreference() {
-        if (vobject != nullptr)
+        if (vobject)
             g_object_unref(vobject);
     }
 
     inline void reference() {
-        if (vobject != nullptr)
+        if (vobject)
             g_object_ref(vobject);
     }
 };

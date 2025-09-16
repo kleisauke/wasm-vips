@@ -34,14 +34,14 @@ int main() {
 #ifdef WASMFS
     if (is_node()) {
         if (wasmfs_create_directory("root", 0777,
-                                    wasmfs_create_node_backend(".")) != 0)
+                                    wasmfs_create_node_backend(".")))
             return 1;
-        if (chdir("root") != 0)
+        if (chdir("root"))
             return 1;
     }
 #endif
 
-    if (vips_init("wasm-vips") != 0)
+    if (vips_init("wasm-vips"))
         vips_error_exit("unable to start up libvips");
 
     // By default, libvips' operation cache will (at its maximum):

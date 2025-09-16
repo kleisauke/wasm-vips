@@ -74,7 +74,7 @@ class Image : public Object {
     }
 
     bool has_alpha() const {
-        return vips_image_hasalpha(get_image()) == 1;
+        return vips_image_hasalpha(get_image());
     }
 
     std::string filename() const {
@@ -90,7 +90,7 @@ class Image : public Object {
     }
 
     void set_kill(bool kill) {
-        vips_image_set_kill(get_image(), kill ? 1 : 0);
+        vips_image_set_kill(get_image(), kill);
     }
 
     static void eval_handler(VipsImage *image, VipsProgress *progress,
@@ -142,7 +142,7 @@ class Image : public Object {
     }
 
     void set_delete_on_close(bool delete_on_close) const {
-        vips_image_set_delete_on_close(get_image(), delete_on_close ? 1 : 0);
+        vips_image_set_delete_on_close(get_image(), delete_on_close);
     }
 
     GType get_typeof(const std::string &field) const {
@@ -152,7 +152,7 @@ class Image : public Object {
     int get_int(const std::string &field) const {
         int value;
 
-        if (vips_image_get_int(get_image(), field.c_str(), &value) != 0)
+        if (vips_image_get_int(get_image(), field.c_str(), &value))
             throw Error("unable to get " + field);
 
         return value;
@@ -163,7 +163,7 @@ class Image : public Object {
         int *array;
 
         if (vips_image_get_array_int(get_image(), field.c_str(), &array,
-                                     &length) != 0)
+                                     &length))
             throw Error("unable to get " + field);
 
         return std::vector<int>(array, array + length);
@@ -174,7 +174,7 @@ class Image : public Object {
         double *array;
 
         if (vips_image_get_array_double(get_image(), field.c_str(), &array,
-                                        &length) != 0)
+                                        &length))
             throw Error("unable to get " + field);
 
         return std::vector<double>(array, array + length);
@@ -183,7 +183,7 @@ class Image : public Object {
     double get_double(const std::string &field) const {
         double value;
 
-        if (vips_image_get_double(get_image(), field.c_str(), &value) != 0)
+        if (vips_image_get_double(get_image(), field.c_str(), &value))
             throw Error("unable to get " + field);
 
         return value;
@@ -192,7 +192,7 @@ class Image : public Object {
     std::string get_string(const std::string &field) const {
         const char *value;
 
-        if (vips_image_get_string(get_image(), field.c_str(), &value) != 0)
+        if (vips_image_get_string(get_image(), field.c_str(), &value))
             throw Error("unable to get " + field);
 
         return value;
@@ -202,8 +202,7 @@ class Image : public Object {
         size_t length;
         const void *value;
 
-        if (vips_image_get_blob(get_image(), field.c_str(), &value, &length) !=
-            0)
+        if (vips_image_get_blob(get_image(), field.c_str(), &value, &length))
             throw Error("unable to get " + field);
 
         return emscripten::val(emscripten::typed_memory_view(
@@ -218,7 +217,7 @@ class Image : public Object {
 
         std::vector<std::string> v;
 
-        for (int i = 0; fields[i] != nullptr; ++i) {
+        for (int i = 0; fields[i]; ++i) {
             v.emplace_back(fields[i]);
             g_free(fields[i]);
         }
@@ -228,7 +227,7 @@ class Image : public Object {
     }
 
     bool remove(const std::string &name) const {
-        return vips_image_remove(get_image(), name.c_str()) == 1;
+        return vips_image_remove(get_image(), name.c_str());
     }
 
     static void call(const char *operation_name, const char *option_string,

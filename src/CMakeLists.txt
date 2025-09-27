@@ -99,14 +99,17 @@ set(MAIN_COMPILE_OPTIONS
 
 # Handy for debugging
 # --threadprofiler
-# -sSAFE_HEAP
+# -sSAFE_HEAP=2
 # -sASSERTIONS=2
-# -sCHECK_NULL_WRITES=0
 # -sPTHREADS_DEBUG
 # -sLIBRARY_DEBUG
 # -sEXCEPTION_DEBUG
 # -sSYSCALL_DEBUG
 # -sDYLINK_DEBUG
+
+# AddressSanitizer 4GiB debug build
+# 4GiB - 100MiB (ASan + pthreads extra increment) - 512MiB (shadow size, 1/8th of 4GiB) - 256KiB (stack size)
+# -sINITIAL_MEMORY=3652976640
 
 # note 1: `ALLOW_MEMORY_GROWTH` may run non-wasm code slowly. See: https://github.com/WebAssembly/design/issues/1271.
 # note 2: Browsers appear to limit the maximum initial memory size to 1GB, set `INITIAL_MEMORY` accordingly.
@@ -124,6 +127,7 @@ set(MAIN_LINK_OPTIONS
         --js-library=${CMAKE_CURRENT_SOURCE_DIR}/vips-library.js
         -sAUTOLOAD_DYLIBS=0
         -sABORTING_MALLOC=0
+        # Note: mimalloc is incompatible with AddressSanitizer
         -sMALLOC=mimalloc
         -sMODULARIZE
         -sEXPORT_NAME='Vips'

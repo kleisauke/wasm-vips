@@ -77,8 +77,12 @@ class Image : public Object {
         return vips_image_hasalpha(get_image());
     }
 
-    std::string filename() const {
-        return vips_image_get_filename(get_image());
+    emscripten::val filename() const {
+        const char *filename = vips_image_get_filename(get_image());
+        if (filename == nullptr)
+            return emscripten::val::null();
+
+        return emscripten::val::u8string(filename);
     }
 
     int page_height() const {

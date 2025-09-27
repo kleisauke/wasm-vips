@@ -111,11 +111,11 @@ done
 #export EMCC_DEBUG=1
 #export EMCC_DEBUG_SAVE=1
 
-# Handy for catching bugs
-#COMMON_FLAGS="-Os -gsource-map -fsanitize=address -pthread"
-
 # Specify location where source maps are published (browser specific)
 #export LDFLAGS+=" --source-map-base http://localhost:3000/lib/"
+
+# Handy for catching bugs
+#COMMON_FLAGS="-Os -g2 -fsanitize=address -pthread"
 
 # Rust flags
 export RUSTFLAGS="-Ctarget-feature=+atomics -Zdefault-visibility=hidden -Zlocation-detail=none -Zfmt-debug=none"

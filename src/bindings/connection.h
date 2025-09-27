@@ -25,12 +25,16 @@ class Connection : public Object {
     // an empty (NULL) Connection, eg. "Connection a;"
     Connection() : Object(nullptr) {}
 
-    std::string filename() const {
-        return vips_connection_filename(get_connection());
+    emscripten::val filename() const {
+        const char *filename = vips_connection_filename(get_connection());
+        if (filename == nullptr)
+            return emscripten::val::null();
+
+        return emscripten::val::u8string(filename);
     }
 
     std::string nick() const {
-        return vips_connection_nick(get_connection());
+        return vips_connection_nick(get_connection());  // cannot be NULL
     }
 
     VipsConnection *get_connection() const {

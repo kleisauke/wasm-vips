@@ -180,18 +180,18 @@ export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 VERSION_ZLIB_NG=2.2.5       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.5.2           # https://github.com/libffi/libffi
 VERSION_GLIB=2.86.0         # https://gitlab.gnome.org/GNOME/glib
-VERSION_EXPAT=2.7.2         # https://github.com/libexpat/libexpat
+VERSION_EXPAT=2.7.3         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.25         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.17          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.3.0           # https://github.com/google/highway
 VERSION_BROTLI=1.1.0        # https://github.com/google/brotli
-VERSION_MOZJPEG=4.1.5       # https://github.com/mozilla/mozjpeg
+VERSION_MOZJPEG=0826579     # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.11.1          # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.5.0          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
-VERSION_TIFF=4.7.0          # https://gitlab.com/libtiff/libtiff
+VERSION_TIFF=4.7.1          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.45.1        # https://github.com/linebender/resvg
 VERSION_AOM=3.13.1          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.20.2         # https://github.com/strukturag/libheif
@@ -280,7 +280,7 @@ node --version
   mkdir $DEPS/glib
   curl -Lks https://download.gnome.org/sources/glib/$(without_patch $VERSION_GLIB)/glib-$VERSION_GLIB.tar.xz | tar xJC $DEPS/glib --strip-components=1
   cd $DEPS/glib
-  # TODO(kleisauke): Discuss these patches upstream
+  # https://gitlab.gnome.org/GNOME/glib/-/issues/3596
   curl -Ls https://github.com/GNOME/glib/compare/$VERSION_GLIB...kleisauke:wasm-vips-$VERSION_GLIB.patch | patch -p1
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
     --force-fallback-for=gvdb -Dintrospection=disabled -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dsysprof=disabled -Dnls=disabled \
@@ -344,14 +344,14 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/libjpeg.pc" ] || (
   stage "Compiling jpeg"
   mkdir $DEPS/jpeg
-  curl -Ls https://github.com/mozilla/mozjpeg/archive/refs/tags/v$VERSION_MOZJPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
+  curl -Ls https://github.com/mozilla/mozjpeg/archive/$VERSION_MOZJPEG.tar.gz | tar xzC $DEPS/jpeg --strip-components=1
   cd $DEPS/jpeg
   # TODO(kleisauke): Discuss this patch upstream
   curl -Ls https://github.com/kleisauke/libjpeg-turbo/commit/a60fb467fc7601b008741d42e98268c8a7bcb5b4.patch | patch -p1
   # Compile without SIMD support, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250
   # Disable environment variables usage, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/600
-  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DENABLE_STATIC=TRUE \
-    -DENABLE_SHARED=FALSE -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE -DPNG_SUPPORTED=FALSE \
+  emcmake cmake -B_build -H. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=FALSE \
+    -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE -DPNG_SUPPORTED=FALSE \
     -DCMAKE_C_FLAGS="$CFLAGS -DNO_GETENV -DNO_PUTENV"
   make -C _build install
 )

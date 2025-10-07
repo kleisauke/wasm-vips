@@ -22,8 +22,8 @@ set_property(CACHE ENVIRONMENT PROPERTY STRINGS ${ENVIRONMENT_VALUES})
 set(ENABLE_MODULES true CACHE BOOL "Support dynamic loadable modules.")
 set(ENABLE_WASMFS false CACHE BOOL "Build with WasmFS.")
 
-# Let's enable C++11
-set(CMAKE_CXX_STANDARD 11)
+# Let's enable C++17
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 

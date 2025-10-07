@@ -80,7 +80,7 @@ Or, if you prefer to use ES6 modules:
   const vips = await Vips();
 </script>
 ```
-<sup>This requires support for [`import()` in workers](https://caniuse.com/mdn-javascript_operators_import_worker_support).</sup>
+<sup>This requires support for [ES6 modules in workers](https://caniuse.com/mdn-api_worker_worker_ecmascript_modules).</sup>
 
 ### Node.js
 

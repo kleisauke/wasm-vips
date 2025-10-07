@@ -200,6 +200,8 @@ if ("web" IN_LIST ENVIRONMENT)
                 # Note: we don't apply the CORS workaround since module scripts don't support `importScripts()`.
                 ${WEB_LINK_OPTIONS}
                 -sEXPORT_ES6
+                # new Worker() supports ECMAScript module only starting from Firefox 114
+                -sMIN_FIREFOX_VERSION=114
                 # Deno reuses the web ES6 module
                 -sENVIRONMENT=web,deno,worker
             )

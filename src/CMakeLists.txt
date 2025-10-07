@@ -152,7 +152,7 @@ set_target_properties(${TARGETS}
 
 if ("node" IN_LIST ENVIRONMENT)
     set(NODE_LINK_OPTIONS
-            -sENVIRONMENT=node,worker
+            -sENVIRONMENT=node
             $<$<NOT:$<BOOL:${ENABLE_WASMFS}>>:-sNODERAWFS>
             -sMIN_NODE_VERSION=160400
             )
@@ -193,7 +193,7 @@ if ("web" IN_LIST ENVIRONMENT)
             PUBLIC
                 ${WEB_CORS_WORKAROUND}
                 ${WEB_LINK_OPTIONS}
-                -sENVIRONMENT=web,worker
+                -sENVIRONMENT=web
             )
     target_link_options(${PROJECT_NAME}-web-es6
             PUBLIC
@@ -203,6 +203,6 @@ if ("web" IN_LIST ENVIRONMENT)
                 # new Worker() supports ECMAScript module only starting from Firefox 114
                 -sMIN_FIREFOX_VERSION=114
                 # Deno reuses the web ES6 module
-                -sENVIRONMENT=web,deno,worker
+                -sENVIRONMENT=web,deno
             )
 endif()

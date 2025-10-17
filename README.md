@@ -18,7 +18,8 @@ https://github.com/kleisauke/wasm-vips/issues/1).
 
 An engine that supports the [`WebAssembly.Memory.toResizableBuffer() API`](
 https://www.w3.org/TR/wasm-js-api-2/#dom-memory-toresizablebuffer). This API
-is currently only available in preview/beta builds or behind feature flags.
+is part of [Interop 2025](https://web.dev/blog/interop-2025#webassembly_wasm)
+and is only available in preview/beta builds, or behind feature flags.
 
 For V8-based engines, at least version 13.6 is required, this corresponds to
 Chrome 136, [Node.js 24](https://github.com/nodejs/node/pull/58070) and

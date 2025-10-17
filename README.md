@@ -18,7 +18,7 @@ https://github.com/kleisauke/wasm-vips/issues/1).
 
 An engine that supports the [`WebAssembly.Memory.toResizableBuffer() API`](
 https://www.w3.org/TR/wasm-js-api-2/#dom-memory-toresizablebuffer). This API
-is currently only available in nightly builds or behind feature flags.
+is currently only available in preview/beta builds or behind feature flags.
 
 For V8-based engines, at least version 13.6 is required, this corresponds to
 Chrome 136, [Node.js 24](https://github.com/nodejs/node/pull/58070) and
@@ -26,15 +26,16 @@ Chrome 136, [Node.js 24](https://github.com/nodejs/node/pull/58070) and
 `--experimental-wasm-rab-integration` flag must be enabled.
 
 For Spidermonkey-based engines, the JavaScript engine used in Mozilla Firefox
-and whose version numbers are aligned, at least _nightly_ version 139 is
-required.
+and whose version numbers are aligned, at least version 145 is required
+(currently in beta).
 
-This feature is currently _not_ supported on JavaScriptCore-based engines
-(e.g. Safari, Bun).
+For JavaScriptCore-based engines, the built-in JavaScript engine for WebKit,
+at least version 623.1.7 is required. This corresponds to Safari Technology
+Preview 228.
 
 | ![Chrome](https://github.com/alrra/browser-logos/raw/main/src/chrome/chrome_32x32.png)<br>Chrome | ![Firefox](https://github.com/alrra/browser-logos/raw/main/src/firefox/firefox_32x32.png)<br>Firefox | ![Safari](https://github.com/alrra/browser-logos/raw/main/src/safari/safari_32x32.png)<br>Safari | ![Edge](https://github.com/alrra/browser-logos/raw/main/src/edge/edge_32x32.png)<br>Edge | ![Node.js](https://github.com/alrra/browser-logos/raw/main/src/node.js/node.js_32x32.png)<br>Node.js | ![Deno](https://github.com/alrra/browser-logos/raw/main/src/deno/deno_32x32.png)<br>Deno |
 |:---:|:---:|:---:|:---:|:---:|:---:|
-| :x:<br>[Tracking bug](https://issues.chromium.org/issues/42202693) | :x:<br>[Tracking bug](https://bugzil.la/1925083) | :x: | :x:<br>[Tracking bug](https://issues.chromium.org/issues/42202693) | :x:<br>[Tracking bug](https://issues.chromium.org/issues/42202693) | :x:<br>[Tracking bug](https://issues.chromium.org/issues/42202693) |
+| :x:<br>[Tracking bug](https://issues.chromium.org/issues/42202693) | :hourglass_flowing_sand:<br>[version 145+](https://github.com/mozilla-firefox/firefox/commit/eeffcce0310b31a398d56467e21686c2b14562cc) | :hourglass_flowing_sand:<br>[version 228+](https://github.com/WebKit/WebKit/commit/b3fa045c1cb905093b83e16917f209a9ef0768a4) | :x:<br>[Tracking bug](https://issues.chromium.org/issues/42202693) | :x:<br>[Tracking bug](https://issues.chromium.org/issues/42202693) | :x:<br>[Tracking bug](https://issues.chromium.org/issues/42202693) |
 
 ## Installation
 

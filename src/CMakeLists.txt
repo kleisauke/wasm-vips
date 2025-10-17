@@ -177,7 +177,7 @@ if ("web" IN_LIST ENVIRONMENT)
             )
     set(WEB_MIN_TARGETS
             -sMIN_CHROME_VERSION=136
-            -sMIN_FIREFOX_VERSION=139
+            -sMIN_FIREFOX_VERSION=145
             -sMIN_SAFARI_VERSION=-1
             )
 

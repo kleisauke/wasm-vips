@@ -61,4 +61,4 @@ var LibraryVips = {
 }
 
 addToLibrary(LibraryVips);
-DEFAULT_LIBRARY_FUNCS_TO_INCLUDE.push('$VIPS');
+extraLibraryFuncs.push('$VIPS');

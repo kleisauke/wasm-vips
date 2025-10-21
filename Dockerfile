@@ -22,17 +22,12 @@ RUN \
 
 # Emscripten patches
 RUN \
-  curl -Ls https://github.com/emscripten-core/emscripten/compare/6.0.0...kleisauke:wasm-vips-6.0.0.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/6.0.0...kleisauke:wasm-vips-6.0.0.patch | patch -p1 -d $EMSDK/emscripten/main && \
   emcc --clear-cache && embuilder build sysroot --force
 
 # Rust
 RUN \
-  curl https://sh.rustup.rs -sSf | sh -s -- -y \
-    --no-modify-path \
-    --profile minimal \
-    --target wasm32-unknown-emscripten \
-    --default-toolchain nightly-2026-06-04 \
-    --component rust-src
+  curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --target wasm32-unknown-emscripten --default-toolchain nightly-2026-06-04 --component rust-src
 
 # Cache settings
 ENV \

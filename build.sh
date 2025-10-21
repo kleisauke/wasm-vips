@@ -139,7 +139,7 @@ else
   COMMON_FLAGS+=" -fexceptions"
 fi
 
-export CFLAGS="$COMMON_FLAGS -fvisibility=hidden"
+export CFLAGS="$COMMON_FLAGS -fvisibility=hidden -fwasm-fix-function-bitcasts -mllvm -debug-only=clang-target-wasm"
 if [ "$SIMD" = "true" ]; then
   export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"
   export RUSTFLAGS+=" -Ctarget-feature=+simd128"
@@ -284,6 +284,7 @@ node --version
   cd $DEPS/glib
   # https://gitlab.gnome.org/GNOME/glib/-/issues/3596
   curl -Ls https://github.com/GNOME/glib/compare/$VERSION_GLIB...kleisauke:wasm-vips-$VERSION_GLIB.patch | patch -p1
+  curl -Ls https://github.com/kleisauke/glib/commit/338825c9b3cc5aa3418d4fccfa3772674caa69c2.patch | patch -R -p1
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
     --force-fallback-for=gvdb -Dintrospection=disabled -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dsysprof=disabled -Dnls=disabled \
     -Dglib_debug=disabled -Dtests=false -Dglib_assert=false -Dglib_checks=false
@@ -570,7 +571,7 @@ node --version
 
   # Print the target features section
   echo -n "Used Wasm features: "
-  $EMSDK/upstream/bin/wasm-opt --mvp-features --print-features -o /dev/null $SOURCE_DIR/lib/vips.wasm | \
+  $EMSDK/binaryen/main_64bit_binaryen/bin/wasm-opt --mvp-features --print-features -o /dev/null $SOURCE_DIR/lib/vips.wasm | \
     sed 's/^--enable-//' | paste -sd' '
 
   # Copy dynamic loadable modules

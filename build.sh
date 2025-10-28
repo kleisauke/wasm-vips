@@ -179,12 +179,12 @@ export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 # Dependency version numbers
 VERSION_ZLIB_NG=2.2.5       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.5.2           # https://github.com/libffi/libffi
-VERSION_GLIB=2.86.0         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.86.1         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.7.3         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.25         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.17          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.3.0           # https://github.com/google/highway
-VERSION_BROTLI=1.1.0        # https://github.com/google/brotli
+VERSION_BROTLI=1.2.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=0826579     # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.11.1          # https://github.com/libjxl/libjxl
 VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
@@ -337,7 +337,7 @@ node --version
   cd $DEPS/brotli
   # Exclude internal dictionary, see: https://github.com/emscripten-core/emscripten/issues/9960
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBROTLI_DISABLE_TESTS=TRUE \
-    -DCMAKE_C_FLAGS="$CFLAGS -DBROTLI_EXTERNAL_DICTIONARY_DATA"
+    -DBROTLI_BUILD_TOOLS=FALSE -DCMAKE_C_FLAGS="$CFLAGS -DBROTLI_EXTERNAL_DICTIONARY_DATA"
   make -C _build install
 )
 

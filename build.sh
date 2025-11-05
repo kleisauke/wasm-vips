@@ -120,7 +120,7 @@ if [ "$LTO" = "true" ]; then
   export RUSTFLAGS+=" -Clto -Cembed-bitcode=yes"
 fi
 if [ "$WASM_EH" = "true" ]; then
-  COMMON_FLAGS+=" -fwasm-exceptions"
+  COMMON_FLAGS+=" -fwasm-exceptions -sSUPPORT_LONGJMP=wasm"
   # https://github.com/rust-lang/rust/pull/131830
   export RUSTFLAGS+=" -Zemscripten-wasm-eh"
   if [ "$WASM_EXNREF" = "true" ]; then

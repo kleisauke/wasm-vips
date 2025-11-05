@@ -48,10 +48,6 @@ WASM_EXNREF=false
 # https://github.com/emscripten-core/emscripten/issues/10603
 LTO=false
 
-# Position Independent Code (PIC), forcefully enabled as required by MAIN_MODULE
-# TODO(kleisauke): Remove this once https://github.com/emscripten-core/emscripten/issues/12682 is fixed
-PIC=true
-
 # Dynamic loadable modules, enabled by default
 MODULES=true
 
@@ -85,10 +81,7 @@ while [ $# -gt 0 ]; do
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;
     --disable-svg) SVG=false ;;
-    --disable-modules)
-      PIC=false
-      MODULES=false
-      ;;
+    --disable-modules) MODULES=false ;;
     --disable-bindings) BINDINGS=false ;;
     --enable-libvips-cpp) LIBVIPS_CPP=true ;;
     -e|--environment) ENVIRONMENT="$2"; shift ;;
@@ -98,7 +91,7 @@ while [ $# -gt 0 ]; do
 done
 
 # Configure the ENABLE_* and DISABLE_* expansion helpers
-for arg in SIMD JXL AVIF SVG PIC MODULES BINDINGS; do
+for arg in SIMD JXL AVIF SVG MODULES BINDINGS; do
   if [ "${!arg}" = "true" ]; then
     declare ENABLE_$arg=true
   else
@@ -143,7 +136,6 @@ if [ "$SIMD" = "true" ]; then
   export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"
   export RUSTFLAGS+=" -Ctarget-feature=+simd128"
 fi
-[ "$PIC" = "false" ] || export CFLAGS+=" -fPIC"
 
 export CXXFLAGS="$CFLAGS"
 
@@ -336,8 +328,9 @@ node --version
   curl -Ls https://github.com/google/brotli/archive/refs/tags/v$VERSION_BROTLI.tar.gz | tar xzC $DEPS/brotli --strip-components=1
   cd $DEPS/brotli
   # Exclude internal dictionary, see: https://github.com/emscripten-core/emscripten/issues/9960
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBROTLI_DISABLE_TESTS=TRUE \
-    -DBROTLI_BUILD_TOOLS=FALSE -DCMAKE_C_FLAGS="$CFLAGS -DBROTLI_EXTERNAL_DICTIONARY_DATA"
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS \
+    -DCMAKE_POSITION_INDEPENDENT_CODE=$MODULES -DBROTLI_DISABLE_TESTS=TRUE -DBROTLI_BUILD_TOOLS=FALSE \
+    -DCMAKE_C_FLAGS="$CFLAGS -DBROTLI_EXTERNAL_DICTIONARY_DATA"
   make -C _build install
 )
 
@@ -459,7 +452,7 @@ node --version
   curl -Ls https://storage.googleapis.com/aom-releases/libaom-$VERSION_AOM.tar.gz | tar xzC $DEPS/aom --strip-components=1
   cd $DEPS/aom
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS \
-    -DAOM_TARGET_CPU=generic ${ENABLE_PIC:+-DCONFIG_PIC=1} -DCONFIG_RUNTIME_CPU_DETECT=0 \
+    -DAOM_TARGET_CPU=generic ${ENABLE_MODULES:+-DCONFIG_PIC=1} -DCONFIG_RUNTIME_CPU_DETECT=0 \
     -DENABLE_DOCS=FALSE -DENABLE_TESTS=FALSE -DENABLE_EXAMPLES=FALSE -DENABLE_TOOLS=FALSE \
     -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=0 \
     -DCONFIG_MULTITHREAD=0 # Disable threading support, we rely on libvips' thread pool.
@@ -474,8 +467,8 @@ node --version
   # Note: without CMAKE_FIND_ROOT_PATH find_path for AOM is not working for some reason (see https://github.com/emscripten-core/emscripten/issues/10078).
   # Compile with -D__EMSCRIPTEN_STANDALONE_WASM__ to disable the Embind implementation.
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=$TARGET \
-    -DBUILD_SHARED_LIBS=FALSE -DCMAKE_POSITION_INDEPENDENT_CODE=$PIC -DENABLE_PLUGIN_LOADING=FALSE \
-    -DBUILD_TESTING=FALSE -DWITH_EXAMPLES=FALSE -DWITH_LIBDE265=FALSE -DWITH_X265=FALSE -DWITH_OpenH264_DECODER=FALSE \
+    -DBUILD_SHARED_LIBS=FALSE -DENABLE_PLUGIN_LOADING=FALSE -DBUILD_TESTING=FALSE \
+    -DWITH_EXAMPLES=FALSE -DWITH_LIBDE265=FALSE -DWITH_X265=FALSE -DWITH_OpenH264_DECODER=FALSE \
     -DCMAKE_CXX_FLAGS="$CXXFLAGS -D__EMSCRIPTEN_STANDALONE_WASM__" \
     -DENABLE_MULTITHREADING_SUPPORT=FALSE # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
@@ -517,7 +510,7 @@ node --version
   mkdir $DEPS/wasm-vips
   cd $DEPS/wasm-vips
   emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" $CMAKE_ARGS \
-    -DENVIRONMENT=${ENVIRONMENT//,/;} -DENABLE_MODULES=$MODULES -DENABLE_WASMFS=$WASM_FS
+    -DCMAKE_POSITION_INDEPENDENT_CODE=$MODULES -DENVIRONMENT=${ENVIRONMENT//,/;} -DENABLE_MODULES=$MODULES -DENABLE_WASMFS=$WASM_FS
   make
 )
 

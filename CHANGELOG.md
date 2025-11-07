@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.17.3, compiled with Emscripten v4.0.19.
 
+### Changed
+
+- Reduce main module binary size by ~2%.
+  [emscripten-core/emscripten#25522](https://github.com/emscripten-core/emscripten/pull/25522)
+
 ## [v0.0.15] - 2025-09-17
 
 Uses libvips v8.17.2, compiled with Emscripten v4.0.15.

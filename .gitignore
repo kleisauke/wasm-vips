@@ -60,20 +60,9 @@ node_modules/
 ### CLion ###
 .idea/
 
-### CMake ###
-*.cbp
-bin/*
-lib/*
-cmake-build-debug/
-cmake-build-release/
-CMakeFiles/
-CMakeCache.txt
-Makefile
-cmake_install.cmake
-CTestTestfile.cmake
-
 # Build output
-dist/
+playground/dist/
+lib/*
 
 # User-specific stuff
 package-lock.json

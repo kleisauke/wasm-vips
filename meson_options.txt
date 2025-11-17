@@ -1,0 +1,15 @@
+option('environments',
+       type: 'array',
+       choices: ['web', 'node'],
+       value: ['web', 'node'],
+       description: 'Specify the environment(s) to target')
+
+option('modules',
+       type: 'boolean',
+       value: true,
+       description: 'Support dynamic loadable modules')
+
+option('wasmfs',
+       type: 'boolean',
+       value: false,
+       description: 'Build with WasmFS')

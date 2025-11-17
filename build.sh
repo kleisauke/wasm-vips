@@ -507,11 +507,10 @@ node --version
 
 [ -n "$DISABLE_BINDINGS" ] || (
   stage "Compiling JS bindings"
-  mkdir $DEPS/wasm-vips
-  cd $DEPS/wasm-vips
-  emcmake cmake $SOURCE_DIR -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$SOURCE_DIR/lib" $CMAKE_ARGS \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=$MODULES -DENVIRONMENT=${ENVIRONMENT//,/;} -DENABLE_MODULES=$MODULES -DENABLE_WASMFS=$WASM_FS
-  make
+  cd $SOURCE_DIR
+  meson setup $DEPS/wasm-vips --prefix=$TARGET $MESON_ARGS --buildtype=release --bindir="$SOURCE_DIR/lib" \
+    -Denvironments=$ENVIRONMENT -Dmodules=$MODULES -Dwasmfs=$WASM_FS
+  meson install -C $DEPS/wasm-vips --tag runtime
 )
 
 [ -n "$DISABLE_BINDINGS" ] || [ "$ENVIRONMENT" != "web,node" ] || (
@@ -526,12 +525,12 @@ node --version
   done
 
   # Use a single wasm binary for web and Node.js
-  for file in vips-es6.js vips-node.js vips-node-es6.mjs; do
+  for file in vips-es6.js vips-node.js vips-node-es6.js; do
     sed -i "s/${file%.*}.wasm/vips.wasm/g" $SOURCE_DIR/lib/$file
   done
 
-  # Omit -es6 suffix from Node.js files
-  mv $SOURCE_DIR/lib/vips-node-es6.mjs $SOURCE_DIR/lib/vips-node.mjs
+  # Omit -es6 suffix from Node.js files, prefer .mjs extension instead
+  mv $SOURCE_DIR/lib/vips-node-es6.js $SOURCE_DIR/lib/vips-node.mjs
   sed -i 's/vips-node-es6/vips-node/g' $SOURCE_DIR/lib/vips-node.mjs
 
   # Print the target features section

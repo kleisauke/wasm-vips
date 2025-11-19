@@ -151,13 +151,81 @@ Image Image::new_from_file(const std::string &name,
     return out;
 }
 
-Image Image::new_from_memory(const std::string &data, int width, int height,
+Image Image::new_from_memory(emscripten::val data, int width, int height,
                              int bands, emscripten::val format) {
-    // We must take a copy of the data.
-    VipsImage *image = vips_image_new_from_memory_copy(
-        data.c_str(), data.size(), width, height, bands,
-        static_cast<VipsBandFormat>(
-            Option::to_enum(VIPS_TYPE_BAND_FORMAT, format)));
+    VipsBandFormat band_format = static_cast<VipsBandFormat>(
+        Option::to_enum(VIPS_TYPE_BAND_FORMAT, format));
+
+    VipsImage *image;
+
+    switch (band_format) {
+        case VIPS_FORMAT_UCHAR: {
+            std::vector<u_int8_t> v =
+                emscripten::convertJSArrayToNumberVector<u_int8_t>(data);
+            image = vips_image_new_from_memory_copy(
+                v.data(), sizeof(u_int8_t) * v.size(), width, height, bands,
+                band_format);
+            break;
+        }
+        case VIPS_FORMAT_CHAR: {
+            std::vector<int8_t> v =
+                emscripten::convertJSArrayToNumberVector<int8_t>(data);
+            image = vips_image_new_from_memory_copy(
+                v.data(), sizeof(int8_t) * v.size(), width, height, bands,
+                band_format);
+            break;
+        }
+        case VIPS_FORMAT_USHORT: {
+            std::vector<u_int16_t> v =
+                emscripten::convertJSArrayToNumberVector<u_int16_t>(data);
+            image = vips_image_new_from_memory_copy(
+                v.data(), sizeof(u_int16_t) * v.size(), width, height, bands,
+                band_format);
+            break;
+        }
+        case VIPS_FORMAT_SHORT: {
+            std::vector<int16_t> v =
+                emscripten::convertJSArrayToNumberVector<int16_t>(data);
+            image = vips_image_new_from_memory_copy(
+                v.data(), sizeof(int16_t) * v.size(), width, height, bands,
+                band_format);
+            break;
+        }
+        case VIPS_FORMAT_UINT: {
+            std::vector<u_int32_t> v =
+                emscripten::convertJSArrayToNumberVector<u_int32_t>(data);
+            image = vips_image_new_from_memory_copy(
+                v.data(), sizeof(u_int32_t) * v.size(), width, height, bands,
+                band_format);
+            break;
+        }
+        case VIPS_FORMAT_INT: {
+            std::vector<int32_t> v =
+                emscripten::convertJSArrayToNumberVector<int32_t>(data);
+            image = vips_image_new_from_memory_copy(
+                v.data(), sizeof(int32_t) * v.size(), width, height, bands,
+                band_format);
+            break;
+        }
+        case VIPS_FORMAT_FLOAT: {
+            std::vector<float> v =
+                emscripten::convertJSArrayToNumberVector<float>(data);
+            image = vips_image_new_from_memory_copy(
+                v.data(), sizeof(float) * v.size(), width, height, bands,
+                band_format);
+            break;
+        }
+        case VIPS_FORMAT_DOUBLE: {
+            std::vector<double> v =
+                emscripten::convertJSArrayToNumberVector<double>(data);
+            image = vips_image_new_from_memory_copy(
+                v.data(), sizeof(double) * v.size(), width, height, bands,
+                band_format);
+            break;
+        }
+        default:
+            throw std::invalid_argument("band format unsupported");
+    }
 
     if (image == nullptr)
         throw Error("unable to make image from memory");
@@ -444,8 +512,62 @@ emscripten::val Image::write_to_memory() const {
     if (mem == nullptr)
         throw Error("unable to write to memory");
 
-    emscripten::val result = BlobVal.new_(
-        emscripten::typed_memory_view(size, static_cast<uint8_t *>(mem)));
+    emscripten::val result;
+
+    switch (vips_image_get_format(get_image())) {
+        case VIPS_FORMAT_UCHAR:
+            result = BlobVal.new_(emscripten::typed_memory_view(
+                size / sizeof(u_int8_t), static_cast<uint8_t *>(mem)));
+            break;
+        case VIPS_FORMAT_CHAR:
+            result =
+                emscripten::val::global("Int8Array")
+                    .new_(emscripten::typed_memory_view(
+                        size / sizeof(int8_t), static_cast<int8_t *>(mem)));
+            break;
+        case VIPS_FORMAT_USHORT:
+            result = emscripten::val::global("Uint16Array")
+                         .new_(emscripten::typed_memory_view(
+                             size / sizeof(u_int16_t),
+                             static_cast<u_int16_t *>(mem)));
+            break;
+        case VIPS_FORMAT_SHORT:
+            result =
+                emscripten::val::global("Int16Array")
+                    .new_(emscripten::typed_memory_view(
+                        size / sizeof(int16_t), static_cast<int16_t *>(mem)));
+            break;
+
+        case VIPS_FORMAT_UINT:
+            result = emscripten::val::global("Uint32Array")
+                         .new_(emscripten::typed_memory_view(
+                             size / sizeof(u_int32_t),
+                             static_cast<u_int32_t *>(mem)));
+            break;
+
+        case VIPS_FORMAT_INT:
+            result =
+                emscripten::val::global("Int32Array")
+                    .new_(emscripten::typed_memory_view(
+                        size / sizeof(int32_t), static_cast<int32_t *>(mem)));
+            break;
+        case VIPS_FORMAT_FLOAT:
+            result = emscripten::val::global("Float32Array")
+                         .new_(emscripten::typed_memory_view(
+                             size / sizeof(float), static_cast<float *>(mem)));
+            break;
+
+        case VIPS_FORMAT_DOUBLE:
+            result =
+                emscripten::val::global("Float64Array")
+                    .new_(emscripten::typed_memory_view(
+                        size / sizeof(double), static_cast<double *>(mem)));
+            break;
+        default:
+            g_free(mem);
+            throw std::invalid_argument("band format unsupported");
+    }
+
     g_free(mem);
     return result;
 }

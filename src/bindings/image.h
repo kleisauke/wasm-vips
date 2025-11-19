@@ -6,7 +6,7 @@
 #include "option.h"
 #include "utils.h"
 
-#include <list>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -250,7 +250,7 @@ class Image : public Object {
     new_from_file(const std::string &name,
                   emscripten::val js_options = emscripten::val::null());
 
-    static Image new_from_memory(const std::string &data, int width, int height,
+    static Image new_from_memory(emscripten::val data, int width, int height,
                                  int bands, emscripten::val format);
 
     static Image new_from_memory(uintptr_t data, size_t size, int width,

@@ -33,6 +33,15 @@ declare module Vips {
     type Enum = string | number;
     type Flag = string | number;
     type Blob = string | ArrayBuffer | Uint8Array | Uint8ClampedArray | Int8Array;
+    type Memory =
+        Int8Array
+        | Uint8Array
+        | Int16Array
+        | Uint16Array
+        | Int32Array
+        | Uint32Array
+        | Float32Array
+        | Float64Array;
     type ArrayConstant = SingleOrArray<number>;
     type ArrayImage = SingleOrArray<Image> | Vector<Image>;
     type DeletionFuncs<T extends EmbindClassHandle<T>> = EmbindClassHandle<T>[];
@@ -639,7 +648,7 @@ declare module Vips {
          * @param format Band format.
          * @return A new image.
          */
-        static newFromMemory(data: Blob, width: number, height: number, bands: number, format: BandFormat): Image;
+        static newFromMemory(data: Memory, width: number, height: number, bands: number, format: BandFormat): Image;
 
         /**
          * Wrap an image around a pointer.
@@ -850,7 +859,7 @@ declare module Vips {
          * will return a four byte typed array containing the values 1, 2, 3, 4.
          * @return A typed array of 8-bit unsigned integer values.
          */
-        writeToMemory(): Uint8Array;
+        writeToMemory(): Memory;
 
         //#endregion
 

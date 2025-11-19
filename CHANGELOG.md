@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.17.3, compiled with Emscripten v4.0.20.
 
+### Added
+
+- Support all typed array variants in `Image.newFromMemory()` and
+  `image.writeToMemory()`.
+
 ## [v0.0.16] - 2025-11-07
 
 Uses libvips v8.17.3, compiled with Emscripten v4.0.19.

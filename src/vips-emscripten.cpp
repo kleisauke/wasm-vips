@@ -553,7 +553,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
                         }))
         .class_function(
             "newFromMemory",
-            select_overload<Image(const std::string &, int, int, int,
+            select_overload<Image(emscripten::val, int, int, int,
                                   emscripten::val)>(&Image::new_from_memory))
         .class_function(
             "newFromMemory",

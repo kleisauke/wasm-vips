@@ -56,8 +56,9 @@ describe('iofuncs', () => {
   });
 
   it('writeToMemory', function () {
-    const s = new Uint8Array(200);
-    const im = vips.Image.newFromMemory(s, 20, 10, 1, 'uchar');
+    const s =
+        Float32Array.from({ length: 200 }, (_, i) => i * 0.1);
+    const im = vips.Image.newFromMemory(s, 20, 10, 1, 'float');
     const t = im.writeToMemory();
 
     expect(s).to.deep.equal(t);

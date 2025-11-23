@@ -19,7 +19,7 @@ used under the terms of the following licences:
 | libimagequant | [BSD 2-Clause](https://github.com/lovell/libimagequant/blob/main/COPYRIGHT)                               |
 | libjxl        | BSD 3-Clause                                                                                              |
 | libnsgif      | MIT Licence                                                                                               |
-| libspng       | [BSD 2-Clause, libpng License](https://github.com/randy408/libspng/blob/master/LICENSE)                   |
+| libpng        | [libpng License](https://github.com/pnggroup/libpng/blob/master/LICENSE)                                  |
 | libtiff       | [libtiff License](https://gitlab.com/libtiff/libtiff/blob/master/LICENSE.md) (BSD-like)                   |
 | libvips       | LGPLv3                                                                                                    |
 | libwebp       | New BSD License                                                                                           |

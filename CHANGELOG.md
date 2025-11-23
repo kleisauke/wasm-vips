@@ -13,6 +13,11 @@ Uses libvips v8.17.3, compiled with Emscripten v4.0.20.
 - Support all typed array variants in `Image.newFromMemory()` and
   `image.writeToMemory()`.
 
+### Changed
+
+- Switch from spng to libpng.
+  [#105](https://github.com/kleisauke/wasm-vips/pull/105)
+
 ## [v0.0.16] - 2025-11-07
 
 Uses libvips v8.17.3, compiled with Emscripten v4.0.19.

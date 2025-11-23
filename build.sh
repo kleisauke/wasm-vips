@@ -179,7 +179,7 @@ VERSION_HWY=1.3.0           # https://github.com/google/highway
 VERSION_BROTLI=1.2.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=0826579     # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.11.1          # https://github.com/libjxl/libjxl
-VERSION_SPNG=0.7.4          # https://github.com/randy408/libspng
+VERSION_PNG=1.6.51          # https://github.com/pnggroup/libpng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.5.0          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
@@ -207,8 +207,8 @@ VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
   [ -n "$DISABLE_JXL" ] || printf "  \"jxl\": \"${VERSION_JXL}\",\n"; \
   printf "  \"lcms\": \"${VERSION_LCMS2}\",\n"; \
   printf "  \"mozjpeg\": \"${VERSION_MOZJPEG}\",\n"; \
+  printf "  \"png\": \"${VERSION_PNG}\",\n"; \
   [ -n "$DISABLE_SVG" ] || printf "  \"resvg\": \"${VERSION_RESVG}\",\n"; \
-  printf "  \"spng\": \"${VERSION_SPNG}\",\n"; \
   printf "  \"tiff\": \"${VERSION_TIFF}\",\n"; \
   printf "  \"vips\": \"${VERSION_VIPS}\",\n"; \
   printf "  \"webp\": \"${VERSION_WEBP}\",\n"; \
@@ -371,18 +371,15 @@ node --version
   fi
 )
 
-[ -f "$TARGET/lib/pkgconfig/spng.pc" ] || (
-  stage "Compiling spng"
-  mkdir $DEPS/spng
-  curl -Ls https://github.com/randy408/libspng/archive/refs/tags/v$VERSION_SPNG.tar.gz | tar xzC $DEPS/spng --strip-components=1
-  cd $DEPS/spng
-  # TODO(kleisauke): Discuss this patch upstream
-  curl -Ls https://github.com/randy408/libspng/compare/v$VERSION_SPNG...kleisauke:wasm-vips.patch | patch -p1
-  # Switch the default zlib compression strategy to Z_RLE, as this is especially suitable for PNG images
-  sed -i 's/Z_FILTERED/Z_RLE/g' spng/spng.c
-  meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
-    -Dbuild_examples=false -Dstatic_zlib=true ${DISABLE_SIMD:+-Denable_opt=false} ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse4.1 -DSPNG_SSE=4"}
-  meson install -C _build --tag devel
+[ -f "$TARGET/lib/pkgconfig/libpng.pc" ] || (
+  stage "Compiling png"
+  mkdir $DEPS/png
+  curl -Ls https://github.com/pnggroup/libpng/archive/refs/tags/v$VERSION_PNG.tar.gz | tar xzC $DEPS/png --strip-components=1
+  cd $DEPS/png
+  emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
+    --disable-tests --disable-tools --without-binconfigs --disable-unversioned-libpng-config \
+    ${ENABLE_SIMD:+--enable-intel-sse CPPFLAGS="-msse4.1"}
+  make install dist_man_MANS=
 )
 
 [ -f "$TARGET/lib/pkgconfig/imagequant.pc" ] || (
@@ -497,7 +494,7 @@ node --version
     ${DISABLE_SIMD:+-Dhighway=disabled} ${DISABLE_JXL:+-Djpeg-xl=disabled} -Dmagick=disabled \
     -Dmatio=disabled -Dnifti=disabled -Dopenexr=disabled -Dopenjpeg=disabled \
     -Dopenslide=disabled -Dpangocairo=disabled -Dpdfium=disabled -Dpoppler=disabled \
-    ${DISABLE_SVG:+-Dresvg=disabled} -Drsvg=disabled
+    ${DISABLE_SVG:+-Dresvg=disabled} -Drsvg=disabled -Dspng=disabled
   meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)

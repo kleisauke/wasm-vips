@@ -28,7 +28,7 @@ class Connection : public Object {
     emscripten::val filename() const {
         const char *filename = vips_connection_filename(get_connection());
         if (filename == nullptr)
-            return emscripten::val::null();
+            return emscripten::val::undefined();
 
         return emscripten::val::u8string(filename);
     }

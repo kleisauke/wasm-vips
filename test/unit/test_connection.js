@@ -37,7 +37,7 @@ describe('connection', () => {
       const data = colour.writeToBuffer('.jpg');
       const x = vips.Source.newFromMemory(data);
 
-      expect(x.filename).to.equal(null);
+      expect(x.filename).to.equal(undefined);
     });
   });
 
@@ -54,7 +54,7 @@ describe('connection', () => {
     it('newToMemory', function () {
       const x = vips.Target.newToMemory();
 
-      expect(x.filename).to.equal(null);
+      expect(x.filename).to.equal(undefined);
     });
   });
 

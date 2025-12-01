@@ -305,9 +305,9 @@ declare module Vips {
      */
     abstract class Connection extends EmbindClassHandle<Connection> {
         /**
-         * Get the filename associated with a connection.
+         * The filename associated with a connection, if any.
          */
-        readonly filename: string;
+        readonly filename?: string;
 
         /**
          * Make a human-readable name for a connection suitable for error messages.
@@ -518,9 +518,9 @@ declare module Vips {
         readonly yres: number;
 
         /**
-         * Image filename.
+         * Image filename, if any.
          */
-        readonly filename: string;
+        readonly filename?: string;
 
         /**
          * Page height in pixels.

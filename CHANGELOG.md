@@ -17,6 +17,7 @@ Uses libvips v8.17.3, compiled with Emscripten v4.0.20.
 
 - Switch from spng to libpng.
   [#105](https://github.com/kleisauke/wasm-vips/pull/105)
+- Make `filename` properties optional.
 
 ## [v0.0.16] - 2025-11-07
 

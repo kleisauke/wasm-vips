@@ -80,7 +80,7 @@ class Image : public Object {
     emscripten::val filename() const {
         const char *filename = vips_image_get_filename(get_image());
         if (filename == nullptr)
-            return emscripten::val::null();
+            return emscripten::val::undefined();
 
         return emscripten::val::u8string(filename);
     }

@@ -169,7 +169,7 @@ export PKG_CONFIG="pkg-config --static"
 export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 
 # Dependency version numbers
-VERSION_ZLIB_NG=2.2.5       # https://github.com/zlib-ng/zlib-ng
+VERSION_ZLIB_NG=2.3.2       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.5.2           # https://github.com/libffi/libffi
 VERSION_GLIB=2.87.0         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.7.3         # https://github.com/libexpat/libexpat
@@ -179,7 +179,7 @@ VERSION_HWY=1.3.0           # https://github.com/google/highway
 VERSION_BROTLI=1.2.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=0826579     # https://github.com/mozilla/mozjpeg
 VERSION_JXL=0.11.1          # https://github.com/libjxl/libjxl
-VERSION_PNG=1.6.51          # https://github.com/pnggroup/libpng
+VERSION_PNG=1.6.52          # https://github.com/pnggroup/libpng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.5.0          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
@@ -249,8 +249,7 @@ node --version
   # SSE intrinsics needs to be checked for wasm32
   sed -i 's/BASEARCH_X86_FOUND/& OR BASEARCH_WASM32_FOUND/g' CMakeLists.txt
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=FALSE \
-    ${DISABLE_SIMD:+-DWITH_OPTIM=FALSE} ${ENABLE_SIMD:+-DFORCE_SSE2=TRUE} -DWITH_RUNTIME_CPU_DETECTION=FALSE -DZLIB_COMPAT=TRUE \
-    -DZLIB_ENABLE_TESTS=FALSE -DZLIBNG_ENABLE_TESTS=FALSE -DWITH_GTEST=FALSE
+    -DBUILD_TESTING=FALSE ${DISABLE_SIMD:+-DWITH_OPTIM=FALSE} -DWITH_RUNTIME_CPU_DETECTION=FALSE -DZLIB_COMPAT=TRUE
   make -C _build install
 )
 

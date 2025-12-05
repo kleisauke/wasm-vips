@@ -421,6 +421,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
     register_vector<int>("VectorInt");
     register_vector<double>("VectorDouble");
 
+    // Register optional bindings
+    register_optional<std::string>();
+
     function("concurrency", &vips_concurrency_set);
     function("concurrency", &vips_concurrency_get);
     function("version", &vips_version);

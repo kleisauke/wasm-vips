@@ -3,6 +3,7 @@
 #include "object.h"
 #include "utils.h"
 
+#include <optional>
 #include <string>
 
 #include <emscripten/val.h>
@@ -25,12 +26,12 @@ class Connection : public Object {
     // an empty (NULL) Connection, eg. "Connection a;"
     Connection() : Object(nullptr) {}
 
-    emscripten::val filename() const {
+    std::optional<std::string> filename() const {
         const char *filename = vips_connection_filename(get_connection());
         if (filename == nullptr)
-            return emscripten::val::undefined();
+            return {};
 
-        return emscripten::val::u8string(filename);
+        return filename;
     }
 
     std::string nick() const {

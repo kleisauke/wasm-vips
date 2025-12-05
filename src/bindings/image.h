@@ -6,7 +6,7 @@
 #include "option.h"
 #include "utils.h"
 
-#include <stdexcept>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -77,12 +77,12 @@ class Image : public Object {
         return vips_image_hasalpha(get_image());
     }
 
-    emscripten::val filename() const {
+    std::optional<std::string> filename() const {
         const char *filename = vips_image_get_filename(get_image());
         if (filename == nullptr)
-            return emscripten::val::undefined();
+            return {};
 
-        return emscripten::val::u8string(filename);
+        return filename;
     }
 
     int page_height() const {

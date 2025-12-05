@@ -100,14 +100,6 @@ class Image : public Object {
         return Image(image);
     }
 
-    void set_gainmap(std::optional<Image> gainmap) {
-        if (gainmap.has_value()) {
-            set("gainmap", gainmap.value());
-        } else {
-            vips_image_set_image(get_image(), "gainmap", nullptr);
-        }
-    }
-
     bool is_killed() const {
         return vips_image_iskilled(get_image());
     }

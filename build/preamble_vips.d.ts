@@ -530,14 +530,14 @@ declare module Vips {
         readonly filename?: string;
 
         /**
+         * The associated gainmap image, if any.
+         */
+        readonly gainmap?: Image;
+
+        /**
          * Page height in pixels.
          */
         readonly pageHeight: number;
-
-        /**
-         * The associated gainmap image, if any.
-         */
-        gainmap?: Image;
 
         /**
          * Block evaluation on this image.

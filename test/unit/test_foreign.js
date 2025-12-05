@@ -406,9 +406,6 @@ describe('foreign', () => {
 
     value = im.getBlob('icc-profile-data');
     expect(value.byteLength).to.be.above(100);
-
-    im.gainmap = undefined;
-    expect(im.gainmap).to.equal(undefined);
   });
 
   describe('uhdrsave', () => {

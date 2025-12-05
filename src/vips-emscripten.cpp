@@ -1114,9 +1114,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .property("yres", &Image::yres)
         .property("filename", &Image::filename)
         // Handwritten properties
+        .property("gainmap", &Image::gainmap)
         .property("pageHeight", &Image::page_height)
         // Handwritten setters
-        .property("gainmap", &Image::gainmap, &Image::set_gainmap)
         .property("kill", &Image::is_killed, &Image::set_kill)
         .property("onProgress", &Image::stub_getter,
                   &Image::set_progress_callback)

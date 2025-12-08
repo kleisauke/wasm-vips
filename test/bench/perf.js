@@ -24,6 +24,9 @@ const vips = await Vips({
 // Disable libvips cache to ensure tests are as fair as they can be
 vips.Cache.max(0);
 
+// Reduce concurrency, as a large thread pool can slow down overall processing
+vips.concurrency(4);
+
 const inputJpgBuffer = vips.FS.readFile(inputJpg);
 const defaultJpegSaveOptions = {
   keep: vips.ForeignKeep.none,
@@ -41,7 +44,7 @@ const defaultWebPSaveOptions = {
   Q: 80
 };
 
-const runSuites = suites => {
+const runSuites = (suites) => {
   if (suites.length === 0) {
     // We are done, shutdown libvips
     vips.shutdown();
@@ -51,7 +54,7 @@ const runSuites = suites => {
   const suite = suites[0];
   const remainingSuites = suites.slice(1);
 
-  suite.on('complete', function () {
+  suite.on('complete', () => {
     // Recurse to run remaining suites.
     runSuites(remainingSuites);
   }).run();
@@ -60,7 +63,7 @@ const runSuites = suites => {
 // JPEG
 const jpegSuite = new Benchmark.Suite('jpeg').add('wasm-vips-buffer-file', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
@@ -70,7 +73,7 @@ const jpegSuite = new Benchmark.Suite('jpeg').add('wasm-vips-buffer-file', {
   }
 }).add('wasm-vips-buffer-buffer', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
@@ -80,7 +83,7 @@ const jpegSuite = new Benchmark.Suite('jpeg').add('wasm-vips-buffer-file', {
   }
 }).add('wasm-vips-file-file', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnail(inputJpg, width, {
       height
     });
@@ -90,7 +93,7 @@ const jpegSuite = new Benchmark.Suite('jpeg').add('wasm-vips-buffer-file', {
   }
 }).add('wasm-vips-stream-stream', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const source = vips.Source.newFromFile(inputJpg);
     const target = vips.Target.newToFile(jpegOut);
     const im = vips.Image.thumbnailSource(source, width, {
@@ -104,7 +107,7 @@ const jpegSuite = new Benchmark.Suite('jpeg').add('wasm-vips-buffer-file', {
   }
 }).add('wasm-vips-file-buffer', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnail(inputJpg, width, {
       height
     });
@@ -112,14 +115,14 @@ const jpegSuite = new Benchmark.Suite('jpeg').add('wasm-vips-buffer-file', {
     im.delete();
     deferred.resolve();
   }
-}).on('cycle', function (event) {
-  console.log('jpeg ' + String(event.target));
+}).on('cycle', (event) => {
+  console.log(`jpeg ${String(event.target)}`);
 });
 
 // Effect of applying operations
 const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen-mild', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
@@ -138,7 +141,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
   }
 }).add('wasm-vips-sharpen-radius', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
@@ -151,7 +154,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
   }
 }).add('wasm-vips-blur-mild', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
@@ -170,7 +173,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
   }
 }).add('wasm-vips-blur-radius', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
@@ -183,7 +186,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
   }
 }).add('wasm-vips-gamma', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
@@ -195,7 +198,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
   }
 }).add('wasm-vips-greyscale', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
@@ -207,7 +210,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
   }
 }).add('wasm-vips-greyscale-gamma', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
@@ -221,7 +224,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
   }
 }).add('wasm-vips-progressive', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
@@ -231,7 +234,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
   }
 }).add('wasm-vips-without-chroma-subsampling', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
@@ -244,7 +247,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
   }
 }).add('wasm-vips-rotate', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
@@ -259,7 +262,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
   }
 }).add('wasm-vips-crop-entropy', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height: 588,
       crop: vips.Interesting.entropy
@@ -270,7 +273,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
   }
 }).add('wasm-vips-crop-attention', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height: 588,
       crop: vips.Interesting.attention
@@ -279,14 +282,14 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
     im.delete();
     deferred.resolve();
   }
-}).on('cycle', function (event) {
-  console.log('operations ' + String(event.target));
+}).on('cycle', (event) => {
+  console.log(`operations ${String(event.target)}`);
 });
 
 // PNG
 const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
       height
     });
@@ -296,7 +299,7 @@ const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
   }
 }).add('wasm-vips-buffer-buffer', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
       height
     });
@@ -306,7 +309,7 @@ const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
   }
 }).add('wasm-vips-file-file', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnail(inputPng, width, {
       height
     });
@@ -316,7 +319,7 @@ const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
   }
 }).add('wasm-vips-file-buffer', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnail(inputPng, width, {
       height
     });
@@ -326,7 +329,7 @@ const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
   }
 }).add('wasm-vips-progressive', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
       height
     });
@@ -336,7 +339,7 @@ const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
   }
 }).add('wasm-vips-adaptive-filtering', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
       height
     });
@@ -346,7 +349,7 @@ const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
   }
 }).add('wasm-vips-zlib-compression-9', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
       height
     });
@@ -354,14 +357,14 @@ const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
     im.delete();
     deferred.resolve();
   }
-}).on('cycle', function (event) {
-  console.log('png ' + String(event.target));
+}).on('cycle', (event) => {
+  console.log(`png ${String(event.target)}`);
 });
 
 // WebP
 const webpSuite = new Benchmark.Suite('webp').add('wasm-vips-buffer-file', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputWebPBuffer, width, {
       height
     });
@@ -371,7 +374,7 @@ const webpSuite = new Benchmark.Suite('webp').add('wasm-vips-buffer-file', {
   }
 }).add('wasm-vips-buffer-buffer', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnailBuffer(inputWebPBuffer, width, {
       height
     });
@@ -381,7 +384,7 @@ const webpSuite = new Benchmark.Suite('webp').add('wasm-vips-buffer-file', {
   }
 }).add('wasm-vips-file-file', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnail(inputWebP, width, {
       height
     });
@@ -391,7 +394,7 @@ const webpSuite = new Benchmark.Suite('webp').add('wasm-vips-buffer-file', {
   }
 }).add('wasm-vips-file-buffer', {
   defer: true,
-  fn: function (deferred) {
+  fn: (deferred) => {
     const im = vips.Image.thumbnail(inputWebP, width, {
       height
     });
@@ -399,8 +402,8 @@ const webpSuite = new Benchmark.Suite('webp').add('wasm-vips-buffer-file', {
     im.delete();
     deferred.resolve();
   }
-}).on('cycle', function (event) {
-  console.log('webp ' + String(event.target));
+}).on('cycle', (event) => {
+  console.log(`webp ${String(event.target)}`);
 });
 
 runSuites([jpegSuite, operationsSuite, pngSuite, webpSuite]);

@@ -38,7 +38,7 @@
     noImageDecoding: true,
     preRun: (module) => {
       for (const file of benchFiles) {
-        module.FS.createPreloadedFile('/', file.split('/').pop(), 'test/bench/images/' + file, true, false);
+        module.FS.createPreloadedFile('/', file.split('/').pop(), `test/bench/images/${file}`, true, false);
       }
     }
   });
@@ -63,7 +63,7 @@
     Q: 80
   };
 
-  const runSuites = suites => {
+  const runSuites = (suites) => {
     if (suites.length === 0) {
       return;
     }
@@ -71,7 +71,7 @@
     const suite = suites[0];
     const remainingSuites = suites.slice(1);
 
-    suite.on('complete', function () {
+    suite.on('complete', () => {
       // Recurse to run remaining suites.
       runSuites(remainingSuites);
     }).run();
@@ -80,7 +80,7 @@
   // JPEG
   const jpegSuite = new Benchmark.Suite('jpeg').add('wasm-vips-buffer-file', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
         height
       });
@@ -90,7 +90,7 @@
     }
   }).add('wasm-vips-buffer-buffer', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
         height
       });
@@ -100,7 +100,7 @@
     }
   }).add('wasm-vips-file-file', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnail(jpegFile, width, {
         height
       });
@@ -110,7 +110,7 @@
     }
   }).add('wasm-vips-stream-stream', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const source = vips.Source.newFromFile(jpegFile);
       const target = vips.Target.newToFile('output.jpg');
       const im = vips.Image.thumbnailSource(source, width, {
@@ -124,7 +124,7 @@
     }
   }).add('wasm-vips-file-buffer', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnail(jpegFile, width, {
         height
       });
@@ -132,14 +132,14 @@
       im.delete();
       deferred.resolve();
     }
-  }).on('cycle', function (event) {
-    console.log('jpeg ' + String(event.target));
+  }).on('cycle', (event) => {
+    console.log(`jpeg ${String(event.target)}`);
   });
 
   // Effect of applying operations
   const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen-mild', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
         height
       });
@@ -158,7 +158,7 @@
     }
   }).add('wasm-vips-sharpen-radius', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
         height
       });
@@ -171,7 +171,7 @@
     }
   }).add('wasm-vips-blur-mild', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
         height
       });
@@ -190,7 +190,7 @@
     }
   }).add('wasm-vips-blur-radius', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
         height
       });
@@ -203,7 +203,7 @@
     }
   }).add('wasm-vips-gamma', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
         height
       });
@@ -215,7 +215,7 @@
     }
   }).add('wasm-vips-greyscale', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
         height
       });
@@ -227,7 +227,7 @@
     }
   }).add('wasm-vips-greyscale-gamma', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
         height
       });
@@ -241,7 +241,7 @@
     }
   }).add('wasm-vips-progressive', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
         height
       });
@@ -251,7 +251,7 @@
     }
   }).add('wasm-vips-without-chroma-subsampling', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
         height
       });
@@ -264,7 +264,7 @@
     }
   }).add('wasm-vips-rotate', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
         height
       });
@@ -279,7 +279,7 @@
     }
   }).add('wasm-vips-crop-entropy', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
         height: 588,
         crop: vips.Interesting.entropy
@@ -290,7 +290,7 @@
     }
   }).add('wasm-vips-crop-attention', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
         height: 588,
         crop: vips.Interesting.attention
@@ -299,14 +299,14 @@
       im.delete();
       deferred.resolve();
     }
-  }).on('cycle', function (event) {
-    console.log('operations ' + String(event.target));
+  }).on('cycle', (event) => {
+    console.log(`operations ${String(event.target)}`);
   });
 
   // PNG
   const pngSuite = new Benchmark.Suite('png').add('wasm-vips-buffer-file', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
         height
       });
@@ -316,7 +316,7 @@
     }
   }).add('wasm-vips-buffer-buffer', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
         height
       });
@@ -326,7 +326,7 @@
     }
   }).add('wasm-vips-file-file', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnail(pngFile, width, {
         height
       });
@@ -336,7 +336,7 @@
     }
   }).add('wasm-vips-file-buffer', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnail(pngFile, width, {
         height
       });
@@ -346,7 +346,7 @@
     }
   }).add('wasm-vips-progressive', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
         height
       });
@@ -356,7 +356,7 @@
     }
   }).add('wasm-vips-adaptive-filtering', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
         height
       });
@@ -366,7 +366,7 @@
     }
   }).add('wasm-vips-zlib-compression-9', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputPngBuffer, width, {
         height
       });
@@ -374,14 +374,14 @@
       im.delete();
       deferred.resolve();
     }
-  }).on('cycle', function (event) {
-    console.log('png ' + String(event.target));
+  }).on('cycle', (event) => {
+    console.log(`png ${String(event.target)}`);
   });
 
   // WebP
   const webpSuite = new Benchmark.Suite('webp').add('wasm-vips-buffer-file', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputWebPBuffer, width, {
         height
       });
@@ -391,7 +391,7 @@
     }
   }).add('wasm-vips-buffer-buffer', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnailBuffer(inputWebPBuffer, width, {
         height
       });
@@ -401,7 +401,7 @@
     }
   }).add('wasm-vips-file-file', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnail(webpFile, width, {
         height
       });
@@ -411,7 +411,7 @@
     }
   }).add('wasm-vips-file-buffer', {
     defer: true,
-    fn: function (deferred) {
+    fn: (deferred) => {
       const im = vips.Image.thumbnail(webpFile, width, {
         height
       });
@@ -419,8 +419,8 @@
       im.delete();
       deferred.resolve();
     }
-  }).on('cycle', function (event) {
-    console.log('webp ' + String(event.target));
+  }).on('cycle', (event) => {
+    console.log(`webp ${String(event.target)}`);
   });
 
   runSuites([jpegSuite, operationsSuite, pngSuite, webpSuite]);

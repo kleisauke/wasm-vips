@@ -8,8 +8,8 @@ https://sharp.pixelplumbing.com/performance
 ## Environment
 
 * AMD Ryzen 9 7900, 1 CPU, 24 logical and 12 physical cores
-* Fedora 40
-* Node v22.5.1
+* Fedora 43
+* Node v25.2.1
 
 ## Images
 
@@ -29,39 +29,35 @@ Alpha channel images will be pre-multiplied before resize and un-premultiplied
 afterwards.
 
 During saving a "quality" setting of 80 is used for JPEG and WebP images.
-PNG images are compressed with no filtering and run through zlib with a
-"default" compression level of 6.
+PNG images are compressed with a "default" zlib compression level of 6 and
+without adaptive filtering.
 
 ### Results
 
-| Module           | Format | Input  | Output | Ops/sec | Speed-up |
-|:-----------------|:-------|:-------|:-------|--------:|---------:|
-| jimp<sup>1</sup> | JPEG   | buffer | buffer |    1.72 |      1.0 |
-| squoosh-cli      | JPEG   | file   | file   |    2.41 |      1.4 |
-| squoosh-lib      | JPEG   | buffer | buffer |    3.31 |      1.9 |
-| gm               | JPEG   | buffer | buffer |   15.60 |      9.1 |
-| gm               | JPEG   | file   | file   |   16.13 |      9.4 |
-| imagemagick      | JPEG   | file   | file   |   16.83 |      9.8 |
-| wasm-vips        | JPEG   | buffer | buffer |   20.12 |     11.7 |
-| sharp            | JPEG   | stream | stream |   79.27 |     46.1 |
-| sharp            | JPEG   | file   | file   |   81.25 |     47.2 |
-| sharp            | JPEG   | buffer | buffer |   83.31 |     48.4 |
-|                  |        |        |        |         |          |
-| squoosh-cli      | PNG    | file   | file   |    0.75 |      1.0 |
-| squoosh-lib      | PNG    | buffer | buffer |    0.99 |      1.3 |
-| jimp<sup>2</sup> | PNG    | buffer | buffer |    6.43 |      8.6 |
-| gm               | PNG    | file   | file   |   11.61 |     15.5 |
-| imagemagick      | PNG    | file   | file   |   12.36 |     16.5 |
-| wasm-vips        | PNG    | buffer | buffer |   14.52 |     19.4 |
-| sharp            | PNG    | file   | file   |   33.68 |     44.9 |
-| sharp            | PNG    | buffer | buffer |   34.27 |     45.7 |
-|                  |        |        |        |         |          |
-| wasm-vips        | WebP   | buffer | buffer |   19.42 |      1.0 |
-| sharp            | WebP   | file   | file   |   19.54 |      1.0 |
-| sharp            | WebP   | buffer | buffer |   19.66 |      1.0 |
+| Module      | Format | Input  | Output | Ops/sec | Speed-up |
+|:------------|:-------|:-------|:-------|--------:|---------:|
+| jimp[^1]    | JPEG   | buffer | buffer |    3.64 |      1.0 |
+| imagemagick | JPEG   | file   | file   |   15.12 |      4.2 |
+| gm          | JPEG   | buffer | buffer |   17.81 |      4.9 |
+| gm          | JPEG   | file   | file   |   17.86 |      4.9 |
+| wasm-vips   | JPEG   | buffer | buffer |   21.30 |      5.9 |
+| sharp       | JPEG   | stream | stream |   80.18 |     22.0 |
+| sharp       | JPEG   | file   | file   |   81.71 |     22.4 |
+| sharp       | JPEG   | buffer | buffer |   84.10 |     23.1 |
+|             |        |        |        |         |          |
+| imagemagick | PNG    | file   | file   |    9.06 |      1.0 |
+| gm          | PNG    | file   | file   |   12.12 |      1.3 |
+| jimp[^2]    | PNG    | buffer | buffer |   16.15 |      1.8 |
+| wasm-vips   | PNG    | buffer | buffer |   16.31 |      1.8 |
+| sharp       | PNG    | file   | file   |   31.39 |      3.5 |
+| sharp       | PNG    | buffer | buffer |   31.76 |      3.5 |
+|             |        |        |        |         |          |
+| wasm-vips   | WebP   | buffer | buffer |   21.26 |      1.0 |
+| sharp       | WebP   | file   | file   |   21.30 |      1.0 |
+| sharp       | WebP   | buffer | buffer |   21.63 |      1.0 |
 
-<sup>1</sup>: jimp does not support Lanczos 3, bicubic resampling used instead.  
-<sup>2</sup>: jimp does not support premultiply/unpremultiply.
+[^1]: jimp does not support Lanczos 3, bicubic resampling used instead.
+[^2]: jimp does not support premultiply/unpremultiply.
 
 ## Running the wasm-vips benchmark
 

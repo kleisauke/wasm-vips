@@ -17,7 +17,7 @@ jobs:
     outputs:
       cache-key: ${{ steps.gen-cache-key.outputs.key }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - id: gen-cache-key
         run: |
           if [ "${{ inputs.force-rebuild }}" = true ]; then
@@ -52,7 +52,7 @@ jobs:
           - os: windows-2022
             nodejs_version: 16
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.nodejs_version }}
@@ -80,7 +80,7 @@ jobs:
       id-token: write # for npm publish
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v5
         with:
           node-version: 24

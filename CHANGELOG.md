@@ -24,6 +24,8 @@ Uses libvips v8.18.0-rc2, compiled with Emscripten v4.0.21.
   [#105](https://github.com/kleisauke/wasm-vips/pull/105)
 - Make `filename` properties optional.
 - Update methods/enums for libvips 8.18.
+- Enable WebAssembly Exception Handling feature by default.
+- Drop support for Node.js 16, now requires Node.js >= 17.
 
 ## [v0.0.16] - 2025-11-07
 

@@ -125,14 +125,14 @@ if [ "$LTO" = "true" ]; then
 fi
 if [ "$WASM_EH" = "true" ]; then
   COMMON_FLAGS+=" -fwasm-exceptions -sSUPPORT_LONGJMP=wasm"
-  # https://github.com/rust-lang/rust/pull/131830
-  export RUSTFLAGS+=" -Zemscripten-wasm-eh"
   if [ "$WASM_EXNREF" = "true" ]; then
     COMMON_FLAGS+=" -sWASM_LEGACY_EXCEPTIONS=0"
     export RUSTFLAGS+=" -Cllvm-args=-wasm-use-legacy-eh=0"
   fi
 else
   COMMON_FLAGS+=" -fexceptions"
+  # https://github.com/rust-lang/compiler-team/issues/920
+  export RUSTFLAGS+=" -Zemscripten-wasm-eh=false"
 fi
 
 export CFLAGS="$COMMON_FLAGS -fvisibility=hidden"

@@ -346,6 +346,8 @@ node --version
   cd $DEPS/jpeg
   # TODO(kleisauke): Discuss this patch upstream
   curl -Ls https://github.com/kleisauke/libjpeg-turbo/commit/a60fb467fc7601b008741d42e98268c8a7bcb5b4.patch | patch -p1
+  # Use libjpeg-turbo behaviour by default
+  sed -i 's/JCP_MAX_COMPRESSION/JCP_FASTEST/' jcapimin.c
   # Compile without SIMD support, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250
   # Disable environment variables usage, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/600
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=FALSE \

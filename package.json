@@ -19,6 +19,7 @@
         "import": "./lib/vips-es6.js",
         "require": "./lib/vips.js"
       },
+      "deno": "./lib/vips-es6.js",
       "node": {
         "import": "./lib/vips-node.mjs",
         "require": "./lib/vips-node.js"

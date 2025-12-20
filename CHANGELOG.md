@@ -17,6 +17,8 @@ Uses libvips v8.18.0, compiled with Emscripten v4.0.21.
   Ultra HDR images.
 - Add `image.setImage()` method to attach an image as metadata.
 - Add `vips.Utils.typeFromName()` helper.
+- Add Deno export condition in `package.json`.
+  [#109](https://github.com/kleisauke/wasm-vips/issues/109)
 
 ### Changed
 

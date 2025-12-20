@@ -110,11 +110,10 @@ Vips().then(vips => {
 
 ### Deno
 
-On Deno, the web ES6 module can be reused and imported from a CDN such as
-[jsDelivr](https://www.jsdelivr.com/):
+On Deno, wasm-vips can be imported by using the `npm:` specifier:
 
 ```js
-import Vips from 'https://cdn.jsdelivr.net/npm/wasm-vips/lib/vips-es6.js';
+import Vips from 'npm:wasm-vips';
 
 const vips = await Vips();
 ```

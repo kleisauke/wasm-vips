@@ -1,8 +1,7 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import 'monaco-editor/esm/vs/basic-languages/typescript/typescript';
-import 'monaco-editor/esm/vs/basic-languages/javascript/javascript';
-import 'monaco-editor/esm/vs/basic-languages/html/html';
-import 'monaco-editor/esm/vs/basic-languages/css/css';
+import { javascriptDefaults } from 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
+import 'monaco-editor/esm/vs/language/html/monaco.contribution.js';
+import 'monaco-editor/esm/vs/language/css/monaco.contribution.js';
 import { deflateSync, inflateSync, strToU8, strFromU8 } from 'fflate';
 
 import { dynamicModules, playSamples } from './samples';
@@ -444,7 +443,7 @@ function xhr (url) {
 
 window.onload = function () {
   xhr('../lib/vips.d.ts').then(function (response) {
-    monaco.languages.typescript.javascriptDefaults.addExtraLib(
+    javascriptDefaults.addExtraLib(
       response.responseText.replace(
         'export = Vips',
         'declare global { var vips: typeof Vips; }\nexport default global'),

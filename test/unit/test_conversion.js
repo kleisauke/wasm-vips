@@ -283,7 +283,7 @@ describe('conversion', () => {
   it('slice', function () {
     const test = colour;
     const split = test.bandsplit();
-    const bands = new Array(split.size()).fill(0).map((_, i) => split.get(i).avg());
+    const bands = Array.from(split).map((im) => im.avg());
     const average = arr => arr.reduce((p, c) => p + c, 0) / arr.length;
 
     let x = test.extractBand(0).avg();

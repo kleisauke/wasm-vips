@@ -178,7 +178,7 @@ declare module Vips {
     /**
      * A sequence container representing an array that can change in size.
      */
-    interface Vector<T> extends EmbindClassHandle<Vector<T>> {
+    interface Vector<T> extends EmbindClassHandle<Vector<T>>, Iterable<T> {
         /**
          * Adds a new element at the end of the vector, after its current last element.
          * @param val The value to be appended at the end of the container.

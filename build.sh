@@ -175,10 +175,10 @@ export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 # Dependency version numbers
 VERSION_ZLIB_NG=2.3.2       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.5.2           # https://github.com/libffi/libffi
-VERSION_GLIB=2.87.0         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.87.1         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.7.3         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.25         # https://github.com/libexif/libexif
-VERSION_LCMS2=2.17          # https://github.com/mm2/Little-CMS
+VERSION_LCMS2=2.18          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.3.0           # https://github.com/google/highway
 VERSION_BROTLI=1.2.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=0826579     # https://github.com/mozilla/mozjpeg
@@ -191,7 +191,7 @@ VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.1          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.45.1        # https://github.com/linebender/resvg
 VERSION_AOM=3.13.1          # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.20.2         # https://github.com/strukturag/libheif
+VERSION_HEIF=1.21.1         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.18.0         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
@@ -361,6 +361,8 @@ node --version
   mkdir $DEPS/uhdr
   curl -Ls https://github.com/google/libultrahdr/archive/refs/tags/v$VERSION_UHDR.tar.gz | tar xzC $DEPS/uhdr --strip-components=1
   cd $DEPS/uhdr
+  # [PATCH] improper use of clamp macro
+  curl -Ls https://github.com/google/libultrahdr/commit/5ed39d67cd31d254e84ebf76b03d4b7bcc12e2f7.patch | patch -p1
   # Ensure install targets are enabled when cross-compiling
   sed -i 's/CMAKE_CROSSCOMPILING AND UHDR_ENABLE_INSTALL/FALSE/' CMakeLists.txt
   # Disable threading support, we rely on libvips' thread pool
@@ -549,7 +551,7 @@ node --version
 
   # Omit -es6 suffix from Node.js files, prefer .mjs extension instead
   mv $SOURCE_DIR/lib/vips-node-es6.js $SOURCE_DIR/lib/vips-node.mjs
-  sed -i 's/vips-node-es6/vips-node/g' $SOURCE_DIR/lib/vips-node.mjs
+  sed -i 's/vips-node-es6.js/vips-node.mjs/g' $SOURCE_DIR/lib/vips-node.mjs
 
   # Print the target features section
   echo -n "Used Wasm features: "

@@ -39,11 +39,10 @@ The following libraries are optional and can be disabled during build:
 |---------------|-------------------|-----------------------------------------------|
 | aom + libheif | `--disable-avif`  | Disables AVIF/HEIF image support              |
 | libultrahdr   | `--disable-uhdr`  | Disables UltraHDR image support               |
-| libexif       | `--disable-exif`  | Disables EXIF metadata support                |
 | libjxl        | `--disable-jxl`   | Disables JPEG XL image support                |
 | resvg         | `--disable-svg`   | Disables SVG image support                    |
 
-For a GPLv2-compatible build, use: `./build.sh --disable-avif --disable-uhdr --disable-exif`
+For a GPLv2-compatible build, use: `./build.sh --disable-avif --disable-uhdr`
 
 Please report any errors or omissions via
 https://github.com/kleisauke/wasm-vips/issues/new

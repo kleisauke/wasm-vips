@@ -63,9 +63,6 @@ AVIF=true
 # Partial support for SVG load via resvg, enabled by default
 SVG=true
 
-# Support for EXIF metadata via libexif, enabled by default
-EXIF=true
-
 # Build libvips C++ API, disabled by default
 LIBVIPS_CPP=false
 
@@ -88,7 +85,6 @@ while [ $# -gt 0 ]; do
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;
     --disable-svg) SVG=false ;;
-    --disable-exif) EXIF=false ;;
     --disable-modules) MODULES=false ;;
     --disable-bindings) BINDINGS=false ;;
     --enable-libvips-cpp) LIBVIPS_CPP=true ;;
@@ -99,7 +95,7 @@ while [ $# -gt 0 ]; do
 done
 
 # Configure the ENABLE_* and DISABLE_* expansion helpers
-for arg in SIMD UHDR JXL AVIF SVG EXIF MODULES BINDINGS; do
+for arg in SIMD UHDR JXL AVIF SVG MODULES BINDINGS; do
   if [ "${!arg}" = "true" ]; then
     declare ENABLE_$arg=true
   else
@@ -206,7 +202,7 @@ VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
   [ -n "$DISABLE_JXL" ] || printf "  \"brotli\": \"${VERSION_BROTLI}\",\n"; \
   printf "  \"cgif\": \"${VERSION_CGIF}\",\n"; \
   printf "  \"emscripten\": \"${VERSION_EMSCRIPTEN}\",\n"; \
-  [ -n "$DISABLE_EXIF" ] || printf "  \"exif\": \"${VERSION_EXIF}\",\n"; \
+  printf "  \"exif\": \"${VERSION_EXIF}\",\n"; \
   printf "  \"expat\": \"${VERSION_EXPAT}\",\n"; \
   printf "  \"ffi\": \"${VERSION_FFI}\",\n"; \
   printf "  \"glib\": \"${VERSION_GLIB}\",\n"; \
@@ -299,7 +295,7 @@ node --version
   make install dist_cmake_DATA= nodist_cmake_DATA=
 )
 
-[ -f "$TARGET/lib/pkgconfig/libexif.pc" ] || [ -n "$DISABLE_EXIF" ] || (
+[ -f "$TARGET/lib/pkgconfig/libexif.pc" ] || (
   stage "Compiling exif"
   mkdir $DEPS/exif
   curl -Ls https://github.com/libexif/libexif/releases/download/v$VERSION_EXIF/libexif-$VERSION_EXIF.tar.xz | tar xJC $DEPS/exif --strip-components=1
@@ -517,7 +513,7 @@ node --version
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
     -Ddeprecated=false -Dexamples=false -Dcplusplus=$LIBVIPS_CPP -Dauto_features=enabled \
     -Dintrospection=disabled ${DISABLE_MODULES:+-Dmodules=disabled} -Darchive=disabled \
-    -Dcfitsio=disabled ${DISABLE_EXIF:+-Dexif=disabled} -Dfftw=disabled -Dfontconfig=disabled ${DISABLE_AVIF:+-Dheif=disabled} \
+    -Dcfitsio=disabled -Dfftw=disabled -Dfontconfig=disabled ${DISABLE_AVIF:+-Dheif=disabled} \
     ${DISABLE_SIMD:+-Dhighway=disabled} ${DISABLE_JXL:+-Djpeg-xl=disabled} -Dmagick=disabled \
     -Dmatio=disabled -Dnifti=disabled -Dopenexr=disabled -Dopenjpeg=disabled \
     -Dopenslide=disabled -Dpangocairo=disabled -Dpdfium=disabled -Dpoppler=disabled \

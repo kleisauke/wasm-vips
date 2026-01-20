@@ -31,5 +31,19 @@ used under the terms of the following licences:
 Use of libraries under the terms of the LGPLv3 is via the
 "any later version" clause of the LGPLv2 or LGPLv2.1.
 
+## Optional Libraries
+
+The following libraries are optional and can be disabled during build:
+
+| Library       | Disable flag      | Notes                                         |
+|---------------|-------------------|-----------------------------------------------|
+| aom + libheif | `--disable-avif`  | Disables AVIF/HEIF image support              |
+| libultrahdr   | `--disable-uhdr`  | Disables UltraHDR image support               |
+| libexif       | `--disable-exif`  | Disables EXIF metadata support                |
+| libjxl        | `--disable-jxl`   | Disables JPEG XL image support                |
+| resvg         | `--disable-svg`   | Disables SVG image support                    |
+
+For a GPLv2-compatible build, use: `./build.sh --disable-avif --disable-uhdr --disable-exif`
+
 Please report any errors or omissions via
 https://github.com/kleisauke/wasm-vips/issues/new

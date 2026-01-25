@@ -23,7 +23,7 @@ RUN \
 # Emscripten patches
 RUN \
   curl -Ls https://github.com/emscripten-core/emscripten/compare/5.0.0...kleisauke:wasm-vips-5.0.0.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
-  curl -Ls https://github.com/emscripten-core/emscripten/compare/357a773...kleisauke:mimalloc-update-3.1.5.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/be68a76...kleisauke:mimalloc-update-3.2.7.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
   emcc --clear-cache && embuilder build sysroot --force
 
 # Rust
@@ -32,7 +32,7 @@ RUN \
     --no-modify-path \
     --profile minimal \
     --target wasm32-unknown-emscripten \
-    --default-toolchain nightly-2026-01-10 \
+    --default-toolchain nightly-2026-01-25 \
     --component rust-src
 
 # Cache settings

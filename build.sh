@@ -175,7 +175,7 @@ export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 # Dependency version numbers
 VERSION_ZLIB_NG=2.3.2       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.5.2           # https://github.com/libffi/libffi
-VERSION_GLIB=2.87.1         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.87.2         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.7.3         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.25         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.18          # https://github.com/mm2/Little-CMS
@@ -184,14 +184,14 @@ VERSION_BROTLI=1.2.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=0826579     # https://github.com/mozilla/mozjpeg
 VERSION_UHDR=1.4.0          # https://github.com/google/libultrahdr
 VERSION_JXL=0.11.1          # https://github.com/libjxl/libjxl
-VERSION_PNG=1.6.53          # https://github.com/pnggroup/libpng
+VERSION_PNG=1.6.54          # https://github.com/pnggroup/libpng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
-VERSION_CGIF=0.5.0          # https://github.com/dloebl/cgif
+VERSION_CGIF=0.5.1          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.1          # https://gitlab.com/libtiff/libtiff
-VERSION_RESVG=0.45.1        # https://github.com/linebender/resvg
+VERSION_RESVG=0.46.0        # https://github.com/linebender/resvg
 VERSION_AOM=3.13.1          # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.21.1         # https://github.com/strukturag/libheif
+VERSION_HEIF=1.21.2         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.18.0         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"

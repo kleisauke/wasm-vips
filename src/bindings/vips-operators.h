@@ -95,6 +95,8 @@ static Image gaussmat(double sigma, double min_ampl, emscripten::val js_options 
  */
 static Image gaussnoise(int width, int height, emscripten::val js_options = emscripten::val::null());
 
+static Image fitsload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
+
 /**
  * Load gif with libnsgif.
  * @param filename Filename to load from.
@@ -1244,6 +1246,13 @@ Image gaussblur(double sigma, emscripten::val js_options = emscripten::val::null
  * @return Array of output values.
  */
 std::vector<double> getpoint(int x, int y, emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image to FITS file.
+ * @param filename Filename to save to.
+ * @param js_options Optional options.
+ */
+void fitssave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Save as gif.

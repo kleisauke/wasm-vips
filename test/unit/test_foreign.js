@@ -1030,6 +1030,19 @@ describe('foreign', () => {
     fileLoader('analyzeload', Helpers.analyzeFiles[0], analyzeValid);
   });
 
+  it('fits', function () {
+    // Needs FITS support
+    if (!Helpers.have('fitsload')) {
+      return this.skip();
+    }
+
+    // Create a simple image
+    const im = vips.Image.black(10, 10);
+    const im2 = im.add(128);
+
+    saveLoad('%s.fits', im2);
+  });
+
   it('csv', function () {
     saveLoad('%s.csv', mono);
   });

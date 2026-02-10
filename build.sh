@@ -63,6 +63,9 @@ AVIF=true
 # Partial support for SVG load via resvg, enabled by default
 SVG=true
 
+# Support for FITS images, disabled by default
+FITS=false
+
 # Build libvips C++ API, disabled by default
 LIBVIPS_CPP=false
 
@@ -85,6 +88,7 @@ while [ $# -gt 0 ]; do
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;
     --disable-svg) SVG=false ;;
+    --enable-fits) FITS=true ;;
     --disable-modules) MODULES=false ;;
     --disable-bindings) BINDINGS=false ;;
     --enable-libvips-cpp) LIBVIPS_CPP=true ;;
@@ -95,7 +99,7 @@ while [ $# -gt 0 ]; do
 done
 
 # Configure the ENABLE_* and DISABLE_* expansion helpers
-for arg in SIMD UHDR JXL AVIF SVG MODULES BINDINGS; do
+for arg in SIMD UHDR JXL AVIF SVG FITS MODULES BINDINGS; do
   if [ "${!arg}" = "true" ]; then
     declare ENABLE_$arg=true
   else
@@ -177,6 +181,7 @@ VERSION_ZLIB_NG=2.3.2       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.5.2           # https://github.com/libffi/libffi
 VERSION_GLIB=2.87.2         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.7.3         # https://github.com/libexpat/libexpat
+VERSION_CFITSIO=4.6.3       # https://heasarc.gsfc.nasa.gov/fitsio/
 VERSION_EXIF=0.6.25         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.18          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.3.0           # https://github.com/google/highway
@@ -200,6 +205,7 @@ VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
 ( printf "{\n"; \
   [ -n "$DISABLE_AVIF" ] || printf "  \"aom\": \"${VERSION_AOM}\",\n"; \
   [ -n "$DISABLE_JXL" ] || printf "  \"brotli\": \"${VERSION_BROTLI}\",\n"; \
+  [ -n "$DISABLE_FITS" ] || printf "  \"cfitsio\": \"${VERSION_CFITSIO}\",\n"; \
   printf "  \"cgif\": \"${VERSION_CGIF}\",\n"; \
   printf "  \"emscripten\": \"${VERSION_EMSCRIPTEN}\",\n"; \
   printf "  \"exif\": \"${VERSION_EXIF}\",\n"; \
@@ -303,6 +309,20 @@ node --version
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-docs --disable-nls --without-libiconv-prefix --without-libintl-prefix CPPFLAGS="-DNO_VERBOSE_TAG_DATA"
   make install doc_DATA=
+)
+
+[ -f "$TARGET/lib/pkgconfig/cfitsio.pc" ] || [ -n "$DISABLE_FITS" ] || (
+  stage "Compiling cfitsio"
+  mkdir $DEPS/cfitsio
+  curl -Ls https://heasarc.gsfc.nasa.gov/FTP/software/fitsio/c/cfitsio-$VERSION_CFITSIO.tar.gz | tar xzC $DEPS/cfitsio --strip-components=1
+  cd $DEPS/cfitsio
+  # Workaround for byte swapping on WebAssembly and enable SIMD/reentrancy
+  emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
+    --disable-curl --without-fortran \
+    --enable-reentrant ${ENABLE_SIMD:+--enable-sse2 --enable-ssse3} \
+    CFLAGS="$CFLAGS -D__i386__" # cfitsio uses a hardcoded list of architecture ifdefs for endianness
+  # Partial install because the binaries have compilation issues.
+  make install-libLTLIBRARIES install-data
 )
 
 [ -f "$TARGET/lib/pkgconfig/lcms2.pc" ] || (
@@ -513,7 +533,7 @@ node --version
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
     -Ddeprecated=false -Dexamples=false -Dcplusplus=$LIBVIPS_CPP -Dauto_features=enabled \
     -Dintrospection=disabled ${DISABLE_MODULES:+-Dmodules=disabled} -Darchive=disabled \
-    -Dcfitsio=disabled -Dfftw=disabled -Dfontconfig=disabled ${DISABLE_AVIF:+-Dheif=disabled} \
+    ${DISABLE_FITS:+-Dcfitsio=disabled} -Dfftw=disabled -Dfontconfig=disabled ${DISABLE_AVIF:+-Dheif=disabled} \
     ${DISABLE_SIMD:+-Dhighway=disabled} ${DISABLE_JXL:+-Djpeg-xl=disabled} -Dmagick=disabled \
     -Dmatio=disabled -Dnifti=disabled -Dopenexr=disabled -Dopenjpeg=disabled \
     -Dopenslide=disabled -Dpangocairo=disabled -Dpdfium=disabled -Dpoppler=disabled \

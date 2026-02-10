@@ -150,6 +150,19 @@ Image Image::gaussnoise(int width, int height, emscripten::val js_options)
     return out;
 }
 
+Image Image::fitsload(const std::string &filename, emscripten::val js_options)
+{
+    Image out;
+
+    Image::call("fitsload", nullptr,
+                (new Option)
+                    ->set("out", &out)
+                    ->set("filename", filename),
+                js_options);
+
+    return out;
+}
+
 Image Image::gifload(const std::string &filename, emscripten::val js_options)
 {
     Image out;
@@ -2099,6 +2112,15 @@ std::vector<double> Image::getpoint(int x, int y, emscripten::val js_options) co
                js_options);
 
     return out_array;
+}
+
+void Image::fitssave(const std::string &filename, emscripten::val js_options) const
+{
+    this->call("fitssave",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("filename", filename),
+               js_options);
 }
 
 void Image::gifsave(const std::string &filename, emscripten::val js_options) const

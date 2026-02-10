@@ -1155,6 +1155,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("gaussmat", optional_override([](double sigma, double min_ampl) {
                             return Image::gaussmat(sigma, min_ampl);
                         }))
+        .class_function("fitsload", &Image::fitsload)
+        .class_function("fitsload", optional_override([](const std::string &filename) {
+                            return Image::fitsload(filename);
+                        }))
         .class_function("gaussnoise", &Image::gaussnoise)
         .class_function("gaussnoise", optional_override([](int width, int height) {
                             return Image::gaussnoise(width, height);
@@ -1572,6 +1576,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("getpoint", optional_override([](const Image &image, int x, int y) {
                       return image.getpoint(x, y);
                   }))
+        .function("fitssave", &Image::fitssave)
+        .function("fitssave", optional_override([](const Image &image, const std::string &filename) {
+                            image.fitssave(filename);
+                        }))
         .function("gifsave", &Image::gifsave)
         .function("gifsave", optional_override([](const Image &image, const std::string &filename) {
                       image.gifsave(filename);

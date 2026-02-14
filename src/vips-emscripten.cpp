@@ -434,9 +434,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
                  return std::string(VIPS_VERSION);
              }));
     function("emscriptenVersion", optional_override([]() {
-                 std::string major = std::to_string(__EMSCRIPTEN_major__);
-                 std::string minor = std::to_string(__EMSCRIPTEN_minor__);
-                 std::string patch = std::to_string(__EMSCRIPTEN_tiny__);
+                 std::string major = std::to_string(__EMSCRIPTEN_MAJOR__);
+                 std::string minor = std::to_string(__EMSCRIPTEN_MINOR__);
+                 std::string patch = std::to_string(__EMSCRIPTEN_TINY__);
 
                  return major + "." + minor + "." + patch;
              }));

@@ -124,7 +124,7 @@ if [ "$LTO" = "true" ]; then
   export RUSTFLAGS+=" -Clto -Cembed-bitcode=yes"
 fi
 if [ "$WASM_EH" = "true" ]; then
-  COMMON_FLAGS+=" -fwasm-exceptions -sSUPPORT_LONGJMP=wasm"
+  COMMON_FLAGS+=" -fwasm-exceptions"
   if [ "$WASM_EXNREF" = "true" ]; then
     COMMON_FLAGS+=" -sWASM_LEGACY_EXCEPTIONS=0"
     export RUSTFLAGS+=" -Cllvm-args=-wasm-use-legacy-eh=0"

@@ -1,5 +1,5 @@
 # https://github.com/emscripten-core/emsdk
-FROM docker.io/emscripten/emsdk:5.0.0
+FROM docker.io/emscripten/emsdk:5.0.1
 
 # Path settings
 ENV \
@@ -22,7 +22,7 @@ RUN \
 
 # Emscripten patches
 RUN \
-  curl -Ls https://github.com/emscripten-core/emscripten/compare/5.0.0...kleisauke:wasm-vips-5.0.0.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/5.0.1...kleisauke:wasm-vips-5.0.1.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
   curl -Ls https://github.com/emscripten-core/emscripten/compare/be68a76...kleisauke:mimalloc-update-3.2.7.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
   emcc --clear-cache && embuilder build sysroot --force
 

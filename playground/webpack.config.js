@@ -14,8 +14,8 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'assets/js/[name].js',
-    chunkFilename: 'assets/js/[name].js'
+    filename: 'js/[name].js',
+    chunkFilename: 'js/[name].js'
   },
   module: {
     rules: [
@@ -25,24 +25,17 @@ module.exports = {
           {
             loader: MiniCssExtractPlugin.loader,
             options: {
-              publicPath: '../../'
+              publicPath: '../'
             }
           },
           'css-loader'
         ]
       },
       {
-        test: /\.(jpe?g|png|gif|tiff?|webp|jxl|avif|svg)$/,
-        type: 'asset/resource',
-        generator: {
-          filename: 'assets/images/[name][ext][query]'
-        }
-      },
-      {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
         type: 'asset/resource',
         generator: {
-          filename: 'assets/fonts/[name][ext][query]'
+          filename: 'fonts/[name][ext][query]'
         }
       }
     ]
@@ -74,7 +67,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
-      filename: 'assets/css/[name].css'
+      filename: 'css/[name].css'
     }),
     new HtmlWebpackPlugin({
       title: 'wasm-vips playground',
@@ -88,11 +81,15 @@ module.exports = {
       minify: false
     }),
     new MonacoWebpackPlugin({
-      filename: 'assets/js/monaco-[name].worker.js',
+      filename: 'js/monaco-[name].worker.js',
       languages: ['typescript', 'javascript', 'html', 'css']
     }),
     new CopyPlugin({
       patterns: [
+        {
+          from: path.resolve(__dirname, 'images'),
+          to: path.resolve(__dirname, 'dist', 'images')
+        },
         {
           from: path.resolve(__dirname, 'samples'),
           to: path.resolve(__dirname, 'dist', 'samples')

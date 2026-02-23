@@ -28,7 +28,7 @@ let im = vips.Image.newFromFile('owl.jpg');
 // let im = vips.Image.newFromFile('banana.gif', { n: -1 });
 
 // Or to load a formatted image from buffer
-// const buffer = await fetch('assets/images/owl.webp').then(resp => resp.arrayBuffer());
+// const buffer = await fetch('images/owl.webp').then(resp => resp.arrayBuffer());
 // let im = vips.Image.newFromBuffer(buffer);
 
 // The first step to implement a duotone filter is to convert the

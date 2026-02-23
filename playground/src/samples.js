@@ -1,13 +1,3 @@
-import './images/owl.webp';
-import './images/owl.tif';
-import './images/owl.jpg';
-import './images/owl.jxl';
-import './images/owl.avif';
-import './images/banana.webp';
-import './images/banana.gif';
-import './images/alphachannel.svg';
-import './images/transparency_demo.png';
-
 export const dynamicModules = [
   {
     name: 'JPEG XL save/load',

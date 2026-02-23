@@ -96,7 +96,7 @@
         'alphachannel.svg', 'transparency_demo.png'
       ];
       for (const image of images) {
-        module.FS.createPreloadedFile('/', image, 'assets/images/' + image, true, false);
+        module.FS.createPreloadedFile('/', image, 'images/' + image, true, false);
       }
     },
     postRun: (module) => {

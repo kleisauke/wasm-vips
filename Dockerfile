@@ -1,11 +1,11 @@
 # https://github.com/emscripten-core/emsdk
-FROM docker.io/emscripten/emsdk:5.0.1
+FROM docker.io/emscripten/emsdk:5.0.2
 
 # Path settings
 ENV \
   RUSTUP_HOME="/usr/local/rustup" \
   CARGO_HOME="/usr/local/cargo" \
-  PATH="/usr/local/cargo/bin:$PATH"
+  PATH="/usr/local/cargo/bin:/root/.local/bin:$PATH"
 
 RUN \
   apt-get update && \
@@ -16,13 +16,13 @@ RUN \
     pkgconf \
     # needed for Meson
     ninja-build \
-    python3-pip \
+    pipx \
     && \
-  pip3 install meson
+  pipx install meson
 
 # Emscripten patches
 RUN \
-  curl -Ls https://github.com/emscripten-core/emscripten/compare/5.0.1...kleisauke:wasm-vips-5.0.1.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/5.0.2...kleisauke:wasm-vips-5.0.2.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
   curl -Ls https://github.com/emscripten-core/emscripten/compare/be68a76...kleisauke:mimalloc-update-3.2.8.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
   emcc --clear-cache && embuilder build sysroot --force
 

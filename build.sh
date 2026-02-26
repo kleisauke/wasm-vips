@@ -175,7 +175,7 @@ export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 # Dependency version numbers
 VERSION_ZLIB_NG=2.3.3       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.5.2           # https://github.com/libffi/libffi
-VERSION_GLIB=2.87.2         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.87.3         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.7.4         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.25         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.18          # https://github.com/mm2/Little-CMS
@@ -186,7 +186,7 @@ VERSION_UHDR=1.4.0          # https://github.com/google/libultrahdr
 VERSION_JXL=0.11.2          # https://github.com/libjxl/libjxl
 VERSION_PNG=1.6.55          # https://github.com/pnggroup/libpng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
-VERSION_CGIF=0.5.1          # https://github.com/dloebl/cgif
+VERSION_CGIF=0.5.2          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.1          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.47.0        # https://github.com/linebender/resvg

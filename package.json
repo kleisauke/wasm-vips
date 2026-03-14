@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "semistandard": "^17.0.0",
-    "serve": "^14.2.5"
+    "serve": "^14.2.6"
   },
   "engines": {
     "node": ">=16.4.0"

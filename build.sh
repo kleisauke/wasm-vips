@@ -192,7 +192,7 @@ VERSION_TIFF=4.7.1          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.47.0        # https://github.com/linebender/resvg
 VERSION_AOM=3.13.1          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.21.2         # https://github.com/strukturag/libheif
-VERSION_VIPS=8.18.0         # https://github.com/libvips/libvips
+VERSION_VIPS=8.18.1         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
 
@@ -507,7 +507,7 @@ node --version
   curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$VERSION_VIPS.tar.xz | tar xJC $DEPS/vips --strip-components=1
   cd $DEPS/vips
   # Emscripten specific patches
-  curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-8.18.patch | patch -p1
+  curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-$VERSION_VIPS.patch | patch -p1
   # Disable building man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \

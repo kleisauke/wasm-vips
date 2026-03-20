@@ -115,10 +115,12 @@ done
 #COMMON_FLAGS="-Os -g2 -fsanitize=address -pthread"
 
 # Rust flags
-export RUSTFLAGS="-Ctarget-feature=+atomics -Zdefault-visibility=hidden -Zlocation-detail=none -Zfmt-debug=none"
+export RUSTFLAGS="-Copt-level=z -Ctarget-feature=+atomics -Zdefault-visibility=hidden -Zlocation-detail=none -Zfmt-debug=none"
 
 # Common compiler flags
-COMMON_FLAGS="-O3 -pthread"
+# Default optimization level is for binary size (-Os)
+# Overridden to performance (-O3) for select dependencies that benefit
+COMMON_FLAGS="-Os -pthread"
 if [ "$LTO" = "true" ]; then
   COMMON_FLAGS+=" -flto"
   export RUSTFLAGS+=" -Clto -Cembed-bitcode=yes"
@@ -255,7 +257,8 @@ node --version
   # SSE intrinsics needs to be checked for wasm32
   sed -i 's/BASEARCH_X86_FOUND/& OR BASEARCH_WASM32_FOUND/g' CMakeLists.txt
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=FALSE \
-    -DBUILD_TESTING=FALSE ${DISABLE_SIMD:+-DWITH_OPTIM=FALSE} -DWITH_RUNTIME_CPU_DETECTION=FALSE -DZLIB_COMPAT=TRUE
+    -DBUILD_TESTING=FALSE ${DISABLE_SIMD:+-DWITH_OPTIM=FALSE} -DWITH_RUNTIME_CPU_DETECTION=FALSE -DZLIB_COMPAT=TRUE \
+    -DCMAKE_C_FLAGS="$CFLAGS -O3"
   make -C _build install
 )
 
@@ -311,7 +314,7 @@ node --version
   curl -Ls https://github.com/mm2/Little-CMS/releases/download/lcms$VERSION_LCMS2/lcms2-$VERSION_LCMS2.tar.gz | tar xzC $DEPS/lcms2 --strip-components=1
   cd $DEPS/lcms2
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
-    -Dtests=disabled -Djpeg=disabled -Dtiff=disabled
+    -Dtests=disabled -Djpeg=disabled -Dtiff=disabled -Dc_args="$CFLAGS -O3"
   meson install -C _build --tag devel
 )
 
@@ -323,7 +326,8 @@ node --version
   # Remove build path from binary
   sed -i 's/HWY_ASSERT/HWY_DASSERT/' hwy/aligned_allocator.cc
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=FALSE \
-    -DBUILD_TESTING=FALSE -DHWY_ENABLE_CONTRIB=FALSE -DHWY_ENABLE_EXAMPLES=FALSE -DHWY_ENABLE_TESTS=FALSE
+    -DBUILD_TESTING=FALSE -DHWY_ENABLE_CONTRIB=FALSE -DHWY_ENABLE_EXAMPLES=FALSE -DHWY_ENABLE_TESTS=FALSE \
+    -DCMAKE_C_FLAGS="$CFLAGS -O3" -DCMAKE_CXX_FLAGS="$CXXFLAGS -O3"
   make -C _build install
 )
 
@@ -352,7 +356,7 @@ node --version
   # Disable environment variables usage, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/600
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=FALSE \
     -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE -DPNG_SUPPORTED=FALSE \
-    -DCMAKE_C_FLAGS="$CFLAGS -DNO_GETENV -DNO_PUTENV"
+    -DCMAKE_C_FLAGS="$CFLAGS -O3 -DNO_GETENV -DNO_PUTENV"
   make -C _build install
 )
 
@@ -381,6 +385,7 @@ node --version
     -DBUILD_SHARED_LIBS=FALSE -DBUILD_TESTING=FALSE -DJPEGXL_ENABLE_TOOLS=FALSE -DJPEGXL_ENABLE_JPEGLI=FALSE \
     -DJPEGXL_ENABLE_EXAMPLES=FALSE -DJPEGXL_ENABLE_SJPEG=FALSE -DJPEGXL_ENABLE_SKCMS=FALSE -DJPEGXL_BUNDLE_LIBPNG=FALSE \
     -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE -DJPEGXL_FORCE_SYSTEM_LCMS2=TRUE -DJPEGXL_FORCE_SYSTEM_HWY=TRUE \
+    -DCMAKE_C_FLAGS="$CFLAGS -O3" -DCMAKE_CXX_FLAGS="$CXXFLAGS -O3" \
     -DJPEGXL_ENABLE_TRANSCODE_JPEG=FALSE # libvips always decodes to pixels
   make -C _build install
   if [ -n "$ENABLE_MODULES" ]; then
@@ -401,7 +406,7 @@ node --version
   cd $DEPS/png
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-tests --disable-tools --without-binconfigs --disable-unversioned-libpng-config \
-    ${ENABLE_SIMD:+--enable-intel-sse CPPFLAGS="-msse4.1"}
+    ${ENABLE_SIMD:+--enable-intel-sse CPPFLAGS="-O3 -msse4.1"}
   make install dist_man_MANS=
 )
 
@@ -411,7 +416,7 @@ node --version
   curl -Ls https://github.com/lovell/libimagequant/archive/refs/tags/v$VERSION_IMAGEQUANT.tar.gz | tar xzC $DEPS/imagequant --strip-components=1
   cd $DEPS/imagequant
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
-    ${ENABLE_SIMD:+-Dc_args="$CFLAGS -msse -DUSE_SSE=1"}
+    ${ENABLE_SIMD:+-Dc_args="$CFLAGS -O3 -msse -DUSE_SSE=1"}
   meson install -C _build --tag devel
 )
 
@@ -421,7 +426,7 @@ node --version
   curl -Ls https://github.com/dloebl/cgif/archive/refs/tags/v$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
   cd $DEPS/cgif
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
-    -Dexamples=false -Dtests=false
+    -Dexamples=false -Dtests=false -Dc_args="$CFLAGS -O3"
   meson install -C _build --tag devel
 )
 
@@ -461,7 +466,7 @@ node --version
   # We don't want to build the shared library
   sed -i '/^crate-type =/s/"cdylib", //' crates/c-api/Cargo.toml
   cargo build --manifest-path=crates/c-api/Cargo.toml --release --target wasm32-unknown-emscripten --locked \
-    -Zbuild-std=panic_abort,std -Ztrim-paths --no-default-features --features raster-images
+    -Zbuild-std=panic_abort,std -Zbuild-std-features=optimize_for_size -Ztrim-paths --no-default-features --features raster-images
   cp target/wasm32-unknown-emscripten/release/libresvg.a $TARGET/lib/
   cp crates/c-api/resvg.h $TARGET/include/
 )
@@ -489,7 +494,7 @@ node --version
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=$TARGET \
     -DBUILD_SHARED_LIBS=FALSE -DENABLE_PLUGIN_LOADING=FALSE -DBUILD_TESTING=FALSE \
     -DWITH_EXAMPLES=FALSE -DWITH_LIBDE265=FALSE -DWITH_X265=FALSE -DWITH_OpenH264_DECODER=FALSE \
-    -DCMAKE_CXX_FLAGS="$CXXFLAGS -D__EMSCRIPTEN_STANDALONE_WASM__" \
+    -DCMAKE_C_FLAGS="$CFLAGS -O3" -DCMAKE_CXX_FLAGS="$CXXFLAGS -O3 -D__EMSCRIPTEN_STANDALONE_WASM__" \
     -DENABLE_MULTITHREADING_SUPPORT=FALSE # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
   if [ -n "$ENABLE_MODULES" ]; then
@@ -517,7 +522,8 @@ node --version
     ${DISABLE_SIMD:+-Dhighway=disabled} ${DISABLE_JXL:+-Djpeg-xl=disabled} -Dmagick=disabled \
     -Dmatio=disabled -Dnifti=disabled -Dopenexr=disabled -Dopenjpeg=disabled \
     -Dopenslide=disabled -Dpangocairo=disabled -Dpdfium=disabled -Dpoppler=disabled \
-    -Draw=disabled ${DISABLE_SVG:+-Dresvg=disabled} -Drsvg=disabled ${DISABLE_UHDR:+-Duhdr=disabled}
+    -Draw=disabled ${DISABLE_SVG:+-Dresvg=disabled} -Drsvg=disabled ${DISABLE_UHDR:+-Duhdr=disabled} \
+    -Dc_args="$CFLAGS -O3" -Dcpp_args="$CXXFLAGS -O3"
   meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export
   module_dir=$(printf '%s\n' $TARGET/lib/vips-modules-* | sort -n | tail -1)

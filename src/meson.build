@@ -98,8 +98,8 @@ if 'web' in get_option('environments')
     web_link_args = [
         '--use-preload-plugins',
         '-sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency>6?navigator.hardwareConcurrency:6',
-        '-sMIN_CHROME_VERSION=91',
-        '-sMIN_FIREFOX_VERSION=89',
+        '-sMIN_CHROME_VERSION=95',
+        '-sMIN_FIREFOX_VERSION=100',
         '-sMIN_SAFARI_VERSION=160400',
     ]
 
@@ -131,7 +131,7 @@ if 'web' in get_option('environments')
 endif
 
 if 'node' in get_option('environments')
-    node_link_args = ['-sENVIRONMENT=node', '-sMIN_NODE_VERSION=160400']
+    node_link_args = ['-sENVIRONMENT=node', '-sMIN_NODE_VERSION=170000']
     if not get_option('wasmfs')
         node_link_args += ['-sNODERAWFS']
     endif

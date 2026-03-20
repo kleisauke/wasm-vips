@@ -35,9 +35,9 @@ WASM_BIGINT=true
 WASM_FS=false
 
 # Leverage Wasm EH instructions for setjmp/longjmp support
-# and throwing/catching exceptions, disabled by default
+# and throwing/catching exceptions, enabled by default
 # https://github.com/WebAssembly/exception-handling
-WASM_EH=false
+WASM_EH=true
 
 # Emit instructions for the standardized Wasm EH proposal with exnref
 # (adopted on Oct 2023), disabled by default
@@ -74,13 +74,13 @@ while [ $# -gt 0 ]; do
   case $1 in
     --enable-lto) LTO=true ;;
     --enable-wasm-fs) WASM_FS=true ;;
-    --enable-wasm-eh) WASM_EH=true ;;
     --enable-new-wasm-eh)
       WASM_EH=true
       WASM_EXNREF=true
       ;;
     --disable-simd) SIMD=false ;;
     --disable-wasm-bigint) WASM_BIGINT=false ;;
+    --disable-wasm-eh) WASM_EH=false ;;
     --disable-uhdr) UHDR=false ;;
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;

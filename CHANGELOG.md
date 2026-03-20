@@ -4,6 +4,15 @@ All notable changes to wasm-vips will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.0.18] - TBD
+
+Uses libvips v8.18.1, compiled with Emscripten v5.0.3.
+
+### Changed
+
+- Enable WebAssembly Exception Handling feature by default.
+- Drop support for Node.js 16, now requires Node.js >= 17.
+
 ## [v0.0.17] - 2026-03-20
 
 Uses libvips v8.18.1, compiled with Emscripten v5.0.3.
@@ -292,6 +301,7 @@ Uses libvips v8.10.0, compiled with Emscripten v2.0.0.
 
 - Initial release.
 
+[v0.0.18]: https://github.com/kleisauke/wasm-vips/compare/v0.0.17...v0.0.18
 [v0.0.17]: https://github.com/kleisauke/wasm-vips/compare/v0.0.16...v0.0.17
 [v0.0.16]: https://github.com/kleisauke/wasm-vips/compare/v0.0.15...v0.0.16
 [v0.0.15]: https://github.com/kleisauke/wasm-vips/compare/v0.0.14...v0.0.15

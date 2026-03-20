@@ -97,6 +97,7 @@ if 'web' in get_option('environments')
     # Only needed on the web, pthreads on Node.js can be spawned synchronously without waiting for an event loop tick.
     web_link_args = [
         '--use-preload-plugins',
+        '-sENVIRONMENT=web',
         '-sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency>6?navigator.hardwareConcurrency:6',
         '-sMIN_CHROME_VERSION=95',
         '-sMIN_FIREFOX_VERSION=100',
@@ -109,7 +110,6 @@ if 'web' in get_option('environments')
             main_link_args,
             web_link_args,
             '--pre-js=@0@'.format(source_dir / 'workaround-cors-pre.js'),
-            '-sENVIRONMENT=web',
         ],
         install: true,
     )
@@ -123,8 +123,6 @@ if 'web' in get_option('environments')
             '-sEXPORT_ES6',
             # new Worker() supports ECMAScript module only starting from Firefox 114
             '-sMIN_FIREFOX_VERSION=114',
-            # Deno reuses the web ES6 module
-            '-sENVIRONMENT=web,deno',
         ],
         install: true,
     )

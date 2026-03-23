@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.18.1, compiled with Emscripten v5.0.3.
 
+### Fixed
+
+- Fix slowdown when processing large images in some pipelines.
+  [#114](https://github.com/kleisauke/wasm-vips/issues/114)
+
 ### Changed
 
 - Enable WebAssembly Exception Handling feature by default.

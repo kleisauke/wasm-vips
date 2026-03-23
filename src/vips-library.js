@@ -12,7 +12,13 @@ var LibraryVips = {
     init() {
       addOnPreRun(() => {
 #if ENVIRONMENT_MAY_BE_WEB
-        // Enforce a fixed thread pool by default on web
+        // On the web, raise VIPS_DISC_THRESHOLD (default: 100 MiB of uncompressed pixel data) to ensure large images
+        // are processed in-memory. This avoids spilling to temporary `/tmp` files via MEMFS (JS-based filesystem or
+        // WasmFS), which would otherwise incur costly Wasm <-> JS crossings or internal filesystem abstractions
+        // (virtual calls, bounds checks and buffer resizing).
+        ENV['VIPS_DISC_THRESHOLD'] = {{{ MAXIMUM_MEMORY }}};
+
+        // Enforce a fixed thread pool by default on the web.
         ENV['VIPS_MAX_THREADS'] = {{{ PTHREAD_POOL_SIZE }}};
 
         // We cannot safely spawn dedicated workers on the web. Therefore, to avoid any potential deadlocks, we reduce
@@ -21,8 +27,7 @@ var LibraryVips = {
         ENV['VIPS_CONCURRENCY'] = 1;
 #endif
 #if ENVIRONMENT_MAY_BE_NODE
-        // libvips stores temporary files by default in `/tmp`;
-        // set the TMPDIR env variable to override this directory
+        // libvips stores temporary files by default in `/tmp`; set the TMPDIR env variable to override this directory.
         ENV['TMPDIR'] = require('node:os').tmpdir();
 #endif
       });

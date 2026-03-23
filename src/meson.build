@@ -42,15 +42,15 @@ wasm_vips_dep = declare_dependency(
 # -sSYSCALL_DEBUG
 # -sDYLINK_DEBUG
 
-# AddressSanitizer 4GiB debug build
-# 4GiB - 100MiB (ASan + pthreads extra increment) - 512MiB (shadow size, 1/8th of 4GiB) - 256KiB (stack size)
+# AddressSanitizer 4 GiB debug build
+# 4 GiB - 100 MiB (ASan + pthreads extra increment) - 512 MiB (shadow size, 1/8th of 4 GiB) - 256 KiB (stack size)
 # -sINITIAL_MEMORY=3652976640
 
 # note 1: `ALLOW_MEMORY_GROWTH` may run non-wasm code slowly. See: https://github.com/WebAssembly/design/issues/1271.
-# note 2: Browsers appear to limit the maximum initial memory size to 1GB, set `INITIAL_MEMORY` accordingly.
+# note 2: Browsers appear to limit the maximum initial memory size to 1 GiB, set `INITIAL_MEMORY` accordingly.
 # note 3: Build with `-sALLOW_TABLE_GROWTH` so that we can store the read, seek, write and finish signals.
-# note 4: To ensure the testsuite passes, increase (main-)thread's stack size from 64kb to 256kb. This should be
-#         reasonable for image processing in Wasm, and given that libvips enforces a minimum thread stack size of 2mb
+# note 4: To ensure the testsuite passes, increase (main-)thread's stack size from 64 KiB to 256 KiB. This should be
+#         reasonable for image processing in Wasm, and given that libvips enforces a minimum thread stack size of 2 MiB
 #         on other POSIX platforms.
 main_link_args = [
     '-sAUTOLOAD_DYLIBS=0',

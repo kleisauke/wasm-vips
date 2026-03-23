@@ -46,10 +46,10 @@ int main() {
 
     // By default, libvips' operation cache will (at its maximum):
     //  - cache 100 operations;
-    //  - spend 100mb of memory;
+    //  - spend 100 MiB of memory;
     //  - hold 100 files open;
     // We need to lower these numbers for Wasm a bit.
-    vips_cache_set_max_mem(50 * 1024 * 1024);  // = 50mb
+    vips_cache_set_max_mem(50 * 1024 * 1024);  // = 50 MiB
     vips_cache_set_max_files(20);
 
     // Handy for debugging.

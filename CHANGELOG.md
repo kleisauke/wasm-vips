@@ -215,8 +215,8 @@ Uses libvips v8.14.2, compiled with Emscripten v3.1.37.
 
 ### Changed
 
-- Use a stack size of 256kb for both main and newly created threads.
-  Previously, this was configured at 5mb and 2mb, respectively.
+- Use a stack size of 256 KiB for both main and newly created threads.
+  Previously, this was configured at 5 MiB and 2 MiB, respectively.
 - Update methods/enums for libvips 8.14.
 
 ## [v0.0.4] - 2022-11-03

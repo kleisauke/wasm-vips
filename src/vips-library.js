@@ -28,8 +28,7 @@ var LibraryVips = {
 #endif
 #if ENVIRONMENT_MAY_BE_NODE
         // libvips stores temporary files by default in `/tmp`; set the TMPDIR env variable to override this directory.
-        // FIXME(kleisauke): https://github.com/emscripten-core/emscripten/pull/24733
-        //ENV['TMPDIR'] = require('node:os').tmpdir();
+        ENV['TMPDIR'] = require('node:os').tmpdir();
 #endif
       });
 

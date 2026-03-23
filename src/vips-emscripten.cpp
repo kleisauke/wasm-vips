@@ -28,19 +28,14 @@ using vips::TargetCustom;
 
 #ifdef WASMFS
 EM_JS(bool, is_node, (), { return ENVIRONMENT_IS_NODE; });
+
+backend_t wasmfs_create_root_dir() {
+    return is_node() ? wasmfs_create_node_backend("")
+                     : wasmfs_create_memory_backend();
+}
 #endif
 
 int main() {
-#ifdef WASMFS
-    if (is_node()) {
-        if (wasmfs_create_directory("root", 0777,
-                                    wasmfs_create_node_backend(".")))
-            return 1;
-        if (chdir("root"))
-            return 1;
-    }
-#endif
-
     if (vips_init("wasm-vips"))
         vips_error_exit("unable to start up libvips");
 

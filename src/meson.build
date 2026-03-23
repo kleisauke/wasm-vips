@@ -132,8 +132,7 @@ if 'node' in get_option('environments')
     node_link_args = [
         '-sENVIRONMENT=node',
         '-sMIN_NODE_VERSION=170000',
-        # FIXME(kleisauke): https://github.com/emscripten-core/emscripten/pull/24733
-        #'-sNODE_HOST_ENV',
+        '-sNODE_HOST_ENV',
     ]
     if not get_option('wasmfs')
         node_link_args += ['-sNODERAWFS']

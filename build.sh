@@ -186,13 +186,13 @@ VERSION_BROTLI=1.2.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=0826579     # https://github.com/mozilla/mozjpeg
 VERSION_UHDR=1.4.0          # https://github.com/google/libultrahdr
 VERSION_JXL=0.11.2          # https://github.com/libjxl/libjxl
-VERSION_PNG=1.6.55          # https://github.com/pnggroup/libpng
+VERSION_PNG=1.6.56          # https://github.com/pnggroup/libpng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.5.2          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.1          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.47.0        # https://github.com/linebender/resvg
-VERSION_AOM=3.13.1          # https://aomedia.googlesource.com/aom
+VERSION_AOM=3.13.2          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.21.2         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.18.1         # https://github.com/libvips/libvips
 

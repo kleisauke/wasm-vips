@@ -139,7 +139,7 @@ else
   COMMON_FLAGS+=" -fexceptions"
 fi
 
-export CFLAGS="$COMMON_FLAGS -fvisibility=hidden -fwasm-fix-function-bitcasts -mllvm -debug-only=clang-target-wasm"
+export CFLAGS="$COMMON_FLAGS -fvisibility=hidden -fwasm-fix-function-bitcasts"
 if [ "$SIMD" = "true" ]; then
   export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"
   export RUSTFLAGS+=" -Ctarget-feature=+simd128"

@@ -186,14 +186,14 @@ VERSION_BROTLI=1.2.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=0826579     # https://github.com/mozilla/mozjpeg
 VERSION_UHDR=1.4.0          # https://github.com/google/libultrahdr
 VERSION_JXL=0.11.2          # https://github.com/libjxl/libjxl
-VERSION_PNG=1.6.56          # https://github.com/pnggroup/libpng
+VERSION_PNG=1.6.57          # https://github.com/pnggroup/libpng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.5.3          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.1          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.47.0        # https://github.com/linebender/resvg
-VERSION_AOM=3.13.2          # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.21.2         # https://github.com/strukturag/libheif
+VERSION_AOM=3.13.3          # https://aomedia.googlesource.com/aom
+VERSION_HEIF=434d96c        # https://github.com/strukturag/libheif
 VERSION_VIPS=8.18.2         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
@@ -435,6 +435,8 @@ node --version
   mkdir $DEPS/webp
   curl -Ls https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-$VERSION_WEBP.tar.gz | tar xzC $DEPS/webp --strip-components=1
   cd $DEPS/webp
+  # https://chromium.googlesource.com/webm/libwebp/+/5339483509d998936c3f184ec5a95e8c1bb4a5d9
+  sed -i 's/EMSCRIPTEN/__&__/' src/dsp/cpu.c
   # Prepend `-msimd128` to SSE flags, see: https://github.com/emscripten-core/emscripten/issues/12714
   sed -i 's/-msse/-msimd128 &/g' configure
   # Disable threading support, we rely on libvips' thread pool
@@ -487,7 +489,7 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/libheif.pc" ] || [ -n "$DISABLE_AVIF" ] || (
   stage "Compiling libheif"
   mkdir $DEPS/heif
-  curl -Ls https://github.com/strukturag/libheif/releases/download/v$VERSION_HEIF/libheif-$VERSION_HEIF.tar.gz | tar xzC $DEPS/heif --strip-components=1
+  curl -Ls https://github.com/strukturag/libheif/archive/$VERSION_HEIF.tar.gz | tar xzC $DEPS/heif --strip-components=1
   cd $DEPS/heif
   # Note: without CMAKE_FIND_ROOT_PATH find_path for AOM is not working for some reason (see https://github.com/emscripten-core/emscripten/issues/10078).
   # Compile with -D__EMSCRIPTEN_STANDALONE_WASM__ to disable the Embind implementation.

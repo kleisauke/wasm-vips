@@ -25,7 +25,7 @@ RUN \
 RUN \
   curl -Ls https://github.com/emscripten-core/emscripten/compare/5.0.6...kleisauke:wasm-vips-5.0.6.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
   curl -Ls https://github.com/emscripten-core/emscripten/compare/5.0.6...kleisauke:wasmfs-noderawfs-abspath-debug.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
-  curl -Ls https://github.com/emscripten-core/emscripten/pull/26696.patch | filterdiff -p1 -x ChangeLog.md | patch -p1 -d $EMSDK/upstream/emscripten && \
+  curl -Ls https://github.com/emscripten-core/emscripten/commit/10f62b4c1a529324fd2bd4b1f6359b3708f37b91.patch | filterdiff -p1 -x ChangeLog.md | patch -p1 -d $EMSDK/upstream/emscripten && \
   emcc --clear-cache && embuilder build sysroot --force
 
 # Rust

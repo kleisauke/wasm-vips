@@ -178,22 +178,22 @@ export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 VERSION_ZLIB_NG=2.3.3       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.5.2           # https://github.com/libffi/libffi
 VERSION_GLIB=2.88.0         # https://gitlab.gnome.org/GNOME/glib
-VERSION_EXPAT=2.7.5         # https://github.com/libexpat/libexpat
-VERSION_EXIF=0.6.25         # https://github.com/libexif/libexif
-VERSION_LCMS2=2.18          # https://github.com/mm2/Little-CMS
-VERSION_HWY=1.3.0           # https://github.com/google/highway
+VERSION_EXPAT=2.8.0         # https://github.com/libexpat/libexpat
+VERSION_EXIF=0.6.26         # https://github.com/libexif/libexif
+VERSION_LCMS2=2.19          # https://github.com/mm2/Little-CMS
+VERSION_HWY=1.4.0           # https://github.com/google/highway
 VERSION_BROTLI=1.2.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=0826579     # https://github.com/mozilla/mozjpeg
 VERSION_UHDR=1.4.0          # https://github.com/google/libultrahdr
 VERSION_JXL=0.11.2          # https://github.com/libjxl/libjxl
-VERSION_PNG=1.6.57          # https://github.com/pnggroup/libpng
+VERSION_PNG=1.6.58          # https://github.com/pnggroup/libpng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.5.3          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
-VERSION_TIFF=4.7.1          # https://gitlab.com/libtiff/libtiff
+VERSION_TIFF=179a100        # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.47.0        # https://github.com/linebender/resvg
 VERSION_AOM=3.13.3          # https://aomedia.googlesource.com/aom
-VERSION_HEIF=434d96c        # https://github.com/strukturag/libheif
+VERSION_HEIF=4652161        # https://github.com/strukturag/libheif
 VERSION_VIPS=8.18.2         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
@@ -256,8 +256,8 @@ node --version
   cd $DEPS/zlib-ng
   # SSE intrinsics needs to be checked for wasm32
   sed -i 's/BASEARCH_X86_FOUND/& OR BASEARCH_WASM32_FOUND/g' CMakeLists.txt
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=FALSE \
-    -DBUILD_TESTING=FALSE ${DISABLE_SIMD:+-DWITH_OPTIM=FALSE} -DWITH_RUNTIME_CPU_DETECTION=FALSE -DZLIB_COMPAT=TRUE \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF \
+    -DBUILD_TESTING=OFF ${DISABLE_SIMD:+-DWITH_OPTIM=OFF} -DWITH_RUNTIME_CPU_DETECTION=OFF -DZLIB_COMPAT=ON \
     -DCMAKE_C_FLAGS="$CFLAGS -O3"
   make -C _build install
 )
@@ -294,7 +294,8 @@ node --version
   curl -Ls https://github.com/libexpat/libexpat/releases/download/R_${VERSION_EXPAT//./_}/expat-$VERSION_EXPAT.tar.xz | tar xJC $DEPS/expat --strip-components=1
   cd $DEPS/expat
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-    --without-xmlwf --without-docbook --without-getrandom --without-sys-getrandom --without-examples --without-tests
+    --without-xmlwf --without-docbook --without-examples --without-tests --without-arc4random --without-arc4random-buf \
+    --without-getrandom --without-sys-getrandom
   make install dist_cmake_DATA= nodist_cmake_DATA=
 )
 
@@ -325,10 +326,10 @@ node --version
   cd $DEPS/hwy
   # Remove build path from binary
   sed -i 's/HWY_ASSERT/HWY_DASSERT/' hwy/aligned_allocator.cc
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=FALSE \
-    -DBUILD_TESTING=FALSE -DHWY_ENABLE_CONTRIB=FALSE -DHWY_ENABLE_EXAMPLES=FALSE -DHWY_ENABLE_TESTS=FALSE \
-    -DCMAKE_C_FLAGS="$CFLAGS -O3" -DCMAKE_CXX_FLAGS="$CXXFLAGS -O3"
-  make -C _build install
+  meson setup _build --prefix=$TARGET $MESON_ARGS --buildtype=release \
+    -Dcontrib=disabled -Dexamples=disabled -Dtests=disabled -Dtest_standalone=true \
+    -Dc_args="$CFLAGS -O3" -Dcpp_args="$CXXFLAGS -O3"
+  meson install -C _build --tag devel
 )
 
 [ -f "$TARGET/lib/pkgconfig/libbrotlicommon.pc" ] || [ -n "$DISABLE_JXL" ] || (
@@ -337,8 +338,8 @@ node --version
   curl -Ls https://github.com/google/brotli/archive/refs/tags/v$VERSION_BROTLI.tar.gz | tar xzC $DEPS/brotli --strip-components=1
   cd $DEPS/brotli
   # Exclude internal dictionary, see: https://github.com/emscripten-core/emscripten/issues/9960
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=$MODULES -DBROTLI_DISABLE_TESTS=TRUE -DBROTLI_BUILD_TOOLS=FALSE \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS \
+    -DCMAKE_POSITION_INDEPENDENT_CODE=$MODULES -DBROTLI_DISABLE_TESTS=ON -DBROTLI_BUILD_TOOLS=OFF \
     -DCMAKE_C_FLAGS="$CFLAGS -DBROTLI_EXTERNAL_DICTIONARY_DATA"
   make -C _build install
 )
@@ -354,8 +355,8 @@ node --version
   sed -i 's/JCP_MAX_COMPRESSION/JCP_FASTEST/' jcapimin.c
   # Compile without SIMD support, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250
   # Disable environment variables usage, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/600
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=FALSE \
-    -DWITH_JPEG8=TRUE -DWITH_SIMD=FALSE -DWITH_TURBOJPEG=FALSE -DPNG_SUPPORTED=FALSE \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF \
+    -DWITH_JPEG8=ON -DWITH_SIMD=OFF -DWITH_TURBOJPEG=OFF -DPNG_SUPPORTED=OFF \
     -DCMAKE_C_FLAGS="$CFLAGS -O3 -DNO_GETENV -DNO_PUTENV"
   make -C _build install
 )
@@ -371,8 +372,8 @@ node --version
   sed -i 's/CMAKE_CROSSCOMPILING AND UHDR_ENABLE_INSTALL/FALSE/' CMakeLists.txt
   # Disable threading support, we rely on libvips' thread pool
   sed -i 's/(std::max)(1u, std::thread::hardware_concurrency())/1u/' lib/src/jpegr.cpp
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=FALSE \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=$MODULES -DUHDR_BUILD_EXAMPLES=FALSE -DUHDR_MAX_DIMENSION=65500
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF \
+    -DCMAKE_POSITION_INDEPENDENT_CODE=$MODULES -DUHDR_BUILD_EXAMPLES=OFF -DUHDR_MAX_DIMENSION=65500
   make -C _build install
 )
 
@@ -382,11 +383,11 @@ node --version
   curl -Ls https://github.com/libjxl/libjxl/archive/refs/tags/v$VERSION_JXL.tar.gz | tar xzC $DEPS/jxl --strip-components=1
   cd $DEPS/jxl
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=$TARGET \
-    -DBUILD_SHARED_LIBS=FALSE -DBUILD_TESTING=FALSE -DJPEGXL_ENABLE_TOOLS=FALSE -DJPEGXL_ENABLE_JPEGLI=FALSE \
-    -DJPEGXL_ENABLE_EXAMPLES=FALSE -DJPEGXL_ENABLE_SJPEG=FALSE -DJPEGXL_ENABLE_SKCMS=FALSE -DJPEGXL_BUNDLE_LIBPNG=FALSE \
-    -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE -DJPEGXL_FORCE_SYSTEM_LCMS2=TRUE -DJPEGXL_FORCE_SYSTEM_HWY=TRUE \
+    -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DJPEGXL_ENABLE_TOOLS=OFF -DJPEGXL_ENABLE_JPEGLI=OFF \
+    -DJPEGXL_ENABLE_EXAMPLES=OFF -DJPEGXL_ENABLE_SJPEG=OFF -DJPEGXL_ENABLE_SKCMS=OFF -DJPEGXL_BUNDLE_LIBPNG=OFF \
+    -DJPEGXL_FORCE_SYSTEM_BROTLI=ON -DJPEGXL_FORCE_SYSTEM_LCMS2=ON -DJPEGXL_FORCE_SYSTEM_HWY=ON \
     -DCMAKE_C_FLAGS="$CFLAGS -O3" -DCMAKE_CXX_FLAGS="$CXXFLAGS -O3" \
-    -DJPEGXL_ENABLE_TRANSCODE_JPEG=FALSE # libvips always decodes to pixels
+    -DJPEGXL_ENABLE_TRANSCODE_JPEG=OFF # libvips always decodes to pixels
   make -C _build install
   if [ -n "$ENABLE_MODULES" ]; then
     # Ensure we don't link with highway in the vips-jxl side module
@@ -437,24 +438,30 @@ node --version
   cd $DEPS/webp
   # https://chromium.googlesource.com/webm/libwebp/+/5339483509d998936c3f184ec5a95e8c1bb4a5d9
   sed -i 's/EMSCRIPTEN/__&__/' src/dsp/cpu.c
-  # Prepend `-msimd128` to SSE flags, see: https://github.com/emscripten-core/emscripten/issues/12714
-  sed -i 's/-msse/-msimd128 &/g' configure
-  # Disable threading support, we rely on libvips' thread pool
-  emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-    ${DISABLE_SIMD:+--disable-sse2 --disable-sse4.1} ${ENABLE_SIMD:+--enable-sse2 --enable-sse4.1} --disable-neon \
-    --disable-gl --disable-sdl --disable-png --disable-jpeg --disable-tiff --disable-gif --disable-threading \
-    --enable-libwebpmux --enable-libwebpdemux CPPFLAGS="-DWEBP_DISABLE_STATS -DWEBP_REDUCE_CSP"
-  make install bin_PROGRAMS= noinst_PROGRAMS= man_MANS=
+  # https://chromium-review.googlesource.com/c/webm/libwebp/+/7789388
+  sed -i '/if(EMSCRIPTEN/s/2/3/' cmake/cpu.cmake
+  # Install the .cmake files into correct location
+  sed -i '/set(ConfigPackageLocation/s/${CMAKE_INSTALL_DATADIR}\/${PROJECT_NAME}\/cmake/${CMAKE_INSTALL_LIBDIR}\/cmake\/${PROJECT_NAME}/' CMakeLists.txt
+  # Compile without AVX2 support, as most of these instructions are emulated
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF \
+    ${ENABLE_SIMD:+-DWEBP_ENABLE_SIMD=ON} -DWEBP_BUILD_ANIM_UTILS=OFF -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF \
+    -DWEBP_BUILD_GIF2WEBP=OFF -DWEBP_BUILD_IMG2WEBP=OFF -DWEBP_BUILD_VWEBP=OFF \
+    -DWEBP_BUILD_WEBPINFO=OFF -DWEBP_BUILD_WEBPMUX=OFF -DWEBP_BUILD_EXTRAS=OFF \
+    -DCMAKE_C_FLAGS="$CFLAGS -U__AVX2__ -DWEBP_DISABLE_STATS -DWEBP_REDUCE_CSP" \
+    -DWEBP_USE_THREAD=OFF # Disable threading support, we rely on libvips' thread pool
+  make -C _build install
 )
 
 [ -f "$TARGET/lib/pkgconfig/libtiff-4.pc" ] || (
   stage "Compiling tiff"
   mkdir $DEPS/tiff
-  curl -Ls https://download.osgeo.org/libtiff/tiff-$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1
+  curl -Ls https://gitlab.com/libtiff/libtiff/-/archive/$VERSION_TIFF/libtiff-$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1
   cd $DEPS/tiff
-  emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
-    --disable-tools --disable-tests --disable-contrib --disable-docs --disable-mdi --disable-pixarlog --disable-old-jpeg --disable-cxx
-  make install noinst_PROGRAMS= dist_doc_DATA=
+  # Build with -DCMAKE_FIND_ROOT_PATH=$TARGET to ensure WebP support (see https://github.com/emscripten-core/emscripten/issues/10078)
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=$TARGET \
+   -DBUILD_SHARED_LIBS=OFF -Dtiff-contrib=OFF -Dtiff-cxx=OFF -Dtiff-docs=OFF -Dtiff-tests=OFF -Dtiff-tools=OFF \
+   -Dmdi=OFF -Djbig=OFF -Dlerc=OFF -Dlibdeflate=OFF -Dlzma=OFF -Dold-jpeg=OFF -Dpixarlog=OFF -Dtiff-opengl=OFF -Dzstd=OFF
+  make -C _build install
 )
 
 [ -f "$TARGET/lib/libresvg.a" ] || [ -n "$DISABLE_SVG" ] || (
@@ -478,9 +485,9 @@ node --version
   mkdir $DEPS/aom
   curl -Ls https://storage.googleapis.com/aom-releases/libaom-$VERSION_AOM.tar.gz | tar xzC $DEPS/aom --strip-components=1
   cd $DEPS/aom
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS \
     -DAOM_TARGET_CPU=generic ${ENABLE_MODULES:+-DCONFIG_PIC=1} -DCONFIG_RUNTIME_CPU_DETECT=0 \
-    -DENABLE_DOCS=FALSE -DENABLE_TESTS=FALSE -DENABLE_EXAMPLES=FALSE -DENABLE_TOOLS=FALSE \
+    -DENABLE_DOCS=OFF -DENABLE_TESTS=OFF -DENABLE_EXAMPLES=OFF -DENABLE_TOOLS=OFF \
     -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=0 \
     -DCONFIG_MULTITHREAD=0 # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
@@ -491,13 +498,15 @@ node --version
   mkdir $DEPS/heif
   curl -Ls https://github.com/strukturag/libheif/archive/$VERSION_HEIF.tar.gz | tar xzC $DEPS/heif --strip-components=1
   cd $DEPS/heif
-  # Note: without CMAKE_FIND_ROOT_PATH find_path for AOM is not working for some reason (see https://github.com/emscripten-core/emscripten/issues/10078).
+  # Skip libtiff lookup, it won't work
+  sed -i '/find_package(TIFF)/d' heifio/CMakeLists.txt
+  # Build with -DCMAKE_FIND_ROOT_PATH=$TARGET to ensure AOM can be found (see https://github.com/emscripten-core/emscripten/issues/10078)
   # Compile with -D__EMSCRIPTEN_STANDALONE_WASM__ to disable the Embind implementation.
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=$TARGET \
-    -DBUILD_SHARED_LIBS=FALSE -DENABLE_PLUGIN_LOADING=FALSE -DBUILD_TESTING=FALSE \
-    -DWITH_EXAMPLES=FALSE -DWITH_LIBDE265=FALSE -DWITH_X265=FALSE -DWITH_OpenH264_DECODER=FALSE \
+    -DBUILD_SHARED_LIBS=OFF -DENABLE_PLUGIN_LOADING=OFF -DBUILD_TESTING=OFF -DWITH_EXAMPLES=OFF \
+    -DWITH_LIBDE265=OFF -DWITH_X265=OFF -DWITH_X264=OFF -DWITH_OpenH264_DECODER=OFF \
     -DCMAKE_C_FLAGS="$CFLAGS -O3" -DCMAKE_CXX_FLAGS="$CXXFLAGS -O3 -D__EMSCRIPTEN_STANDALONE_WASM__" \
-    -DENABLE_MULTITHREADING_SUPPORT=FALSE # Disable threading support, we rely on libvips' thread pool.
+    -DENABLE_MULTITHREADING_SUPPORT=OFF # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
   if [ -n "$ENABLE_MODULES" ]; then
     # Ensure we don't link with libsharpyuv in the vips-heif side module

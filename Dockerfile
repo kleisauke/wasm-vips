@@ -1,5 +1,5 @@
 # https://github.com/emscripten-core/emsdk
-FROM docker.io/emscripten/emsdk:5.0.6
+FROM docker.io/emscripten/emsdk:5.0.7
 
 # Path settings
 ENV \
@@ -13,7 +13,6 @@ RUN \
     build-essential \
     ccache \
     libglib2.0-dev \
-    patchutils \
     pkgconf \
     # needed for Meson
     ninja-build \
@@ -23,9 +22,8 @@ RUN \
 
 # Emscripten patches
 RUN \
-  curl -Ls https://github.com/emscripten-core/emscripten/compare/5.0.6...kleisauke:wasm-vips-5.0.6.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
-  curl -Ls https://github.com/emscripten-core/emscripten/compare/5.0.6...kleisauke:wasmfs-noderawfs-abspath-debug.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
-  curl -Ls https://github.com/emscripten-core/emscripten/commit/10f62b4c1a529324fd2bd4b1f6359b3708f37b91.patch | filterdiff -p1 -x ChangeLog.md | patch -p1 -d $EMSDK/upstream/emscripten && \
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/5.0.7...kleisauke:wasm-vips-5.0.7.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/5.0.7...kleisauke:wasmfs-noderawfs-abspath-debug.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
   emcc --clear-cache && embuilder build sysroot --force
 
 # Rust

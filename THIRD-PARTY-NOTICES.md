@@ -11,7 +11,7 @@ used under the terms of the following licenses:
 | emscripten    | [MIT License](https://github.com/emscripten-core/emscripten/blob/main/LICENSE)                           |
 | expat         | MIT License                                                                                              |
 | glib          | LGPLv3                                                                                                   |
-| highway       | Apache-2.0 License, BSD 3-Clause                                                                         |
+| highway       | BSD 3-Clause                                                                                             |
 | lcms          | MIT License                                                                                              |
 | libexif       | LGPLv3                                                                                                   |
 | libffi        | MIT License                                                                                              |

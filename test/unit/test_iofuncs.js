@@ -80,9 +80,12 @@ describe('iofuncs', () => {
     const im2 = vips.Image.black(20, 20);
     im2.writeToFile(filename);
 
-    // this will use the old, cached load
+    // this will usually use the old, cached load
     let load2 = vips.Image.newFromFile(filename);
-    expect(load2.width).to.equal(im1.width);
+    expect(load2.width).to.be.oneOf([
+      /* operation cache enabled */ im1.width,
+      /* operation cache disabled */ im2.width
+    ]);
 
     // load again with 'revalidate' and we should see the new image
     load2 = vips.Image.newFromFile(filename, {

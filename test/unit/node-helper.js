@@ -28,6 +28,7 @@ export async function mochaGlobalSetup () {
     }
   };
   globalThis.vips = await Vips(options);
+  // vips.Cache.max(0);
 }
 
 export function mochaGlobalTeardown () {

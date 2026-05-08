@@ -177,23 +177,23 @@ export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 # Dependency version numbers
 VERSION_ZLIB_NG=2.3.3       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.5.2           # https://github.com/libffi/libffi
-VERSION_GLIB=2.88.0         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.88.1         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.8.0         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.26         # https://github.com/libexif/libexif
-VERSION_LCMS2=2.19          # https://github.com/mm2/Little-CMS
+VERSION_LCMS2=2.19.1        # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.4.0           # https://github.com/google/highway
 VERSION_BROTLI=1.2.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=0826579     # https://github.com/mozilla/mozjpeg
-VERSION_UHDR=1.4.0          # https://github.com/google/libultrahdr
+VERSION_UHDR=82b4f6d        # https://github.com/google/libultrahdr
 VERSION_JXL=0.11.2          # https://github.com/libjxl/libjxl
 VERSION_PNG=1.6.58          # https://github.com/pnggroup/libpng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.5.3          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
-VERSION_TIFF=179a100        # https://gitlab.com/libtiff/libtiff
+VERSION_TIFF=561e901        # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.47.0        # https://github.com/linebender/resvg
 VERSION_AOM=3.13.3          # https://aomedia.googlesource.com/aom
-VERSION_HEIF=4652161        # https://github.com/strukturag/libheif
+VERSION_HEIF=78638f4        # https://github.com/strukturag/libheif
 VERSION_VIPS=8.18.2         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
@@ -364,10 +364,8 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/libuhdr.pc" ] || [ -n "$DISABLE_UHDR" ] || (
   stage "Compiling uhdr"
   mkdir $DEPS/uhdr
-  curl -Ls https://github.com/google/libultrahdr/archive/refs/tags/v$VERSION_UHDR.tar.gz | tar xzC $DEPS/uhdr --strip-components=1
+  curl -Ls https://github.com/google/libultrahdr/archive/$VERSION_UHDR.tar.gz | tar xzC $DEPS/uhdr --strip-components=1
   cd $DEPS/uhdr
-  # [PATCH] improper use of clamp macro
-  curl -Ls https://github.com/google/libultrahdr/commit/5ed39d67cd31d254e84ebf76b03d4b7bcc12e2f7.patch | patch -p1
   # Ensure install targets are enabled when cross-compiling
   sed -i 's/CMAKE_CROSSCOMPILING AND UHDR_ENABLE_INSTALL/FALSE/' CMakeLists.txt
   # Disable threading support, we rely on libvips' thread pool

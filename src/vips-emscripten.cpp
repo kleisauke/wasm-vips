@@ -119,7 +119,11 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("hard_light", VIPS_BLEND_MODE_HARD_LIGHT)
         .value("soft_light", VIPS_BLEND_MODE_SOFT_LIGHT)
         .value("difference", VIPS_BLEND_MODE_DIFFERENCE)
-        .value("exclusion", VIPS_BLEND_MODE_EXCLUSION);
+        .value("exclusion", VIPS_BLEND_MODE_EXCLUSION)
+        .value("hue", VIPS_BLEND_MODE_HUE)
+        .value("saturation", VIPS_BLEND_MODE_SATURATION)
+        .value("colour", VIPS_BLEND_MODE_COLOUR)
+        .value("luminosity", VIPS_BLEND_MODE_LUMINOSITY);
 
     enum_<VipsCoding>("Coding")
         .value("error", VIPS_CODING_ERROR)
@@ -250,7 +254,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("attention", VIPS_INTERESTING_ATTENTION)
         .value("low", VIPS_INTERESTING_LOW)
         .value("high", VIPS_INTERESTING_HIGH)
-        .value("all", VIPS_INTERESTING_ALL);
+        .value("all", VIPS_INTERESTING_ALL)
+        .value("specific", VIPS_INTERESTING_SPECIFIC);
 
     enum_<VipsAngle>("Angle")
         .value("d0", VIPS_ANGLE_D0)
@@ -394,6 +399,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("icc", VIPS_FOREIGN_KEEP_ICC)
         .value("other", VIPS_FOREIGN_KEEP_OTHER)
         .value("gainmap", VIPS_FOREIGN_KEEP_GAINMAP)
+        .value("cicp", VIPS_FOREIGN_KEEP_CICP)
         .value("all", VIPS_FOREIGN_KEEP_ALL);
 
     enum_<VipsForeignPngFilter>("ForeignPngFilter")
@@ -1406,6 +1412,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .class_function("zone", optional_override([](int width, int height) {
                             return Image::zone(width, height);
                         }))
+        .function("CICP2scRGB", &Image::CICP2scRGB)
         .function("CMC2LCh", &Image::CMC2LCh)
         .function("CMYK2XYZ", &Image::CMYK2XYZ)
         .function("HSV2sRGB", &Image::HSV2sRGB)

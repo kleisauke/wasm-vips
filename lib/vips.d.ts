@@ -1568,8 +1568,6 @@ declare module Vips {
      *
      * The Cairo docs have [a nice explanation of all the blend
      * modes](https://www.cairographics.org/operators).
-     *
-     * The non-separable modes are not implemented.
      */
     enum BlendMode {
         /**
@@ -1671,7 +1669,23 @@ declare module Vips {
         /**
          * Somewhat like DIFFERENCE, but lower-contrast
          */
-        exclusion = 24 // 'exclusion'
+        exclusion = 24, // 'exclusion'
+        /**
+         * Hue of the second, saturation and luminosity of the first
+         */
+        hue = 25, // 'hue'
+        /**
+         * Saturation of the second, hue and luminosity of the first
+         */
+        saturation = 26, // 'saturation'
+        /**
+         * Hue and saturation of the second, luminosity of the first
+         */
+        colour = 27, // 'colour'
+        /**
+         * Luminosity of the second, hue and saturation of the first
+         */
+        luminosity = 28 // 'luminosity'
     }
 
     /**
@@ -1844,11 +1858,11 @@ declare module Vips {
          */
         eor = 2, // 'eor'
         /**
-         * `>>`
+         * `<<`
          */
         lshift = 3, // 'lshift'
         /**
-         * `<<`
+         * `>>`
          */
         rshift = 4 // 'rshift'
     }
@@ -2218,7 +2232,11 @@ declare module Vips {
         /**
          * Everything is interesting
          */
-        all = 6 // 'all'
+        all = 6, // 'all'
+        /**
+         * Use the specified point of interest
+         */
+        specific = 7 // 'specific'
     }
 
     /**
@@ -2812,9 +2830,13 @@ declare module Vips {
          */
         gainmap = 32, // 'gainmap'
         /**
+         * Keep CICP colour metadata
+         */
+        cicp = 64, // 'cicp'
+        /**
          * Keep all metadata
          */
-        all = 63 // 'all'
+        all = 127 // 'all'
     }
 
     /**
@@ -4486,6 +4508,14 @@ declare module Vips {
              */
             crop?: Interesting | Enum
             /**
+             * Horizontal position of the specific point of interest for cropping.
+             */
+            interesting_x?: number
+            /**
+             * Vertical position of the specific point of interest for cropping.
+             */
+            interesting_y?: number
+            /**
              * Reduce in linear light.
              */
             linear?: boolean
@@ -4536,6 +4566,14 @@ declare module Vips {
              */
             crop?: Interesting | Enum
             /**
+             * Horizontal position of the specific point of interest for cropping.
+             */
+            interesting_x?: number
+            /**
+             * Vertical position of the specific point of interest for cropping.
+             */
+            interesting_y?: number
+            /**
              * Reduce in linear light.
              */
             linear?: boolean
@@ -4585,6 +4623,14 @@ declare module Vips {
              * Reduce to fill target rectangle, then crop.
              */
             crop?: Interesting | Enum
+            /**
+             * Horizontal position of the specific point of interest for cropping.
+             */
+            interesting_x?: number
+            /**
+             * Vertical position of the specific point of interest for cropping.
+             */
+            interesting_y?: number
             /**
              * Reduce in linear light.
              */
@@ -5107,6 +5153,12 @@ declare module Vips {
              */
             uchar?: boolean
         }): Image;
+
+        /**
+         * Transform cicp to scrgb.
+         * @return Output image.
+         */
+        CICP2scRGB(): Image;
 
         /**
          * Transform lch to cmc.
@@ -7001,6 +7053,14 @@ declare module Vips {
              */
             bitdepth?: number
             /**
+             * Enable progressive (interlaced) encoding.
+             */
+            interlace?: boolean
+            /**
+             * Enable progressive encoding.
+             */
+            progressive?: boolean
+            /**
              * Which metadata to retain.
              */
             keep?: ForeignKeep | Flag
@@ -7049,6 +7109,14 @@ declare module Vips {
              */
             bitdepth?: number
             /**
+             * Enable progressive (interlaced) encoding.
+             */
+            interlace?: boolean
+            /**
+             * Enable progressive encoding.
+             */
+            progressive?: boolean
+            /**
              * Which metadata to retain.
              */
             keep?: ForeignKeep | Flag
@@ -7096,6 +7164,14 @@ declare module Vips {
              * Bit depth.
              */
             bitdepth?: number
+            /**
+             * Enable progressive (interlaced) encoding.
+             */
+            interlace?: boolean
+            /**
+             * Enable progressive encoding.
+             */
+            progressive?: boolean
             /**
              * Which metadata to retain.
              */
@@ -8394,6 +8470,14 @@ declare module Vips {
              */
             interesting?: Interesting | Enum
             /**
+             * Horizontal position of the specific point of interest.
+             */
+            interesting_x?: number
+            /**
+             * Vertical position of the specific point of interest.
+             */
+            interesting_y?: number
+            /**
              * Input image already has premultiplied alpha.
              */
             premultiplied?: boolean
@@ -8502,6 +8586,14 @@ declare module Vips {
              * Reduce to fill target rectangle, then crop.
              */
             crop?: Interesting | Enum
+            /**
+             * Horizontal position of the specific point of interest for cropping.
+             */
+            interesting_x?: number
+            /**
+             * Vertical position of the specific point of interest for cropping.
+             */
+            interesting_y?: number
             /**
              * Reduce in linear light.
              */
@@ -8901,6 +8993,38 @@ declare module Vips {
              */
             gainmap_scale_factor?: number
             /**
+             * Compute optimal huffman coding tables.
+             */
+            optimize_coding?: boolean
+            /**
+             * Generate an interlaced (progressive) jpeg.
+             */
+            interlace?: boolean
+            /**
+             * Select chroma subsample operation mode.
+             */
+            subsample_mode?: ForeignSubsample | Enum
+            /**
+             * Apply trellis quantisation to each 8x8 block.
+             */
+            trellis_quant?: boolean
+            /**
+             * Apply overshooting to samples with extreme values.
+             */
+            overshoot_deringing?: boolean
+            /**
+             * Split spectrum of dct coefficients into separate scans.
+             */
+            optimize_scans?: boolean
+            /**
+             * Use predefined quantization table with given index.
+             */
+            quant_table?: number
+            /**
+             * Add restart markers every specified number of mcu.
+             */
+            restart_interval?: number
+            /**
              * Which metadata to retain.
              */
             keep?: ForeignKeep | Flag
@@ -8933,6 +9057,38 @@ declare module Vips {
              */
             gainmap_scale_factor?: number
             /**
+             * Compute optimal huffman coding tables.
+             */
+            optimize_coding?: boolean
+            /**
+             * Generate an interlaced (progressive) jpeg.
+             */
+            interlace?: boolean
+            /**
+             * Select chroma subsample operation mode.
+             */
+            subsample_mode?: ForeignSubsample | Enum
+            /**
+             * Apply trellis quantisation to each 8x8 block.
+             */
+            trellis_quant?: boolean
+            /**
+             * Apply overshooting to samples with extreme values.
+             */
+            overshoot_deringing?: boolean
+            /**
+             * Split spectrum of dct coefficients into separate scans.
+             */
+            optimize_scans?: boolean
+            /**
+             * Use predefined quantization table with given index.
+             */
+            quant_table?: number
+            /**
+             * Add restart markers every specified number of mcu.
+             */
+            restart_interval?: number
+            /**
              * Which metadata to retain.
              */
             keep?: ForeignKeep | Flag
@@ -8964,6 +9120,38 @@ declare module Vips {
              * The scale factor of base image to gainmap image.
              */
             gainmap_scale_factor?: number
+            /**
+             * Compute optimal huffman coding tables.
+             */
+            optimize_coding?: boolean
+            /**
+             * Generate an interlaced (progressive) jpeg.
+             */
+            interlace?: boolean
+            /**
+             * Select chroma subsample operation mode.
+             */
+            subsample_mode?: ForeignSubsample | Enum
+            /**
+             * Apply trellis quantisation to each 8x8 block.
+             */
+            trellis_quant?: boolean
+            /**
+             * Apply overshooting to samples with extreme values.
+             */
+            overshoot_deringing?: boolean
+            /**
+             * Split spectrum of dct coefficients into separate scans.
+             */
+            optimize_scans?: boolean
+            /**
+             * Use predefined quantization table with given index.
+             */
+            quant_table?: number
+            /**
+             * Add restart markers every specified number of mcu.
+             */
+            restart_interval?: number
             /**
              * Which metadata to retain.
              */

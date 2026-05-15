@@ -196,7 +196,7 @@ VERSION_TIFF=732665c        # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.47.0        # https://github.com/linebender/resvg
 VERSION_AOM=3.14.1          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.23.0         # https://github.com/strukturag/libheif
-VERSION_VIPS=8.18.3         # https://github.com/libvips/libvips
+VERSION_VIPS=a6c3786        # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
 
@@ -518,20 +518,19 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/vips.pc" ] || (
   stage "Compiling vips"
   mkdir $DEPS/vips
-  curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$(without_prerelease $VERSION_VIPS).tar.xz | tar xJC $DEPS/vips --strip-components=1
+  curl -Ls https://github.com/libvips/libvips/archive/$VERSION_VIPS.tar.gz | tar xzC $DEPS/vips --strip-components=1
   cd $DEPS/vips
   # Emscripten specific patches
-  curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-$VERSION_VIPS.patch | patch -p1
-  # Disable building man pages, gettext po files, tools, and (fuzz-)tests
-  sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
+  curl -Ls https://github.com/libvips/libvips/compare/$VERSION_VIPS...kleisauke:wasm-vips-8.19.patch | patch -p1
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
-    -Ddeprecated=false -Dexamples=false -Dcplusplus=$LIBVIPS_CPP -Dauto_features=enabled \
-    -Dintrospection=disabled ${DISABLE_MODULES:+-Dmodules=disabled} -Darchive=disabled \
-    -Dcfitsio=disabled -Dfftw=disabled -Dfontconfig=disabled ${DISABLE_AVIF:+-Dheif=disabled} \
-    ${DISABLE_SIMD:+-Dhighway=disabled} ${DISABLE_JXL:+-Djpeg-xl=disabled} -Dmagick=disabled \
-    -Dmatio=disabled -Dnifti=disabled -Dopenexr=disabled -Dopenjpeg=disabled \
-    -Dopenslide=disabled -Dpangocairo=disabled -Dpdfium=disabled -Dpoppler=disabled \
-    -Draw=disabled ${DISABLE_SVG:+-Dresvg=disabled} -Drsvg=disabled ${DISABLE_UHDR:+-Duhdr=disabled} \
+    -Dexamples=false -Dman=false -Dpo=false -Dtests=false -Dtools=false -Dcplusplus=$LIBVIPS_CPP \
+    -Dauto_features=enabled -Dintrospection=disabled ${DISABLE_MODULES:+-Dmodules=disabled} \
+    -Darchive=disabled -Dcfitsio=disabled -Dfftw=disabled -Dfontconfig=disabled \
+    ${DISABLE_AVIF:+-Dheif=disabled} ${DISABLE_SIMD:+-Dhighway=disabled} \
+    ${DISABLE_JXL:+-Djpeg-xl=disabled} -Dmagick=disabled -Dmatio=disabled -Dnifti=disabled \
+    -Dopenexr=disabled -Dopenjpeg=disabled -Dopenslide=disabled -Dpangocairo=disabled \
+    -Dpdfium=disabled -Dpoppler=disabled -Draw=disabled ${DISABLE_SVG:+-Dresvg=disabled} \
+    -Drsvg=disabled ${DISABLE_UHDR:+-Duhdr=disabled} \
     -Dc_args="$CFLAGS -O3" -Dcpp_args="$CXXFLAGS -O3"
   meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export

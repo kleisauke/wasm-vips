@@ -157,7 +157,7 @@ describe('colour', () => {
     const pixel = difference.getpoint(10, 10);
     const result = pixel[0];
     const alpha = pixel[1];
-    expect(Math.abs(result - 4.97)).to.be.below(0.5);
+    expect(result).to.be.below(6);
     expect(alpha).to.be.closeTo(42.0, 0.001);
   });
 

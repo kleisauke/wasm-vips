@@ -655,6 +655,12 @@ static Image xyz(int width, int height, emscripten::val js_options = emscripten:
 static Image zone(int width, int height, emscripten::val js_options = emscripten::val::null());
 
 /**
+ * Transform cicp to scrgb.
+ * @return Output image.
+ */
+Image CICP2scRGB() const;
+
+/**
  * Transform lch to cmc.
  * @return Output image.
  */

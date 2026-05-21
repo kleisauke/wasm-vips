@@ -177,8 +177,8 @@ export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 # Dependency version numbers
 VERSION_ZLIB_NG=2.3.3       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.5.2           # https://github.com/libffi/libffi
-VERSION_GLIB=2.88.1         # https://gitlab.gnome.org/GNOME/glib
-VERSION_EXPAT=2.8.0         # https://github.com/libexpat/libexpat
+VERSION_GLIB=2.89.0         # https://gitlab.gnome.org/GNOME/glib
+VERSION_EXPAT=2.8.1         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.26         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.19.1        # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.4.0           # https://github.com/google/highway
@@ -190,10 +190,10 @@ VERSION_PNG=1.6.58          # https://github.com/pnggroup/libpng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.5.3          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
-VERSION_TIFF=561e901        # https://gitlab.com/libtiff/libtiff
+VERSION_TIFF=1b17963        # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.47.0        # https://github.com/linebender/resvg
-VERSION_AOM=3.13.3          # https://aomedia.googlesource.com/aom
-VERSION_HEIF=78638f4        # https://github.com/strukturag/libheif
+VERSION_AOM=3.14.0          # https://aomedia.googlesource.com/aom
+VERSION_HEIF=1.22.0         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.18.2         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
@@ -436,7 +436,7 @@ node --version
   cd $DEPS/webp
   # https://chromium.googlesource.com/webm/libwebp/+/5339483509d998936c3f184ec5a95e8c1bb4a5d9
   sed -i 's/EMSCRIPTEN/__&__/' src/dsp/cpu.c
-  # https://chromium-review.googlesource.com/c/webm/libwebp/+/7789388
+  # https://chromium.googlesource.com/webm/libwebp/+/453a18c42f396dd803345443fb5f70a0b8291d65
   sed -i '/if(EMSCRIPTEN/s/2/3/' cmake/cpu.cmake
   # Install the .cmake files into correct location
   sed -i '/set(ConfigPackageLocation/s/${CMAKE_INSTALL_DATADIR}\/${PROJECT_NAME}\/cmake/${CMAKE_INSTALL_LIBDIR}\/cmake\/${PROJECT_NAME}/' CMakeLists.txt
@@ -494,7 +494,7 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/libheif.pc" ] || [ -n "$DISABLE_AVIF" ] || (
   stage "Compiling libheif"
   mkdir $DEPS/heif
-  curl -Ls https://github.com/strukturag/libheif/archive/$VERSION_HEIF.tar.gz | tar xzC $DEPS/heif --strip-components=1
+  curl -Ls https://github.com/strukturag/libheif/releases/download/v$VERSION_HEIF/libheif-$VERSION_HEIF.tar.gz | tar xzC $DEPS/heif --strip-components=1
   cd $DEPS/heif
   # Skip libtiff lookup, it won't work
   sed -i '/find_package(TIFF)/d' heifio/CMakeLists.txt

@@ -22,10 +22,7 @@ is part of [Interop 2025](https://web.dev/blog/interop-2025#webassembly_wasm)
 and has only very recently become available on most major browser engines.
 
 For V8-based engines, at least version 14.4 is required, this corresponds
-to Chrome 144, Node.js 26.0.0 and Deno 2.6.7. The feature was previously
-available behind the `--experimental-wasm-rab-integration` flag in V8 13.6,
-as shipped in [Node.js 24](https://github.com/nodejs/node/pull/58070) and
-[Deno 2.3.2](https://github.com/denoland/deno/pull/29166).
+to Chrome 144, Node.js 26.0.0 and Deno 2.6.7.
 
 For Spidermonkey-based engines, the JavaScript engine used in Mozilla Firefox
 and whose version numbers are aligned, at least version 145 is required.
@@ -153,6 +150,4 @@ using convolve = multiply.conv(mask, {
 const outBuffer = convolve.writeToBuffer('.jpg');
 ```
 <sup>If not transpiling, this requires support for the [`using`](
-https://caniuse.com/mdn-javascript_statements_using) keyword. On Node.js,
-you can enable it with the `--js-explicit-resource-management` CLI flag.
-</sup>
+https://caniuse.com/mdn-javascript_statements_using) keyword.</sup>

@@ -16,7 +16,7 @@ Uses libvips v8.18.3, compiled with Emscripten v6.0.2.
 ### Changed
 
 - Build with `-sGROWABLE_ARRAYBUFFERS=2`.
-- Drop support for Node.js 17, now requires Node.js >= 24.
+- Drop support for Node.js 17, now requires Node.js >= 26.
 
 ## [v0.0.18] - 2026-06-09
 

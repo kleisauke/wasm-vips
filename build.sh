@@ -80,7 +80,11 @@ while [ $# -gt 0 ]; do
       ;;
     --disable-simd) SIMD=false ;;
     --disable-wasm-bigint) WASM_BIGINT=false ;;
-    --disable-wasm-eh) WASM_EH=false ;;
+    --disable-wasm-eh)
+      WASM_EH=false
+      # https://github.com/rust-lang/rust/pull/156928
+      SVG=false
+      ;;
     --disable-uhdr) UHDR=false ;;
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;
@@ -133,8 +137,6 @@ if [ "$WASM_EH" = "true" ]; then
   fi
 else
   COMMON_FLAGS+=" -fexceptions"
-  # https://github.com/rust-lang/compiler-team/issues/920
-  export RUSTFLAGS+=" -Zemscripten-wasm-eh=false"
 fi
 
 export CFLAGS="$COMMON_FLAGS -fvisibility=hidden"

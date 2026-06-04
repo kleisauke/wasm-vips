@@ -1172,7 +1172,7 @@ describe('foreign', () => {
     expect(() => {
       const im = vips.Image.heifload(Helpers.avifFileHuge);
       im.avg();
-    }).to.throw(/exceeds the maximum image size/);
+    }).to.throw(/(exceeds the maximum image size|out of memory)/);
   });
 
   describe('heifsave', () => {

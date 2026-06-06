@@ -8897,6 +8897,10 @@ declare module Vips {
              */
             Q?: number
             /**
+             * The scale factor of base image to gainmap image.
+             */
+            gainmap_scale_factor?: number
+            /**
              * Which metadata to retain.
              */
             keep?: ForeignKeep | Flag
@@ -8925,6 +8929,10 @@ declare module Vips {
              */
             Q?: number
             /**
+             * The scale factor of base image to gainmap image.
+             */
+            gainmap_scale_factor?: number
+            /**
              * Which metadata to retain.
              */
             keep?: ForeignKeep | Flag
@@ -8952,6 +8960,10 @@ declare module Vips {
              * Q factor.
              */
             Q?: number
+            /**
+             * The scale factor of base image to gainmap image.
+             */
+            gainmap_scale_factor?: number
             /**
              * Which metadata to retain.
              */

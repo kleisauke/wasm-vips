@@ -488,7 +488,7 @@ node --version
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS \
     -DAOM_TARGET_CPU=generic ${ENABLE_MODULES:+-DCONFIG_PIC=1} -DCONFIG_RUNTIME_CPU_DETECT=0 \
     -DENABLE_DOCS=OFF -DENABLE_TESTS=OFF -DENABLE_EXAMPLES=OFF -DENABLE_TOOLS=OFF \
-    -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=0 \
+    -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=1 \
     -DCONFIG_MULTITHREAD=0 # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
 )
@@ -498,8 +498,6 @@ node --version
   mkdir $DEPS/heif
   curl -Ls https://github.com/strukturag/libheif/releases/download/v$VERSION_HEIF/libheif-$VERSION_HEIF.tar.gz | tar xzC $DEPS/heif --strip-components=1
   cd $DEPS/heif
-  # Skip libtiff lookup, it won't work
-  sed -i '/find_package(TIFF)/d' heifio/CMakeLists.txt
   # Build with -DCMAKE_FIND_ROOT_PATH=$TARGET to ensure AOM can be found (see https://github.com/emscripten-core/emscripten/issues/10078)
   # Compile with -D__EMSCRIPTEN_STANDALONE_WASM__ to disable the Embind implementation.
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=$TARGET \
@@ -524,6 +522,7 @@ node --version
   cd $DEPS/vips
   # Emscripten specific patches
   curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-$VERSION_VIPS.patch | patch -p1
+  curl -Ls https://github.com/kleisauke/libvips/commit/4fb3cd79a361dccdfe0f84a6702a4645de746080.patch | patch -R -p1
   # Disable building man pages, gettext po files, tools, and (fuzz-)tests
   sed -i "/subdir('man')/{N;N;N;N;d;}" meson.build
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \

@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.18.2, compiled with Emscripten v6.0.0.
 
+### Added
+
+- Support for HDR AVIF images.
+  [#118](https://github.com/kleisauke/wasm-vips/pull/118)
+
 ### Fixed
 
 - Fix slowdown when processing large images in some pipelines.
@@ -18,7 +23,7 @@ Uses libvips v8.18.2, compiled with Emscripten v6.0.0.
 - Enable WebAssembly Exception Handling feature by default.
 - Drop support for Node.js 16, now requires Node.js >= 17.
 - Allow Deno to reuse Node.js ES6 module.
-- Reduce size of binaries by ~20%.
+- Reduce size of binaries by ~18%.
   [#113](https://github.com/kleisauke/wasm-vips/pull/113)
 
 ## [v0.0.17] - 2026-03-20

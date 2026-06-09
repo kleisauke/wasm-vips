@@ -1,5 +1,5 @@
 project('wasm-vips', 'cpp',
-    version: '0.0.17',
+    version: '0.0.18',
     meson_version: '>=0.60',
     license: 'MIT',
     default_options: [

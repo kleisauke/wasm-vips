@@ -2744,6 +2744,58 @@ declare module Vips {
         mks2021 = 7 // 'mks2021'
     }
 
+    enum CICPColourPrimaries {
+        bt709 = 1, // 'bt709'
+        unspecified = 2, // 'unspecified'
+        bt470m = 4, // 'bt470m'
+        bt470bg = 5, // 'bt470bg'
+        bt601 = 6, // 'bt601'
+        smpte240 = 7, // 'smpte240'
+        generic_film = 8, // 'generic-film'
+        bt2020 = 9, // 'bt2020'
+        smpte428 = 10, // 'smpte428'
+        dci_p3 = 11, // 'dci-p3'
+        display_p3 = 12, // 'display-p3'
+        ebu3213 = 22 // 'ebu3213'
+    }
+
+    enum CICPTransferCharacteristics {
+        bt709 = 1, // 'bt709'
+        unspecified = 2, // 'unspecified'
+        bt470m = 4, // 'bt470m'
+        bt470bg = 5, // 'bt470bg'
+        bt601 = 6, // 'bt601'
+        smpte240 = 7, // 'smpte240'
+        linear = 8, // 'linear'
+        log_100 = 9, // 'log-100'
+        log_100_sqrt10 = 10, // 'log-100-sqrt10'
+        iec61966 = 11, // 'iec61966'
+        bt1361 = 12, // 'bt1361'
+        srgb = 13, // 'srgb'
+        bt2020_10bit = 14, // 'bt2020-10bit'
+        bt2020_12bit = 15, // 'bt2020-12bit'
+        pq = 16, // 'pq'
+        smpte428 = 17, // 'smpte428'
+        hlg = 18 // 'hlg'
+    }
+
+    enum CICPMatrixCoefficients {
+        rgb = 0, // 'rgb'
+        bt709 = 1, // 'bt709'
+        unspecified = 2, // 'unspecified'
+        fcc = 4, // 'fcc'
+        bt470bg = 5, // 'bt470bg'
+        bt601 = 6, // 'bt601'
+        smpte240 = 7, // 'smpte240'
+        ycgco = 8, // 'ycgco'
+        bt2020_ncl = 9, // 'bt2020-ncl'
+        bt2020_cl = 10, // 'bt2020-cl'
+        smpte2085 = 11, // 'smpte2085'
+        chroma_ncl = 12, // 'chroma-ncl'
+        chroma_cl = 13, // 'chroma-cl'
+        ictcp = 14 // 'ictcp'
+    }
+
     /**
      * Pick a Profile Connection Space for [method@Image.icc_import] and
      * [method@Image.icc_export]. LAB is usually best, XYZ can be more convenient in some
@@ -8281,6 +8333,30 @@ declare module Vips {
          * @return Output image.
          */
         scRGB2BW(options?: {
+            /**
+             * Output device space depth in bits.
+             */
+            depth?: number
+        }): Image;
+
+        /**
+         * Transform scrgb to cicp.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        scRGB2CICP(options?: {
+            /**
+             * Cicp colour primaries (h.273 table 2).
+             */
+            colour_primaries?: CICPColourPrimaries | Enum
+            /**
+             * Cicp transfer characteristics (h.273 table 3).
+             */
+            transfer_characteristics?: CICPTransferCharacteristics | Enum
+            /**
+             * Cicp matrix coefficients (h.273 table 4).
+             */
+            matrix_coefficients?: CICPMatrixCoefficients | Enum
             /**
              * Output device space depth in bits.
              */

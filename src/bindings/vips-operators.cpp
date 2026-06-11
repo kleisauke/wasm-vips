@@ -3353,6 +3353,19 @@ Image Image::scRGB2BW(emscripten::val js_options) const
     return out;
 }
 
+Image Image::scRGB2CICP(emscripten::val js_options) const
+{
+    Image out;
+
+    this->call("scRGB2CICP",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("out", &out),
+               js_options);
+
+    return out;
+}
+
 Image Image::scRGB2XYZ() const
 {
     Image out;

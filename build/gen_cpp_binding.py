@@ -262,11 +262,19 @@ def generate_enums_flags(file):
                     prefix = 'VIPS_FORMAT'
                 elif prefix == 'VIPS_IMAGE_TYPE':
                     prefix = 'VIPS_IMAGE'
+                elif prefix == 'VIPS_CICP_TRANSFER_CHARACTERISTICS':
+                    prefix = 'VIPS_CICP_TRANSFER'
+                elif prefix == 'VIPS_CICP_MATRIX_COEFFICIENTS':
+                    prefix = 'VIPS_CICP_MATRIX'
                 cpp_value = prefix + '_' + js_key.upper()
                 if cpp_value == 'VIPS_INTERPRETATION_SRGB':
                     cpp_value = 'VIPS_INTERPRETATION_sRGB'
                 elif cpp_value == 'VIPS_INTERPRETATION_SCRGB':
                     cpp_value = 'VIPS_INTERPRETATION_scRGB'
+                elif cpp_value == 'VIPS_CICP_COLOUR_PRIMARIES_DCI_P3':
+                    cpp_value = 'VIPS_CICP_COLOUR_PRIMARIES_SMPTE431'
+                elif cpp_value == 'VIPS_CICP_COLOUR_PRIMARIES_DISPLAY_P3':
+                    cpp_value = 'VIPS_CICP_COLOUR_PRIMARIES_SMPTE432'
                 elif cpp_value in filter_values:
                     continue
 

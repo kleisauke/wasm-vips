@@ -379,6 +379,55 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("mks2013", VIPS_KERNEL_MKS2013)
         .value("mks2021", VIPS_KERNEL_MKS2021);
 
+    enum_<VipsCICPColourPrimaries>("CICPColourPrimaries")
+        .value("bt709", VIPS_CICP_COLOUR_PRIMARIES_BT709)
+        .value("unspecified", VIPS_CICP_COLOUR_PRIMARIES_UNSPECIFIED)
+        .value("bt470m", VIPS_CICP_COLOUR_PRIMARIES_BT470M)
+        .value("bt470bg", VIPS_CICP_COLOUR_PRIMARIES_BT470BG)
+        .value("bt601", VIPS_CICP_COLOUR_PRIMARIES_BT601)
+        .value("smpte240", VIPS_CICP_COLOUR_PRIMARIES_SMPTE240)
+        .value("generic_film", VIPS_CICP_COLOUR_PRIMARIES_GENERIC_FILM)
+        .value("bt2020", VIPS_CICP_COLOUR_PRIMARIES_BT2020)
+        .value("smpte428", VIPS_CICP_COLOUR_PRIMARIES_SMPTE428)
+        .value("dci_p3", VIPS_CICP_COLOUR_PRIMARIES_SMPTE431)
+        .value("display_p3", VIPS_CICP_COLOUR_PRIMARIES_SMPTE432)
+        .value("ebu3213", VIPS_CICP_COLOUR_PRIMARIES_EBU3213);
+
+    enum_<VipsCICPTransferCharacteristics>("CICPTransferCharacteristics")
+        .value("bt709", VIPS_CICP_TRANSFER_BT709)
+        .value("unspecified", VIPS_CICP_TRANSFER_UNSPECIFIED)
+        .value("bt470m", VIPS_CICP_TRANSFER_BT470M)
+        .value("bt470bg", VIPS_CICP_TRANSFER_BT470BG)
+        .value("bt601", VIPS_CICP_TRANSFER_BT601)
+        .value("smpte240", VIPS_CICP_TRANSFER_SMPTE240)
+        .value("linear", VIPS_CICP_TRANSFER_LINEAR)
+        .value("log_100", VIPS_CICP_TRANSFER_LOG_100)
+        .value("log_100_sqrt10", VIPS_CICP_TRANSFER_LOG_100_SQRT10)
+        .value("iec61966", VIPS_CICP_TRANSFER_IEC61966)
+        .value("bt1361", VIPS_CICP_TRANSFER_BT1361)
+        .value("srgb", VIPS_CICP_TRANSFER_SRGB)
+        .value("bt2020_10bit", VIPS_CICP_TRANSFER_BT2020_10BIT)
+        .value("bt2020_12bit", VIPS_CICP_TRANSFER_BT2020_12BIT)
+        .value("pq", VIPS_CICP_TRANSFER_PQ)
+        .value("smpte428", VIPS_CICP_TRANSFER_SMPTE428)
+        .value("hlg", VIPS_CICP_TRANSFER_HLG);
+
+    enum_<VipsCICPMatrixCoefficients>("CICPMatrixCoefficients")
+        .value("rgb", VIPS_CICP_MATRIX_RGB)
+        .value("bt709", VIPS_CICP_MATRIX_BT709)
+        .value("unspecified", VIPS_CICP_MATRIX_UNSPECIFIED)
+        .value("fcc", VIPS_CICP_MATRIX_FCC)
+        .value("bt470bg", VIPS_CICP_MATRIX_BT470BG)
+        .value("bt601", VIPS_CICP_MATRIX_BT601)
+        .value("smpte240", VIPS_CICP_MATRIX_SMPTE240)
+        .value("ycgco", VIPS_CICP_MATRIX_YCGCO)
+        .value("bt2020_ncl", VIPS_CICP_MATRIX_BT2020_NCL)
+        .value("bt2020_cl", VIPS_CICP_MATRIX_BT2020_CL)
+        .value("smpte2085", VIPS_CICP_MATRIX_SMPTE2085)
+        .value("chroma_ncl", VIPS_CICP_MATRIX_CHROMA_NCL)
+        .value("chroma_cl", VIPS_CICP_MATRIX_CHROMA_CL)
+        .value("ictcp", VIPS_CICP_MATRIX_ICTCP);
+
     enum_<VipsPCS>("PCS")
         .value("lab", VIPS_PCS_LAB)
         .value("xyz", VIPS_PCS_XYZ);
@@ -1856,6 +1905,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("scRGB2BW", &Image::scRGB2BW)
         .function("scRGB2BW", optional_override([](const Image &image) {
                       return image.scRGB2BW();
+                  }))
+        .function("scRGB2CICP", &Image::scRGB2CICP)
+        .function("scRGB2CICP", optional_override([](const Image &image) {
+                      return image.scRGB2CICP();
                   }))
         .function("scRGB2XYZ", &Image::scRGB2XYZ)
         .function("scRGB2sRGB", &Image::scRGB2sRGB)

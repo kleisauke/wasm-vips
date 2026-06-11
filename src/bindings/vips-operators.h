@@ -1967,6 +1967,13 @@ Image sRGB2scRGB() const;
 Image scRGB2BW(emscripten::val js_options = emscripten::val::null()) const;
 
 /**
+ * Transform scrgb to cicp.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+Image scRGB2CICP(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
  * Transform scrgb to xyz.
  * @return Output image.
  */

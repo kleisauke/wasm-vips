@@ -7709,6 +7709,19 @@ declare module Vips {
         percent(percent: number): number;
 
         /**
+         * Find threshold for percent of pixels by bt.709 luminance.
+         * @param percent Percentile (0-100) of luminance to return.
+         * @param options Optional options.
+         * @return Luminance value at the requested percentile in input unit.
+         */
+        percentLum(percent: number, options?: {
+            /**
+             * Histogram upper bound in input unit; values above clamp to the top bin.
+             */
+            max?: number
+        }): number;
+
+        /**
          * Calculate phase correlation.
          * @param in2 Second input image.
          * @return Output image.
@@ -7965,6 +7978,10 @@ declare module Vips {
              * Maximum value of alpha channel.
              */
             max_alpha?: number
+            /**
+             * Output should be uchar.
+             */
+            uchar?: boolean
         }): Image;
 
         /**
@@ -9260,6 +9277,10 @@ declare module Vips {
              * Unpremultiply with this alpha.
              */
             alpha_band?: number
+            /**
+             * Output should be uchar.
+             */
+            uchar?: boolean
         }): Image;
 
         /**

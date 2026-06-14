@@ -2907,6 +2907,20 @@ int Image::percent(double percent) const
     return threshold;
 }
 
+double Image::percent_lum(double percent, emscripten::val js_options) const
+{
+    double threshold;
+
+    this->call("percent_lum",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("threshold", &threshold)
+                   ->set("percent", percent),
+               js_options);
+
+    return threshold;
+}
+
 Image Image::phasecor(emscripten::val in2) const
 {
     Image out;

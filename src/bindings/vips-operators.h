@@ -1714,6 +1714,14 @@ Image msb(emscripten::val js_options = emscripten::val::null()) const;
 int percent(double percent) const;
 
 /**
+ * Find threshold for percent of pixels by bt.709 luminance.
+ * @param percent Percentile (0-100) of luminance to return.
+ * @param js_options Optional options.
+ * @return Luminance value at the requested percentile in input unit.
+ */
+double percent_lum(double percent, emscripten::val js_options = emscripten::val::null()) const;
+
+/**
  * Calculate phase correlation.
  * @param in2 Second input image.
  * @return Output image.

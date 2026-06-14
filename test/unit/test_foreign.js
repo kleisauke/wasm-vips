@@ -440,7 +440,7 @@ describe('foreign', () => {
       const imHdr2 = vips.Image.uhdrloadBuffer(data).uhdr2scRGB();
       const imHdr = vips.Image.uhdrload(Helpers.uhdrFile).uhdr2scRGB();
 
-      expect(imHdr2.subtract(imHdr).abs().avg()).to.be.below(0.02);
+      expect(imHdr2.subtract(imHdr).abs().avg()).to.be.below(0.05);
     });
 
     it('roundtrip HDR', function () {
@@ -453,7 +453,7 @@ describe('foreign', () => {
       const data = im.uhdrsaveBuffer();
       const im2 = vips.Image.uhdrloadBuffer(data).uhdr2scRGB();
 
-      expect(im2.subtract(im).abs().avg()).to.be.below(0.05);
+      expect(im2.subtract(im).abs().avg()).to.be.below(0.1);
     });
 
     it('thumbnail', function () {

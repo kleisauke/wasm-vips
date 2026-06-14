@@ -1817,6 +1817,10 @@ EMSCRIPTEN_BINDINGS(my_module) {
                       return image.msb();
                   }))
         .function("percent", &Image::percent)
+        .function("percentLum", &Image::percent_lum)
+        .function("percentLum", optional_override([](const Image &image, double percent) {
+                      return image.percent_lum(percent);
+                  }))
         .function("phasecor", &Image::phasecor)
         .function("pngsave", &Image::pngsave)
         .function("pngsave", optional_override([](const Image &image, const std::string &filename) {

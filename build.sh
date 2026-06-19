@@ -285,6 +285,7 @@ node --version
   # https://gitlab.gnome.org/GNOME/glib/-/issues/3596
   curl -Ls https://github.com/GNOME/glib/compare/$VERSION_GLIB...kleisauke:wasm-vips-$VERSION_GLIB.patch | patch -p1
   curl -Ls https://github.com/kleisauke/glib/commit/338825c9b3cc5aa3418d4fccfa3772674caa69c2.patch | patch -R -p1
+  curl -Ls https://github.com/fluendo/glib/commit/58f4863e42a5a17fa0cc9187e3fd3b330e537909.patch | patch -p1
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
     --force-fallback-for=gvdb -Dintrospection=disabled -Dselinux=disabled -Dxattr=false -Dlibmount=disabled -Dsysprof=disabled -Dnls=disabled \
     -Dglib_debug=disabled -Dtests=false -Dglib_assert=false -Dglib_checks=false

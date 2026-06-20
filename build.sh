@@ -402,7 +402,7 @@ node --version
   fi
 )
 
-[ -f "$TARGET/lib/pkgconfig/libpng.pc" ] || : || (
+[ -f "$TARGET/lib/pkgconfig/libpng.pc" ] || (
   stage "Compiling png"
   mkdir $DEPS/png
   curl -Ls https://github.com/pnggroup/libpng/archive/refs/tags/v$VERSION_PNG.tar.gz | tar xzC $DEPS/png --strip-components=1
@@ -532,7 +532,7 @@ node --version
     -Dcfitsio=disabled -Dfftw=disabled -Dfontconfig=disabled ${DISABLE_AVIF:+-Dheif=disabled} \
     ${DISABLE_SIMD:+-Dhighway=disabled} ${DISABLE_JXL:+-Djpeg-xl=disabled} -Dmagick=disabled \
     -Dmatio=disabled -Dnifti=disabled -Dopenexr=disabled -Dopenjpeg=disabled \
-    -Dopenslide=disabled -Dpangocairo=disabled -Dpdfium=disabled -D{,s}png=disabled -Dpoppler=disabled \
+    -Dopenslide=disabled -Dpangocairo=disabled -Dpdfium=disabled -Dpoppler=disabled \
     -Draw=disabled ${DISABLE_SVG:+-Dresvg=disabled} -Drsvg=disabled ${DISABLE_UHDR:+-Duhdr=disabled} \
     -Dc_args="$CFLAGS -O3" -Dcpp_args="$CXXFLAGS -O3"
   meson install -C _build --tag runtime,devel

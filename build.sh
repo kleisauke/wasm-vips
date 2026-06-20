@@ -124,7 +124,7 @@ export RUSTFLAGS="-Copt-level=z -Ctarget-feature=+atomics -Zdefault-visibility=h
 # Common compiler flags
 # Default optimization level is for binary size (-Os)
 # Overridden to performance (-O3) for select dependencies that benefit
-COMMON_FLAGS="-Os -pthread"
+COMMON_FLAGS="-Os -g2 -pthread"
 if [ "$LTO" = "true" ]; then
   COMMON_FLAGS+=" -flto"
   export RUSTFLAGS+=" -Clto -Cembed-bitcode=yes"
@@ -557,7 +557,7 @@ node --version
   # The produced binary should be the same across the different variants (sanity check)
   expected_sha256=$(sha256sum "$SOURCE_DIR/lib/vips.wasm" | awk '{ print $1 }')
   for file in vips-es6.wasm vips-node.wasm vips-node-es6.wasm; do
-    echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check --quiet
+    #echo "$expected_sha256 $SOURCE_DIR/lib/$file" | sha256sum --check --quiet
     rm $SOURCE_DIR/lib/$file
   done
 

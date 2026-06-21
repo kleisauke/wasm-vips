@@ -26,11 +26,6 @@ ENVIRONMENT="web,node"
 # https://github.com/emscripten-core/emscripten/issues/15041
 WASM_FS=false
 
-# Leverage Wasm EH instructions for setjmp/longjmp support
-# and throwing/catching exceptions, enabled by default
-# https://github.com/WebAssembly/exception-handling
-WASM_EH=true
-
 # Emit instructions for the standardized Wasm EH proposal with exnref
 # (adopted on Oct 2023), disabled by default
 # https://github.com/WebAssembly/exception-handling/issues/280
@@ -66,15 +61,7 @@ while [ $# -gt 0 ]; do
   case $1 in
     --enable-lto) LTO=true ;;
     --enable-wasm-fs) WASM_FS=true ;;
-    --enable-new-wasm-eh)
-      WASM_EH=true
-      WASM_EXNREF=true
-      ;;
-    --disable-wasm-eh)
-      WASM_EH=false
-      # https://github.com/rust-lang/rust/pull/156928
-      SVG=false
-      ;;
+    --enable-new-wasm-eh) WASM_EXNREF=true ;;
     --disable-uhdr) UHDR=false ;;
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;
@@ -114,19 +101,14 @@ export RUSTFLAGS="-Copt-level=z -Ctarget-feature=+atomics,+simd128 -Zdefault-vis
 # Common compiler flags
 # Default optimization level is for binary size (-Os)
 # Overridden to performance (-O3) for select dependencies that benefit
-COMMON_FLAGS="-Os -pthread"
+COMMON_FLAGS="-Os -pthread -fwasm-exceptions"
+if [ "$WASM_EXNREF" = "true" ]; then
+  COMMON_FLAGS+=" -sWASM_LEGACY_EXCEPTIONS=0"
+  export RUSTFLAGS+=" -Cllvm-args=-wasm-use-legacy-eh=0"
+fi
 if [ "$LTO" = "true" ]; then
   COMMON_FLAGS+=" -flto"
   export RUSTFLAGS+=" -Clto -Cembed-bitcode=yes"
-fi
-if [ "$WASM_EH" = "true" ]; then
-  COMMON_FLAGS+=" -fwasm-exceptions"
-  if [ "$WASM_EXNREF" = "true" ]; then
-    COMMON_FLAGS+=" -sWASM_LEGACY_EXCEPTIONS=0"
-    export RUSTFLAGS+=" -Cllvm-args=-wasm-use-legacy-eh=0"
-  fi
-else
-  COMMON_FLAGS+=" -fexceptions"
 fi
 
 export CFLAGS="$COMMON_FLAGS -fvisibility=hidden -msimd128 -DWASM_SIMD_COMPAT_SLOW"

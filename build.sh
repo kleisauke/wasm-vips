@@ -162,7 +162,7 @@ VERSION_TIFF=732665c        # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.47.0        # https://github.com/linebender/resvg
 VERSION_AOM=3.14.1          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.23.0         # https://github.com/strukturag/libheif
-VERSION_VIPS=19769cb        # https://github.com/libvips/libvips
+VERSION_VIPS=e51dfe5        # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
 

@@ -22,22 +22,9 @@ mkdir -p $TARGET
 # Specifies the environment(s) to target
 ENVIRONMENT="web,node"
 
-# Fixed-width SIMD, enabled by default
-# https://github.com/WebAssembly/simd
-SIMD=true
-
-# JS BigInt to Wasm i64 integration, enabled by default
-# https://github.com/WebAssembly/JS-BigInt-integration
-WASM_BIGINT=true
-
 # WebAssembly-based file system layer for Emscripten, disabled by default
 # https://github.com/emscripten-core/emscripten/issues/15041
 WASM_FS=false
-
-# Leverage Wasm EH instructions for setjmp/longjmp support
-# and throwing/catching exceptions, enabled by default
-# https://github.com/WebAssembly/exception-handling
-WASM_EH=true
 
 # Emit instructions for the standardized Wasm EH proposal with exnref
 # (adopted on Oct 2023), disabled by default
@@ -74,17 +61,7 @@ while [ $# -gt 0 ]; do
   case $1 in
     --enable-lto) LTO=true ;;
     --enable-wasm-fs) WASM_FS=true ;;
-    --enable-new-wasm-eh)
-      WASM_EH=true
-      WASM_EXNREF=true
-      ;;
-    --disable-simd) SIMD=false ;;
-    --disable-wasm-bigint) WASM_BIGINT=false ;;
-    --disable-wasm-eh)
-      WASM_EH=false
-      # https://github.com/rust-lang/rust/pull/156928
-      SVG=false
-      ;;
+    --enable-new-wasm-eh) WASM_EXNREF=true ;;
     --disable-uhdr) UHDR=false ;;
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;
@@ -99,7 +76,7 @@ while [ $# -gt 0 ]; do
 done
 
 # Configure the ENABLE_* and DISABLE_* expansion helpers
-for arg in SIMD UHDR JXL AVIF SVG MODULES BINDINGS; do
+for arg in UHDR JXL AVIF SVG MODULES BINDINGS; do
   if [ "${!arg}" = "true" ]; then
     declare ENABLE_$arg=true
   else
@@ -119,36 +96,25 @@ done
 #COMMON_FLAGS="-Os -g2 -fsanitize=address -pthread"
 
 # Rust flags
-export RUSTFLAGS="-Copt-level=z -Ctarget-feature=+atomics -Zdefault-visibility=hidden -Zlocation-detail=none -Zfmt-debug=none"
+export RUSTFLAGS="-Copt-level=z -Ctarget-feature=+atomics,+simd128 -Zdefault-visibility=hidden -Zlocation-detail=none -Zfmt-debug=none"
 
 # Common compiler flags
 # Default optimization level is for binary size (-Os)
 # Overridden to performance (-O3) for select dependencies that benefit
-COMMON_FLAGS="-Os -pthread"
+COMMON_FLAGS="-Os -pthread -fwasm-exceptions"
+if [ "$WASM_EXNREF" = "true" ]; then
+  COMMON_FLAGS+=" -sWASM_LEGACY_EXCEPTIONS=0"
+  export RUSTFLAGS+=" -Cllvm-args=-wasm-use-legacy-eh=0"
+fi
 if [ "$LTO" = "true" ]; then
   COMMON_FLAGS+=" -flto"
   export RUSTFLAGS+=" -Clto -Cembed-bitcode=yes"
 fi
-if [ "$WASM_EH" = "true" ]; then
-  COMMON_FLAGS+=" -fwasm-exceptions"
-  if [ "$WASM_EXNREF" = "true" ]; then
-    COMMON_FLAGS+=" -sWASM_LEGACY_EXCEPTIONS=0"
-    export RUSTFLAGS+=" -Cllvm-args=-wasm-use-legacy-eh=0"
-  fi
-else
-  COMMON_FLAGS+=" -fexceptions"
-fi
 
-export CFLAGS="$COMMON_FLAGS -fvisibility=hidden"
-if [ "$SIMD" = "true" ]; then
-  export CFLAGS+=" -msimd128 -DWASM_SIMD_COMPAT_SLOW"
-  export RUSTFLAGS+=" -Ctarget-feature=+simd128"
-fi
-
+export CFLAGS="$COMMON_FLAGS -fvisibility=hidden -msimd128 -DWASM_SIMD_COMPAT_SLOW"
 export CXXFLAGS="$CFLAGS"
 
 export LDFLAGS="$COMMON_FLAGS -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
-[ "$WASM_BIGINT" = "true" ] || export LDFLAGS+=" -sWASM_BIGINT=0"
 
 # Build paths
 export CPATH="$TARGET/include"
@@ -211,7 +177,7 @@ VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
   printf "  \"ffi\": \"${VERSION_FFI}\",\n"; \
   printf "  \"glib\": \"${VERSION_GLIB}\",\n"; \
   [ -n "$DISABLE_AVIF" ] || printf "  \"heif\": \"${VERSION_HEIF}\",\n"; \
-  [[ -n "$DISABLE_SIMD" && -n "$DISABLE_JXL" ]] || printf "  \"highway\": \"${VERSION_HWY}\",\n"; \
+  printf "  \"highway\": \"${VERSION_HWY}\",\n"; \
   printf "  \"imagequant\": \"${VERSION_IMAGEQUANT}\",\n"; \
   [ -n "$DISABLE_JXL" ] || printf "  \"jxl\": \"${VERSION_JXL}\",\n"; \
   printf "  \"lcms\": \"${VERSION_LCMS2}\",\n"; \
@@ -259,7 +225,7 @@ node --version
   # SSE intrinsics needs to be checked for wasm32
   sed -i 's/BASEARCH_X86_FOUND/& OR BASEARCH_WASM32_FOUND/g' CMakeLists.txt
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF \
-    -DBUILD_TESTING=OFF ${DISABLE_SIMD:+-DWITH_OPTIM=OFF} -DWITH_RUNTIME_CPU_DETECTION=OFF -DZLIB_COMPAT=ON \
+    -DBUILD_TESTING=OFF -DWITH_RUNTIME_CPU_DETECTION=OFF -DZLIB_COMPAT=ON \
     -DCMAKE_C_FLAGS="$CFLAGS -O3"
   make -C _build install
 )
@@ -269,7 +235,6 @@ node --version
   mkdir $DEPS/ffi
   curl -Ls https://github.com/libffi/libffi/releases/download/v$VERSION_FFI/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
   cd $DEPS/ffi
-  [ "$WASM_BIGINT" = "true" ] || curl -Ls https://github.com/libffi/libffi/compare/v$VERSION_FFI...kleisauke:disable-wasm-bigint-$VERSION_FFI.patch | patch -p1
   # Compile without -fexceptions
   sed -i 's/ -fexceptions//g' configure
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
@@ -321,7 +286,7 @@ node --version
   meson install -C _build --tag devel
 )
 
-[ -f "$TARGET/lib/pkgconfig/libhwy.pc" ] || [[ -n "$DISABLE_SIMD" && -n "$DISABLE_JXL" ]] || (
+[ -f "$TARGET/lib/pkgconfig/libhwy.pc" ] || (
   stage "Compiling hwy"
   mkdir $DEPS/hwy
   curl -Ls https://github.com/google/highway/archive/refs/tags/$VERSION_HWY.tar.gz | tar xzC $DEPS/hwy --strip-components=1
@@ -391,7 +356,7 @@ node --version
   make -C _build install
   if [ -n "$ENABLE_MODULES" ]; then
     # Ensure we don't link with highway in the vips-jxl side module
-    [ -n "$DISABLE_SIMD" ] || sed -i '/^Requires:/s/ libhwy//' $TARGET/lib/pkgconfig/libjxl.pc
+    sed -i '/^Requires:/s/ libhwy//' $TARGET/lib/pkgconfig/libjxl.pc
     # ... and the same for lcms2
     sed -i '/^Requires:/s/ lcms2//' $TARGET/lib/pkgconfig/libjxl_cms.pc
     # ... and the same for -lc++, see:
@@ -407,7 +372,7 @@ node --version
   cd $DEPS/png
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-tests --disable-tools --without-binconfigs --disable-unversioned-libpng-config \
-    ${ENABLE_SIMD:+--enable-intel-sse CPPFLAGS="-O3 -msse4.1"}
+    --enable-intel-sse CPPFLAGS="-O3 -msse4.1"
   make install dist_man_MANS=
 )
 
@@ -417,7 +382,7 @@ node --version
   curl -Ls https://github.com/lovell/libimagequant/archive/refs/tags/v$VERSION_IMAGEQUANT.tar.gz | tar xzC $DEPS/imagequant --strip-components=1
   cd $DEPS/imagequant
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
-    ${ENABLE_SIMD:+-Dc_args="$CFLAGS -O3 -msse -DUSE_SSE=1"}
+    -Dc_args="$CFLAGS -O3 -msse -DUSE_SSE=1"
   meson install -C _build --tag devel
 )
 
@@ -444,7 +409,7 @@ node --version
   sed -i '/set(ConfigPackageLocation/s/${CMAKE_INSTALL_DATADIR}\/${PROJECT_NAME}\/cmake/${CMAKE_INSTALL_LIBDIR}\/cmake\/${PROJECT_NAME}/' CMakeLists.txt
   # Compile without AVX2 support, as most of these instructions are emulated
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF \
-    ${ENABLE_SIMD:+-DWEBP_ENABLE_SIMD=ON} -DWEBP_BUILD_ANIM_UTILS=OFF -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF \
+    -DWEBP_ENABLE_SIMD=ON -DWEBP_BUILD_ANIM_UTILS=OFF -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF \
     -DWEBP_BUILD_GIF2WEBP=OFF -DWEBP_BUILD_IMG2WEBP=OFF -DWEBP_BUILD_VWEBP=OFF \
     -DWEBP_BUILD_WEBPINFO=OFF -DWEBP_BUILD_WEBPMUX=OFF -DWEBP_BUILD_EXTRAS=OFF \
     -DCMAKE_C_FLAGS="$CFLAGS -U__AVX2__ -DWEBP_DISABLE_STATS -DWEBP_REDUCE_CSP" \
@@ -526,11 +491,10 @@ node --version
     -Dexamples=false -Dman=false -Dpo=false -Dtests=false -Dtools=false -Dcplusplus=$LIBVIPS_CPP \
     -Dauto_features=enabled -Dintrospection=disabled ${DISABLE_MODULES:+-Dmodules=disabled} \
     -Darchive=disabled -Dcfitsio=disabled -Dfftw=disabled -Dfontconfig=disabled \
-    ${DISABLE_AVIF:+-Dheif=disabled} ${DISABLE_SIMD:+-Dhighway=disabled} \
-    ${DISABLE_JXL:+-Djpeg-xl=disabled} -Dmagick=disabled -Dmatio=disabled -Dnifti=disabled \
-    -Dopenexr=disabled -Dopenjpeg=disabled -Dopenslide=disabled -Dpangocairo=disabled \
-    -Dpdfium=disabled -Dpoppler=disabled -Draw=disabled ${DISABLE_SVG:+-Dresvg=disabled} \
-    -Drsvg=disabled ${DISABLE_UHDR:+-Duhdr=disabled} \
+    ${DISABLE_AVIF:+-Dheif=disabled} ${DISABLE_JXL:+-Djpeg-xl=disabled} -Dmagick=disabled \
+    -Dmatio=disabled -Dnifti=disabled -Dopenexr=disabled -Dopenjpeg=disabled -Dopenslide=disabled \
+    -Dpangocairo=disabled -Dpdfium=disabled -Dpoppler=disabled -Draw=disabled \
+    ${DISABLE_SVG:+-Dresvg=disabled} -Drsvg=disabled ${DISABLE_UHDR:+-Duhdr=disabled} \
     -Dc_args="$CFLAGS -O3" -Dcpp_args="$CXXFLAGS -O3"
   meson install -C _build --tag runtime,devel
   # Emscripten requires linking to side modules to find the necessary symbols to export

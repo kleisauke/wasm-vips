@@ -26,10 +26,6 @@ ENVIRONMENT="web,node"
 # https://github.com/WebAssembly/simd
 SIMD=true
 
-# JS BigInt to Wasm i64 integration, enabled by default
-# https://github.com/WebAssembly/JS-BigInt-integration
-WASM_BIGINT=true
-
 # WebAssembly-based file system layer for Emscripten, disabled by default
 # https://github.com/emscripten-core/emscripten/issues/15041
 WASM_FS=false
@@ -79,7 +75,6 @@ while [ $# -gt 0 ]; do
       WASM_EXNREF=true
       ;;
     --disable-simd) SIMD=false ;;
-    --disable-wasm-bigint) WASM_BIGINT=false ;;
     --disable-wasm-eh)
       WASM_EH=false
       # https://github.com/rust-lang/rust/pull/156928
@@ -148,7 +143,6 @@ fi
 export CXXFLAGS="$CFLAGS"
 
 export LDFLAGS="$COMMON_FLAGS -L$TARGET/lib -sAUTO_JS_LIBRARIES=0 -sAUTO_NATIVE_LIBRARIES=0"
-[ "$WASM_BIGINT" = "true" ] || export LDFLAGS+=" -sWASM_BIGINT=0"
 
 # Build paths
 export CPATH="$TARGET/include"
@@ -269,7 +263,6 @@ node --version
   mkdir $DEPS/ffi
   curl -Ls https://github.com/libffi/libffi/releases/download/v$VERSION_FFI/libffi-$VERSION_FFI.tar.gz | tar xzC $DEPS/ffi --strip-components=1
   cd $DEPS/ffi
-  [ "$WASM_BIGINT" = "true" ] || curl -Ls https://github.com/libffi/libffi/compare/v$VERSION_FFI...kleisauke:disable-wasm-bigint-$VERSION_FFI.patch | patch -p1
   # Compile without -fexceptions
   sed -i 's/ -fexceptions//g' configure
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \

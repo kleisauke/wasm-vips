@@ -144,24 +144,24 @@ export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 
 # Dependency version numbers
 VERSION_ZLIB_NG=2.3.3       # https://github.com/zlib-ng/zlib-ng
-VERSION_FFI=3.5.2           # https://github.com/libffi/libffi
-VERSION_GLIB=2.89.0         # https://gitlab.gnome.org/GNOME/glib
-VERSION_EXPAT=2.8.1         # https://github.com/libexpat/libexpat
+VERSION_FFI=3.6.0           # https://github.com/libffi/libffi
+VERSION_GLIB=2.89.1         # https://gitlab.gnome.org/GNOME/glib
+VERSION_EXPAT=2.8.2         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.26         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.19.1        # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.4.0           # https://github.com/google/highway
 VERSION_BROTLI=1.2.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=0826579     # https://github.com/mozilla/mozjpeg
-VERSION_UHDR=13a058f        # https://github.com/google/libultrahdr
+VERSION_UHDR=1acdbed        # https://github.com/google/libultrahdr
 VERSION_JXL=0.11.2          # https://github.com/libjxl/libjxl
 VERSION_PNG=1.6.58          # https://github.com/pnggroup/libpng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.5.3          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
-VERSION_TIFF=732665c        # https://gitlab.com/libtiff/libtiff
+VERSION_TIFF=4.7.2rc2       # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.47.0        # https://github.com/linebender/resvg
 VERSION_AOM=3.14.1          # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.23.0         # https://github.com/strukturag/libheif
+VERSION_HEIF=1.23.1         # https://github.com/strukturag/libheif
 VERSION_VIPS=e51dfe5        # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
@@ -420,7 +420,7 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/libtiff-4.pc" ] || (
   stage "Compiling tiff"
   mkdir $DEPS/tiff
-  curl -Ls https://gitlab.com/libtiff/libtiff/-/archive/$VERSION_TIFF/libtiff-$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1
+  curl -Ls https://download.osgeo.org/libtiff/tiff-$VERSION_TIFF.tar.xz | tar xJC $DEPS/tiff --strip-components=1
   cd $DEPS/tiff
   # Build with -DCMAKE_FIND_ROOT_PATH=$TARGET to ensure WebP support (see https://github.com/emscripten-core/emscripten/issues/10078)
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=$TARGET \

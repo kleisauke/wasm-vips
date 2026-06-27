@@ -9086,6 +9086,14 @@ declare module Vips {
              */
             gainmap_scale_factor?: number
             /**
+             * Target display peak brightness in nits.
+             */
+            peak_brightness?: number
+            /**
+             * Maximum content boost for the gainmap.
+             */
+            max_content_boost?: number
+            /**
              * Compute optimal huffman coding tables.
              */
             optimize_coding?: boolean
@@ -9150,6 +9158,14 @@ declare module Vips {
              */
             gainmap_scale_factor?: number
             /**
+             * Target display peak brightness in nits.
+             */
+            peak_brightness?: number
+            /**
+             * Maximum content boost for the gainmap.
+             */
+            max_content_boost?: number
+            /**
              * Compute optimal huffman coding tables.
              */
             optimize_coding?: boolean
@@ -9213,6 +9229,14 @@ declare module Vips {
              * The scale factor of base image to gainmap image.
              */
             gainmap_scale_factor?: number
+            /**
+             * Target display peak brightness in nits.
+             */
+            peak_brightness?: number
+            /**
+             * Maximum content boost for the gainmap.
+             */
+            max_content_boost?: number
             /**
              * Compute optimal huffman coding tables.
              */

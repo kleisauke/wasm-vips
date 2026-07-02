@@ -236,6 +236,7 @@ FS.createDataFile = function (parent, name, data, canRead, canWrite, canOwn) {};
 FS.createLazyFile = function (parent, name, url, canRead, canWrite) {};
 
 /**
+ * Deprecated, use FS.preloadFile instead.
  * @param {Object|string} parent
  * @param {string} name
  * @param {string} url
@@ -243,6 +244,15 @@ FS.createLazyFile = function (parent, name, url, canRead, canWrite) {};
  * @param {boolean} canWrite
  */
 FS.createPreloadedFile = function (parent, name, url, canRead, canWrite) {};
+
+/**
+ * @param {Object|string} parent
+ * @param {string} name
+ * @param {string} url
+ * @param {boolean} canRead
+ * @param {boolean} canWrite
+ */
+FS.preloadFile = async function (parent, name, url, canRead, canWrite) {};
 
 /**
  * @param {number} mode

@@ -38,7 +38,7 @@
     noImageDecoding: true,
     preRun: (module) => {
       for (const file of benchFiles) {
-        module.FS.createPreloadedFile('/', file.split('/').pop(), `test/bench/images/${file}`, true, false);
+        module.FS.preloadFile('/', file.split('/').pop(), `test/bench/images/${file}`, true, false);
       }
     }
   });

@@ -125,7 +125,7 @@
 
       // Preload test files
       for (const file of Helpers.testFiles) {
-        module.FS.createPreloadedFile('/', file.split('/').pop(), 'test/unit/images/' + file, true, false);
+        module.FS.preloadFile('/', file.split('/').pop(), 'test/unit/images/' + file, true, false);
       }
     },
     postRun: (module) => {

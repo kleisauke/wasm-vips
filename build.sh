@@ -153,7 +153,7 @@ VERSION_HWY=1.4.0           # https://github.com/google/highway
 VERSION_BROTLI=1.2.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=0826579     # https://github.com/mozilla/mozjpeg
 VERSION_UHDR=1acdbed        # https://github.com/google/libultrahdr
-VERSION_JXL=0.11.2          # https://github.com/libjxl/libjxl
+VERSION_JXL=0.12.0          # https://github.com/libjxl/libjxl
 VERSION_PNG=1.6.58          # https://github.com/pnggroup/libpng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.5.3          # https://github.com/dloebl/cgif
@@ -348,8 +348,8 @@ node --version
   curl -Ls https://github.com/libjxl/libjxl/archive/refs/tags/v$VERSION_JXL.tar.gz | tar xzC $DEPS/jxl --strip-components=1
   cd $DEPS/jxl
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=$TARGET \
-    -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DJPEGXL_ENABLE_TOOLS=OFF -DJPEGXL_ENABLE_JPEGLI=OFF \
-    -DJPEGXL_ENABLE_EXAMPLES=OFF -DJPEGXL_ENABLE_SJPEG=OFF -DJPEGXL_ENABLE_SKCMS=OFF -DJPEGXL_BUNDLE_LIBPNG=OFF \
+    -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DJPEGXL_ENABLE_TOOLS=OFF -DJPEGXL_ENABLE_EXAMPLES=OFF \
+    -DJPEGXL_ENABLE_SJPEG=OFF -DJPEGXL_ENABLE_SKCMS=OFF -DJPEGXL_BUNDLE_LIBPNG=OFF \
     -DJPEGXL_FORCE_SYSTEM_BROTLI=ON -DJPEGXL_FORCE_SYSTEM_LCMS2=ON -DJPEGXL_FORCE_SYSTEM_HWY=ON \
     -DCMAKE_C_FLAGS="$CFLAGS -O3" -DCMAKE_CXX_FLAGS="$CXXFLAGS -O3" \
     -DJPEGXL_ENABLE_TRANSCODE_JPEG=OFF # libvips always decodes to pixels
@@ -420,7 +420,7 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/libtiff-4.pc" ] || (
   stage "Compiling tiff"
   mkdir $DEPS/tiff
-  curl -Ls https://download.osgeo.org/libtiff/tiff-$VERSION_TIFF.tar.xz | tar xJC $DEPS/tiff --strip-components=1
+  curl -Ls https://gitlab.com/libtiff/libtiff/-/archive/v$VERSION_TIFF/libtiff-v$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1
   cd $DEPS/tiff
   # Build with -DCMAKE_FIND_ROOT_PATH=$TARGET to ensure WebP support (see https://github.com/emscripten-core/emscripten/issues/10078)
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=$TARGET \

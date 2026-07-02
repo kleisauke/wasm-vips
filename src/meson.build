@@ -46,8 +46,9 @@ wasm_vips_dep = declare_dependency(
 # 4 GiB - 100 MiB (ASan + pthreads extra increment) - 512 MiB (shadow size, 1/8th of 4 GiB) - 256 KiB (stack size)
 # -sINITIAL_MEMORY=3652976640
 
-# note 1: `ALLOW_MEMORY_GROWTH` may run non-wasm code slowly. See: https://github.com/WebAssembly/design/issues/1271.
-# note 2: Browsers appear to limit the maximum initial memory size to 1 GiB, set `INITIAL_MEMORY` accordingly.
+# note 1: Build with `-sALLOW_MEMORY_GROWTH` to accommodate unpredictable image sizes. Allowing memory to expand
+#         gradually is a more efficient approach than over-allocating in resource-limited environments.
+# note 2: Build with `-sGROWABLE_ARRAYBUFFERS` to avoid https://github.com/WebAssembly/design/issues/1271.
 # note 3: Build with `-sALLOW_TABLE_GROWTH` so that we can store the read, seek, write and finish signals.
 # note 4: To ensure the testsuite passes, increase (main-)thread's stack size from 64 KiB to 256 KiB. This should be
 #         reasonable for image processing in Wasm, and given that libvips enforces a minimum thread stack size of 2 MiB
@@ -60,8 +61,10 @@ main_link_args = [
     '-sMODULARIZE',
     '-sEXPORT_NAME=Vips',
     '-sEXIT_RUNTIME',
-    '-sINITIAL_MEMORY=1GB',
+    '-sINITIAL_MEMORY=256MB',
     '-sSTACK_SIZE=256KB',
+    '-sALLOW_MEMORY_GROWTH',
+    '-sGROWABLE_ARRAYBUFFERS',
     '-sALLOW_TABLE_GROWTH',
     '-sTEXTDECODER=2',
     '-sASSERTIONS=@0@'.format(get_option('debug') ? '2' : '0'),

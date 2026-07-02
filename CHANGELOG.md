@@ -6,7 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.0.19] - TBD
 
-Uses libvips v8.19.0, compiled with Emscripten v6.0.1.
+Uses libvips v8.19.0, compiled with Emscripten v6.0.2.
+
+### Added
+
+- Support for growable WebAssembly memory up to 2 GiB.
+  [#106](https://github.com/kleisauke/wasm-vips/issues/106)
 
 ### Changed
 

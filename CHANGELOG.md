@@ -12,6 +12,7 @@ Uses libvips v8.19.0, compiled with Emscripten v6.0.2.
 
 - Support for growable WebAssembly memory up to 2 GiB.
   [#106](https://github.com/kleisauke/wasm-vips/issues/106)
+- Support for `workaroundCors` setting in ES6 module.
 
 ### Changed
 

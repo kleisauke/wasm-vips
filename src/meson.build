@@ -33,6 +33,30 @@ wasm_vips_dep = declare_dependency(
     dependencies: [vips_dep, embind_dep, wasm_vips_glue_lib],
 )
 
+# The set of Module JS properties that may be provided at runtime.
+incoming_module_js_api = [
+    'instantiateWasm',
+    'locateFile',
+    'mainScriptUrlOrBlob',
+    'monitorRunDependencies',
+    'onAbort',
+    'onExit',
+    'onRuntimeInitialized',
+    'postRun',
+    'preInit',
+    'preRun',
+    'print',
+    'printErr',
+    'setStatus',
+    'stderr',
+    'stdin',
+    'stdout',
+]
+
+if get_option('modules')
+    incoming_module_js_api += ['dynamicLibraries']
+endif
+
 # Handy for debugging
 # --threadprofiler
 # -sSAFE_HEAP=2
@@ -69,6 +93,7 @@ main_link_args = [
     '-sTEXTDECODER=2',
     '-sASSERTIONS=@0@'.format(get_option('debug') ? '2' : '0'),
     '-sFORCE_FILESYSTEM',
+    '-sINCOMING_MODULE_JS_API=@0@'.format(','.join(incoming_module_js_api)),
     '-sEXPORTED_RUNTIME_METHODS=FS,ENV,deletionQueue,addFunction,setAutoDeleteLater,setDelayFunction',
     '-sEXCEPTION_STACK_TRACES',
     '-sBINARYEN_EXTRA_PASSES=--emit-target-features',

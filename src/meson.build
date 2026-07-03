@@ -130,6 +130,7 @@ if 'web' in get_option('environments')
         '-sMIN_CHROME_VERSION=95',
         '-sMIN_FIREFOX_VERSION=100',
         '-sMIN_SAFARI_VERSION=160400',
+        '--pre-js=@0@'.format(source_dir / 'workaround-cors-pre.js'),
     ]
 
     executable('vips',
@@ -137,7 +138,6 @@ if 'web' in get_option('environments')
         link_args: [
             main_link_args,
             web_link_args,
-            '--pre-js=@0@'.format(source_dir / 'workaround-cors-pre.js'),
         ],
         install: true,
     )
@@ -147,7 +147,6 @@ if 'web' in get_option('environments')
         link_args: [
             main_link_args,
             web_link_args,
-            # Note: we don't apply the CORS workaround since module scripts don't support `importScripts()`
             '-sEXPORT_ES6',
             # new Worker() supports ECMAScript module only starting from Firefox 114
             '-sMIN_FIREFOX_VERSION=114',

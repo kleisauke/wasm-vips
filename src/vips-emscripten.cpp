@@ -443,7 +443,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .value("icc", VIPS_FOREIGN_KEEP_ICC)
         .value("other", VIPS_FOREIGN_KEEP_OTHER)
         .value("gainmap", VIPS_FOREIGN_KEEP_GAINMAP)
-        .value("cicp", VIPS_FOREIGN_KEEP_CICP)
         .value("all", VIPS_FOREIGN_KEEP_ALL);
 
     enum_<VipsForeignPngFilter>("ForeignPngFilter")
@@ -771,6 +770,13 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("profile", optional_override([](const Image &image) {
                       Image columns, rows;
                       columns = image.profile(&rows);
+
+                      return ColumnsRowsResult{columns, rows};
+                  }))
+        .function("project", optional_override([](const Image &image,
+                                                  emscripten::val js_options) {
+                      Image columns, rows;
+                      columns = image.project(&rows, js_options);
 
                       return ColumnsRowsResult{columns, rows};
                   }))

@@ -808,6 +808,32 @@ describe('arithmetic', () => {
     });
 
     for (const x of Helpers.noncomplexFormats) {
+      const sum = test.cast(x).project();
+
+      Helpers.assertAlmostEqualObjects(sum.columns.getpoint(10, 0), [0]);
+      Helpers.assertAlmostEqualObjects(sum.columns.getpoint(70, 0), [50 * 10]);
+
+      Helpers.assertAlmostEqualObjects(sum.rows.getpoint(0, 10), [50 * 10]);
+    }
+
+    const max = test.project({
+      combine: 'max'
+    });
+    expect(max.columns.max()).to.equal(10);
+
+    const min = test.project({
+      combine: 'min'
+    });
+    expect(min.columns.max()).to.equal(0);
+  });
+
+  it('stats', function () {
+    const im = vips.Image.black(50, 50);
+    const test = im.insert(im.add(10), 50, 0, {
+      expand: true
+    });
+
+    for (const x of Helpers.noncomplexFormats) {
       const a = test.cast(x);
       const matrix = a.stats();
 

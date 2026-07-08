@@ -1075,9 +1075,15 @@ declare module Vips {
 
         /**
          * Find image projections.
+         * @param options Optional options.
          * @return Sums of columns/rows.
          */
-        project(): {
+        project(options?: {
+            /**
+             * Combine values with this.
+             */
+            combine?: Combine | Enum
+        }): {
             /**
              * Sums of columns.
              */
@@ -2882,13 +2888,9 @@ declare module Vips {
          */
         gainmap = 32, // 'gainmap'
         /**
-         * Keep CICP colour metadata
-         */
-        cicp = 64, // 'cicp'
-        /**
          * Keep all metadata
          */
-        all = 127 // 'all'
+        all = 63 // 'all'
     }
 
     /**

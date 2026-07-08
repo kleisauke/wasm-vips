@@ -1786,9 +1786,10 @@ Image profile(Image *rows) const;
 /**
  * Find image projections.
  * @param rows Sums of rows.
+ * @param js_options Optional options.
  * @return Sums of columns.
  */
-Image project(Image *rows) const;
+Image project(Image *rows, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Resample an image with a quadratic transform.

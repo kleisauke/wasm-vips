@@ -1075,9 +1075,15 @@ declare module Vips {
 
         /**
          * Find image projections.
+         * @param options Optional options.
          * @return Sums of columns/rows.
          */
-        project(): {
+        project(options?: {
+            /**
+             * Combine values with this.
+             */
+            combine?: Combine | Enum
+        }): {
             /**
              * Sums of columns.
              */

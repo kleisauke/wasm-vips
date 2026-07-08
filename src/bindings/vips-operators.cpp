@@ -3026,7 +3026,7 @@ Image Image::profile(Image *rows) const
     return columns;
 }
 
-Image Image::project(Image *rows) const
+Image Image::project(Image *rows, emscripten::val js_options) const
 {
     Image columns;
 
@@ -3034,7 +3034,8 @@ Image Image::project(Image *rows) const
                (new Option)
                    ->set("in", *this)
                    ->set("columns", &columns)
-                   ->set("rows", rows));
+                   ->set("rows", rows),
+               js_options);
 
     return columns;
 }

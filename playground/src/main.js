@@ -21,7 +21,7 @@ import './css/playground.css';
 const isMac = /Mac/i.test(navigator.userAgent);
 
 self.MonacoEnvironment = {
-  getWorker (moduleId, label) {
+  getWorker (_moduleId, label) {
     switch (label) {
       case 'css':
         return new CSSWorker();
@@ -72,11 +72,11 @@ function load () {
     const containerHeight = Math.max(minContainerHeight, height - titleHeight - switcherHeight - tabsHeight - footerHeight - innerPadding);
 
     tabArea.style.boxSizing = 'border-box';
-    tabArea.style.height = tabsHeight + 'px';
+    tabArea.style.height = `${tabsHeight}px`;
 
     editorContainer.style.boxSizing = 'border-box';
-    editorContainer.style.width = containerWidth + 'px';
-    editorContainer.style.height = containerHeight + 'px';
+    editorContainer.style.width = `${containerWidth}px`;
+    editorContainer.style.height = `${containerHeight}px`;
 
     if (editor) {
       editor.layout({
@@ -123,7 +123,7 @@ function load () {
   const jsTab = document.createElement('span');
   jsTab.className = 'tab active';
   jsTab.appendChild(document.createTextNode('JavaScript'));
-  jsTab.onclick = function () {
+  jsTab.onclick = () => {
     changeTab(jsTab, 'js');
   };
   tabArea.appendChild(jsTab);
@@ -131,7 +131,7 @@ function load () {
   const cssTab = document.createElement('span');
   cssTab.className = 'tab';
   cssTab.appendChild(document.createTextNode('CSS'));
-  cssTab.onclick = function () {
+  cssTab.onclick = () => {
     changeTab(cssTab, 'css');
   };
   tabArea.appendChild(cssTab);
@@ -139,18 +139,18 @@ function load () {
   const htmlTab = document.createElement('span');
   htmlTab.className = 'tab';
   htmlTab.appendChild(document.createTextNode('HTML'));
-  htmlTab.onclick = function () {
+  htmlTab.onclick = () => {
     changeTab(htmlTab, 'html');
   };
   tabArea.appendChild(htmlTab);
 
-  const runLabel = 'Press ' + (isMac ? 'CMD + return' : 'CTRL + Enter') + ' to run the code.';
+  const runLabel = `Press ${isMac ? 'CMD + return' : 'CTRL + Enter'} to run the code.`;
   const runBtn = document.createElement('button');
   runBtn.className = 'action run';
   runBtn.setAttribute('role', 'button');
   runBtn.setAttribute('aria-label', runLabel);
   runBtn.appendChild(document.createTextNode('Run'));
-  runBtn.onclick = function () {
+  runBtn.onclick = () => {
     run();
   };
   tabArea.appendChild(runBtn);
@@ -161,7 +161,7 @@ function load () {
   shareBtn.setAttribute('role', 'button');
   shareBtn.setAttribute('aria-label', shareLabel);
   shareBtn.appendChild(document.createTextNode('Share'));
-  shareBtn.onclick = function () {
+  shareBtn.onclick = () => {
     share();
   };
   tabArea.appendChild(shareBtn);
@@ -199,7 +199,7 @@ function load () {
     checkboxLabel.innerText = dynamicModule.name;
 
     checkbox.checked = enabledModules.has(dynamicModule.id);
-    checkbox.addEventListener('change', event => {
+    checkbox.addEventListener('change', (event) => {
       if (event.target.checked) {
         enabledModules.add(dynamicModule.id);
       } else {
@@ -215,7 +215,7 @@ function load () {
 
   const sampleSwitcher = document.getElementById('sample-switcher');
   let sampleChapter;
-  playSamples.forEach(function (sample) {
+  for (const sample of playSamples) {
     if (!sampleChapter || sampleChapter.label !== sample.chapter) {
       sampleChapter = document.createElement('optgroup');
       sampleChapter.label = sample.chapter;
@@ -226,13 +226,12 @@ function load () {
     sampleOption.value = sample.id;
     sampleOption.appendChild(document.createTextNode(sample.name));
     sampleChapter.appendChild(sampleOption);
-  });
+  }
 
   const loadedSamples = [];
 
   function findLoadedSample (sampleId) {
-    for (let i = 0; i < loadedSamples.length; i++) {
-      const sample = loadedSamples[i];
+    for (const sample of loadedSamples) {
       if (sample.id === sampleId) {
         return sample;
       }
@@ -241,8 +240,7 @@ function load () {
   }
 
   function findSamplePath (sampleId) {
-    for (let i = 0; i < playSamples.length; i++) {
-      const sample = playSamples[i];
+    for (const sample of playSamples) {
       if (sample.id === sampleId) {
         return sample.path;
       }
@@ -261,29 +259,22 @@ function load () {
       return callback(new Error('sample not found'));
     }
 
-    samplePath = 'samples/' + samplePath;
+    samplePath = `samples/${samplePath}`;
 
-    const js = xhr(samplePath + '/sample.js').then(function (response) {
-      return response.responseText;
-    });
-    const css = xhr(samplePath + '/sample.css').then(function (response) {
-      return response.responseText;
-    });
-    const html = xhr(samplePath + '/sample.html').then(function (response) {
-      return response.responseText;
-    });
-    Promise.all([js, css, html]).then(function (_) {
-      const js = _[0];
-      const css = _[1];
-      const html = _[2];
+    Promise.all([
+      fetchText(`${samplePath}/sample.js`),
+      fetchText(`${samplePath}/sample.css`),
+      fetchText(`${samplePath}/sample.html`)
+    ]).then(([js, css, html]) => {
       loadedSamples.push({
         id: sampleId,
         js,
         css,
         html
       });
-      return callback(null, findLoadedSample(sampleId));
-    }, function (err) {
+
+      callback(null, findLoadedSample(sampleId));
+    }).catch((err) => {
       callback(err, null);
     });
   }
@@ -296,7 +287,7 @@ function load () {
     if (dorun) run();
   }
 
-  sampleSwitcher.onchange = function () {
+  sampleSwitcher.onchange = () => {
     url.searchParams.delete('deflate');
     url.hash = sampleSwitcher.options[sampleSwitcher.selectedIndex].value;
     history.replaceState({}, '', url);
@@ -342,9 +333,9 @@ function load () {
     }
 
     const myToken = (++currentToken);
-    loadSample(sampleId, function (err, sample) {
+    loadSample(sampleId, (err, sample) => {
       if (err) {
-        alert('Sample not found! ' + err.message);
+        alert(`Sample not found! ${err.message}`);
         return;
       }
       if (myToken !== currentToken) {
@@ -363,11 +354,11 @@ function load () {
       .replaceAll('_', '/');
     const compressed = strToU8(atob(b64), true);
     const decompressed = inflateSync(compressed);
-    const code = JSON.parse(strFromU8(decompressed));
+    const [js, html, css] = JSON.parse(strFromU8(decompressed));
     loadCode({
-      js: code[0],
-      html: code[1],
-      css: code[2]
+      js,
+      html,
+      css
     });
   } else {
     parseHash(true);
@@ -397,7 +388,7 @@ function load () {
   }
 
   editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, run);
-  window.addEventListener('keydown', function keyDown (ev) {
+  window.addEventListener('keydown', (ev) => {
     if ((isMac && !ev.metaKey) || !ev.ctrlKey) {
       return;
     }
@@ -412,9 +403,7 @@ function load () {
 }
 
 function doRun (runContainer) {
-  const getLang = function (lang) {
-    return data[lang].model.getValue();
-  };
+  const getLang = lang => data[lang].model.getValue();
 
   if (!runIframe) {
     // load new iframe
@@ -429,7 +418,7 @@ function doRun (runContainer) {
     runIframe.frameborder = '0';
     runContainer.appendChild(runIframe);
 
-    window.addEventListener('message', function (e) {
+    window.addEventListener('message', (e) => {
       if (e.source === runIframe.contentWindow) {
         vipsInitialized = true;
         runIframe.contentWindow.postMessage({
@@ -448,29 +437,19 @@ function doRun (runContainer) {
   }
 }
 
-function xhr (url) {
-  return new Promise(function (resolve, reject) {
-    const req = new XMLHttpRequest();
-    req.open('GET', url, true);
-    req.onload = function () {
-      if (this.status >= 200 && this.status < 300) {
-        resolve(req);
-      } else {
-        reject(req);
-      }
-    };
-    req.onerror = function () {
-      reject(req);
-    };
-    req.responseType = '';
-    req.send(null);
+function fetchText (url) {
+  return fetch(url).then((response) => {
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.text();
   });
 }
 
-window.onload = function () {
-  xhr('../lib/vips.d.ts').then(function (response) {
+window.onload = () => {
+  fetchText('../lib/vips.d.ts').then((response) => {
     javascriptDefaults.addExtraLib(
-      response.responseText.replace(
+      response.replace(
         'export = Vips',
         'declare global { var vips: typeof Vips; }\nexport default global'),
       'ts:vips.d.ts');

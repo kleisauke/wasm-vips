@@ -33,19 +33,19 @@ var LibraryVips = {
       });
 
       addOnPostCtor(() => {
-        // SourceCustom.onRead marshaller 
+        // SourceCustom.onRead marshaller
         const sourceCustom = Object.getOwnPropertyDescriptor(Module['SourceCustom'].prototype, 'onRead');
         Object.defineProperty(Module['SourceCustom'].prototype, 'onRead', {
           set(cb) {
-            return sourceCustom.set.call(this, (length) => Emval.toHandle(cb(length)));
+            return sourceCustom.set.call(this, length => Emval.toHandle(cb(length)));
           }
         });
 
-        // TargetCustom.onWrite marshaller 
+        // TargetCustom.onWrite marshaller
         const targetCustom = Object.getOwnPropertyDescriptor(Module['TargetCustom'].prototype, 'onWrite');
         Object.defineProperty(Module['TargetCustom'].prototype, 'onWrite', {
           set(cb) {
-            return targetCustom.set.call(this, (data) => cb(Emval.toValue(data)));
+            return targetCustom.set.call(this, data => cb(Emval.toValue(data)));
           }
         });
       });

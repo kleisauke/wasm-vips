@@ -1,14 +1,12 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 import * as Helpers from './helpers.js';
 
 describe('mosaicing', () => {
-  afterEach(function () {
+  afterEach(() => {
     cleanup();
   });
 
-  it('lrmerge', function () {
+  it('lrmerge', () => {
     const left = vips.Image.newFromFile(Helpers.mosaicFiles[0]);
     const right = vips.Image.newFromFile(Helpers.mosaicFiles[1]);
     const join = left.merge(right, 'horizontal', 10 - left.width, 0);
@@ -18,7 +16,7 @@ describe('mosaicing', () => {
     expect(join.bands).to.equal(1);
   });
 
-  it('tbmerge', function () {
+  it('tbmerge', () => {
     const top = vips.Image.newFromFile(Helpers.mosaicFiles[0]);
     const bottom = vips.Image.newFromFile(Helpers.mosaicFiles[2]);
     const join = top.merge(bottom, 'vertical', 0, 10 - top.height);
@@ -28,7 +26,7 @@ describe('mosaicing', () => {
     expect(join.bands).to.equal(1);
   });
 
-  it('lrmosaic', function () {
+  it('lrmosaic', () => {
     const left = vips.Image.newFromFile(Helpers.mosaicFiles[0]);
     const right = vips.Image.newFromFile(Helpers.mosaicFiles[1]);
     const join = left.mosaic(right, 'horizontal', left.width - 30, 0, 30, 0);
@@ -38,7 +36,7 @@ describe('mosaicing', () => {
     expect(join.bands).to.equal(1);
   });
 
-  it('tbmosaic', function () {
+  it('tbmosaic', () => {
     const top = vips.Image.newFromFile(Helpers.mosaicFiles[0]);
     const bottom = vips.Image.newFromFile(Helpers.mosaicFiles[2]);
     const join = top.mosaic(bottom, 'vertical', 0, top.height - 30, 0, 30);
@@ -48,7 +46,7 @@ describe('mosaicing', () => {
     expect(join.bands).to.equal(1);
   });
 
-  it('mosaic', function () {
+  it('mosaic', () => {
     // ported from https://github.com/libvips/nip2/tree/master/share/nip2/data/examples/1_point_mosaic
 
     let mosaicedImage;
@@ -88,7 +86,7 @@ describe('mosaicing', () => {
     expect(mosaicedImage.bands).to.equal(1);
   });
 
-  it('globalbalance', function () {
+  it('globalbalance', () => {
     let mosaicedImage;
 
     for (let i = 0; i < Helpers.mosaicFiles.length; i += 2) {

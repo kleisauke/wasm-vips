@@ -130,6 +130,7 @@ body {
         animation: none
     }
 
+    /* biome-ignore lint/style/noDescendingSpecificity: third-party issue */
     .github-corner .octo-arm {
         animation: octocat-wave 560ms ease-in-out
     }

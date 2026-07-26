@@ -1,6 +1,4 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 import * as Helpers from './helpers.js';
 
 describe('convolution', () => {
@@ -15,7 +13,7 @@ describe('convolution', () => {
   let sobel;
   let allMasks;
 
-  before(function () {
+  before(() => {
     const im = vips.Image.maskIdeal(100, 100, 0.5, {
       reject: true,
       optical: true
@@ -52,12 +50,12 @@ describe('convolution', () => {
     globalDeletionQueue = vips.deletionQueue.splice(0);
   });
 
-  after(function () {
+  after(() => {
     vips.deletionQueue.push(...globalDeletionQueue);
     cleanup();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     cleanup();
   });
 
@@ -89,7 +87,7 @@ describe('convolution', () => {
     return acc.reduce((a, b) => Helpers.runFn2(fn, a, b));
   }
 
-  it('conv', function () {
+  it('conv', () => {
     for (const im of allImages) {
       for (const msk of allMasks) {
         for (const prec of [vips.Precision.integer, vips.Precision.float]) {
@@ -113,7 +111,8 @@ describe('convolution', () => {
     // don't test conva, it's still not done
     return this.skip();
 
-    for (const im of allImages) { // eslint-disable-line no-unreachable
+    // biome-ignore lint/correctness/noUnreachable: deliberately skipped
+    for (const im of allImages) {
       for (const msk of allMasks) {
         console.log('msk:');
         msk.matrixprint();
@@ -137,7 +136,7 @@ describe('convolution', () => {
     }
   });
 
-  it('compass', function () {
+  it('compass', () => {
     for (const im of allImages) {
       for (const msk of allMasks) {
         for (const prec of [vips.Precision.integer, vips.Precision.float]) {
@@ -177,7 +176,7 @@ describe('convolution', () => {
     }
   });
 
-  it('convsep', function () {
+  it('convsep', () => {
     for (const im of allImages) {
       for (const prec of [vips.Precision.integer, vips.Precision.float]) {
         const gmask = vips.Image.gaussmat(2, 0.1, {
@@ -207,7 +206,7 @@ describe('convolution', () => {
     }
   });
 
-  it('fastcor', function () {
+  it('fastcor', () => {
     for (const im of allImages) {
       for (const fmt of Helpers.noncomplexFormats) {
         const small = im.crop(20, 45, 10, 10).cast(fmt);
@@ -228,7 +227,7 @@ describe('convolution', () => {
     }
   });
 
-  it('spcor', function () {
+  it('spcor', () => {
     for (const im of allImages) {
       for (const fmt of Helpers.noncomplexFormats) {
         const small = im.crop(20, 45, 10, 10).cast(fmt);
@@ -249,7 +248,7 @@ describe('convolution', () => {
     }
   });
 
-  it('gaussblur', function () {
+  it('gaussblur', () => {
     for (const im of allImages) {
       for (const prec of [vips.Precision.integer, vips.Precision.float]) {
         for (let i = 5; i < 10; i++) {
@@ -275,7 +274,7 @@ describe('convolution', () => {
     }
   });
 
-  it('sharpen', function () {
+  it('sharpen', () => {
     for (const im of allImages) {
       for (const fmt of Helpers.noncomplexFormats) {
         // old vipses used "radius", check that that still works

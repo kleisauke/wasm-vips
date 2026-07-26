@@ -1,14 +1,12 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 import * as Helpers from './helpers.js';
 
 describe('colour', () => {
-  afterEach(function () {
+  afterEach(() => {
     cleanup();
   });
 
-  it('colourspace', function () {
+  it('colourspace', () => {
     // mid-grey in Lab ... put 42 in the extra band, it should be copied
     // unmodified
     let test = vips.Image.black(100, 100).add([50, 0, 0, 42]);
@@ -102,7 +100,7 @@ describe('colour', () => {
 
   // test results from Bruce Lindbloom's calculator:
   // http://www.brucelindbloom.com
-  it('dE00', function () {
+  it('dE00', () => {
     // put 42 in the extra band, it should be copied unmodified
     let reference = vips.Image.black(100, 100).add([50, 10, 20, 42]);
     reference = reference.copy({
@@ -121,7 +119,7 @@ describe('colour', () => {
     expect(alpha).to.be.closeTo(42.0, 0.001);
   });
 
-  it('dE76', function () {
+  it('dE76', () => {
     // put 42 in the extra band, it should be copied unmodified
     let reference = vips.Image.black(100, 100).add([50, 10, 20, 42]);
     reference = reference.copy({
@@ -143,7 +141,7 @@ describe('colour', () => {
   // the vips CMC calculation is based on distance in a colorspace
   // derived from the CMC formula, so it won't match exactly ...
   // see vips_LCh2CMC() for details
-  it('dECMC', function () {
+  it('dECMC', () => {
     let reference = vips.Image.black(100, 100).add([50, 10, 20, 42]);
     reference = reference.copy({
       interpretation: vips.Interpretation.lab
@@ -211,7 +209,7 @@ describe('colour', () => {
   });
 
   // even without lcms, we should have a working approximation
-  it('cmyk', function () {
+  it('cmyk', () => {
     const test = vips.Image.newFromFile(Helpers.jpegFile);
 
     const im = test.colourspace('cmyk').colourspace('srgb');

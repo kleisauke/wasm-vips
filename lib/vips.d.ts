@@ -1,6 +1,6 @@
 declare function Vips(config?: Partial<EmscriptenModule>): Promise<NonNullable<typeof Vips>>;
 
-type ModuleCallback = { (module?: any): void };
+type ModuleCallback = (module?: any) => void;
 
 interface EmscriptenModule {
     print(str: string): void;
@@ -12,8 +12,8 @@ interface EmscriptenModule {
     preRun: ModuleCallback | ModuleCallback[];
     postRun: ModuleCallback | ModuleCallback[];
 
-    onAbort: { (what: any): void };
-    onRuntimeInitialized: { (): void };
+    onAbort: (what: any) => void;
+    onRuntimeInitialized: () => void;
 
     instantiateWasm(
         imports: WebAssembly.Imports,
@@ -26,7 +26,7 @@ interface EmscriptenModule {
     workaroundCors: boolean;
 }
 
-declare module Vips {
+declare namespace Vips {
     // Allow single pixels/images as input.
     type SingleOrArray<T> = T | T[];
 
@@ -80,7 +80,7 @@ declare module Vips {
      * @param concurrency The number of worker threads.
      * @return The number of worker threads libvips uses for image evaluation.
      */
-    function concurrency(concurrency?: number): void | number;
+    function concurrency(concurrency?: number): undefined | number;
 
     /**
      * Set the block state on all untrusted operations.
@@ -223,21 +223,21 @@ declare module Vips {
          * @param max Maximum number of operations.
          * @return The maximum number of operations libvips keeps in cache.
          */
-        static max(max?: number): void | number;
+        static max(max?: number): undefined | number;
 
         /**
          * Gets or, when a parameter is provided, sets the maximum amount of tracked memory allowed.
          * @param mem Maximum amount of tracked memory.
          * @return The maximum amount of tracked memory libvips allows.
          */
-        static maxMem(mem?: number): void | number;
+        static maxMem(mem?: number): undefined | number;
 
         /**
          * Gets or, when a parameter is provided, sets the maximum amount of tracked files allowed.
          * @param maxFiles Maximum amount of tracked files.
          * @return The maximum amount of tracked files libvips allows.
          */
-        static maxFiles(maxFiles?: number): void | number;
+        static maxFiles(maxFiles?: number): undefined | number;
 
         /**
          * Get the current number of operations in cache.
@@ -551,7 +551,7 @@ declare module Vips {
          * for example:
          * ```js
          * const image = vips.Image.newFromFile('huge.jpg');
-         * image.onProgress = (percent) =>
+         * image.onProgress = percent =>
          *   console.log(`${percent}% complete`);
          * image.writeToFile('x.png');
          * ```
@@ -812,7 +812,7 @@ declare module Vips {
          * @param vipsFilename The file to save the image to, with optional appended arguments.
          * @param options Optional options that depend on the save operation.
          */
-        writeToFile(vipsFilename: string, options?: {}): void;
+        writeToFile(vipsFilename: string, options?: object): void;
 
         /**
          * Write an image to a typed array of 8-bit unsigned integer values.
@@ -842,7 +842,7 @@ declare module Vips {
          * @param options Optional options that depend on the save operation.
          * @return A typed array of 8-bit unsigned integer values.
          */
-        writeToBuffer(formatString: string, options?: {}): Uint8Array;
+        writeToBuffer(formatString: string, options?: object): Uint8Array;
 
         /**
          * Write an image to a target.
@@ -853,7 +853,7 @@ declare module Vips {
          * @param formatString The suffix, plus any string-form arguments.
          * @param options Optional options that depend on the save operation.
          */
-        writeToTarget(target: Target, formatString: string, options?: {}): void;
+        writeToTarget(target: Target, formatString: string, options?: object): void;
 
         /**
          * Write the image to a large memory array.

@@ -1,7 +1,7 @@
 // wasm-vips externs for Closure to know about
 
 /**
- * See: 
+ * See:
  * https://emscripten.org/docs/api_reference/Filesystem-API.html
  * https://emscripten.org/docs/api_reference/advanced-apis.html#advanced-file-system-api
  * @suppress {duplicate}

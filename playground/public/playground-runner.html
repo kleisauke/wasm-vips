@@ -63,8 +63,8 @@
     }
     if (data.js) {
       try {
-        // eslint-disable-next-line no-eval
-        eval('(async () => {\n' + data.js + '\n})()');
+        // biome-ignore lint/security/noGlobalEval: eval() is required here
+        eval(`(async () => {\n${data.js}\n})()`);
       } catch (err) {
         const pre = document.createElement('pre');
         pre.appendChild(document.createTextNode(err));
@@ -75,12 +75,12 @@
   }
 
   const options = {
-    print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, '')),
+    print: stdout => console.log(stdout.replace(/\033\[[0-9;]*m/g, '')),
     // Avoid using the browser's image decoder to decode preloaded files
     noImageDecoding: true,
     preRun: (module) => {
       module.setAutoDeleteLater(!document.referrer.includes('disableAutoDelete'));
-      module.setDelayFunction(fn => {
+      module.setDelayFunction((fn) => {
         globalThis.cleanup = fn;
       });
 
@@ -95,12 +95,12 @@
         'alphachannel.svg', 'transparency_demo.png'
       ];
       for (const image of images) {
-        module.FS.preloadFile('/', image, 'images/' + image, true, false);
+        module.FS.preloadFile('/', image, `images/${image}`, true, false);
       }
     },
     postRun: (module) => {
       const pad = 30;
-      const have = (name) => module.Utils.typeFind('VipsOperation', name) !== 0;
+      const have = name => module.Utils.typeFind('VipsOperation', name) !== 0;
 
       console.log('vips version:'.padEnd(pad), module.version());
       console.log('Emscripten version:'.padEnd(pad), module.emscriptenVersion());

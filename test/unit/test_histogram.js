@@ -1,14 +1,12 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 import * as Helpers from './helpers.js';
 
 describe('histogram', () => {
-  afterEach(function () {
+  afterEach(() => {
     cleanup();
   });
 
-  it('histCum', function () {
+  it('histCum', () => {
     const im = vips.Image.identity();
 
     const sum = im.avg() * 256;
@@ -19,7 +17,7 @@ describe('histogram', () => {
     expect(p[0]).to.equal(sum);
   });
 
-  it('histEqual', function () {
+  it('histEqual', () => {
     const im = vips.Image.newFromFile(Helpers.jpegFile);
 
     const im2 = im.histEqual();
@@ -31,12 +29,12 @@ describe('histogram', () => {
     expect(im.deviate()).to.be.below(im2.deviate());
   });
 
-  it('histIsmonotonic', function () {
+  it('histIsmonotonic', () => {
     const im = vips.Image.identity();
     expect(im.histIsmonotonic()).to.equal(true);
   });
 
-  it('histLocal', function () {
+  it('histLocal', () => {
     const im = vips.Image.newFromFile(Helpers.jpegFile);
 
     const im2 = im.histLocal(10, 10);
@@ -57,7 +55,7 @@ describe('histogram', () => {
     expect(im.deviate()).to.be.below(im3.deviate());
   });
 
-  it('histMatch', function () {
+  it('histMatch', () => {
     const im = vips.Image.identity();
     const im2 = vips.Image.identity();
 
@@ -66,14 +64,14 @@ describe('histogram', () => {
     expect(im.subtract(matched).abs().max()).to.equal(0.0);
   });
 
-  it('histNorm', function () {
+  it('histNorm', () => {
     const im = vips.Image.identity();
     const im2 = im.histNorm();
 
     expect(im.subtract(im2).abs().max()).to.equal(0.0);
   });
 
-  it('histPlot', function () {
+  it('histPlot', () => {
     const im = vips.Image.identity();
     const im2 = im.histPlot();
 
@@ -83,14 +81,14 @@ describe('histogram', () => {
     expect(im2.bands).to.equal(1);
   });
 
-  it('histMap', function () {
+  it('histMap', () => {
     const im = vips.Image.identity();
     const im2 = im.maplut(im);
 
     expect(im.subtract(im2).abs().max()).to.equal(0.0);
   });
 
-  it('percent', function () {
+  it('percent', () => {
     const im = vips.Image.newFromFile(Helpers.jpegFile).extractBand(1);
 
     const pc = im.percent(90);
@@ -102,7 +100,7 @@ describe('histogram', () => {
     expect(pcSet).to.be.closeTo(/* 90 */91, /* 0.5 */0.6);
   });
 
-  it('histEntropy', function () {
+  it('histEntropy', () => {
     const im = vips.Image.newFromFile(Helpers.jpegFile).extractBand(1);
 
     const ent = im.histFind().histEntropy();
@@ -110,7 +108,7 @@ describe('histogram', () => {
     expect(ent).to.be.closeTo(/* 6.67 */6.63, 0.01);
   });
 
-  it('stdif', function () {
+  it('stdif', () => {
     const im = vips.Image.newFromFile(Helpers.jpegFile);
 
     const im2 = im.stdif(10, 10);
@@ -121,7 +119,7 @@ describe('histogram', () => {
     expect(Math.abs(im.avg() - 128)).to.be.above(Math.abs(im2.avg() - 128));
   });
 
-  it('case', function () {
+  it('case', () => {
     // slice into two at 128, we should get 50% of pixels in each half
     const x = vips.Image.grey(256, 256, {
       uchar: true

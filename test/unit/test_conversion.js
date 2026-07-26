@@ -1,6 +1,4 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 import * as Helpers from './helpers.js';
 
 describe('conversion', () => {
@@ -11,7 +9,7 @@ describe('conversion', () => {
   let allImages;
   let image;
 
-  before(function () {
+  before(() => {
     const im = vips.Image.maskIdeal(100, 100, 0.5, {
       reject: true,
       optical: true
@@ -28,12 +26,12 @@ describe('conversion', () => {
     globalDeletionQueue = vips.deletionQueue.splice(0);
   });
 
-  after(function () {
+  after(() => {
     vips.deletionQueue.push(...globalDeletionQueue);
     cleanup();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     cleanup();
   });
 
@@ -46,18 +44,24 @@ describe('conversion', () => {
   }
 
   function runUnary (images, fn, fmt = Helpers.allFormats) {
-    images.forEach(x => fmt.forEach(y =>
-      Helpers.runImage(`${fn.name} ${y}`, x.cast(y), fn)
-    ));
+    for (const x of images) {
+      for (const y of fmt) {
+        Helpers.runImage(`${fn.name} ${y}`, x.cast(y), fn);
+      }
+    }
   }
 
   function runBinary (images, fn, fmt = Helpers.allFormats) {
-    images.forEach(x => fmt.forEach(y => fmt.forEach(z =>
-      runImagePixels2(`${fn.name} ${y} ${z}`, x.cast(y), x.cast(z), fn)
-    )));
+    for (const x of images) {
+      for (const y of fmt) {
+        for (const z of fmt) {
+          runImagePixels2(`${fn.name} ${y} ${z}`, x.cast(y), x.cast(z), fn);
+        }
+      }
+    }
   }
 
-  it('cast', function () {
+  it('cast', () => {
     // casting negative pixels to an unsigned format should clip to zero
     for (const signed of Helpers.signedFormats) {
       const im = vips.Image.black(1, 1).subtract(10).cast(signed);
@@ -82,31 +86,31 @@ describe('conversion', () => {
     expect(im2.avg()).to.equal(Helpers.maxValue.char);
   });
 
-  it('bandand', function () {
-    const bandand = (x) => x instanceof vips.Image ? x.bandand() : x.reduce((a, b) => a & b);
+  it('bandand', () => {
+    const bandand = x => x instanceof vips.Image ? x.bandand() : x.reduce((a, b) => a & b);
 
     runUnary(allImages, bandand, Helpers.intFormats);
   });
 
-  it('bandor', function () {
-    const bandor = (x) => x instanceof vips.Image ? x.bandor() : x.reduce((a, b) => a | b);
+  it('bandor', () => {
+    const bandor = x => x instanceof vips.Image ? x.bandor() : x.reduce((a, b) => a | b);
 
     runUnary(allImages, bandor, Helpers.intFormats);
   });
 
-  it('bandeor', function () {
-    const bandeor = (x) => x instanceof vips.Image ? x.bandeor() : x.reduce((a, b) => a ^ b);
+  it('bandeor', () => {
+    const bandeor = x => x instanceof vips.Image ? x.bandeor() : x.reduce((a, b) => a ^ b);
 
     runUnary(allImages, bandeor, Helpers.intFormats);
   });
 
-  it('bandjoin', function () {
+  it('bandjoin', () => {
     const bandjoin = (x, y) => x instanceof vips.Image ? x.bandjoin(y) : x.concat(y);
 
     runBinary(allImages, bandjoin);
   });
 
-  it('bandjoinConst', function () {
+  it('bandjoinConst', () => {
     let x = colour.bandjoin(1);
     expect(x.bands).to.equal(4);
     expect(x.extractBand(3).avg()).to.equal(1);
@@ -117,21 +121,21 @@ describe('conversion', () => {
     expect(x.extractBand(4).avg()).to.equal(2);
   });
 
-  it('addalpha', function () {
+  it('addalpha', () => {
     const x = colour.addalpha();
     expect(x.bands).to.equal(4);
     expect(x.extractBand(3).avg()).to.equal(255);
   });
 
-  it('bandmean', function () {
-    const bandmean = (x) => x instanceof vips.Image
+  it('bandmean', () => {
+    const bandmean = x => x instanceof vips.Image
       ? x.bandmean()
       : Math.floor(x.reduce((a, b) => a + b) / x.length);
 
     runUnary(allImages, bandmean, Helpers.noncomplexFormats);
   });
 
-  it('bandrank', function () {
+  it('bandrank', () => {
     const median = (x, y) => Helpers.zip(x, y).map(z => z.sort()[Math.floor(z.length / 2)]);
     const bandrank = (x, y) => x instanceof vips.Image ? x.bandrank([y]) : median(x, y);
 
@@ -146,7 +150,7 @@ describe('conversion', () => {
     expect(a.subtract(b).abs().min()).to.equal(0);
   });
 
-  it('copy', function () {
+  it('copy', () => {
     let x = colour.copy({ interpretation: 'lab' });
     expect(x.interpretation).to.equal('lab');
     x = colour.copy({ xres: 42 });
@@ -161,7 +165,7 @@ describe('conversion', () => {
     expect(x.coding).to.equal('none');
   });
 
-  it('bandfold', function () {
+  it('bandfold', () => {
     let x = mono.bandfold();
     expect(x.width).to.equal(1);
     expect(x.bands).to.equal(mono.width);
@@ -181,7 +185,7 @@ describe('conversion', () => {
     expect(y.avg()).to.equal(mono.avg());
   });
 
-  it('byteswap', function () {
+  it('byteswap', () => {
     const x = mono.cast('ushort');
     const y = x.byteswap().byteswap();
     expect(x.width).to.equal(y.width);
@@ -190,7 +194,7 @@ describe('conversion', () => {
     expect(x.avg()).to.equal(y.avg());
   });
 
-  it('embed', function () {
+  it('embed', () => {
     for (const fmt of Helpers.allFormats) {
       const test = colour.cast(fmt);
 
@@ -237,7 +241,7 @@ describe('conversion', () => {
     }
   });
 
-  it('gravity', function () {
+  it('gravity', () => {
     const im = vips.Image.black(1, 1).add(255);
 
     const positions = {
@@ -259,7 +263,7 @@ describe('conversion', () => {
     }
   });
 
-  it('extract', function () {
+  it('extract', () => {
     for (const fmt of Helpers.allFormats) {
       const test = colour.cast(fmt);
 
@@ -280,10 +284,10 @@ describe('conversion', () => {
     }
   });
 
-  it('slice', function () {
+  it('slice', () => {
     const test = colour;
     const split = test.bandsplit();
-    const bands = Array.from(split).map((im) => im.avg());
+    const bands = Array.from(split).map(im => im.avg());
     const average = arr => arr.reduce((p, c) => p + c, 0) / arr.length;
 
     let x = test.extractBand(0).avg();
@@ -322,7 +326,7 @@ describe('conversion', () => {
     expect(x).to.equal(bands[test.bands - 1]);
   });
 
-  it('crop', function () {
+  it('crop', () => {
     for (const fmt of Helpers.allFormats) {
       const test = colour.cast(fmt);
 
@@ -337,7 +341,7 @@ describe('conversion', () => {
   });
 
   describe('smartcrop', () => {
-    it('entropy', function () {
+    it('entropy', () => {
       const test = image.smartcrop(100, 100, {
         interesting: vips.Interesting.entropy
       });
@@ -345,7 +349,7 @@ describe('conversion', () => {
       expect(test.height).to.equal(100);
     });
 
-    it('attention', function () {
+    it('attention', () => {
       const position = {
         attention_x: undefined, // Output horizontal position of attention centre here
         attention_y: undefined // Output vertical position of attention centre here
@@ -359,7 +363,7 @@ describe('conversion', () => {
     });
   });
 
-  it('falsecolour', function () {
+  it('falsecolour', () => {
     for (const fmt of Helpers.allFormats) {
       const test = colour.cast(fmt);
 
@@ -373,7 +377,7 @@ describe('conversion', () => {
     }
   });
 
-  it('flatten', function () {
+  it('flatten', () => {
     for (const fmt of Helpers.unsignedFormats.concat(['short', 'int']).concat(Helpers.floatFormats)) {
       const mx = 255;
       const alpha = mx / 2.0;
@@ -426,7 +430,7 @@ describe('conversion', () => {
     expect(im.subtract(im2).abs().max()).to.equal(0);
   });
 
-  it('premultiply', function () {
+  it('premultiply', () => {
     for (const fmt of Helpers.unsignedFormats.concat(['short', 'int']).concat(Helpers.floatFormats)) {
       const mx = 255;
       const alpha = mx / 2.0;
@@ -450,7 +454,7 @@ describe('conversion', () => {
     }
   });
 
-  it('composite', function () {
+  it('composite', () => {
     // 50% transparent image
     const overlay = colour.bandjoin(128);
     const base = colour.add(100);
@@ -459,7 +463,7 @@ describe('conversion', () => {
     Helpers.assertAlmostEqualObjects(comp.getpoint(0, 0), [51.2, 51.9, 52.6, 255], 0.1);
   });
 
-  it('unpremultiply', function () {
+  it('unpremultiply', () => {
     for (const fmt of Helpers.unsignedFormats.concat(['short', 'int']).concat(Helpers.floatFormats)) {
       const mx = 255;
       const alpha = mx / 2.0;
@@ -483,7 +487,7 @@ describe('conversion', () => {
     }
   });
 
-  it('flip', function () {
+  it('flip', () => {
     for (const fmt of Helpers.allFormats) {
       const test = colour.cast(fmt);
 
@@ -498,7 +502,7 @@ describe('conversion', () => {
     }
   });
 
-  it('gamma', function () {
+  it('gamma', () => {
     let exponent = 2.4;
 
     for (const fmt of Helpers.noncomplexFormats) {
@@ -537,7 +541,7 @@ describe('conversion', () => {
     }
   });
 
-  it('grid', function () {
+  it('grid', () => {
     const test = colour.replicate(1, 12);
     expect(test.width).to.equal(colour.width);
     expect(test.height).to.equal(colour.height * 12);
@@ -558,7 +562,7 @@ describe('conversion', () => {
     }
   });
 
-  it('ifthenelse', function () {
+  it('ifthenelse', () => {
     let test = mono.more(3);
 
     for (const x of Helpers.allFormats) {
@@ -659,7 +663,7 @@ describe('conversion', () => {
     Helpers.assertAlmostEqualObjects(result, [3.0, 4.9, 6.9], 0.1);
   });
 
-  it('switch', function () {
+  it('switch', () => {
     const x = vips.Image.grey(256, 256, {
       uchar: true
     });
@@ -682,7 +686,7 @@ describe('conversion', () => {
     expect(index.avg()).to.equal(2);
   });
 
-  it('insert', function () {
+  it('insert', () => {
     for (const x of Helpers.allFormats) {
       for (const y of Helpers.allFormats) {
         const main = mono.cast(x);
@@ -718,7 +722,7 @@ describe('conversion', () => {
     }
   });
 
-  it('arrayjoin', function () {
+  it('arrayjoin', () => {
     let maxWidth = 0;
     let maxHeight = 0;
     let maxBands = 0;
@@ -755,7 +759,7 @@ describe('conversion', () => {
     expect(im.bands).to.equal(maxBands);
   });
 
-  it('msb', function () {
+  it('msb', () => {
     for (const fmt of Helpers.unsignedFormats) {
       const mx = Helpers.maxValue[fmt];
       const size = Helpers.sizeofFormat[fmt];
@@ -810,7 +814,7 @@ describe('conversion', () => {
     }
   });
 
-  it('recomb', function () {
+  it('recomb', () => {
     const array = [[0.2, 0.5, 0.3]];
 
     const recomb = (x) => {
@@ -829,7 +833,7 @@ describe('conversion', () => {
     runUnary([colour], recomb, Helpers.noncomplexFormats);
   });
 
-  it('replicate', function () {
+  it('replicate', () => {
     for (const fmt of Helpers.allFormats) {
       const im = colour.cast(fmt);
 
@@ -847,7 +851,7 @@ describe('conversion', () => {
     }
   });
 
-  it('rot45', function () {
+  it('rot45', () => {
     // test has a quarter-circle in the bottom right
     const test = colour.crop(0, 0, 51, 51);
     for (const fmt of Helpers.allFormats) {
@@ -871,7 +875,7 @@ describe('conversion', () => {
     }
   });
 
-  it('rot', function () {
+  it('rot', () => {
     // test has a quarter-circle in the bottom right
     const test = colour.crop(0, 0, 51, 51);
     for (const fmt of Helpers.allFormats) {
@@ -891,7 +895,7 @@ describe('conversion', () => {
     }
   });
 
-  it('scale', function () {
+  it('scale', () => {
     for (const fmt of Helpers.noncomplexFormats) {
       const test = colour.cast(fmt);
 
@@ -906,7 +910,7 @@ describe('conversion', () => {
     }
   });
 
-  it('subsample', function () {
+  it('subsample', () => {
     for (const fmt of Helpers.allFormats) {
       const test = colour.cast(fmt);
 
@@ -920,7 +924,7 @@ describe('conversion', () => {
     }
   });
 
-  it('zoom', function () {
+  it('zoom', () => {
     for (const fmt of Helpers.allFormats) {
       const test = colour.cast(fmt);
 
@@ -934,7 +938,7 @@ describe('conversion', () => {
     }
   });
 
-  it('wrap', function () {
+  it('wrap', () => {
     for (const fmt of Helpers.allFormats) {
       const test = colour.cast(fmt);
 

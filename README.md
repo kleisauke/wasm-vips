@@ -105,7 +105,7 @@ Then, wasm-vips can be initialized like this:
 const vips = await Vips();
 
 // Usage with .then
-Vips().then(vips => {
+Vips().then((vips) => {
   // Code here
 });
 ```

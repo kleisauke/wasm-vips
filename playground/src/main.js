@@ -263,13 +263,12 @@ function load () {
 
     Promise.all([
       fetchText(`${samplePath}/sample.js`),
-      fetchText(`${samplePath}/sample.css`),
       fetchText(`${samplePath}/sample.html`)
-    ]).then(([js, css, html]) => {
+    ]).then(([js, html]) => {
       loadedSamples.push({
         id: sampleId,
         js,
-        css,
+        css: '',
         html
       });
 

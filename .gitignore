@@ -32,7 +32,7 @@ node_modules/
 *.gch
 *.pch
 
-# GCC coverage testing tool files/
+# GCC coverage testing tool files
 *.gcno
 *.gcda
 *.gcov
@@ -61,24 +61,24 @@ node_modules/
 .idea/
 
 # Build output
-playground/dist/
-lib/*
-
-# User-specific stuff
-package-lock.json
-versions.json
 build/deps/
 build/target/
 build/enums.cpp
 build/functions.cpp
 build/properties.cpp
 build/vips.d.ts
-test/bench/images/output*
+lib/*
+playground/dist/
+versions.json
 
 # Build caches
-build/emcache
-build/ccache
-build/cargo-cache
+build/cargo-cache/
+build/ccache/
+build/emcache/
+
+# User-specific stuff
+package-lock.json
+test/bench/images/output*
 
 # Include type definitions
 !lib/vips.d.ts

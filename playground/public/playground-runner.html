@@ -15,7 +15,7 @@
   </style>
 </head>
 <body>
-<script src="/lib/vips.js?<%= __webpack_hash__ %>"></script>
+<script src="/lib/vips.js"></script>
 <script type="module">
   /* global Vips, cleanup */
 
@@ -76,7 +76,6 @@
 
   const options = {
     print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, '')),
-    locateFile: (fileName, scriptDirectory) => `${scriptDirectory}${fileName}?<%= __webpack_hash__ %>`,
     // Avoid using the browser's image decoder to decode preloaded files
     noImageDecoding: true,
     preRun: (module) => {

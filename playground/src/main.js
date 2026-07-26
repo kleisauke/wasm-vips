@@ -1,13 +1,39 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { javascriptDefaults } from 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
-import 'monaco-editor/esm/vs/language/html/monaco.contribution.js';
-import 'monaco-editor/esm/vs/language/css/monaco.contribution.js';
+import * as monaco from 'monaco-editor/editor';
+
+import 'monaco-editor/languages/definitions/css/register';
+import 'monaco-editor/languages/definitions/html/register';
+import 'monaco-editor/languages/definitions/javascript/register';
+import 'monaco-editor/languages/features/css/register';
+import 'monaco-editor/languages/features/html/register';
+import { javascriptDefaults } from 'monaco-editor/languages/features/typescript/register';
+import 'monaco-editor/features/register.all';
+
+import CSSWorker from 'monaco-editor/languages/features/css/css.worker?worker';
+import HTMLWorker from 'monaco-editor/languages/features/html/html.worker?worker';
+import TSWorker from 'monaco-editor/languages/features/typescript/ts.worker?worker';
+import EditorWorker from 'monaco-editor/editor/editor.worker?worker';
+
 import { deflateSync, inflateSync, strToU8, strFromU8 } from 'fflate';
 
-import { dynamicModules, playSamples } from './samples';
+import { dynamicModules, playSamples } from './samples.js';
 import './css/playground.css';
 
 const isMac = /Mac/i.test(navigator.userAgent);
+
+self.MonacoEnvironment = {
+  getWorker (moduleId, label) {
+    switch (label) {
+      case 'css':
+        return new CSSWorker();
+      case 'html':
+        return new HTMLWorker();
+      case 'javascript':
+        return new TSWorker();
+      default:
+        return new EditorWorker();
+    }
+  }
+};
 
 let editor = null;
 const data = {

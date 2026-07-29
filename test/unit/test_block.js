@@ -1,10 +1,8 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 import * as Helpers from './helpers.js';
 
 describe('block', () => {
-  afterEach(function () {
+  afterEach(() => {
     // Not really necessary, but helps debugging ref leaks and ensures that the images are properly
     // cleaned up after every test
     cleanup();

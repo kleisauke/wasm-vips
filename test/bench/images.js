@@ -1,8 +1,6 @@
-'use strict';
-
 // Helpers
 export function getPath (filename) {
-  return './images/' + filename;
+  return `./images/${filename}`;
 }
 
 // https://flickr.com/photos/grizdave/2569067123/

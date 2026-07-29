@@ -1,6 +1,4 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 import * as Helpers from './helpers.js';
 
 describe('arithmetic', () => {
@@ -10,7 +8,7 @@ describe('arithmetic', () => {
   let mono;
   let allImages;
 
-  before(function () {
+  before(() => {
     const im = vips.Image.maskIdeal(100, 100, 0.5, {
       reject: true,
       optical: true
@@ -22,45 +20,55 @@ describe('arithmetic', () => {
     globalDeletionQueue = vips.deletionQueue.splice(0);
   });
 
-  after(function () {
+  after(() => {
     vips.deletionQueue.push(...globalDeletionQueue);
     cleanup();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     cleanup();
   });
 
   function runArith (fn, fmt = Helpers.allFormats) {
-    allImages.forEach(x => fmt.forEach(y => fmt.forEach(z =>
-      Helpers.runImage2(
-        `${fn.name} image ${Helpers.imageToString(x)} ${y} ${z}`,
-        x.cast(y), x.cast(z), fn)
-    )));
+    for (const x of allImages) {
+      for (const y of fmt) {
+        for (const z of fmt) {
+          Helpers.runImage2(
+            `${fn.name} image ${Helpers.imageToString(x)} ${y} ${z}`,
+            x.cast(y), x.cast(z), fn)
+        }
+      }
+    }
   }
 
   function runArithConst (fn, fmt = Helpers.allFormats) {
-    allImages.forEach(x => fmt.forEach(y =>
-      Helpers.runConst(
-        `${fn.name} scalar ${Helpers.imageToString(x)} ${y}`,
-        fn, x.cast(y), 2)
-    ));
-    fmt.forEach(y =>
+    for (const x of allImages) {
+      for (const y of fmt) {
+        Helpers.runConst(
+          `${fn.name} scalar ${Helpers.imageToString(x)} ${y}`,
+          fn, x.cast(y), 2);
+      }
+    }
+    for (const y of fmt) {
       Helpers.runConst(
         `${fn.name} vector ${Helpers.imageToString(colour)} ${y}`,
-        fn, colour.cast(y), [1, 2, 3])
-    );
+        fn, colour.cast(y), [1, 2, 3]);
+    }
   }
 
   // run a function on an image,
   // 50,50 and 10,10 should have different values on the test image
   function runImageunary (message, im, fn) {
-    Helpers.runCmp(message, im, 50, 50, (x) => Helpers.runFn(fn, x));
-    Helpers.runCmp(message, im, 10, 10, (x) => Helpers.runFn(fn, x));
+    Helpers.runCmp(message, im, 50, 50, x => Helpers.runFn(fn, x));
+    Helpers.runCmp(message, im, 10, 10, x => Helpers.runFn(fn, x));
   }
 
   function runUnary (images, fn, fmt = Helpers.allFormats) {
-    images.forEach(x => fmt.forEach(y => runImageunary(`${fn.name} image`, x.cast(y), fn)));
+    for (const x of images) {
+      for (const y of fmt) {
+        runImageunary(`${fn.name} image`, x.cast(y), fn);
+      }
+    }
   }
 
   // run a function on a pair of images
@@ -72,14 +80,18 @@ describe('arithmetic', () => {
   }
 
   function runBinary (images, fn, fmt = Helpers.allFormats) {
-    images.forEach(x => fmt.forEach(y => fmt.forEach(z =>
-      runImagebinary(`${fn.name} ${y} ${z}`, x.cast(y), x.cast(z), fn)
-    )));
+    for (const x of images) {
+      for (const y of fmt) {
+        for (const z of fmt) {
+          runImagebinary(`${fn.name} ${y} ${z}`, x.cast(y), x.cast(z), fn);
+        }
+      }
+    }
   }
 
   // test all operator overloads we define
 
-  it('add', function () {
+  it('add', () => {
     const add = (x, y) => {
       if (x instanceof vips.Image) {
         return x.add(y);
@@ -95,7 +107,7 @@ describe('arithmetic', () => {
     runArith(add);
   });
 
-  it('sub', function () {
+  it('sub', () => {
     const sub = (x, y) => {
       if (x instanceof vips.Image) {
         return x.subtract(y);
@@ -111,7 +123,7 @@ describe('arithmetic', () => {
     runArith(sub);
   });
 
-  it('mul', function () {
+  it('mul', () => {
     const mul = (x, y) => {
       if (x instanceof vips.Image) {
         return x.multiply(y);
@@ -127,7 +139,7 @@ describe('arithmetic', () => {
     runArith(mul);
   });
 
-  it('div', function () {
+  it('div', () => {
     const div = (x, y) => {
       if (x instanceof vips.Image) {
         return x.divide(y);
@@ -144,7 +156,7 @@ describe('arithmetic', () => {
     runArith(div);
   });
 
-  it('floordiv', function () {
+  it('floordiv', () => {
     const floordiv = (x, y) => {
       if (x instanceof vips.Image) {
         return x.divide(y).floor();
@@ -161,7 +173,7 @@ describe('arithmetic', () => {
     runArith(floordiv);
   });
 
-  it('pow', function () {
+  it('pow', () => {
     const pow = (x, y) => {
       if (x instanceof vips.Image) {
         return x.pow(y);
@@ -178,7 +190,7 @@ describe('arithmetic', () => {
     runArith(pow, Helpers.noncomplexFormats);
   });
 
-  it('and', function () {
+  it('and', () => {
     const and = (x, y) => {
       if (x instanceof vips.Image) {
         return x.and(y);
@@ -194,7 +206,7 @@ describe('arithmetic', () => {
     runArith(and, Helpers.noncomplexFormats);
   });
 
-  it('or', function () {
+  it('or', () => {
     const or = (x, y) => {
       if (x instanceof vips.Image) {
         return x.or(y);
@@ -210,7 +222,7 @@ describe('arithmetic', () => {
     runArith(or, Helpers.noncomplexFormats);
   });
 
-  it('xor', function () {
+  it('xor', () => {
     const xor = (x, y) => {
       if (x instanceof vips.Image) {
         return x.eor(y);
@@ -226,7 +238,7 @@ describe('arithmetic', () => {
     runArith(xor, Helpers.noncomplexFormats);
   });
 
-  it('more', function () {
+  it('more', () => {
     const more = (x, y) => {
       if (x instanceof vips.Image) {
         return x.more(y);
@@ -242,7 +254,7 @@ describe('arithmetic', () => {
     runArith(more);
   });
 
-  it('moreEq', function () {
+  it('moreEq', () => {
     const moreEq = (x, y) => {
       if (x instanceof vips.Image) {
         return x.moreEq(y);
@@ -258,7 +270,7 @@ describe('arithmetic', () => {
     runArith(moreEq);
   });
 
-  it('less', function () {
+  it('less', () => {
     const less = (x, y) => {
       if (x instanceof vips.Image) {
         return x.less(y);
@@ -274,7 +286,7 @@ describe('arithmetic', () => {
     runArith(less);
   });
 
-  it('lessEq', function () {
+  it('lessEq', () => {
     const lessEq = (x, y) => {
       if (x instanceof vips.Image) {
         return x.lessEq(y);
@@ -290,7 +302,7 @@ describe('arithmetic', () => {
     runArith(lessEq);
   });
 
-  it('equal', function () {
+  it('equal', () => {
     const equal = (x, y) => {
       if (x instanceof vips.Image) {
         return x.equal(y);
@@ -306,7 +318,7 @@ describe('arithmetic', () => {
     runArith(equal);
   });
 
-  it('notEq', function () {
+  it('notEq', () => {
     const notEq = (x, y) => {
       if (x instanceof vips.Image) {
         return x.notEq(y);
@@ -331,48 +343,48 @@ describe('arithmetic', () => {
     expect(x.equal(12.5).max()).to.equal(0);
   });
 
-  it('abs', function () {
-    const abs = (x) => x instanceof vips.Image ? x.abs() : Math.abs(x);
+  it('abs', () => {
+    const abs = x => x instanceof vips.Image ? x.abs() : Math.abs(x);
 
     const im = colour.multiply(-1);
     runUnary([im], abs);
   });
 
-  it('lshift', function () {
-    const lshift = (x) => x instanceof vips.Image ? x.lshift(2) : x << 2;
+  it('lshift', () => {
+    const lshift = x => x instanceof vips.Image ? x.lshift(2) : x << 2;
 
     // we don't support constant << image, treat as a unary
     runUnary(allImages, lshift, Helpers.noncomplexFormats);
   });
 
-  it('rshift', function () {
-    const rshift = (x) => x instanceof vips.Image ? x.rshift(2) : x >> 2;
+  it('rshift', () => {
+    const rshift = x => x instanceof vips.Image ? x.rshift(2) : x >> 2;
 
     // we don't support constant >> image, treat as a unary
     runUnary(allImages, rshift, Helpers.noncomplexFormats);
   });
 
-  it('mod', function () {
-    const mod = (x) => x instanceof vips.Image ? x.remainder(2) : x % 2;
+  it('mod', () => {
+    const mod = x => x instanceof vips.Image ? x.remainder(2) : x % 2;
 
     // we don't support constant % image, treat as a unary
     runUnary(allImages, mod, Helpers.noncomplexFormats);
   });
 
-  it('pos', function () {
-    const pos = (x) => x instanceof vips.Image ? x : +x;
+  it('pos', () => {
+    const pos = x => x instanceof vips.Image ? x : +x;
 
     runUnary(allImages, pos);
   });
 
-  it('neg', function () {
-    const neg = (x) => x instanceof vips.Image ? x.multiply(-1) : -x;
+  it('neg', () => {
+    const neg = x => x instanceof vips.Image ? x.multiply(-1) : -x;
 
     runUnary(allImages, neg);
   });
 
-  it('invert', function () {
-    const invert = (x) => x instanceof vips.Image ? x.invert() : (x ^ -1) & 0xff;
+  it('invert', () => {
+    const invert = x => x instanceof vips.Image ? x.invert() : (x ^ -1) & 0xff;
 
     // ~image is trimmed to image max, so it's hard to test for all formats
     // just test uchar
@@ -381,7 +393,7 @@ describe('arithmetic', () => {
 
   // test the rest of VipsArithmetic
 
-  it('avg', function () {
+  it('avg', () => {
     const im = vips.Image.black(50, 100);
     const test = im.insert(im.add(100), 50, 0, {
       expand: true
@@ -392,7 +404,7 @@ describe('arithmetic', () => {
     }
   });
 
-  it('deviate', function () {
+  it('deviate', () => {
     const im = vips.Image.black(50, 100);
     const test = im.insert(im.add(100), 50, 0, {
       expand: true
@@ -403,7 +415,7 @@ describe('arithmetic', () => {
     }
   });
 
-  it('polar', function () {
+  it('polar', () => {
     let im = vips.Image.black(100, 100).add(100);
     im = im.complexform(im);
 
@@ -413,7 +425,7 @@ describe('arithmetic', () => {
     expect(im.imag().avg()).to.be.closeTo(45, 1e-6);
   });
 
-  it('rect', function () {
+  it('rect', () => {
     let im = vips.Image.black(100, 100);
     im = im.add(100 * 2 ** 0.5).complexform(im.add(45));
 
@@ -423,7 +435,7 @@ describe('arithmetic', () => {
     expect(im.imag().avg()).to.be.closeTo(100, 1e-6);
   });
 
-  it('conjugate', function () {
+  it('conjugate', () => {
     let im = vips.Image.black(100, 100).add(100);
     im = im.complexform(im);
 
@@ -433,7 +445,7 @@ describe('arithmetic', () => {
     expect(im.imag().avg()).to.be.closeTo(-100, 1e-6);
   });
 
-  it('histFind', function () {
+  it('histFind', () => {
     const im = vips.Image.black(50, 100);
     let test = im.insert(im.add(10), 50, 0, {
       expand: true
@@ -465,7 +477,7 @@ describe('arithmetic', () => {
     }
   });
 
-  it('histFindIndexed', function () {
+  it('histFindIndexed', () => {
     const im = vips.Image.black(50, 100);
     const test = im.insert(im.add(10), 50, 0, {
       expand: true
@@ -484,7 +496,7 @@ describe('arithmetic', () => {
     }
   });
 
-  it('histFindNdim', function () {
+  it('histFindNdim', () => {
     const im = vips.Image.black(100, 100).add([1, 2, 3]);
 
     for (const fmt of Helpers.noncomplexFormats) {
@@ -504,7 +516,7 @@ describe('arithmetic', () => {
     }
   });
 
-  it('houghCircle', function () {
+  it('houghCircle', () => {
     const test = vips.Image.black(100, 100).copy();
     test.drawCircle(100, 50, 50, 40);
 
@@ -531,7 +543,7 @@ describe('arithmetic', () => {
     }
   });
 
-  it('houghLine', function () {
+  it('houghLine', () => {
     const test = vips.Image.black(100, 100).copy();
     test.drawLine(100, 10, 90, 90, 10);
 
@@ -551,85 +563,85 @@ describe('arithmetic', () => {
     }
   });
 
-  it('sin', function () {
-    const sin = (x) => x instanceof vips.Image ? x.sin() : Math.sin(x * (Math.PI / 180));
+  it('sin', () => {
+    const sin = x => x instanceof vips.Image ? x.sin() : Math.sin(x * (Math.PI / 180));
 
     runUnary(allImages, sin, Helpers.noncomplexFormats);
   });
 
-  it('cos', function () {
-    const cos = (x) => x instanceof vips.Image ? x.cos() : Math.cos(x * (Math.PI / 180));
+  it('cos', () => {
+    const cos = x => x instanceof vips.Image ? x.cos() : Math.cos(x * (Math.PI / 180));
 
     runUnary(allImages, cos, Helpers.noncomplexFormats);
   });
 
-  it('tan', function () {
-    const tan = (x) => x instanceof vips.Image ? x.tan() : Math.tan(x * (Math.PI / 180));
+  it('tan', () => {
+    const tan = x => x instanceof vips.Image ? x.tan() : Math.tan(x * (Math.PI / 180));
 
     runUnary(allImages, tan, Helpers.noncomplexFormats);
   });
 
-  it('asin', function () {
-    const asin = (x) => x instanceof vips.Image ? x.asin() : Math.asin(x) * (180 / Math.PI);
+  it('asin', () => {
+    const asin = x => x instanceof vips.Image ? x.asin() : Math.asin(x) * (180 / Math.PI);
 
     const im = vips.Image.black(100, 100).add([1, 2, 3]).divide(3.0);
     runUnary([im], asin, Helpers.noncomplexFormats);
   });
 
-  it('acos', function () {
-    const acos = (x) => x instanceof vips.Image ? x.acos() : Math.acos(x) * (180 / Math.PI);
+  it('acos', () => {
+    const acos = x => x instanceof vips.Image ? x.acos() : Math.acos(x) * (180 / Math.PI);
 
     const im = vips.Image.black(100, 100).add([1, 2, 3]).divide(3.0);
     runUnary([im], acos, Helpers.noncomplexFormats);
   });
 
-  it('atan', function () {
-    const atan = (x) => x instanceof vips.Image ? x.atan() : Math.atan(x) * (180 / Math.PI);
+  it('atan', () => {
+    const atan = x => x instanceof vips.Image ? x.atan() : Math.atan(x) * (180 / Math.PI);
 
     const im = vips.Image.black(100, 100).add([1, 2, 3]).divide(3.0);
     runUnary([im], atan, Helpers.noncomplexFormats);
   });
 
-  it('sinh', function () {
-    const sinh = (x) => x instanceof vips.Image ? x.sinh() : Math.sinh(x);
+  it('sinh', () => {
+    const sinh = x => x instanceof vips.Image ? x.sinh() : Math.sinh(x);
 
     runUnary(allImages, sinh, Helpers.noncomplexFormats);
   });
 
-  it('cosh', function () {
-    const cosh = (x) => x instanceof vips.Image ? x.cosh() : Math.cosh(x);
+  it('cosh', () => {
+    const cosh = x => x instanceof vips.Image ? x.cosh() : Math.cosh(x);
 
     runUnary(allImages, cosh, Helpers.noncomplexFormats);
   });
 
-  it('tanh', function () {
-    const tanh = (x) => x instanceof vips.Image ? x.tanh() : Math.tanh(x);
+  it('tanh', () => {
+    const tanh = x => x instanceof vips.Image ? x.tanh() : Math.tanh(x);
 
     runUnary(allImages, tanh, Helpers.noncomplexFormats);
   });
 
-  it('asinh', function () {
-    const asinh = (x) => x instanceof vips.Image ? x.asinh() : Math.asinh(x);
+  it('asinh', () => {
+    const asinh = x => x instanceof vips.Image ? x.asinh() : Math.asinh(x);
 
     const im = vips.Image.black(100, 100).add([4, 5, 6]).divide(3.0);
     runUnary([im], asinh, Helpers.noncomplexFormats);
   });
 
-  it('acosh', function () {
-    const acosh = (x) => x instanceof vips.Image ? x.acosh() : Math.acosh(x);
+  it('acosh', () => {
+    const acosh = x => x instanceof vips.Image ? x.acosh() : Math.acosh(x);
 
     const im = vips.Image.black(100, 100).add([4, 5, 6]).divide(3.0);
     runUnary([im], acosh, Helpers.noncomplexFormats);
   });
 
-  it('atanh', function () {
-    const atanh = (x) => x instanceof vips.Image ? x.atanh() : Math.atanh(x);
+  it('atanh', () => {
+    const atanh = x => x instanceof vips.Image ? x.atanh() : Math.atanh(x);
 
     const im = vips.Image.black(100, 100).add([0, 1, 2]).divide(3.0);
     runUnary([im], atanh, Helpers.noncomplexFormats);
   });
 
-  it('atan2', function () {
+  it('atan2', () => {
     const atan2 = (x, y) => x instanceof vips.Image ? x.atan2(y) : Math.atan2(x[0], y[0]) * (180 / Math.PI);
 
     const im = vips.Image.black(100, 100).add([1, 2, 3]).divide(3.0);
@@ -637,55 +649,55 @@ describe('arithmetic', () => {
     runBinary(split, atan2, Helpers.noncomplexFormats);
   });
 
-  it('log', function () {
-    const log = (x) => x instanceof vips.Image ? x.log() : Math.log(x);
+  it('log', () => {
+    const log = x => x instanceof vips.Image ? x.log() : Math.log(x);
 
     runUnary(allImages, log, Helpers.noncomplexFormats);
   });
 
-  it('log10', function () {
-    const log10 = (x) => x instanceof vips.Image ? x.log10() : Math.log10(x);
+  it('log10', () => {
+    const log10 = x => x instanceof vips.Image ? x.log10() : Math.log10(x);
 
     runUnary(allImages, log10, Helpers.noncomplexFormats);
   });
 
-  it('exp', function () {
-    const exp = (x) => x instanceof vips.Image ? x.exp() : Math.exp(x);
+  it('exp', () => {
+    const exp = x => x instanceof vips.Image ? x.exp() : Math.exp(x);
 
     runUnary(allImages, exp, Helpers.noncomplexFormats);
   });
 
-  it('exp10', function () {
-    const exp10 = (x) => x instanceof vips.Image ? x.exp10() : Math.pow(10, x);
+  it('exp10', () => {
+    const exp10 = x => x instanceof vips.Image ? x.exp10() : 10 ** x;
 
     runUnary(allImages, exp10, Helpers.noncomplexFormats);
   });
 
-  it('floor', function () {
-    const floor = (x) => x instanceof vips.Image ? x.floor() : Math.floor(x);
+  it('floor', () => {
+    const floor = x => x instanceof vips.Image ? x.floor() : Math.floor(x);
 
     runUnary(allImages, floor);
   });
 
-  it('ceil', function () {
-    const ceil = (x) => x instanceof vips.Image ? x.ceil() : Math.ceil(x);
+  it('ceil', () => {
+    const ceil = x => x instanceof vips.Image ? x.ceil() : Math.ceil(x);
 
     runUnary(allImages, ceil);
   });
 
-  it('rint', function () {
-    const rint = (x) => x instanceof vips.Image ? x.rint() : Math.round(x);
+  it('rint', () => {
+    const rint = x => x instanceof vips.Image ? x.rint() : Math.round(x);
 
     runUnary(allImages, rint);
   });
 
-  it('sign', function () {
-    const sign = (x) => x instanceof vips.Image ? x.sign() : x > 0 ? 1 : x < 0 ? -1 : 0;
+  it('sign', () => {
+    const sign = x => x instanceof vips.Image ? x.sign() : x > 0 ? 1 : x < 0 ? -1 : 0;
 
     runUnary(allImages, sign);
   });
 
-  it('max', function () {
+  it('max', () => {
     const test = vips.Image.black(100, 100).copy();
     test.drawRect(100, 40, 50, 1, 1);
 
@@ -704,7 +716,7 @@ describe('arithmetic', () => {
     }
   });
 
-  it('min', function () {
+  it('min', () => {
     const test = vips.Image.black(100, 100).add(100).copy();
     test.drawRect(0, 40, 50, 1, 1);
 
@@ -723,7 +735,7 @@ describe('arithmetic', () => {
     }
   });
 
-  it('measure', function () {
+  it('measure', () => {
     const im = vips.Image.black(50, 50);
     const test = im.insert(im.add(10), 50, 0, {
       expand: true
@@ -740,7 +752,7 @@ describe('arithmetic', () => {
     }
   });
 
-  it('findTrim', function () {
+  it('findTrim', () => {
     const im = vips.Image.black(50, 60).add(100);
     const test = im.embed(10, 20, 200, 300, {
       extend: 'white'
@@ -768,7 +780,7 @@ describe('arithmetic', () => {
     expect(trim.height).to.equal(60);
   });
 
-  it('profile', function () {
+  it('profile', () => {
     const test = vips.Image.black(100, 100).copy();
     test.drawRect(100, 40, 50, 1, 1);
 
@@ -801,7 +813,7 @@ describe('arithmetic', () => {
     }
   });
 
-  it('project', function () {
+  it('project', () => {
     const im = vips.Image.black(50, 50);
     const test = im.insert(im.add(10), 50, 0, {
       expand: true
@@ -827,7 +839,7 @@ describe('arithmetic', () => {
     expect(min.columns.max()).to.equal(0);
   });
 
-  it('stats', function () {
+  it('stats', () => {
     const im = vips.Image.black(50, 50);
     const test = im.insert(im.add(10), 50, 0, {
       expand: true
@@ -853,7 +865,7 @@ describe('arithmetic', () => {
     }
   });
 
-  it('sum', function () {
+  it('sum', () => {
     for (const fmt of Helpers.allFormats) {
       const im = vips.Image.black(50, 50);
       let sum = 0;
@@ -868,7 +880,7 @@ describe('arithmetic', () => {
     }
   });
 
-  it('clamp', function () {
+  it('clamp', () => {
     for (const fmt of Helpers.noncomplexFormats) {
       for (let x = 0; x < 100; x += 10) {
         const im2 = colour.add(x).cast(fmt);
@@ -883,7 +895,7 @@ describe('arithmetic', () => {
     }
   });
 
-  it('minpair', function () {
+  it('minpair', () => {
     for (const fmt of Helpers.noncomplexFormats) {
       for (let x = 0; x < 100; x += 10) {
         const im2 = colour.subtract(x).multiply(5).cast(fmt);
@@ -894,7 +906,7 @@ describe('arithmetic', () => {
     }
   });
 
-  it('maxpair', function () {
+  it('maxpair', () => {
     for (const fmt of Helpers.noncomplexFormats) {
       for (let x = 0; x < 100; x += 10) {
         const im2 = colour.subtract(x).multiply(5).cast(fmt);

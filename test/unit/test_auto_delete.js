@@ -1,13 +1,11 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 describe('auto delete', () => {
-  after(function () {
+  after(() => {
     cleanup();
     expect(vips.deletionQueue.length).to.equal(0);
   });
 
-  it('auto delete', function () {
+  it('auto delete', () => {
     const im = vips.Image.black(100, 100);
     expect(vips.deletionQueue.length).to.equal(1);
     expect(() => im.clone()).to.throw(/Object already scheduled for deletion/);
@@ -20,7 +18,7 @@ describe('auto delete', () => {
   });
 
   describe('preventAutoDelete', () => {
-    it('all handles', function () {
+    it('all handles', () => {
       const handles = Object.entries(vips).filter(
         ([key, Handle]) =>
           key !== 'Object' && !!Handle?.prototype?.preventAutoDelete
@@ -39,7 +37,7 @@ describe('auto delete', () => {
       }
     });
 
-    it('cloned handle', function () {
+    it('cloned handle', () => {
       const im = new vips.Image();
       expect(vips.deletionQueue.length).to.equal(1);
 

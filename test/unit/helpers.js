@@ -1,6 +1,4 @@
 /* global vips, expect */
-'use strict';
-
 export const jpegFile = getPath('sample.jpg');
 export const jxlFile = getPath('sample.jxl');
 export const truncatedFile = getPath('truncated.jpg');
@@ -123,15 +121,14 @@ export const rotAngleBonds = ['d0'].concat(rotAngles.slice(1).reverse());
 export function getPath (filename) {
   return typeof window === 'undefined'
     // Node.js
-    ? './images/' + filename
+    ? `./images/${filename}`
     // Browser
     : filename;
 }
 
 // a function that mimics Python's zip behaviour on edge cases
 // where the arrays are not the same size.
-export function zip () {
-  const args = [].slice.call(arguments);
+export function zip (...args) {
   const shortest = args.length === 0 ? [] : args.reduce((a, b) => a.length < b.length ? a : b);
   return shortest.map((_, i) => args.map(array => array[i]));
 }
@@ -150,9 +147,9 @@ export function zipExpand (x, y) {
   if (Array.isArray(x) && Array.isArray(y)) {
     return zip(x, y);
   } else if (Array.isArray(x)) {
-    return x.map((value) => [value, y]);
+    return x.map(value => [value, y]);
   } else if (Array.isArray(y)) {
-    return y.map((value) => [x, value]);
+    return y.map(value => [x, value]);
   } else {
     return [[x, y]];
   }
@@ -169,7 +166,7 @@ export function runFn (fn, x) {
 export function runFn2 (fn, x, y) {
   if (x instanceof vips.Image || y instanceof vips.Image) {
     return fn(x, y);
-  } else if (x instanceof Array || y instanceof Array) {
+  } else if (Array.isArray(x) || Array.isArray(y)) {
     return zipExpand(x, y).map(value => fn(value[0], value[1]));
   } else {
     return fn(x, y);
@@ -183,14 +180,16 @@ export function have (name) {
 
 // test a pair of things for approx. equality
 export function assertAlmostEqualObjects (a, b, delta = 0.0001, msg = '') {
-  zipExpand(a, b).forEach(value => {
-    expect(value[0], msg).to.be.closeTo(value[1], delta);
+  zipExpand(a, b).forEach((value) => {
+    expect(value[0], msg).to.be.closeTo(value[1], delta)
   });
 }
 
 // test a pair of things for difference less than a threshold
 export function assertLessThreshold (a, b, diff) {
-  zipExpand(a, b).forEach(value => expect(Math.abs(value[0] - value[1])).to.be.below(diff));
+  zipExpand(a, b).forEach((value) => {
+    expect(Math.abs(value[0] - value[1])).to.be.below(diff)
+  });
 }
 
 // run a function on an image and on a single pixel, the results
@@ -213,10 +212,10 @@ export function runImage (message, im, fn) {
 // run a function on (image, constant), and on (constant, image).
 // 50,50 and 10,10 should have different values on the test image
 export function runConst (message, fn, im, c) {
-  runCmp(message, im, 50, 50, (x) => runFn2(fn, x, c));
-  runCmp(message, im, 50, 50, (x) => runFn2(fn, c, x));
-  runCmp(message, im, 10, 10, (x) => runFn2(fn, x, c));
-  runCmp(message, im, 10, 10, (x) => runFn2(fn, c, x));
+  runCmp(message, im, 50, 50, x => runFn2(fn, x, c));
+  runCmp(message, im, 50, 50, x => runFn2(fn, c, x));
+  runCmp(message, im, 10, 10, x => runFn2(fn, x, c));
+  runCmp(message, im, 10, 10, x => runFn2(fn, c, x));
 }
 
 // run a function on a pair of images and on a pair of pixels, the results

@@ -17,7 +17,7 @@ jobs:
     outputs:
       cache-key: ${{ steps.gen-cache-key.outputs.key }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - id: gen-cache-key
         run: |
           if [ "${{ inputs.force-rebuild }}" = true ]; then
@@ -26,7 +26,7 @@ jobs:
             key=${{ hashFiles('lib/**', 'src/**', 'build.sh', 'Dockerfile') }}
           fi
           echo "key=$key" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         id: cache
         with:
           path: |
@@ -52,11 +52,11 @@ jobs:
           - os: windows-2022
             nodejs_version: 17
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.nodejs_version }}
-      - uses: actions/cache/restore@v5
+      - uses: actions/cache/restore@v6
         with:
           path: |
             lib
@@ -80,11 +80,11 @@ jobs:
       id-token: write # for npm publish
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - uses: actions/cache/restore@v5
+      - uses: actions/cache/restore@v6
         with:
           path: |
             lib

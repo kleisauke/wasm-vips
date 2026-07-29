@@ -1,10 +1,8 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 import * as Helpers from './helpers.js';
 
 describe('resample', () => {
-  afterEach(function () {
+  afterEach(() => {
     cleanup();
   });
 
@@ -46,7 +44,7 @@ describe('resample', () => {
     xy = xy.multiply(2.0 / scale);
 
     // to polar, scale vertical axis to 360 degrees
-    let index = runCmplx((x) => x.polar(), xy);
+    let index = runCmplx(x => x.polar(), xy);
     index = index.multiply([1, image.height / 360.0]);
 
     return image.mapim(index);
@@ -63,7 +61,7 @@ describe('resample', () => {
     xy = xy.multiply([1, 360.0 / image.height]);
 
     // to rect, scale to image rect
-    let index = runCmplx((x) => x.rect(), xy);
+    let index = runCmplx(x => x.rect(), xy);
     const scale = Math.min(image.width, image.height) / image.width;
     index = index.multiply(scale / 2.0);
     index = index.add([image.width / 2.0, image.height / 2.0]);
@@ -71,7 +69,7 @@ describe('resample', () => {
     return image.mapim(index);
   }
 
-  it('affine', function () {
+  it('affine', () => {
     const im = vips.Image.newFromFile(Helpers.jpegFile);
 
     // vsqbs is non-interpolatory, don't test this way
@@ -88,7 +86,7 @@ describe('resample', () => {
     }
   });
 
-  it('reduce', function () {
+  it('reduce', () => {
     let im = vips.Image.newFromFile(Helpers.jpegFile);
     // cast down to 0-127, the smallest range, so we aren't messed up by
     // clipping
@@ -133,7 +131,7 @@ describe('resample', () => {
     }
   });
 
-  it('resize', function () {
+  it('resize', () => {
     let im = vips.Image.newFromFile(Helpers.jpegFile);
     const im2 = im.resize(0.25);
 
@@ -181,7 +179,7 @@ describe('resample', () => {
     }
   });
 
-  it('shrink', function () {
+  it('shrink', () => {
     const im = vips.Image.newFromFile(Helpers.jpegFile);
     let im2 = im.shrink(4, 4);
 
@@ -196,7 +194,7 @@ describe('resample', () => {
     expect(Math.abs(im.avg() - im2.avg())).to.be.below(1);
   });
 
-  it('thumbnail', function () {
+  it('thumbnail', () => {
     // added in 8.5
     let im = vips.Image.thumbnail(Helpers.jpegFile, 100);
 
@@ -248,17 +246,17 @@ describe('resample', () => {
       expect(im.height).to.equal(38);
 
       // should be able to thumbnail individual pages from many-page tiff
-      im1 = vips.Image.thumbnail(Helpers.omeFile + '[page=0]', 100);
+      im1 = vips.Image.thumbnail(`${Helpers.omeFile}[page=0]`, 100);
       expect(im.width).to.equal(100);
       expect(im.height).to.equal(38);
-      im2 = vips.Image.thumbnail(Helpers.omeFile + '[page=1]', 100);
+      im2 = vips.Image.thumbnail(`${Helpers.omeFile}[page=1]`, 100);
       expect(im.width).to.equal(100);
       expect(im.height).to.equal(38);
       expect(im1.subtract(im2).abs().max()).to.not.equal(0);
 
       // should be able to thumbnail entire many-page tiff as a toilet-roll
       // image
-      im = vips.Image.thumbnail(Helpers.omeFile + '[n=-1]', 100);
+      im = vips.Image.thumbnail(`${Helpers.omeFile}[n=-1]`, 100);
       expect(im.width).to.equal(100);
       expect(im.height).to.equal(570);
 
@@ -286,7 +284,7 @@ describe('resample', () => {
   });
 
   describe('similarity', () => {
-    it('angle', function () {
+    it('angle', () => {
       const im = vips.Image.newFromFile(Helpers.jpegFile);
       const im2 = im.similarity({
         angle: 90
@@ -298,7 +296,7 @@ describe('resample', () => {
       expect(im2.subtract(im3).abs().max()).to.be.below(50);
     });
 
-    it('scale', function () {
+    it('scale', () => {
       const im = vips.Image.newFromFile(Helpers.jpegFile);
       const im2 = im.similarity({
         scale: 2
@@ -309,7 +307,7 @@ describe('resample', () => {
     });
   });
 
-  it('rotate', function () {
+  it('rotate', () => {
     // added in 8.7
     const im = vips.Image.newFromFile(Helpers.jpegFile);
     const im2 = im.rotate(90);
@@ -320,7 +318,7 @@ describe('resample', () => {
     expect(im2.subtract(im3).abs().max()).to.be.below(50);
   });
 
-  it('mapim', function () {
+  it('mapim', () => {
     const im = vips.Image.newFromFile(Helpers.jpegFile);
 
     const p = toPolar(im);

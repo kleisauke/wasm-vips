@@ -1,5 +1,3 @@
-'use strict';
-
 import Vips from '../../lib/vips-node.mjs';
 
 import { expect } from 'chai';
@@ -14,7 +12,7 @@ export async function mochaGlobalSetup () {
     dynamicLibraries: ['vips-jxl.wasm', 'vips-heif.wasm', 'vips-resvg.wasm'],
     preRun: (module) => {
       module.setAutoDeleteLater(true);
-      module.setDelayFunction(fn => {
+      module.setDelayFunction((fn) => {
         globalThis.cleanup = fn;
       });
 

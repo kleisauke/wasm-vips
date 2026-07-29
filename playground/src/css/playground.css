@@ -109,6 +109,10 @@ body {
 }
 
 /* https://github.com/tholman/github-corners */
+.github-corner svg {
+    clip-path: polygon(0 0, 100% 0, 100% 100%)
+}
+
 .github-corner:hover .octo-arm {
     animation: octocat-wave 560ms ease-in-out
 }
@@ -130,6 +134,7 @@ body {
         animation: none
     }
 
+    /* biome-ignore lint/style/noDescendingSpecificity: intentional override for mobile */
     .github-corner .octo-arm {
         animation: octocat-wave 560ms ease-in-out
     }

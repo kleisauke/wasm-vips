@@ -1,6 +1,4 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 import * as Helpers from './helpers.js';
 
 describe('connection', () => {
@@ -9,7 +7,7 @@ describe('connection', () => {
   let colour;
   let mono;
 
-  before(function () {
+  before(() => {
     colour = vips.Image.jpegload(Helpers.jpegFile);
     mono = colour.extractBand(1).copy();
     // we remove the ICC profile: the RGB one will no longer be appropriate
@@ -18,22 +16,22 @@ describe('connection', () => {
     globalDeletionQueue = vips.deletionQueue.splice(0);
   });
 
-  after(function () {
+  after(() => {
     vips.deletionQueue.push(...globalDeletionQueue);
     cleanup();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     cleanup();
   });
 
   describe('source', () => {
-    it('newFromFile', function () {
+    it('newFromFile', () => {
       const x = vips.Source.newFromFile(Helpers.jpegFile);
 
       expect(x.filename).to.equal(Helpers.jpegFile);
     });
-    it('newFromMemory', function () {
+    it('newFromMemory', () => {
       const data = colour.writeToBuffer('.jpg');
       const x = vips.Source.newFromMemory(data);
 
@@ -42,7 +40,7 @@ describe('connection', () => {
   });
 
   describe('target', () => {
-    it('newToFile', function () {
+    it('newToFile', () => {
       const filename = vips.Utils.tempName('%s.jpg');
       const x = vips.Target.newToFile(filename);
 
@@ -51,7 +49,7 @@ describe('connection', () => {
       // After PR https://github.com/libvips/libvips/pull/4482 the file
       // is created lazily, so we no longer need to unlink it here.
     });
-    it('newToMemory', function () {
+    it('newToMemory', () => {
       const x = vips.Target.newToMemory();
 
       expect(x.filename).to.equal(undefined);
@@ -60,7 +58,7 @@ describe('connection', () => {
 
   describe('image', () => {
     describe('newFromSource', () => {
-      it('file', function () {
+      it('file', () => {
         const x = vips.Source.newFromFile(Helpers.jpegFile);
         const y = vips.Image.newFromSource(x, {
           access: 'sequential'
@@ -69,7 +67,7 @@ describe('connection', () => {
         expect(y.width).to.equal(290);
         expect(y.height).to.equal(442);
       });
-      it('memory', function () {
+      it('memory', () => {
         const data = colour.writeToBuffer('.jpg');
         const x = vips.Source.newFromMemory(data);
         const y = vips.Image.newFromSource(x, {
@@ -79,7 +77,7 @@ describe('connection', () => {
         expect(y.width).to.equal(290);
         expect(y.height).to.equal(442);
       });
-      it('custom', function () {
+      it('custom', () => {
         const stream = vips.FS.open(Helpers.jpegFile, 'r');
 
         const source = new vips.SourceCustom();
@@ -104,7 +102,7 @@ describe('connection', () => {
       });
     });
     describe('writeToTarget', () => {
-      it('file', function () {
+      it('file', () => {
         const filename = vips.Utils.tempName('%s.jpg');
 
         const x = vips.Target.newToFile(filename);
@@ -118,14 +116,14 @@ describe('connection', () => {
 
         vips.FS.unlink(filename);
       });
-      it('memory', function () {
+      it('memory', () => {
         const x = vips.Target.newToMemory();
         colour.writeToTarget(x, '.jpg');
         const y = colour.writeToBuffer('.jpg');
 
         expect(x.getBlob()).to.deep.equal(y);
       });
-      it('custom', function () {
+      it('custom', () => {
         const filename = vips.Utils.tempName('%s.png');
         const stream = vips.FS.open(filename, 'w');
 

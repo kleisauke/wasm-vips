@@ -1,6 +1,4 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 import * as Helpers from './helpers.js';
 
 describe('foreign', () => {
@@ -47,7 +45,7 @@ describe('foreign', () => {
     radsave_buffer: (im, opts) => im.radsaveBuffer(opts)
   };
 
-  before(function () {
+  before(() => {
     colour = vips.Image.jpegload(Helpers.jpegFile);
     rgba = vips.Image.newFromFile(Helpers.rgbaFile);
     mono = colour.extractBand(1).copy();
@@ -65,12 +63,12 @@ describe('foreign', () => {
     globalDeletionQueue = vips.deletionQueue.splice(0);
   });
 
-  after(function () {
+  after(() => {
     vips.deletionQueue.push(...globalDeletionQueue);
     cleanup();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     cleanup();
   });
 
@@ -130,7 +128,7 @@ describe('foreign', () => {
   }
 
   function saveBufferTempfile (saver, suf, im, maxDiff = 0) {
-    const filename = vips.Utils.tempName('%s' + suf);
+    const filename = vips.Utils.tempName(`%s${suf}`);
 
     const buf = bufferSavers[saver](im, {});
     const stream = vips.FS.open(filename, 'w+');
@@ -146,7 +144,7 @@ describe('foreign', () => {
     expect(im.subtract(x).abs().max()).to.be.at.most(maxDiff);
   }
 
-  it('vips', function () {
+  it('vips', () => {
     saveLoadFile('%s.v', '', colour, 0);
 
     // check we can save and restore metadata
@@ -503,13 +501,13 @@ describe('foreign', () => {
 
     // but this should fail with a warning, and knock TRUNCATED_FILE out of
     // the cache
-    let x = im.avg();
+    let _x = im.avg();
 
     // now we should open again, but it won't come from cache, it'll reload
     im = vips.Image.newFromFile(Helpers.truncatedFile);
 
     // and this should fail with a warning once more
-    x = im.avg(); // eslint-disable-line no-unused-vars
+    _x = im.avg();
   });
 
   it('png', function () {
@@ -904,7 +902,7 @@ describe('foreign', () => {
     im = vips.Image.newFromFile(Helpers.webpAnimFile, { n: -1 });
     expect(im.width).to.equal(13);
     expect(im.height).to.equal(16731);
-    buf = im.webpsaveBuffer(); // eslint-disable-line no-unused-vars
+    buf = im.webpsaveBuffer();
 
     // target_size should reasonably work, +/- 2% is fine
     im = vips.Image.newFromFile(Helpers.webpFile);
@@ -1030,11 +1028,11 @@ describe('foreign', () => {
     fileLoader('analyzeload', Helpers.analyzeFiles[0], analyzeValid);
   });
 
-  it('csv', function () {
+  it('csv', () => {
     saveLoad('%s.csv', mono);
   });
 
-  it('matrix', function () {
+  it('matrix', () => {
     saveLoad('%s.mat', mono);
   });
 
@@ -1329,7 +1327,7 @@ describe('foreign', () => {
     expect(im.getInt('bits-per-sample')).to.equal(1);
   });
 
-  it('fail_on', function () {
+  it('fail_on', () => {
     // csvload should spot trunc correctly
     const target = vips.Target.newToMemory();
     mono.writeToTarget(target, '.csv');

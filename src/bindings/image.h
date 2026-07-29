@@ -91,7 +91,7 @@ class Image : public Object {
 
     std::optional<Image> gainmap() const {
         VipsImage *image = vips_image_get_gainmap(get_image());
-        if (image == nullptr) 
+        if (image == nullptr)
             return {};
 
         return Image(image);

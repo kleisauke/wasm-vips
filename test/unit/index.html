@@ -63,6 +63,7 @@
     }
 
     #mocha .test pre:not(.error) {
+      /* biome-ignore lint/complexity/noImportantStyles: !important is required here */
       display: none !important;
     }
   </style>
@@ -106,7 +107,7 @@
   globalThis.expect = expect;
 
   const options = {
-    print: (stdout) => console.log(stdout.replace(/\033\[[0-9;]*m/g, '')),
+    print: stdout => console.log(stdout.replace(/\033\[[0-9;]*m/g, '')),
     // Avoid using the browser's image decoder to decode preloaded files
     noImageDecoding: true,
     // Uncomment to disable dynamic modules
@@ -115,7 +116,7 @@
     dynamicLibraries: ['vips-jxl.wasm', 'vips-heif.wasm', 'vips-resvg.wasm'],
     preRun: (module) => {
       module.setAutoDeleteLater(true);
-      module.setDelayFunction(fn => {
+      module.setDelayFunction((fn) => {
         globalThis.cleanup = fn;
       });
 
@@ -125,12 +126,12 @@
 
       // Preload test files
       for (const file of Helpers.testFiles) {
-        module.FS.preloadFile('/', file.split('/').pop(), 'test/unit/images/' + file, true, false);
+        module.FS.preloadFile('/', file.split('/').pop(), `test/unit/images/${file}`, true, false);
       }
     },
     postRun: (module) => {
       const pad = 30;
-      const have = (name) => module.Utils.typeFind('VipsOperation', name) !== 0;
+      const have = name => module.Utils.typeFind('VipsOperation', name) !== 0;
 
       console.log('vips version:'.padEnd(pad), module.version());
       console.log('Emscripten version:'.padEnd(pad), module.emscriptenVersion());

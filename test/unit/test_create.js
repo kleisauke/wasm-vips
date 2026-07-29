@@ -1,14 +1,12 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 import * as Helpers from './helpers.js';
 
 describe('create', () => {
-  afterEach(function () {
+  afterEach(() => {
     cleanup();
   });
 
-  it('black', function () {
+  it('black', () => {
     let im = vips.Image.black(100, 100);
 
     expect(im.width).to.equal(100);
@@ -38,7 +36,7 @@ describe('create', () => {
     }
   });
 
-  it('buildlut', function () {
+  it('buildlut', () => {
     let im = vips.Image.newFromArray([
       [0, 0],
       [255, 100]
@@ -76,7 +74,7 @@ describe('create', () => {
     Helpers.assertAlmostEqualObjects(p, [5.0, 95.0]);
   });
 
-  it('eye', function () {
+  it('eye', () => {
     let im = vips.Image.eye(100, 90);
     expect(im.width).to.equal(100);
     expect(im.height).to.equal(90);
@@ -109,7 +107,7 @@ describe('create', () => {
     expect(im.format).to.equal('float');
   });
 
-  it('gaussmat', function () {
+  it('gaussmat', () => {
     let im = vips.Image.gaussmat(1, 0.1);
     expect(im.width).to.equal(5);
     expect(im.height).to.equal(5);
@@ -142,7 +140,7 @@ describe('create', () => {
     expect(p[0]).to.equal(1.0);
   });
 
-  it('gaussnoise', function () {
+  it('gaussnoise', () => {
     let im = vips.Image.gaussnoise(100, 90);
     expect(im.width).to.equal(100);
     expect(im.height).to.equal(90);
@@ -165,7 +163,7 @@ describe('create', () => {
     expect(mean).to.be.closeTo(100, 0.4);
   });
 
-  it('grey', function () {
+  it('grey', () => {
     let im = vips.Image.grey(100, 90);
     expect(im.width).to.equal(100);
     expect(im.height).to.equal(90);
@@ -199,7 +197,7 @@ describe('create', () => {
     expect(p[0]).to.equal(255);
   });
 
-  it('identity', function () {
+  it('identity', () => {
     let im = vips.Image.identity();
     expect(im.width).to.equal(256);
     expect(im.height).to.equal(1);
@@ -229,7 +227,7 @@ describe('create', () => {
     expect(p[0]).to.equal(65535);
   });
 
-  it('invertlut', function () {
+  it('invertlut', () => {
     const lut = vips.Image.newFromArray([
       [0.1, 0.2, 0.3, 0.1],
       [0.2, 0.4, 0.4, 0.2],
@@ -254,7 +252,7 @@ describe('create', () => {
     expect(p[2]).to.be.closeTo(0.1, 0.1);
   });
 
-  it('matrixinvert', function () {
+  it('matrixinvert', () => {
     // 4x4 matrix to check if PLU decomposition works
     const mat = vips.Image.newFromArray([
       [4, 0, 0, 0],
@@ -275,7 +273,7 @@ describe('create', () => {
     expect(p[0]).to.equal(1.0);
   });
 
-  it('logmat', function () {
+  it('logmat', () => {
     let im = vips.Image.logmat(1, 0.1);
     expect(im.width).to.equal(7);
     expect(im.height).to.equal(7);
@@ -308,7 +306,7 @@ describe('create', () => {
     expect(p[0]).to.equal(1.0);
   });
 
-  it('maskButterworthBand', function () {
+  it('maskButterworthBand', () => {
     let im = vips.Image.maskButterworthBand(128, 128, 2,
       0.5, 0.5, 0.7, 0.1);
     expect(im.width).to.equal(128);
@@ -355,7 +353,7 @@ describe('create', () => {
     expect(p[0]).to.not.equal(255.0);
   });
 
-  it('maskButterworth', function () {
+  it('maskButterworth', () => {
     let im = vips.Image.maskButterworth(128, 128, 2, 0.7, 0.1, {
       nodc: true
     });
@@ -388,7 +386,7 @@ describe('create', () => {
     expect(p[0]).to.equal(255);
   });
 
-  it('maskButterworthRing', function () {
+  it('maskButterworthRing', () => {
     const im = vips.Image.maskButterworthRing(128, 128, 2, 0.7, 0.1, 0.5, {
       nodc: true
     });
@@ -407,7 +405,7 @@ describe('create', () => {
     expect(y).to.equal(64);
   });
 
-  it('maskFractal', function () {
+  it('maskFractal', () => {
     const im = vips.Image.maskFractal(128, 128, 2.3);
     expect(im.width).to.equal(128);
     expect(im.height).to.equal(128);
@@ -415,7 +413,7 @@ describe('create', () => {
     expect(im.format).to.equal('float');
   });
 
-  it('maskGaussian', function () {
+  it('maskGaussian', () => {
     const im = vips.Image.maskGaussian(128, 128, 0.7, 0.1, {
       nodc: true
     });
@@ -429,7 +427,7 @@ describe('create', () => {
     expect(p[0]).to.equal(0.0);
   });
 
-  it('maskGaussianRing', function () {
+  it('maskGaussianRing', () => {
     const im = vips.Image.maskGaussianRing(128, 128, 0.7, 0.1, 0.5, {
       nodc: true
     });
@@ -443,7 +441,7 @@ describe('create', () => {
     expect(p[0]).to.be.closeTo(1.0, 0.001);
   });
 
-  it('maskIdealBand', function () {
+  it('maskIdealBand', () => {
     const im = vips.Image.maskIdealBand(128, 128, 0.5, 0.5, 0.7);
     expect(im.width).to.equal(128);
     expect(im.height).to.equal(128);
@@ -455,7 +453,7 @@ describe('create', () => {
     expect(p[0]).to.equal(1.0);
   });
 
-  it('maskIdeal', function () {
+  it('maskIdeal', () => {
     const im = vips.Image.maskIdeal(128, 128, 0.7, {
       nodc: true
     });
@@ -469,7 +467,7 @@ describe('create', () => {
     expect(p[0]).to.equal(0.0);
   });
 
-  it('maskIdealRing', function () {
+  it('maskIdealRing', () => {
     const im = vips.Image.maskIdealRing(128, 128, 0.7, 0.5, {
       nodc: true
     });
@@ -482,7 +480,7 @@ describe('create', () => {
     expect(p[0]).to.be.closeTo(1.0, 0.001);
   });
 
-  it('sines', function () {
+  it('sines', () => {
     const im = vips.Image.sines(128, 128);
     expect(im.width).to.equal(128);
     expect(im.height).to.equal(128);
@@ -528,7 +526,7 @@ describe('create', () => {
     expect(im1.width).to.be.above(im2.width);
   });
 
-  it('tonelut', function () {
+  it('tonelut', () => {
     const im = vips.Image.tonelut();
     expect(im.bands).to.equal(1);
     expect(im.format).to.equal('ushort');
@@ -537,7 +535,7 @@ describe('create', () => {
     expect(im.histIsmonotonic()).to.equal(true);
   });
 
-  it('xyz', function () {
+  it('xyz', () => {
     const im = vips.Image.xyz(128, 128);
     expect(im.bands).to.equal(2);
     expect(im.format).to.equal('uint');
@@ -548,7 +546,7 @@ describe('create', () => {
     Helpers.assertAlmostEqualObjects(p, [45, 35]);
   });
 
-  it('sdf', function () {
+  it('sdf', () => {
     let im = vips.Image.sdf(128, 128, vips.SdfShape.circle, {
       a: [64, 64],
       r: 32
@@ -595,7 +593,7 @@ describe('create', () => {
     Helpers.assertAlmostEqualObjects(p, [1.0]);
   });
 
-  it('zone', function () {
+  it('zone', () => {
     const im = vips.Image.zone(128, 128);
     expect(im.width).to.equal(128);
     expect(im.height).to.equal(128);

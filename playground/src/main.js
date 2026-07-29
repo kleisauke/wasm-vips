@@ -1,0 +1,458 @@
+import * as monaco from 'monaco-editor/editor';
+
+import 'monaco-editor/languages/definitions/css/register';
+import 'monaco-editor/languages/definitions/html/register';
+import 'monaco-editor/languages/definitions/javascript/register';
+import 'monaco-editor/languages/features/css/register';
+import 'monaco-editor/languages/features/html/register';
+import { javascriptDefaults } from 'monaco-editor/languages/features/typescript/register';
+import 'monaco-editor/features/register.all';
+
+import CSSWorker from 'monaco-editor/languages/features/css/css.worker?worker';
+import HTMLWorker from 'monaco-editor/languages/features/html/html.worker?worker';
+import TSWorker from 'monaco-editor/languages/features/typescript/ts.worker?worker';
+import EditorWorker from 'monaco-editor/editor/editor.worker?worker';
+
+import { deflateSync, inflateSync, strToU8, strFromU8 } from 'fflate';
+
+import { dynamicModules, playSamples } from './samples.js';
+import './css/playground.css';
+
+const isMac = /Mac/i.test(navigator.userAgent);
+
+self.MonacoEnvironment = {
+  getWorker (_moduleId, label) {
+    switch (label) {
+      case 'css':
+        return new CSSWorker();
+      case 'html':
+        return new HTMLWorker();
+      case 'javascript':
+        return new TSWorker();
+      default:
+        return new EditorWorker();
+    }
+  }
+};
+
+let editor = null;
+const data = {
+  js: {
+    model: null,
+    state: null
+  },
+  css: {
+    model: null,
+    state: null
+  },
+  html: {
+    model: null,
+    state: null
+  }
+};
+
+let runIframe = null;
+let vipsInitialized = false;
+
+function load () {
+  function layout () {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const innerPadding = 15 * 2;
+
+    const titleHeight = 60;
+    const switcherHeight = 30;
+    const tabsHeight = 20;
+    const footerHeight = 110;
+
+    const minContainerWidth = 250;
+    const minContainerHeight = 350;
+
+    const containerWidth = Math.max(minContainerWidth, Math.floor(width / 2) - innerPadding);
+    const containerHeight = Math.max(minContainerHeight, height - titleHeight - switcherHeight - tabsHeight - footerHeight - innerPadding);
+
+    tabArea.style.boxSizing = 'border-box';
+    tabArea.style.height = `${tabsHeight}px`;
+
+    editorContainer.style.boxSizing = 'border-box';
+    editorContainer.style.width = `${containerWidth}px`;
+    editorContainer.style.height = `${containerHeight}px`;
+
+    if (editor) {
+      editor.layout({
+        width: containerWidth - 2,
+        height: containerHeight - 1
+      });
+    }
+  }
+
+  function changeTab (selectedTabNode, desiredModelId) {
+    for (let i = 0; i < tabArea.childNodes.length; i++) {
+      const child = tabArea.childNodes[i];
+      if (/tab/.test(child.className)) {
+        child.className = 'tab';
+      }
+    }
+    selectedTabNode.className = 'tab active';
+
+    const currentState = editor.saveViewState();
+
+    const currentModel = editor.getModel();
+    if (currentModel === data.js.model) {
+      data.js.state = currentState;
+    } else if (currentModel === data.css.model) {
+      data.css.state = currentState;
+    } else if (currentModel === data.html.model) {
+      data.html.state = currentState;
+    }
+
+    editor.setModel(data[desiredModelId].model);
+    editor.restoreViewState(data[desiredModelId].state);
+    editor.focus();
+  }
+
+  const url = new URL(window.location);
+
+  // create the typing side
+  const typingContainer = document.createElement('div');
+  typingContainer.className = 'typing-container';
+
+  const tabArea = document.createElement('div');
+  tabArea.className = 'tab-area';
+
+  const jsTab = document.createElement('span');
+  jsTab.className = 'tab active';
+  jsTab.appendChild(document.createTextNode('JavaScript'));
+  jsTab.onclick = () => {
+    changeTab(jsTab, 'js');
+  };
+  tabArea.appendChild(jsTab);
+
+  const cssTab = document.createElement('span');
+  cssTab.className = 'tab';
+  cssTab.appendChild(document.createTextNode('CSS'));
+  cssTab.onclick = () => {
+    changeTab(cssTab, 'css');
+  };
+  tabArea.appendChild(cssTab);
+
+  const htmlTab = document.createElement('span');
+  htmlTab.className = 'tab';
+  htmlTab.appendChild(document.createTextNode('HTML'));
+  htmlTab.onclick = () => {
+    changeTab(htmlTab, 'html');
+  };
+  tabArea.appendChild(htmlTab);
+
+  const runLabel = `Press ${isMac ? 'CMD + return' : 'CTRL + Enter'} to run the code.`;
+  const runBtn = document.createElement('button');
+  runBtn.className = 'action run';
+  runBtn.setAttribute('role', 'button');
+  runBtn.setAttribute('aria-label', runLabel);
+  runBtn.appendChild(document.createTextNode('Run'));
+  runBtn.onclick = () => {
+    run();
+  };
+  tabArea.appendChild(runBtn);
+
+  const shareLabel = 'Share the code.';
+  const shareBtn = document.createElement('button');
+  shareBtn.className = 'action share';
+  shareBtn.setAttribute('role', 'button');
+  shareBtn.setAttribute('aria-label', shareLabel);
+  shareBtn.appendChild(document.createTextNode('Share'));
+  shareBtn.onclick = () => {
+    share();
+  };
+  tabArea.appendChild(shareBtn);
+
+  const editorContainer = document.createElement('div');
+  editorContainer.className = 'editor-container';
+
+  typingContainer.appendChild(tabArea);
+  typingContainer.appendChild(editorContainer);
+
+  const runContainer = document.createElement('div');
+  runContainer.className = 'run-container';
+
+  function getEnabledModules () {
+    const hasModules = url.searchParams.has('modules');
+    const modules = new Set(hasModules
+      ? url.searchParams.get('modules').split('-')
+      : dynamicModules.filter(module => module.default).map(module => module.id));
+    modules.delete('');
+
+    return modules;
+  }
+
+  const moduleEnabler = document.getElementById('module-enabler');
+  const enabledModules = getEnabledModules();
+  for (const dynamicModule of dynamicModules) {
+    const htmlId = `module-enabler-${dynamicModule.id}`;
+
+    const checkbox = document.createElement('input');
+    checkbox.id = htmlId;
+    checkbox.type = 'checkbox';
+
+    const checkboxLabel = document.createElement('label');
+    checkboxLabel.htmlFor = htmlId;
+    checkboxLabel.innerText = dynamicModule.name;
+
+    checkbox.checked = enabledModules.has(dynamicModule.id);
+    checkbox.addEventListener('change', (event) => {
+      if (event.target.checked) {
+        enabledModules.add(dynamicModule.id);
+      } else {
+        enabledModules.delete(dynamicModule.id);
+      }
+      url.searchParams.set('modules', [...enabledModules].join('-'));
+      share();
+      window.location.reload();
+    });
+
+    moduleEnabler.append(checkbox, checkboxLabel);
+  }
+
+  const sampleSwitcher = document.getElementById('sample-switcher');
+  let sampleChapter;
+  for (const sample of playSamples) {
+    if (!sampleChapter || sampleChapter.label !== sample.chapter) {
+      sampleChapter = document.createElement('optgroup');
+      sampleChapter.label = sample.chapter;
+      sampleChapter.label = sample.chapter;
+      sampleSwitcher.appendChild(sampleChapter);
+    }
+    const sampleOption = document.createElement('option');
+    sampleOption.value = sample.id;
+    sampleOption.appendChild(document.createTextNode(sample.name));
+    sampleChapter.appendChild(sampleOption);
+  }
+
+  const loadedSamples = [];
+
+  function findLoadedSample (sampleId) {
+    for (const sample of loadedSamples) {
+      if (sample.id === sampleId) {
+        return sample;
+      }
+    }
+    return null;
+  }
+
+  function findSamplePath (sampleId) {
+    for (const sample of playSamples) {
+      if (sample.id === sampleId) {
+        return sample.path;
+      }
+    }
+    return null;
+  }
+
+  function loadSample (sampleId, callback) {
+    const sample = findLoadedSample(sampleId);
+    if (sample) {
+      return callback(null, sample);
+    }
+
+    let samplePath = findSamplePath(sampleId);
+    if (!samplePath) {
+      return callback(new Error('sample not found'));
+    }
+
+    samplePath = `samples/${samplePath}`;
+
+    Promise.all([
+      fetchText(`${samplePath}/sample.js`),
+      fetchText(`${samplePath}/sample.html`)
+    ]).then(([js, html]) => {
+      loadedSamples.push({
+        id: sampleId,
+        js,
+        css: '',
+        html
+      });
+
+      callback(null, findLoadedSample(sampleId));
+    }).catch((err) => {
+      callback(err, null);
+    });
+  }
+
+  function loadCode (code, dorun = false) {
+    data.js.model.setValue(code.js);
+    data.html.model.setValue(code.html);
+    data.css.model.setValue(code.css);
+    editor.setScrollTop(0);
+    if (dorun) run();
+  }
+
+  sampleSwitcher.onchange = () => {
+    url.searchParams.delete('deflate');
+    url.hash = sampleSwitcher.options[sampleSwitcher.selectedIndex].value;
+    history.replaceState({}, '', url);
+    parseHash();
+  };
+
+  const playgroundContainer = document.getElementById('playground');
+
+  layout();
+  window.onresize = layout;
+
+  playgroundContainer.appendChild(typingContainer);
+  playgroundContainer.appendChild(runContainer);
+
+  data.js.model = monaco.editor.createModel('console.log("wasm-vips is awesome!");', 'javascript');
+  data.css.model = monaco.editor.createModel('', 'css');
+  data.html.model = monaco.editor.createModel('', 'html');
+
+  editor = monaco.editor.create(editorContainer, {
+    model: data.js.model,
+    minimap: {
+      enabled: false
+    }
+  });
+
+  let currentToken = 0;
+
+  function parseHash (firstTime) {
+    let sampleId = window.location.hash.replace(/^#/, '');
+    if (!sampleId) {
+      if (!firstTime) return;
+      sampleId = playSamples[0].id;
+    }
+
+    if (firstTime) {
+      for (let i = 0; i < sampleSwitcher.options.length; i++) {
+        const opt = sampleSwitcher.options[i];
+        if (opt.value === sampleId) {
+          sampleSwitcher.selectedIndex = i;
+          break;
+        }
+      }
+    }
+
+    const myToken = (++currentToken);
+    loadSample(sampleId, (err, sample) => {
+      if (err) {
+        alert(`Sample not found! ${err.message}`);
+        return;
+      }
+      if (myToken !== currentToken) {
+        return;
+      }
+      loadCode(sample, true);
+    });
+  }
+
+  window.onhashchange = parseHash;
+
+  const p = url.searchParams;
+  if (p.has('deflate')) {
+    // restore - and _ to + and /
+    const b64 = p.get('deflate').replaceAll('-', '+')
+      .replaceAll('_', '/');
+    const compressed = strToU8(atob(b64), true);
+    const decompressed = inflateSync(compressed);
+    const [js, html, css] = JSON.parse(strFromU8(decompressed));
+    loadCode({
+      js,
+      html,
+      css
+    });
+  } else {
+    parseHash(true);
+  }
+
+  function run () {
+    doRun(runContainer);
+  }
+
+  function share () {
+    const jsonData = JSON.stringify([
+      data.js.model.getValue(),
+      data.html.model.getValue(),
+      data.css.model.getValue()
+    ]);
+    const compressed = deflateSync(strToU8(jsonData), { level: 9 });
+    const payload = btoa(strFromU8(compressed, true));
+    // change letters around so payload can be put in a url
+    // padding is not needed
+    const safePayload = payload.replaceAll('+', '-')
+      .replaceAll('/', '_')
+      .replaceAll('=', '');
+    url.searchParams.set('deflate', safePayload);
+    url.hash = '';
+    history.replaceState({}, '', url);
+    navigator.clipboard.writeText(url.toString()).then(_ => console.log('URL copied to clipboard.'));
+  }
+
+  editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, run);
+  window.addEventListener('keydown', (ev) => {
+    if ((isMac && !ev.metaKey) || !ev.ctrlKey) {
+      return;
+    }
+
+    if (ev.shiftKey || ev.altKey || ev.keyCode !== 13) {
+      return;
+    }
+
+    ev.preventDefault();
+    run();
+  });
+}
+
+function doRun (runContainer) {
+  const getLang = lang => data[lang].model.getValue();
+
+  if (!runIframe) {
+    // load new iframe
+    runIframe = document.createElement('iframe');
+    runIframe.id = 'runner';
+    runIframe.src = 'playground-runner.html';
+    runIframe.className = 'run-iframe';
+    runIframe.style.boxSizing = 'border-box';
+    runIframe.style.height = '100%';
+    runIframe.style.width = '100%';
+    runIframe.style.border = '1px solid lightgrey';
+    runIframe.frameborder = '0';
+    runContainer.appendChild(runIframe);
+
+    window.addEventListener('message', (e) => {
+      if (e.source === runIframe.contentWindow) {
+        vipsInitialized = true;
+        runIframe.contentWindow.postMessage({
+          js: getLang('js'),
+          html: getLang('html'),
+          css: getLang('css')
+        }, '*');
+      }
+    });
+  } else if (vipsInitialized) {
+    runIframe.contentWindow.postMessage({
+      js: getLang('js'),
+      html: getLang('html'),
+      css: getLang('css')
+    }, '*');
+  }
+}
+
+function fetchText (url) {
+  return fetch(url).then((response) => {
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.text();
+  });
+}
+
+window.onload = () => {
+  fetchText('../lib/vips.d.ts').then((response) => {
+    javascriptDefaults.addExtraLib(
+      response.replace(
+        'export = Vips',
+        'declare global { var vips: typeof Vips; }\nexport default global'),
+      'ts:vips.d.ts');
+  });
+
+  load();
+};

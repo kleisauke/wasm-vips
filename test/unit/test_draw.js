@@ -1,12 +1,10 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 describe('draw', () => {
-  afterEach(function () {
+  afterEach(() => {
     cleanup();
   });
 
-  it('drawCircle', function () {
+  it('drawCircle', () => {
     let im = vips.Image.black(100, 100).copy();
     im.drawCircle(100, 50, 50, 25);
 
@@ -34,7 +32,7 @@ describe('draw', () => {
     expect(pixel[0]).to.equal(0);
   });
 
-  it('drawFlood', function () {
+  it('drawFlood', () => {
     const im = vips.Image.black(100, 100).copy();
     im.drawCircle(100, 50, 50, 25);
     im.drawFlood(100, 50, 50);
@@ -48,7 +46,7 @@ describe('draw', () => {
     expect(diff).to.equal(0);
   });
 
-  it('drawImage', function () {
+  it('drawImage', () => {
     const im = vips.Image.black(51, 51).copy();
     im.drawCircle(100, 25, 25, 25, {
       fill: true
@@ -66,7 +64,7 @@ describe('draw', () => {
     expect(diff).to.equal(0);
   });
 
-  it('drawLine', function () {
+  it('drawLine', () => {
     const im = vips.Image.black(100, 100).copy();
     im.drawLine(100, 0, 0, 100, 0);
 
@@ -79,7 +77,7 @@ describe('draw', () => {
     expect(pixel[0]).to.equal(0);
   });
 
-  it('drawMask', function () {
+  it('drawMask', () => {
     const mask = vips.Image.black(51, 51).copy();
     mask.drawCircle(128, 25, 25, 25, {
       fill: true
@@ -97,7 +95,7 @@ describe('draw', () => {
     expect(diff).to.equal(0);
   });
 
-  it('drawRect', function () {
+  it('drawRect', () => {
     const im = vips.Image.black(100, 100).copy();
     im.drawRect(100, 25, 25, 50, 50, {
       fill: true
@@ -112,7 +110,7 @@ describe('draw', () => {
     expect(diff).to.equal(0);
   });
 
-  it('drawSmudge', function () {
+  it('drawSmudge', () => {
     const im = vips.Image.black(100, 100).copy();
     im.drawCircle(100, 50, 50, 25, {
       fill: true

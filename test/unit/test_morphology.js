@@ -1,12 +1,10 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 describe('morphology', () => {
-  afterEach(function () {
+  afterEach(() => {
     cleanup();
   });
 
-  it('countlines', function () {
+  it('countlines', () => {
     const im = vips.Image.black(100, 100).copy();
     im.drawLine(255, 0, 50, 100, 50);
     const nLines = im.countlines('horizontal');
@@ -14,7 +12,7 @@ describe('morphology', () => {
     expect(nLines).to.equal(1);
   });
 
-  it('labelregions', function () {
+  it('labelregions', () => {
     const im = vips.Image.black(100, 100).copy();
     im.drawCircle(255, 50, 50, 25, {
       fill: true
@@ -28,7 +26,7 @@ describe('morphology', () => {
     expect(mask.max()).to.equal(2);
   });
 
-  it('erode', function () {
+  it('erode', () => {
     const im = vips.Image.black(100, 100).copy();
     im.drawCircle(255, 50, 50, 25, {
       fill: true
@@ -45,7 +43,7 @@ describe('morphology', () => {
     expect(im.avg()).to.be.above(im2.avg());
   });
 
-  it('dilate', function () {
+  it('dilate', () => {
     const im = vips.Image.black(100, 100).copy();
     im.drawCircle(255, 50, 50, 25, {
       fill: true
@@ -62,7 +60,7 @@ describe('morphology', () => {
     expect(im2.avg()).to.be.above(im.avg());
   });
 
-  it('rank', function () {
+  it('rank', () => {
     const im = vips.Image.black(100, 100).copy();
     im.drawCircle(255, 50, 50, 25, {
       fill: true

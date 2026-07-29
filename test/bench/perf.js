@@ -1,5 +1,3 @@
-'use strict';
-
 import Benchmark from 'benchmark';
 
 import Vips from '../../lib/vips-node.mjs';

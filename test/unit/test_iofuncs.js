@@ -1,12 +1,10 @@
 /* global vips, expect, cleanup */
-'use strict';
-
 describe('iofuncs', () => {
-  afterEach(function () {
+  afterEach(() => {
     cleanup();
   });
 
-  it('newFromImage', function () {
+  it('newFromImage', () => {
     const im = vips.Image.maskIdeal(100, 100, 0.5, {
       reject: true,
       optical: true
@@ -35,7 +33,7 @@ describe('iofuncs', () => {
     expect(im2.bands).to.equal(4);
   });
 
-  it('newFromMemory', function () {
+  it('newFromMemory', () => {
     const s = new Uint8Array(200);
     const im = vips.Image.newFromMemory(s, 20, 10, 1, 'uchar');
 
@@ -50,7 +48,7 @@ describe('iofuncs', () => {
     expect(im2.avg()).to.equal(10);
   });
 
-  it('getFields', function () {
+  it('getFields', () => {
     const im = vips.Image.black(10, 10);
     const fields = im.getFields();
 
@@ -59,7 +57,7 @@ describe('iofuncs', () => {
     expect(fields.get(0)).to.equal('width');
   });
 
-  it('writeToMemory', function () {
+  it('writeToMemory', () => {
     const s =
         Float32Array.from({ length: 200 }, (_, i) => i * 0.1);
     const im = vips.Image.newFromMemory(s, 20, 10, 1, 'float');
@@ -68,7 +66,7 @@ describe('iofuncs', () => {
     expect(s).to.deep.equal(t);
   });
 
-  it('revalidate', function () {
+  it('revalidate', () => {
     const filename = vips.Utils.tempName('%s.v');
 
     const im1 = vips.Image.black(10, 10);

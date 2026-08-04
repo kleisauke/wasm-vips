@@ -140,11 +140,13 @@ jobs:
             existing_filename=$(node -p "JSON.parse(require('fs').readFileSync('registry-release/pack.json', 'utf8'))[0].filename")
             existing_tarball="registry-release/$existing_filename"
             npm run release:verify -- --package-tarball "$existing_tarball"
-            if ! cmp -s "$PACKAGE_TARBALL" "$existing_tarball"; then
-              echo "Existing npm archive differs from the verified candidate" >&2
-              exit 1
+            # npm patch releases can produce different archive wrappers.
+            # release:verify checks the exact file set and every payload hash.
+            if cmp -s "$PACKAGE_TARBALL" "$existing_tarball"; then
+              echo "$PACKAGE_NAME@$PACKAGE_VERSION is already published with identical archive bytes"
+            else
+              echo "$PACKAGE_NAME@$PACKAGE_VERSION is already published with an identical verified payload"
             fi
-            echo "$PACKAGE_NAME@$PACKAGE_VERSION is already published with identical bytes"
           elif [[ "$view_output" == *"E404"* ]]; then
             npm publish "$PACKAGE_TARBALL" --access public --provenance --tag next
           else

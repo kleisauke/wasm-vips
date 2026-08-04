@@ -108,7 +108,7 @@ jobs:
             exit 1
           fi
           echo "PACKAGE_NAME=$package_name" >> "$GITHUB_ENV"
-          echo "PACKAGE_TARBALL=release/colorhythm-vips-wasm-${package_version}.tgz" >> "$GITHUB_ENV"
+          echo "PACKAGE_TARBALL=./release/colorhythm-vips-wasm-${package_version}.tgz" >> "$GITHUB_ENV"
           echo "PACKAGE_VERSION=$package_version" >> "$GITHUB_ENV"
       - name: Prepare verified package
         run: npm run release:prepare -- --output-directory release

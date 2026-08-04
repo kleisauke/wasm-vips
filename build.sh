@@ -152,14 +152,14 @@ VERSION_LCMS2=2.19.1        # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.4.0           # https://github.com/google/highway
 VERSION_BROTLI=1.2.0        # https://github.com/google/brotli
 VERSION_MOZJPEG=0826579     # https://github.com/mozilla/mozjpeg
-VERSION_UHDR=1.5.0          # https://github.com/google/libultrahdr
+VERSION_UHDR=1.5.1          # https://github.com/google/libultrahdr
 VERSION_JXL=0.12.0          # https://github.com/libjxl/libjxl
 VERSION_PNG=1.6.58          # https://github.com/pnggroup/libpng
 VERSION_IMAGEQUANT=2.4.1    # https://github.com/lovell/libimagequant
 VERSION_CGIF=0.5.3          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.2          # https://gitlab.com/libtiff/libtiff
-VERSION_RESVG=0.47.0        # https://github.com/linebender/resvg
+VERSION_RESVG=0.48.1        # https://github.com/linebender/resvg
 VERSION_AOM=3.14.1          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.23.1         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.18.5         # https://github.com/libvips/libvips
@@ -439,8 +439,11 @@ node --version
   rm .cargo/config
   # We don't want to build the shared library
   sed -i '/^crate-type =/s/"cdylib", //' crates/c-api/Cargo.toml
-  cargo build --manifest-path=crates/c-api/Cargo.toml --release --target wasm32-unknown-emscripten --locked \
-    -Zbuild-std=panic_abort,std -Zbuild-std-features=optimize_for_size -Ztrim-paths --no-default-features --features raster-images
+  # https://github.com/linebender/resvg/issues/1112
+  sed -i '/RESVG_ERROR_NOT_AN_UTF8_STR,/a RESVG_ERROR_SVGZ_UNSUPPORTED,' crates/c-api/resvg.h
+  cargo build --manifest-path=crates/c-api/Cargo.toml --release --target=wasm32-unknown-emscripten --locked \
+    -Zbuild-std=panic_abort,std -Zbuild-std-features=optimize_for_size -Ztrim-paths --no-default-features \
+    --features=svgz,raster-images
   cp target/wasm32-unknown-emscripten/release/libresvg.a $TARGET/lib/
   cp crates/c-api/resvg.h $TARGET/include/
 )

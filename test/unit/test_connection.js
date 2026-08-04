@@ -130,7 +130,7 @@ describe('connection', () => {
         let onEndCalled = false;
 
         const target = new vips.TargetCustom();
-        target.onWrite = (data) =>
+        target.onWrite = data =>
           vips.FS.write(stream, data, 0, data.length);
         target.onEnd = () => {
           vips.FS.close(stream);

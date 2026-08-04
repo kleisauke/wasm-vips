@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {
-    copyFile,
     mkdir,
     mkdtemp,
+    readFile,
     rm,
     writeFile,
 } from "node:fs/promises";
@@ -48,7 +48,12 @@ function run(command, arguments_, options = {}) {
     const result = spawnSync(command, arguments_, {
         cwd: options.cwd,
         encoding: "utf8",
-        stdio: ["ignore", "pipe", "pipe"],
+        input: options.input,
+        stdio: [
+            options.input === undefined ? "ignore" : "pipe",
+            "pipe",
+            "pipe",
+        ],
     });
     if (result.status !== 0) {
         throw new Error(
@@ -218,19 +223,15 @@ async function main() {
             temporaryRoot,
             "browser-export-smoke.cjs",
         );
-        const browserModulePath = join(
-            temporaryRoot,
-            "browser-export-smoke.mjs",
+        const browserModuleSource = await readFile(
+            join(packageDirectory, "lib", "vips-es6.js"),
+            "utf8",
         );
         const commonJsPath = join(temporaryRoot, "node-smoke.cjs");
         const modulePath = join(temporaryRoot, "node-smoke.mjs");
         await writeFile(
             browserCommonJsPath,
             browserCommonJsSmokeSource(packageMetadata.name),
-        );
-        await copyFile(
-            join(packageDirectory, "lib", "vips-es6.js"),
-            browserModulePath,
         );
         await writeFile(
             commonJsPath,
@@ -247,8 +248,11 @@ async function main() {
         );
         run(
             process.execPath,
-            ["--check", browserModulePath],
-            { cwd: temporaryRoot },
+            ["--check", "--input-type=module"],
+            {
+                cwd: temporaryRoot,
+                input: browserModuleSource,
+            },
         );
         run(process.execPath, [commonJsPath], { cwd: temporaryRoot });
         run(process.execPath, [modulePath], { cwd: temporaryRoot });

@@ -1,4 +1,11 @@
-# wasm-vips
+# @colorhythm/vips-wasm
+
+Colorhythm's npm distribution of [kleisauke/wasm-vips](
+https://github.com/kleisauke/wasm-vips).
+
+Published JavaScript and WebAssembly payloads are copied unchanged from the
+corresponding upstream npm release. The exported `integrity.json` records the
+upstream commit, archive integrity, and SHA-256 hash of every retained file.
 
 [libvips](https://www.libvips.org/) for the browser and Node.js, compiled
 to WebAssembly with Emscripten.
@@ -37,14 +44,14 @@ at least version 615.1.17 is required. This corresponds to Safari 16.4.
 
 ## Installation
 
-wasm-vips can be installed with your favorite package manager.
+`@colorhythm/vips-wasm` can be installed with your favorite package manager.
 
 ```shell
-npm install wasm-vips
+npm install @colorhythm/vips-wasm
 ```
 
 ```shell
-yarn add wasm-vips
+yarn add @colorhythm/vips-wasm
 ```
 
 ## Usage
@@ -92,10 +99,10 @@ can be imported as both CommonJS and ES6 module:
 
 ```js
 // ES6 module
-import Vips from 'wasm-vips';
+import Vips from '@colorhythm/vips-wasm';
 
 // CommonJS module
-const Vips = require('wasm-vips');
+const Vips = require('@colorhythm/vips-wasm');
 ```
 
 Then, wasm-vips can be initialized like this:
@@ -115,7 +122,7 @@ Vips().then(vips => {
 On Deno, wasm-vips can be imported by using the `npm:` specifier:
 
 ```js
-import Vips from 'npm:wasm-vips';
+import Vips from 'npm:@colorhythm/vips-wasm';
 
 const vips = await Vips();
 ```

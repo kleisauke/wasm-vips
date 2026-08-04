@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches: [ '**' ]
-    tags: [ 'v*.*.*' ]
+    tags: [ 'vips-wasm-v*.*.*' ]
   pull_request:
   workflow_dispatch:
     inputs:
@@ -17,7 +17,7 @@ jobs:
     outputs:
       cache-key: ${{ steps.gen-cache-key.outputs.key }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - id: gen-cache-key
         run: |
           if [ "${{ inputs.force-rebuild }}" = true ]; then
@@ -26,7 +26,7 @@ jobs:
             key=${{ hashFiles('lib/**', 'src/**', 'build.sh', 'Dockerfile') }}
           fi
           echo "key=$key" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v5
+      - uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         id: cache
         with:
           path: |
@@ -52,11 +52,11 @@ jobs:
           - os: windows-2022
             nodejs_version: 17
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: ${{ matrix.nodejs_version }}
-      - uses: actions/cache/restore@v5
+      - uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: |
             lib
@@ -75,25 +75,88 @@ jobs:
     needs:
       - build
       - CI
+    env:
+      NPM_VERSION: 11.6.0
+    environment: npm
     permissions:
-      contents: write # for gh release create
-      id-token: write # for npm publish
+      contents: write
+      id-token: write
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          node-version: 24
-      - uses: actions/cache/restore@v5
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          path: |
-            lib
-            versions.json
-          key: ${{ needs.build.outputs.cache-key }}
-          fail-on-cache-miss: true
-      - name: Publish
+          node-version: 24.8.0
+          package-manager-cache: false
+          registry-url: https://registry.npmjs.org/
+      - name: Check npm version
+        run: test "$(npm --version)" = "$NPM_VERSION"
+      - name: Resolve release metadata
+        run: |
+          package_name=$(node -p "require('./package.json').name")
+          package_version=$(node -p "require('./package.json').version")
+          manifest_name=$(node -p "require('./integrity.json').package.name")
+          manifest_version=$(node -p "require('./integrity.json').package.version")
+          if [ "$package_name" != "@colorhythm/vips-wasm" ] || [ "$manifest_name" != "$package_name" ]; then
+            echo "Release package name is not the reviewed scope" >&2
+            exit 1
+          fi
+          if [[ ! "$package_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || [ "$manifest_version" != "$package_version" ]; then
+            echo "Release package version is invalid or differs from integrity.json" >&2
+            exit 1
+          fi
+          echo "PACKAGE_NAME=$package_name" >> "$GITHUB_ENV"
+          echo "PACKAGE_TARBALL=release/colorhythm-vips-wasm-${package_version}.tgz" >> "$GITHUB_ENV"
+          echo "PACKAGE_VERSION=$package_version" >> "$GITHUB_ENV"
+      - name: Prepare verified package
+        run: npm run release:prepare -- --output-directory release
+      - name: Verify package
+        run: npm run release:verify -- --package-tarball "$PACKAGE_TARBALL"
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 17.0.0
+          package-manager-cache: false
+      - name: Smoke-test exact package on minimum Node
+        run: node tools/smoke-release.mjs --package-tarball "$PACKAGE_TARBALL" --expected-node-version 17.0.0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.8.0
+          package-manager-cache: false
+          registry-url: https://registry.npmjs.org/
+      - name: Check publish npm version
+        run: test "$(npm --version)" = "$NPM_VERSION"
+      - name: Publish package or verify existing release
+        run: |
+          set +e
+          view_output=$(npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version --json 2>&1)
+          view_status=$?
+          set -e
+
+          if [ "$view_status" -eq 0 ]; then
+            mkdir registry-release
+            npm pack "$PACKAGE_NAME@$PACKAGE_VERSION" --ignore-scripts --json --pack-destination registry-release > registry-release/pack.json
+            existing_filename=$(node -p "JSON.parse(require('fs').readFileSync('registry-release/pack.json', 'utf8'))[0].filename")
+            existing_tarball="registry-release/$existing_filename"
+            npm run release:verify -- --package-tarball "$existing_tarball"
+            if ! cmp -s "$PACKAGE_TARBALL" "$existing_tarball"; then
+              echo "Existing npm archive differs from the verified candidate" >&2
+              exit 1
+            fi
+            echo "$PACKAGE_NAME@$PACKAGE_VERSION is already published with identical bytes"
+          elif [[ "$view_output" == *"E404"* ]]; then
+            npm publish "$PACKAGE_TARBALL" --access public --provenance --tag next
+          else
+            echo "$view_output" >&2
+            exit "$view_status"
+          fi
+      - name: Create or repair GitHub release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm publish
-          gh release create ${{ github.ref_name }}
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$PACKAGE_TARBALL" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$PACKAGE_TARBALL" --generate-notes --verify-tag
+          fi

@@ -1,14 +1,14 @@
 {
-  "name": "wasm-vips",
+  "name": "@colorhythm/vips-wasm",
   "version": "0.0.18",
-  "description": "libvips for the browser and Node.js, compiled to WebAssembly with Emscripten",
-  "homepage": "https://github.com/kleisauke/wasm-vips",
+  "description": "Colorhythm distribution of libvips for the browser and Node.js, compiled to WebAssembly with Emscripten",
+  "homepage": "https://github.com/colorhythm/vips-wasm#readme",
   "bugs": {
-    "url": "https://github.com/kleisauke/wasm-vips/issues"
+    "url": "https://github.com/colorhythm/vips-wasm/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kleisauke/wasm-vips.git"
+    "url": "git+https://github.com/colorhythm/vips-wasm.git"
   },
   "license": "MIT",
   "author": "Kleis Auke Wolthuizen",
@@ -25,6 +25,7 @@
       },
       "default": "./lib/vips.js"
     },
+    "./integrity": "./integrity.json",
     "./versions": "./versions.json",
     "./vips.wasm": "./lib/vips.wasm",
     "./vips-heif.wasm": "./lib/vips-heif.wasm",
@@ -35,25 +36,34 @@
   "browser": "lib/vips.js",
   "types": "lib/vips.d.ts",
   "files": [
+    "integrity.json",
     "lib/*.js",
     "lib/*.mjs",
-    "lib/vips.d.ts",
-    "lib/vips.wasm",
     "lib/vips-heif.wasm",
     "lib/vips-jxl.wasm",
     "lib/vips-resvg.wasm",
     "THIRD-PARTY-NOTICES.md",
+    "lib/vips.d.ts",
+    "lib/vips.wasm",
     "versions.json"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
-    "build": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh",
-    "test": "npm run test:lint && npm run test:node",
-    "test:lint": "semistandard",
-    "test:node": "npm --prefix test/unit test",
-    "test:web": "serve -c test/unit/serve.json",
     "bench": "npm run bench:node",
     "bench:node": "npm --prefix test/bench test",
-    "bench:web": "serve -c test/bench/serve.json"
+    "bench:web": "serve -c test/bench/serve.json",
+    "build": "docker build -t wasm-vips . && docker run -it --rm -v $(pwd):/src wasm-vips ./build.sh",
+    "release:prepare": "node tools/prepare-release.mjs",
+    "release:verify": "node tools/verify-release.mjs",
+    "test": "npm run test:lint && npm run test:release && npm run test:node",
+    "test:lint": "semistandard",
+    "test:node": "npm --prefix test/unit test",
+    "test:release": "node tools/release-integrity.selftest.mjs",
+    "test:web": "serve -c test/unit/serve.json"
   },
   "devDependencies": {
     "semistandard": "^17.0.0",
@@ -70,7 +80,8 @@
       "src/closure-externs/wasm-vips.js",
       "src/modules-pre.js",
       "src/vips-library.js",
-      "src/workaround-cors-pre.js"
+      "src/workaround-cors-pre.js",
+      "tools/*.mjs"
     ],
     "env": [
       "browser",

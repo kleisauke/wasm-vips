@@ -4056,6 +4056,14 @@ declare namespace Vips {
          */
         static pngload(filename: string, options?: {
             /**
+             * First page to load.
+             */
+            page?: number
+            /**
+             * Number of pages to load, -1 for all.
+             */
+            n?: number
+            /**
              * Remove all denial of service limits.
              */
             unlimited?: boolean
@@ -4089,6 +4097,14 @@ declare namespace Vips {
          */
         static pngloadBuffer(buffer: Blob, options?: {
             /**
+             * First page to load.
+             */
+            page?: number
+            /**
+             * Number of pages to load, -1 for all.
+             */
+            n?: number
+            /**
              * Remove all denial of service limits.
              */
             unlimited?: boolean
@@ -4117,6 +4133,14 @@ declare namespace Vips {
          * @return Output image.
          */
         static pngloadSource(source: Source, options?: {
+            /**
+             * First page to load.
+             */
+            page?: number
+            /**
+             * Number of pages to load, -1 for all.
+             */
+            n?: number
             /**
              * Remove all denial of service limits.
              */

@@ -19,12 +19,12 @@ export default {
             }
           ]
         },
-        assetFileNames: (assetInfo) => {
+        assetFileNames: ({ name }) => {
           const fontExtensions = ['.woff', '.woff2', '.eot', '.ttf', '.otf'];
-          if (fontExtensions.some(ext => assetInfo.name.endsWith(ext))) {
+          if (fontExtensions.some(ext => name.endsWith(ext))) {
             return 'assets/fonts/[name][extname]';
           }
-          if (assetInfo.name.endsWith('.css')) {
+          if (name.endsWith('.css')) {
             return 'assets/css/[name][extname]';
           }
           return 'assets/[name].[hash][extname]';
@@ -36,8 +36,8 @@ export default {
     format: 'es',
     rolldownOptions: {
       output: {
-        entryFileNames: (entryInfo) => {
-          if (entryInfo.name.endsWith('.worker')) {
+        entryFileNames: ({ name }) => {
+          if (name.endsWith('.worker')) {
             return 'assets/monaco-[name]-[hash].js';
           }
           return 'assets/monaco-editor.worker-[hash].js';
@@ -52,7 +52,7 @@ export default {
         filter: {
           id: /editorWorkerService.js$/
         },
-        handler (code) {
+        handler: (code) => {
           const replaced = code.replace(/esmModuleLocationBundler:.*?\n/, '');
           if (replaced === code) {
             return;

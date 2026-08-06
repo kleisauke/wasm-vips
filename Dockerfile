@@ -1,5 +1,5 @@
 # https://github.com/emscripten-core/emsdk
-FROM docker.io/emscripten/emsdk:6.0.5
+FROM docker.io/emscripten/emsdk:6.0.6
 
 # Path settings
 ENV \
@@ -22,7 +22,7 @@ RUN \
 
 # Emscripten patches
 RUN \
-  curl -Ls https://github.com/emscripten-core/emscripten/compare/6.0.5...kleisauke:wasm-vips-6.0.5.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
+  curl -Ls https://github.com/emscripten-core/emscripten/compare/6.0.6...kleisauke:wasm-vips-6.0.6.patch | patch -p1 -d $EMSDK/upstream/emscripten && \
   emcc --clear-cache && embuilder build sysroot --force
 
 # Rust
@@ -31,7 +31,7 @@ RUN \
     --no-modify-path \
     --profile minimal \
     --target wasm32-unknown-emscripten \
-    --default-toolchain nightly-2026-07-28 \
+    --default-toolchain nightly-2026-08-04 \
     --component rust-src
 
 # Cache settings

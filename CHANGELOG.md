@@ -14,6 +14,11 @@ Uses libvips v8.18.5, compiled with Emscripten v6.0.6.
   [#106](https://github.com/kleisauke/wasm-vips/issues/106)
 - Support for `workaroundCors` setting in ES6 module.
 
+### Fixed
+
+- Validate typed array format in `Image.newFromMemory()`.
+  [#126](https://github.com/kleisauke/wasm-vips/issues/126)
+
 ## [v0.0.18] - 2026-06-09
 
 Uses libvips v8.18.3, compiled with Emscripten v6.0.0.

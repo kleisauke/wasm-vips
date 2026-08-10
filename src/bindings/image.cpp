@@ -156,6 +156,14 @@ Image Image::new_from_memory(emscripten::val data, int width, int height,
     VipsBandFormat band_format = static_cast<VipsBandFormat>(
         Option::to_enum(VIPS_TYPE_BAND_FORMAT, format));
 
+    size_t element_size = data["BYTES_PER_ELEMENT"].as<size_t>();
+    if (element_size != vips_format_sizeof(band_format)) {
+        throw std::invalid_argument(
+            "data type '" + data["constructor"]["name"].as<std::string>() +
+            "' is incompatible with band format '" +
+            vips_enum_nick(VIPS_TYPE_BAND_FORMAT, band_format) + "'");
+    }
+
     VipsImage *image;
 
     switch (band_format) {

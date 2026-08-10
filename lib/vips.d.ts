@@ -646,7 +646,7 @@ declare namespace Vips {
          * const data = new Uint8Array([1, 2, 3, 4]);
          * const image = vips.Image.newFromMemory(data, 2, 2, 1, vips.BandFormat.uchar);
          * ```
-         * The data object will internally be copied from JavaScript to WASM.
+         * The data object will internally be copied from JavaScript to Wasm.
          *
          * This method is useful for efficiently transferring images from WebGL into
          * libvips.
@@ -922,7 +922,7 @@ declare namespace Vips {
 
         /**
          * Set a blob on an image as metadata.
-         * The value will internally be copied from JavaScript to WASM.
+         * The value will internally be copied from JavaScript to Wasm.
          * @param name The name of the piece of metadata to set the value of.
          * @param value The metadata value.
          */

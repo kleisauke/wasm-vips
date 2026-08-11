@@ -123,14 +123,7 @@ export EM_PKG_CONFIG_PATH="$PKG_CONFIG_PATH"
 
 # Specific variables for cross-compilation
 export CHOST="wasm32-unknown-linux" # wasm32-unknown-emscripten
-export CMAKE_ARGS=""
-export MESON_ARGS="--cross-file=$SOURCE_DIR/build/emscripten-cross.ini"
-if [ "$WASM_EXNREF" = "true" ]; then
-  # Requires Node >= 22
-  # https://github.com/nodejs/node/pull/51362
-  export CMAKE_ARGS+=" -DCMAKE_CROSSCOMPILING_EMULATOR=node;--experimental-wasm-exnref"
-  export MESON_ARGS+=" --cross-file=$SOURCE_DIR/build/node-wasm-exnref.ini"
-fi
+export MESON_ARGS="--cross-file=$SOURCE_DIR/build/wasm32-emscripten.ini"
 
 # Run as many parallel jobs as there are available CPU cores
 export MAKEFLAGS="-j$(nproc)"
@@ -224,7 +217,7 @@ node --version
   cd $DEPS/zlib-ng
   # SSE intrinsics needs to be checked for wasm32
   sed -i 's/BASEARCH_X86_FOUND/& OR BASEARCH_WASM32_FOUND/g' CMakeLists.txt
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=OFF \
     -DBUILD_TESTING=OFF -DWITH_RUNTIME_CPU_DETECTION=OFF -DZLIB_COMPAT=ON \
     -DCMAKE_C_FLAGS="$CFLAGS -O3"
   make -C _build install
@@ -305,7 +298,7 @@ node --version
   curl -Ls https://github.com/google/brotli/archive/refs/tags/v$VERSION_BROTLI.tar.gz | tar xzC $DEPS/brotli --strip-components=1
   cd $DEPS/brotli
   # Exclude internal dictionary, see: https://github.com/emscripten-core/emscripten/issues/9960
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET \
     -DCMAKE_POSITION_INDEPENDENT_CODE=$MODULES -DBROTLI_DISABLE_TESTS=ON -DBROTLI_BUILD_TOOLS=OFF \
     -DCMAKE_C_FLAGS="$CFLAGS -DBROTLI_EXTERNAL_DICTIONARY_DATA"
   make -C _build install
@@ -322,7 +315,7 @@ node --version
   sed -i 's/JCP_MAX_COMPRESSION/JCP_FASTEST/' jcapimin.c
   # Compile without SIMD support, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250
   # Disable environment variables usage, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/600
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=OFF \
     -DWITH_JPEG8=ON -DWITH_SIMD=OFF -DWITH_TURBOJPEG=OFF -DPNG_SUPPORTED=OFF \
     -DCMAKE_C_FLAGS="$CFLAGS -O3 -DNO_GETENV -DNO_PUTENV"
   make -C _build install
@@ -337,7 +330,7 @@ node --version
   sed -i 's/CMAKE_CROSSCOMPILING AND UHDR_ENABLE_INSTALL/FALSE/' CMakeLists.txt
   # Disable threading support, we rely on libvips' thread pool
   sed -i 's/(std::max)(1u, std::thread::hardware_concurrency())/1u/' lib/src/jpegr.cpp
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=OFF \
     -DCMAKE_POSITION_INDEPENDENT_CODE=$MODULES -DUHDR_BUILD_EXAMPLES=OFF -DUHDR_MAX_DIMENSION=65500
   make -C _build install
 )
@@ -347,7 +340,7 @@ node --version
   mkdir $DEPS/jxl
   curl -Ls https://github.com/libjxl/libjxl/archive/refs/tags/v$VERSION_JXL.tar.gz | tar xzC $DEPS/jxl --strip-components=1
   cd $DEPS/jxl
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=$TARGET \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
     -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DJPEGXL_ENABLE_TOOLS=OFF -DJPEGXL_ENABLE_EXAMPLES=OFF \
     -DJPEGXL_ENABLE_SJPEG=OFF -DJPEGXL_ENABLE_SKCMS=OFF -DJPEGXL_BUNDLE_LIBPNG=OFF \
     -DJPEGXL_FORCE_SYSTEM_BROTLI=ON -DJPEGXL_FORCE_SYSTEM_LCMS2=ON -DJPEGXL_FORCE_SYSTEM_HWY=ON \
@@ -408,7 +401,7 @@ node --version
   # Install the .cmake files into correct location
   sed -i '/set(ConfigPackageLocation/s/${CMAKE_INSTALL_DATADIR}\/${PROJECT_NAME}\/cmake/${CMAKE_INSTALL_LIBDIR}\/cmake\/${PROJECT_NAME}/' CMakeLists.txt
   # Compile without AVX2 support, as most of these instructions are emulated
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=OFF \
     -DWEBP_ENABLE_SIMD=ON -DWEBP_BUILD_ANIM_UTILS=OFF -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF \
     -DWEBP_BUILD_GIF2WEBP=OFF -DWEBP_BUILD_IMG2WEBP=OFF -DWEBP_BUILD_VWEBP=OFF \
     -DWEBP_BUILD_WEBPINFO=OFF -DWEBP_BUILD_WEBPMUX=OFF -DWEBP_BUILD_EXTRAS=OFF \
@@ -423,7 +416,7 @@ node --version
   curl -Ls https://gitlab.com/libtiff/libtiff/-/archive/v$VERSION_TIFF/libtiff-v$VERSION_TIFF.tar.gz | tar xzC $DEPS/tiff --strip-components=1
   cd $DEPS/tiff
   # Build with -DCMAKE_FIND_ROOT_PATH=$TARGET to ensure WebP support (see https://github.com/emscripten-core/emscripten/issues/10078)
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=$TARGET \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
    -DBUILD_SHARED_LIBS=OFF -Dtiff-contrib=OFF -Dtiff-cxx=OFF -Dtiff-docs=OFF -Dtiff-tests=OFF -Dtiff-tools=OFF \
    -Dmdi=OFF -Djbig=OFF -Dlerc=OFF -Dlibdeflate=OFF -Dlzma=OFF -Dold-jpeg=OFF -Dpixarlog=OFF -Dtiff-opengl=OFF -Dzstd=OFF
   make -C _build install
@@ -453,7 +446,7 @@ node --version
   mkdir $DEPS/aom
   curl -Ls https://storage.googleapis.com/aom-releases/libaom-$VERSION_AOM.tar.gz | tar xzC $DEPS/aom --strip-components=1
   cd $DEPS/aom
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET \
     -DAOM_TARGET_CPU=generic ${ENABLE_MODULES:+-DCONFIG_PIC=1} -DCONFIG_RUNTIME_CPU_DETECT=0 \
     -DENABLE_DOCS=OFF -DENABLE_TESTS=OFF -DENABLE_EXAMPLES=OFF -DENABLE_TOOLS=OFF \
     -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=1 \
@@ -468,7 +461,7 @@ node --version
   cd $DEPS/heif
   # Build with -DCMAKE_FIND_ROOT_PATH=$TARGET to ensure AOM can be found (see https://github.com/emscripten-core/emscripten/issues/10078)
   # Compile with -D__EMSCRIPTEN_STANDALONE_WASM__ to disable the Embind implementation.
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET $CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=$TARGET \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
     -DBUILD_SHARED_LIBS=OFF -DENABLE_PLUGIN_LOADING=OFF -DBUILD_TESTING=OFF -DWITH_EXAMPLES=OFF \
     -DWITH_LIBDE265=OFF -DWITH_X265=OFF -DWITH_X264=OFF -DWITH_OpenH264_DECODER=OFF \
     -DCMAKE_C_FLAGS="$CFLAGS -O3" -DCMAKE_CXX_FLAGS="$CXXFLAGS -O3 -D__EMSCRIPTEN_STANDALONE_WASM__" \

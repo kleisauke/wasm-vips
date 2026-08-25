@@ -138,7 +138,7 @@ export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 # Dependency version numbers
 VERSION_ZLIB_NG=2.3.3       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.8.0           # https://github.com/libffi/libffi
-VERSION_GLIB=2.89.3         # https://gitlab.gnome.org/GNOME/glib
+VERSION_GLIB=2.89.4         # https://gitlab.gnome.org/GNOME/glib
 VERSION_EXPAT=2.8.3         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.26         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.19.1        # https://github.com/mm2/Little-CMS
@@ -154,7 +154,7 @@ VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.2          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.48.1        # https://github.com/linebender/resvg
 VERSION_AOM=3.14.1          # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.23.1         # https://github.com/strukturag/libheif
+VERSION_HEIF=1.23.2         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.18.5         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"

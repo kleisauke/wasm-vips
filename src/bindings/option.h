@@ -66,6 +66,7 @@ class Option {
         Pair(std::string name, int vint);
         Pair(std::string name, double vdouble);
         Pair(std::string name, const char *vstring);
+        Pair(std::string name, void *vpointer);
         Pair(std::string name, const std::string &vstring);
         Pair(std::string name, const Object &vobject);
         Pair(std::string name, const std::vector<double> &vvector);

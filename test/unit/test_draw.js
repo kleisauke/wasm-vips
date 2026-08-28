@@ -75,6 +75,21 @@ describe('draw', () => {
     pixel = im.getpoint(0, 1);
     expect(pixel.length).to.equal(1);
     expect(pixel[0]).to.equal(0);
+
+    let callbackCount = 0;
+
+    const callback = vips.addFunction((_image, _ink, _x, _y, client) => {
+      expect(client).to.equal(42);
+      callbackCount++;
+    }, 'vppiip');
+
+    const im2 = vips.Image.black(100, 100).copy();
+    im2.drawLine(100, 0, 0, 100, 0, {
+      draw_point: callback,
+      client: 42,
+    });
+
+    expect(callbackCount).to.equal(101);
   });
 
   it('drawMask', () => {

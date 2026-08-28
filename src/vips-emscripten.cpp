@@ -1352,6 +1352,18 @@ EMSCRIPTEN_BINDINGS(my_module) {
                             return Image::ppmload_source(source);
                         }))
         .class_function("profileLoad", &Image::profile_load)
+        .class_function("qoiload", &Image::qoiload)
+        .class_function("qoiload", optional_override([](const std::string &filename) {
+                            return Image::qoiload(filename);
+                        }))
+        .class_function("qoiloadBuffer", &Image::qoiload_buffer)
+        .class_function("qoiloadBuffer", optional_override([](const std::string &buffer) {
+                            return Image::qoiload_buffer(buffer);
+                        }))
+        .class_function("qoiloadSource", &Image::qoiload_source)
+        .class_function("qoiloadSource", optional_override([](const Source &source) {
+                            return Image::qoiload_source(source);
+                        }))
         .class_function("radload", &Image::radload)
         .class_function("radload", optional_override([](const std::string &filename) {
                             return Image::radload(filename);
@@ -1590,6 +1602,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
                       image.draw_image(sub, x, y);
                   }))
         .function("drawLine", &Image::draw_line)
+        .function("drawLine", optional_override([](const Image &image, const std::vector<double> &ink, int x1, int y1, int x2, int y2) {
+                      image.draw_line(ink, x1, y1, x2, y2);
+                  }))
         .function("drawMask", &Image::draw_mask)
         .function("drawRect", &Image::draw_rect)
         .function("drawRect", optional_override([](const Image &image, const std::vector<double> &ink, int left, int top, int width, int height) {
@@ -1848,6 +1863,18 @@ EMSCRIPTEN_BINDINGS(my_module) {
                       return image.premultiply();
                   }))
         .function("prewitt", &Image::prewitt)
+        .function("qoisave", &Image::qoisave)
+        .function("qoisave", optional_override([](const Image &image, const std::string &filename) {
+                      image.qoisave(filename);
+                  }))
+        .function("qoisaveBuffer", &Image::qoisave_buffer)
+        .function("qoisaveBuffer", optional_override([](const Image &image) {
+                      return image.qoisave_buffer();
+                  }))
+        .function("qoisaveTarget", &Image::qoisave_target)
+        .function("qoisaveTarget", optional_override([](const Image &image, const Target &target) {
+                      image.qoisave_target(target);
+                  }))
         .function("quadratic", &Image::quadratic)
         .function("quadratic", optional_override([](const Image &image, emscripten::val coeff) {
                       return image.quadratic(coeff);

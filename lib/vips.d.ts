@@ -4250,6 +4250,85 @@ declare namespace Vips {
         static profileLoad(name: string): Uint8Array;
 
         /**
+         * Load qoi from file.
+         * @param filename Filename to load from.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static qoiload(filename: string, options?: {
+            /**
+             * Force open via memory.
+             */
+            memory?: boolean
+            /**
+             * Required access pattern for this file.
+             */
+            access?: Access | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
+            /**
+             * Don't use a cached result for this operation.
+             */
+            revalidate?: boolean
+            /**
+             * Flags for this file (output).
+             */
+            flags?: number | undefined
+        }): Image;
+
+        /**
+         * Load qoi from buffer.
+         * @param buffer Buffer to load from.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static qoiloadBuffer(buffer: Blob, options?: {
+            /**
+             * Force open via memory.
+             */
+            memory?: boolean
+            /**
+             * Required access pattern for this file.
+             */
+            access?: Access | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
+            /**
+             * Flags for this file (output).
+             */
+            flags?: number | undefined
+        }): Image;
+
+        /**
+         * Load qoi from source.
+         * @param source Source to load from.
+         * @param options Optional options.
+         * @return Output image.
+         */
+        static qoiloadSource(source: Source, options?: {
+            /**
+             * Force open via memory.
+             */
+            memory?: boolean
+            /**
+             * Required access pattern for this file.
+             */
+            access?: Access | Enum
+            /**
+             * Error level to fail on.
+             */
+            fail_on?: FailOn | Enum
+            /**
+             * Flags for this file (output).
+             */
+            flags?: number | undefined
+        }): Image;
+
+        /**
          * Load a radiance image from a file.
          * @param filename Filename to load from.
          * @param options Optional options.
@@ -5995,8 +6074,18 @@ declare namespace Vips {
          * @param y1 Start of draw_line.
          * @param x2 End of draw_line.
          * @param y2 End of draw_line.
+         * @param options Optional options.
          */
-        drawLine(ink: ArrayConstant, x1: number, y1: number, x2: number, y2: number): void;
+        drawLine(ink: ArrayConstant, x1: number, y1: number, x2: number, y2: number, options?: {
+            /**
+             * Custom point draw function.
+             */
+            draw_point?: number
+            /**
+             * Client data for the point draw function.
+             */
+            client?: number
+        }): void;
 
         /**
          * Draw a mask on an image.
@@ -8015,6 +8104,78 @@ declare namespace Vips {
          * @return Output image.
          */
         prewitt(): Image;
+
+        /**
+         * Save image to file as qoi.
+         * @param filename Filename to save to.
+         * @param options Optional options.
+         */
+        qoisave(filename: string, options?: {
+            /**
+             * Which metadata to retain.
+             */
+            keep?: ForeignKeep | Flag
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Set page height for multipage save.
+             */
+            page_height?: number
+            /**
+             * Filename of icc profile to embed.
+             */
+            profile?: string
+        }): void;
+
+        /**
+         * Save image to buffer as qoi.
+         * @param options Optional options.
+         * @return Buffer to save to.
+         */
+        qoisaveBuffer(options?: {
+            /**
+             * Which metadata to retain.
+             */
+            keep?: ForeignKeep | Flag
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Set page height for multipage save.
+             */
+            page_height?: number
+            /**
+             * Filename of icc profile to embed.
+             */
+            profile?: string
+        }): Uint8Array;
+
+        /**
+         * Save image to target as qoi.
+         * @param target Target to save to.
+         * @param options Optional options.
+         */
+        qoisaveTarget(target: Target, options?: {
+            /**
+             * Which metadata to retain.
+             */
+            keep?: ForeignKeep | Flag
+            /**
+             * Background value.
+             */
+            background?: ArrayConstant
+            /**
+             * Set page height for multipage save.
+             */
+            page_height?: number
+            /**
+             * Filename of icc profile to embed.
+             */
+            profile?: string
+        }): void;
 
         /**
          * Resample an image with a quadratic transform.

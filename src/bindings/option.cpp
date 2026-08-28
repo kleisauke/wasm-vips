@@ -50,6 +50,13 @@ Option::Pair::Pair(std::string name, const std::string &vstring)
     g_value_set_string(&value, vstring.c_str());
 }
 
+// input pointer
+Option::Pair::Pair(std::string name, void *vpointer)
+    : name(std::move(name)), value(G_VALUE_INIT), type(Type::INPUT) {
+    g_value_init(&value, G_TYPE_POINTER);
+    g_value_set_pointer(&value, vpointer);
+}
+
 // input vips object (image, source, target, etc.)
 Option::Pair::Pair(std::string name, const Object &vobject)
     : name(std::move(name)), value(G_VALUE_INIT), type(Type::INPUT) {
@@ -187,6 +194,8 @@ Option *Option::set(const std::string &name, GType type, emscripten::val val,
         set(name, to_flag(type, val));
     } else if (type == G_TYPE_STRING) {
         set(name, val.as<std::string>());
+    } else if (type == G_TYPE_POINTER) {
+        set(name, reinterpret_cast<void *>(val.as<int>()));
     } else if (type == VIPS_TYPE_IMAGE) {
         set(name, Image::imageize(val, match_image));
     } else if (type == VIPS_TYPE_INTERPOLATE) {

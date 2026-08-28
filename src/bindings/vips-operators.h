@@ -415,6 +415,30 @@ static Image ppmload_source(const Source &source, emscripten::val js_options = e
 static emscripten::val profile_load(const std::string &name);
 
 /**
+ * Load qoi from file.
+ * @param filename Filename to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image qoiload(const std::string &filename, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load qoi from buffer.
+ * @param buffer Buffer to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image qoiload_buffer(const std::string &buffer, emscripten::val js_options = emscripten::val::null());
+
+/**
+ * Load qoi from source.
+ * @param source Source to load from.
+ * @param js_options Optional options.
+ * @return Output image.
+ */
+static Image qoiload_source(const Source &source, emscripten::val js_options = emscripten::val::null());
+
+/**
  * Load a radiance image from a file.
  * @param filename Filename to load from.
  * @param js_options Optional options.
@@ -1109,8 +1133,9 @@ void draw_image(emscripten::val sub, int x, int y, emscripten::val js_options = 
  * @param y1 Start of draw_line.
  * @param x2 End of draw_line.
  * @param y2 End of draw_line.
+ * @param js_options Optional options.
  */
-void draw_line(const std::vector<double> &ink, int x1, int y1, int x2, int y2) const;
+void draw_line(const std::vector<double> &ink, int x1, int y1, int x2, int y2, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Draw a mask on an image.
@@ -1790,6 +1815,27 @@ Image profile(Image *rows) const;
  * @return Sums of columns.
  */
 Image project(Image *rows, emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image to file as qoi.
+ * @param filename Filename to save to.
+ * @param js_options Optional options.
+ */
+void qoisave(const std::string &filename, emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image to buffer as qoi.
+ * @param js_options Optional options.
+ * @return Buffer to save to.
+ */
+emscripten::val qoisave_buffer(emscripten::val js_options = emscripten::val::null()) const;
+
+/**
+ * Save image to target as qoi.
+ * @param target Target to save to.
+ * @param js_options Optional options.
+ */
+void qoisave_target(const Target &target, emscripten::val js_options = emscripten::val::null()) const;
 
 /**
  * Resample an image with a quadratic transform.

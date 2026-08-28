@@ -21,6 +21,7 @@ gtype_to_js_param = {
     GValue.guint64_type: 'number',
     GValue.gdouble_type: 'number',
     GValue.gstr_type: 'string',
+    GValue.gpointer_type: 'number',
     GValue.refstr_type: 'string',
     GValue.gflags_type: 'Flag',
     GValue.image_type: 'Image',

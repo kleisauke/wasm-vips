@@ -661,6 +661,47 @@ emscripten::val Image::profile_load(const std::string &name)
     return result;
 }
 
+Image Image::qoiload(const std::string &filename, emscripten::val js_options)
+{
+    Image out;
+
+    Image::call("qoiload", nullptr,
+                (new Option)
+                    ->set("out", &out)
+                    ->set("filename", filename),
+                js_options);
+
+    return out;
+}
+
+Image Image::qoiload_buffer(const std::string &buffer, emscripten::val js_options)
+{
+    Image out;
+
+    VipsBlob *blob = vips_blob_copy(buffer.c_str(), buffer.size());
+    Option *options = (new Option)
+                          ->set("out", &out)
+                          ->set("buffer", blob);
+    vips_area_unref(VIPS_AREA(blob));
+
+    Image::call("qoiload_buffer", nullptr, options, js_options);
+
+    return out;
+}
+
+Image Image::qoiload_source(const Source &source, emscripten::val js_options)
+{
+    Image out;
+
+    Image::call("qoiload_source", nullptr,
+                (new Option)
+                    ->set("out", &out)
+                    ->set("source", source),
+                js_options);
+
+    return out;
+}
+
 Image Image::radload(const std::string &filename, emscripten::val js_options)
 {
     Image out;
@@ -1872,7 +1913,7 @@ void Image::draw_image(emscripten::val sub, int x, int y, emscripten::val js_opt
                js_options);
 }
 
-void Image::draw_line(const std::vector<double> &ink, int x1, int y1, int x2, int y2) const
+void Image::draw_line(const std::vector<double> &ink, int x1, int y1, int x2, int y2, emscripten::val js_options) const
 {
     this->call("draw_line",
                (new Option)
@@ -1881,7 +1922,8 @@ void Image::draw_line(const std::vector<double> &ink, int x1, int y1, int x2, in
                    ->set("x1", x1)
                    ->set("y1", y1)
                    ->set("x2", x2)
-                   ->set("y2", y2));
+                   ->set("y2", y2),
+               js_options);
 }
 
 void Image::draw_mask(const std::vector<double> &ink, emscripten::val mask, int x, int y) const
@@ -3038,6 +3080,42 @@ Image Image::project(Image *rows, emscripten::val js_options) const
                js_options);
 
     return columns;
+}
+
+void Image::qoisave(const std::string &filename, emscripten::val js_options) const
+{
+    this->call("qoisave",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("filename", filename),
+               js_options);
+}
+
+emscripten::val Image::qoisave_buffer(emscripten::val js_options) const
+{
+    VipsBlob *buffer;
+
+    this->call("qoisave_buffer",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("buffer", &buffer),
+               js_options);
+
+    emscripten::val result = BlobVal.new_(emscripten::typed_memory_view(
+        VIPS_AREA(buffer)->length,
+        static_cast<uint8_t *>(VIPS_AREA(buffer)->data)));
+    vips_area_unref(VIPS_AREA(buffer));
+
+    return result;
+}
+
+void Image::qoisave_target(const Target &target, emscripten::val js_options) const
+{
+    this->call("qoisave_target",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("target", target),
+               js_options);
 }
 
 Image Image::quadratic(emscripten::val coeff, emscripten::val js_options) const

@@ -18,6 +18,7 @@ gtype_to_cpp = {
     GValue.gint_type: 'int',
     GValue.gdouble_type: 'double',
     GValue.gstr_type: 'const std::string &',
+    GValue.gpointer_type: 'void *',
     GValue.refstr_type: 'const std::string &',
     GValue.gflags_type: 'int',
     GValue.genum_type: 'emscripten::val',

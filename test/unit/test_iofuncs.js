@@ -46,6 +46,11 @@ describe('iofuncs', () => {
     const im2 = im.add(10);
 
     expect(im2.avg()).to.equal(10);
+
+    expect(() => {
+      const s = new Uint8Array(400);
+      const _im = vips.Image.newFromMemory(s, 20, 10, 1, 'ushort');
+    }).to.throw(/data type 'Uint8Array' is incompatible with band format 'ushort'/);
   });
 
   it('getFields', () => {
@@ -58,8 +63,7 @@ describe('iofuncs', () => {
   });
 
   it('writeToMemory', () => {
-    const s =
-        Float32Array.from({ length: 200 }, (_, i) => i * 0.1);
+    const s = Float32Array.from({ length: 200 }, (_, i) => i * 0.1);
     const im = vips.Image.newFromMemory(s, 20, 10, 1, 'float');
     const t = im.writeToMemory();
 

@@ -139,7 +139,7 @@ export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 VERSION_ZLIB_NG=2.3.3       # https://github.com/zlib-ng/zlib-ng
 VERSION_FFI=3.8.0           # https://github.com/libffi/libffi
 VERSION_GLIB=2.89.4         # https://gitlab.gnome.org/GNOME/glib
-VERSION_EXPAT=2.8.3         # https://github.com/libexpat/libexpat
+VERSION_EXPAT=2.8.4         # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.26         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.19.1        # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.4.0           # https://github.com/google/highway
@@ -153,8 +153,8 @@ VERSION_CGIF=0.5.3          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.2          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.48.1        # https://github.com/linebender/resvg
-VERSION_AOM=3.14.1          # https://aomedia.googlesource.com/aom
-VERSION_HEIF=1.23.2         # https://github.com/strukturag/libheif
+VERSION_AOM=3.15.0          # https://aomedia.googlesource.com/aom
+VERSION_HEIF=1.23.3         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.18.6         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
@@ -434,8 +434,9 @@ node --version
   sed -i '/^crate-type =/s/"cdylib", //' crates/c-api/Cargo.toml
   # https://github.com/linebender/resvg/issues/1112
   sed -i '/RESVG_ERROR_NOT_AN_UTF8_STR,/a RESVG_ERROR_SVGZ_UNSUPPORTED,' crates/c-api/resvg.h
+  # FIXME(kleisauke): Remove panic-unwind from build-std-features once https://github.com/rust-lang/cargo/issues/17404 is fixed
   cargo build --manifest-path=crates/c-api/Cargo.toml --release --target=wasm32-unknown-emscripten --locked \
-    -Zbuild-std=panic_abort,std -Zbuild-std-features=optimize_for_size -Ztrim-paths --no-default-features \
+    -Zbuild-std=std,panic_abort -Zbuild-std-features=optimize_for_size,panic-unwind -Ztrim-paths --no-default-features \
     --features=svgz,raster-images
   cp target/wasm32-unknown-emscripten/release/libresvg.a $TARGET/lib/
   cp crates/c-api/resvg.h $TARGET/include/
@@ -448,7 +449,7 @@ node --version
   cd $DEPS/aom
   emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET \
     -DAOM_TARGET_CPU=generic ${ENABLE_MODULES:+-DCONFIG_PIC=1} -DCONFIG_RUNTIME_CPU_DETECT=0 \
-    -DENABLE_DOCS=OFF -DENABLE_TESTS=OFF -DENABLE_EXAMPLES=OFF -DENABLE_TOOLS=OFF \
+    -DENABLE_DOCS=OFF -DENABLE_TESTS=OFF -DENABLE_APPS=OFF -DENABLE_EXAMPLES=OFF -DENABLE_TOOLS=OFF \
     -DCONFIG_WEBM_IO=0 -DCONFIG_AV1_HIGHBITDEPTH=1 \
     -DCONFIG_MULTITHREAD=0 # Disable threading support, we rely on libvips' thread pool.
   make -C _build install

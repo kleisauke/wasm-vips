@@ -490,6 +490,259 @@ describe('foreign', () => {
     });
   });
 
+  describe('gainmap geometry', () => {
+    const gainmapArrayMetadata = [
+      ['gainmap-max-content-boost', [4, 4, 4]],
+      ['gainmap-min-content-boost', [1, 1, 1]],
+      ['gainmap-gamma', [1, 1, 1]],
+      ['gainmap-offset-sdr', [0, 0, 0]],
+      ['gainmap-offset-hdr', [0, 0, 0]]
+    ];
+    const gainmapScalarMetadata = [
+      ['gainmap-hdr-capacity-min', 1],
+      ['gainmap-hdr-capacity-max', 4],
+      ['gainmap-use-base-cg', 1],
+      ['gainmap-scale-factor', 1]
+    ];
+
+    function dispose (image) {
+      if (!image) return;
+      image.preventAutoDelete?.();
+      image.delete();
+    }
+
+    function imageData (image) {
+      return {
+        width: image.width,
+        height: image.height,
+        bands: image.bands,
+        format: image.format,
+        pixels: Uint8Array.from(image.writeToMemory())
+      };
+    }
+
+    function mapData (image) {
+      const map = image.gainmap;
+      if (!map) return undefined;
+      try {
+        return imageData(map);
+      } finally {
+        dispose(map);
+      }
+    }
+
+    function permute (data, geometry) {
+      const rotated = geometry === 'rot90' || geometry === 'rot270';
+      const width = rotated ? data.height : data.width;
+      const height = rotated ? data.width : data.height;
+      const pixels = new Uint8Array(width * height * data.bands);
+      const coordinate = {
+        flipHor: (x, y) => [data.width - 1 - x, y],
+        flipVer: (x, y) => [x, data.height - 1 - y],
+        rot90: (x, y) => [y, data.height - 1 - x],
+        rot180: (x, y) => [data.width - 1 - x, data.height - 1 - y],
+        rot270: (x, y) => [data.width - 1 - y, x]
+      }[geometry] || ((x, y) => [x, y]);
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const [sourceX, sourceY] = coordinate(x, y);
+          const sourceOffset = (sourceY * data.width + sourceX) * data.bands;
+          const outputOffset = (y * width + x) * data.bands;
+          pixels.set(data.pixels.subarray(sourceOffset, sourceOffset + data.bands), outputOffset);
+        }
+      }
+      return { width, height, bands: data.bands, format: data.format, pixels };
+    }
+
+    function applyGeometry (data, operations) {
+      return operations.reduce((value, operation) => permute(value, operation), data);
+    }
+
+    function expectData (actual, expected, label) {
+      expect(actual, label).to.deep.equal(expected);
+    }
+
+    function expectGainmapMetadata (image, label) {
+      for (const [name, expected] of gainmapArrayMetadata) {
+        expect(Array.from(image.getArrayDouble(name)), `${label} ${name}`).to.deep.equal(expected);
+      }
+      for (const [name, expected] of gainmapScalarMetadata) {
+        expect(image.getDouble(name), `${label} ${name}`).to.equal(expected);
+      }
+    }
+
+    function fixture (mapWidth, mapHeight) {
+      const width = 7;
+      const height = 5;
+      const basePixels = Uint8Array.from({ length: width * height * 3 }, (_, index) => (index * 29 + 17) % 256);
+      const mapPixels = Uint8Array.from({ length: mapWidth * mapHeight }, (_, index) => (index * 47 + 11) % 256);
+      const image = vips.Image.newFromMemory(basePixels, width, height, 3, 'uchar');
+      const map = vips.Image.newFromMemory(mapPixels, mapWidth, mapHeight, 1, 'uchar');
+      image.setImage('gainmap', map);
+      dispose(map);
+      return { image, base: imageData(image), map: mapData(image) };
+    }
+
+    function setGainmapMetadata (image) {
+      for (const [name, value] of gainmapArrayMetadata) image.setArrayDouble(name, value);
+      for (const [name, value] of gainmapScalarMetadata) image.setDouble(name, value);
+    }
+
+    function encodedFixture () {
+      const source = fixture(7, 5);
+      try {
+        setGainmapMetadata(source.image);
+        return source.image.uhdrsaveBuffer({ Q: 100 });
+      } finally {
+        dispose(source.image);
+      }
+    }
+
+    function geometryOperations () {
+      return [
+        { name: 'flipHor', args: [], geometry: 'flipHor' },
+        { name: 'flip', args: ['horizontal'], geometry: 'flipHor' },
+        { name: 'flip', args: [vips.Direction.vertical], geometry: 'flipVer' },
+        { name: 'flipVer', args: [], geometry: 'flipVer' },
+        { name: 'rot90', args: [], geometry: 'rot90' },
+        { name: 'rot', args: ['d90'], geometry: 'rot90' },
+        { name: 'rot', args: [vips.Angle.d270], geometry: 'rot270' },
+        { name: 'rot180', args: [], geometry: 'rot180' },
+        { name: 'rot270', args: [], geometry: 'rot270' }
+      ];
+    }
+
+    function expectSource (source, label) {
+      expectData(imageData(source.image), source.base, `${label} base`);
+      expectData(mapData(source.image), source.map, `${label} map`);
+    }
+
+    function exercise (mapWidth, mapHeight) {
+      const source = fixture(mapWidth, mapHeight);
+      try {
+        for (const operation of geometryOperations()) {
+          const result = source.image[operation.name](...operation.args);
+          try {
+            expectData(imageData(result), permute(source.base, operation.geometry), operation.name);
+            expectData(mapData(result), permute(source.map, operation.geometry), `${operation.name} map`);
+            expectSource(source, `${operation.name} source`);
+          } finally {
+            dispose(result);
+          }
+        }
+
+        let first;
+        let second;
+        let chain;
+        try {
+          first = source.image.flipHor();
+          second = first.rot90();
+          chain = second.flipVer();
+          const chainGeometry = ['flipHor', 'rot90', 'flipVer'];
+          expectData(imageData(chain), applyGeometry(source.base, chainGeometry), 'chain');
+          expectData(mapData(chain), applyGeometry(source.map, chainGeometry), 'chain map');
+          expectSource(source, 'chain source');
+        } finally {
+          dispose(chain);
+          dispose(second);
+          dispose(first);
+        }
+      } finally {
+        dispose(source.image);
+      }
+    }
+
+    function reloadJpeg (image) {
+      return vips.Image.newFromBuffer(image.writeToBuffer('.jpg', { Q: 100 }));
+    }
+
+    function roundtrip (source, sourceMapData, operation) {
+      let manualMap;
+      let candidate;
+      let manual;
+      let candidateReload;
+      let referenceReload;
+      try {
+        const sourceMap = source.gainmap;
+        try {
+          manualMap = sourceMap[operation.name]();
+        } finally {
+          dispose(sourceMap);
+        }
+        const expectedMapData = permute(sourceMapData, operation.geometry);
+        expectData(imageData(manualMap), expectedMapData, `${operation.name} manual map`);
+
+        candidate = source[operation.name]();
+        expectData(mapData(candidate), expectedMapData, `${operation.name} in-memory map`);
+
+        manual = candidate.copy();
+        manual.setImage('gainmap', manualMap);
+        dispose(manualMap);
+        manualMap = undefined;
+
+        candidateReload = reloadJpeg(candidate);
+        referenceReload = reloadJpeg(manual);
+        expect(candidateReload.width, `${operation.name} width`).to.equal(candidate.width);
+        expect(candidateReload.height, `${operation.name} height`).to.equal(candidate.height);
+        expectGainmapMetadata(candidateReload, `${operation.name} reloaded`);
+        expectGainmapMetadata(referenceReload, `${operation.name} reference`);
+        const candidateMapData = mapData(candidateReload);
+        const referenceMapData = mapData(referenceReload);
+        expect(candidateMapData, `${operation.name} reloaded gain map`).to.not.equal(undefined);
+        expect(referenceMapData, `${operation.name} reference gain map`).to.not.equal(undefined);
+        expectData(candidateMapData, referenceMapData, `${operation.name} encoded map reference`);
+      } finally {
+        dispose(manualMap);
+        dispose(candidateReload);
+        dispose(referenceReload);
+        dispose(manual);
+        dispose(candidate);
+      }
+    }
+
+    it('coordinates flips, rotations, aliases and chains with delayed deletion', function () {
+      if (!Helpers.have('uhdrload')) return this.skip();
+      cleanup();
+      exercise(7, 5);
+      exercise(4, 3);
+      cleanup();
+      expect(vips.deletionQueue.length).to.equal(0);
+    });
+
+    it('coordinates geometry with delayed deletion disabled', function () {
+      if (!Helpers.have('uhdrload')) return this.skip();
+      vips.setAutoDeleteLater(false);
+      try {
+        exercise(7, 5);
+        exercise(4, 3);
+        expect(vips.deletionQueue.length).to.equal(0);
+      } finally {
+        vips.setAutoDeleteLater(true);
+        cleanup();
+      }
+    });
+
+    it('roundtrips ordinary geometry with an encoded gain map', function () {
+      if (!Helpers.have('uhdrload') || !Helpers.have('uhdrsave')) return this.skip();
+      cleanup();
+      const source = vips.Image.newFromBuffer(encodedFixture());
+      const operations = [
+        { name: 'flipHor', geometry: 'flipHor' },
+        { name: 'rot90', geometry: 'rot90' }
+      ];
+      try {
+        const sourceMapData = mapData(source);
+        expect(sourceMapData, 'encoded fixture gain map').to.not.equal(undefined);
+        expectGainmapMetadata(source, 'encoded fixture');
+        for (const operation of operations) roundtrip(source, sourceMapData, operation);
+      } finally {
+        dispose(source);
+        cleanup();
+        expect(vips.deletionQueue.length).to.equal(0);
+      }
+    });
+  });
+
   it('truncated', function () {
     // Needs JPEG support
     if (!Helpers.have('jpegload')) {

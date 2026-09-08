@@ -48,6 +48,55 @@ var LibraryVips = {
             return targetCustom.set.call(this, data => cb(Emval.toValue(data)));
           }
         });
+
+        // Preserve gain maps through exact geometry operations. The operation
+        // list is intentionally narrow: resize, crop, orientation and
+        // pixel-changing operations need separate sampling/policy decisions.
+        const gainmapGeometryOperations = [
+          'flip', 'flipHor', 'flipVer', 'rot', 'rot90', 'rot180', 'rot270'
+        ];
+        const rawGeometryOperations = new Map();
+        const releaseGeometryHandle = (image) => {
+          if (!image) return;
+          image['preventAutoDelete']();
+          image['delete']();
+        };
+
+        for (const name of gainmapGeometryOperations) {
+          const operation = Module['Image'].prototype[name];
+          rawGeometryOperations.set(name, operation);
+        }
+
+        for (const name of gainmapGeometryOperations) {
+          const raw = rawGeometryOperations.get(name);
+          const wrapped = function (...args) {
+            const sourceMap = this['gainmap'];
+            if (!sourceMap) return raw.apply(this, args);
+
+            let rawResult;
+            let transformedMap;
+            let result;
+            let returned = false;
+            try {
+              rawResult = raw.apply(this, args);
+              transformedMap = raw.apply(sourceMap, args);
+              result = rawResult['copy']();
+              result['setImage']('gainmap', transformedMap);
+              returned = true;
+              return result;
+            } finally {
+              if (!returned) releaseGeometryHandle(result);
+              releaseGeometryHandle(transformedMap);
+              releaseGeometryHandle(rawResult);
+              releaseGeometryHandle(sourceMap);
+            }
+          };
+          // Embind's overload dispatcher looks up the mutable prototype
+          // property. Copy its public dispatch properties onto the wrapper
+          // before replacing the prototype entry.
+          Object.assign(wrapped, raw);
+          Module['Image'].prototype[name] = wrapped;
+        }
       });
 
       // Add preventAutoDelete method to ClassHandle

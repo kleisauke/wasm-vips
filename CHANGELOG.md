@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.18.6, compiled with Emscripten v6.0.9.
 
+### Changed
+
+- Flip and right-angle rotation operations now transform an attached gain map automatically. Applications that
+  manually transform `result.gainmap` should remove that step to avoid transforming it twice.
+
 ### Added
 
 - Support for growable WebAssembly memory up to 2 GiB.

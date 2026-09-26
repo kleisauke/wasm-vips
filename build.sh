@@ -155,7 +155,7 @@ VERSION_TIFF=4.7.2          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.48.1        # https://github.com/linebender/resvg
 VERSION_AOM=3.15.0          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.23.5         # https://github.com/strukturag/libheif
-VERSION_VIPS=8.18.6         # https://github.com/libvips/libvips
+VERSION_VIPS=8.18.7         # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
 

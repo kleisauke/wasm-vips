@@ -23,8 +23,8 @@
   },
   "devDependencies": {
     "fflate": "^0.8.3",
-    "monaco-editor": "^0.56.0",
-    "vite": "^8.3.0",
+    "monaco-editor": "^0.57.0",
+    "vite": "^8.3.1",
     "vite-plugin-static-copy": "^4.1.1"
   }
 }

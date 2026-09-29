@@ -1094,13 +1094,16 @@ describe('foreign', () => {
 
     fileLoader('svgload', Helpers.svgGzFile, svgValid);
 
+    // this SVG file has pixel dimensions in the header, so DPI should not
+    // affect render size
     let im = vips.Image.newFromFile(Helpers.svgzFile);
-    let x = vips.Image.newFromFile(Helpers.svgzFile, { scale: 2 });
-    expect(Math.abs(im.width * 2 - x.width)).to.be.below(2);
-    expect(Math.abs(im.height * 2 - x.height)).to.be.below(2);
+    let x = vips.Image.newFromFile(Helpers.svgzFile, { dpi: 144 });
+    expect(im.width).to.equal(x.width);
+    expect(im.height).to.equal(x.height);
 
+    // but scale= should
     im = vips.Image.newFromFile(Helpers.svgzFile);
-    x = vips.Image.newFromFile(Helpers.svgzFile, { dpi: 144 });
+    x = vips.Image.newFromFile(Helpers.svgzFile, { scale: 2 });
     expect(Math.abs(im.width * 2 - x.width)).to.be.below(2);
     expect(Math.abs(im.height * 2 - x.height)).to.be.below(2);
 

@@ -4,9 +4,17 @@ All notable changes to wasm-vips will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v0.0.19] - TBD
+## [v0.0.20] - TBD
 
-Uses libvips v8.19.0, compiled with Emscripten v6.0.8.
+Uses libvips v8.19.0, compiled with Emscripten v6.0.10.
+
+### Changed
+
+- Update methods/enums for libvips 8.19.
+
+## [v0.0.19] - 2026-09-29
+
+Uses libvips v8.18.7, compiled with Emscripten v6.0.10.
 
 ### Added
 
@@ -18,10 +26,6 @@ Uses libvips v8.19.0, compiled with Emscripten v6.0.8.
 
 - Validate typed array format in `Image.newFromMemory()`.
   [#126](https://github.com/kleisauke/wasm-vips/issues/126)
-
-### Changed
-
-- Update methods/enums for libvips 8.19.
 
 ## [v0.0.18] - 2026-06-09
 
@@ -333,6 +337,7 @@ Uses libvips v8.10.0, compiled with Emscripten v2.0.0.
 
 - Initial release.
 
+[v0.0.20]: https://github.com/kleisauke/wasm-vips/compare/v0.0.19...v0.0.20
 [v0.0.19]: https://github.com/kleisauke/wasm-vips/compare/v0.0.18...v0.0.19
 [v0.0.18]: https://github.com/kleisauke/wasm-vips/compare/v0.0.17...v0.0.18
 [v0.0.17]: https://github.com/kleisauke/wasm-vips/compare/v0.0.16...v0.0.17

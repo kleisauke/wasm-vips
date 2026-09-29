@@ -12,6 +12,7 @@
       "!**/*.svg",
       "!build/preamble_vips.d.ts",
       "!lib/vips.d.ts",
+      "!playground/index.html",
       "!src/closure-externs/wasm-vips.js",
       "!src/modules-pre.js",
       "!src/vips-library.js",

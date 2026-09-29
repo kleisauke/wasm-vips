@@ -1,6 +1,6 @@
 {
   "name": "wasm-vips",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "libvips for the browser and Node.js, compiled to WebAssembly with Emscripten",
   "homepage": "https://github.com/kleisauke/wasm-vips",
   "bugs": {
@@ -56,7 +56,7 @@
     "bench:web": "serve -c test/bench/serve.json"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.10",
+    "@biomejs/biome": "^2.5.14",
     "serve": "^14.2.6"
   },
   "engines": {

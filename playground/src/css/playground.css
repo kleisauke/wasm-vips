@@ -1,3 +1,9 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -5,19 +11,16 @@ body {
     font-size: 13px;
 }
 
+#controls {
+    display: flex;
+}
+
 #controls > fieldset {
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    gap: 5px;
     margin-left: 15px;
     border: 1px solid #999;
-    vertical-align: top;
-}
-
-#module-enabler > input {
-    margin-right: 5px;
-}
-
-#module-enabler > label ~ input {
-    margin-left: 15px;
 }
 
 .playground-page h1,
@@ -41,10 +44,10 @@ body {
     display: flex;
 }
 
-.playground-page .typing-container, .playground-page .run-container {
+.playground-page .typing-container,
+.playground-page .run-container {
     flex: 1;
     flex-direction: column;
-    flex-basis: 50%;
     padding: 15px;
 }
 
@@ -54,19 +57,21 @@ body {
 
 .playground-page .tab-area {
     height: 20px;
-    box-sizing: border-box;
     border-bottom: 1px solid #999;
 }
 
-.playground-page .tab {
+.playground-page .tab,
+.playground-page .action {
     height: 20px;
     line-height: 20px;
-    box-sizing: border-box;
-    color: #999;
-    padding: 0 8px;
     border: 1px solid #999;
     border-bottom: 0;
     cursor: pointer;
+    padding: 0 8px;
+}
+
+.playground-page .tab {
+    color: #999;
     float: left;
 }
 
@@ -76,15 +81,7 @@ body {
 }
 
 .playground-page .action {
-    height: 20px;
-    line-height: 20px;
-    box-sizing: border-box;
-    color: black;
-    border: 1px solid #999;
-    border-bottom: 0;
-    cursor: pointer;
     float: right;
-    padding: 0 5px 0 5px;
     background: transparent;
 }
 
@@ -110,32 +107,32 @@ body {
 
 /* https://github.com/tholman/github-corners */
 .github-corner svg {
-    clip-path: polygon(0 0, 100% 0, 100% 100%)
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
 }
 
 .github-corner:hover .octo-arm {
-    animation: octocat-wave 560ms ease-in-out
+    animation: octocat-wave 560ms ease-in-out;
 }
 
 @keyframes octocat-wave {
     0%, 100% {
-        transform: rotate(0)
+        transform: rotate(0);
     }
     20%, 60% {
-        transform: rotate(-25deg)
+        transform: rotate(-25deg);
     }
     40%, 80% {
-        transform: rotate(10deg)
+        transform: rotate(10deg);
     }
 }
 
 @media (max-width: 500px) {
     .github-corner:hover .octo-arm {
-        animation: none
+        animation: none;
     }
 
     /* biome-ignore lint/style/noDescendingSpecificity: intentional override for mobile */
     .github-corner .octo-arm {
-        animation: octocat-wave 560ms ease-in-out
+        animation: octocat-wave 560ms ease-in-out;
     }
 }

@@ -127,30 +127,18 @@ if 'web' in get_option('environments')
         '--use-preload-plugins',
         '-sENVIRONMENT=web',
         '-sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency>6?navigator.hardwareConcurrency:6',
-        '-sMIN_CHROME_VERSION=95',
-        '-sMIN_FIREFOX_VERSION=100',
-        '-sMIN_SAFARI_VERSION=160400',
         '--pre-js=@0@'.format(source_dir / 'workaround-cors-pre.js'),
     ]
 
     executable('vips',
         dependencies: wasm_vips_dep,
-        link_args: [
-            main_link_args,
-            web_link_args,
-        ],
+        link_args: [main_link_args, web_link_args],
         install: true,
     )
 
     executable('vips-es6',
         dependencies: wasm_vips_dep,
-        link_args: [
-            main_link_args,
-            web_link_args,
-            '-sEXPORT_ES6',
-            # new Worker() supports ECMAScript module only starting from Firefox 114
-            '-sMIN_FIREFOX_VERSION=114',
-        ],
+        link_args: [main_link_args, web_link_args, '-sEXPORT_ES6'],
         install: true,
     )
 endif

@@ -16,24 +16,23 @@ https://github.com/kleisauke/wasm-vips/issues/1).
 
 ## Engine support
 
-An engine that supports [WebAssembly SIMD](https://caniuse.com/wasm-simd)
-and [WebAssembly Exception Handling](
-https://caniuse.com/wf-wasm-exception-handling). This is present on most
-major browser engines and is part of [Baseline 2023](
-https://web.dev/baseline/2023).
+An engine that supports [WebAssembly Exception Handling with exnref](
+https://caniuse.com/wf-wasm-exnref-exceptions). This is present on most
+major browser engines and is part of [Baseline 2025](
+https://web.dev/baseline/2025).
 
-For V8-based engines, at least version 9.5 is required, this corresponds
-to Chrome 95, Node.js 17.0.0 and Deno 1.16.0.
+For V8-based engines, at least version 13.7 is required, this corresponds
+to Chrome 137, Node.js 24.15.0 and Deno 2.3.2.
 
 For Spidermonkey-based engines, the JavaScript engine used in Mozilla Firefox
-and whose version numbers are aligned, at least version 100 is required.
+and whose version numbers are aligned, at least version 131 is required.
 
 For JavaScriptCore-based engines, the built-in JavaScript engine for WebKit,
-at least version 615.1.17 is required. This corresponds to Safari 16.4.
+at least version 621.1.2 is required. This corresponds to Safari 18.4.
 
 | ![Chrome](https://github.com/alrra/browser-logos/raw/main/src/chrome/chrome_32x32.png)<br>Chrome | ![Firefox](https://github.com/alrra/browser-logos/raw/main/src/firefox/firefox_32x32.png)<br>Firefox | ![Safari](https://github.com/alrra/browser-logos/raw/main/src/safari/safari_32x32.png)<br>Safari | ![Edge](https://github.com/alrra/browser-logos/raw/main/src/edge/edge_32x32.png)<br>Edge | ![Node.js](https://github.com/alrra/browser-logos/raw/main/src/node.js/node.js_32x32.png)<br>Node.js | ![Deno](https://github.com/alrra/browser-logos/raw/main/src/deno/deno_32x32.png)<br>Deno |
 |:---:|:---:|:---:|:---:|:---:|:---:|
-| :heavy_check_mark:<br>[version 95+](https://chromestatus.com/feature/4756734233018368) | :heavy_check_mark:<br>[version 100+](https://bugzil.la/1335652) | :heavy_check_mark:<br>[version 16.4+](https://webkit.org/blog/13966/webkit-features-in-safari-16-4/#javascript-and-webassembly) | :heavy_check_mark:<br>[version 95+](https://chromestatus.com/feature/4756734233018368) | :heavy_check_mark:<br>[version 17.0+](https://github.com/nodejs/node/pull/40178) | :heavy_check_mark:<br>[version 1.16+](https://github.com/denoland/deno/pull/12564) |
+| :heavy_check_mark:<br>[version 137+](https://issues.chromium.org/issues/42204334) | :heavy_check_mark:<br>[version 131+](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/131#webassembly) | :heavy_check_mark:<br>[version 18.4+](https://webkit.org/blog/16574/webkit-features-in-safari-18-4/#webassembly) | :heavy_check_mark:<br>[version 137+](https://issues.chromium.org/issues/42204334) | :heavy_check_mark:<br>[version 24.15+](https://github.com/nodejs/node/pull/62567) | :heavy_check_mark:<br>[version 2.3.2+](https://github.com/denoland/deno/pull/29166) |
 
 ## Installation
 
@@ -82,7 +81,6 @@ Or, if you prefer to use ES6 modules:
   const vips = await Vips();
 </script>
 ```
-<sup>This requires support for [ES6 modules in workers](https://caniuse.com/mdn-api_worker_worker_ecmascript_modules).</sup>
 
 ### Node.js
 
@@ -152,6 +150,4 @@ using convolve = multiply.conv(mask, {
 const outBuffer = convolve.writeToBuffer('.jpg');
 ```
 <sup>If not transpiling, this requires support for the [`using`](
-https://caniuse.com/mdn-javascript_statements_using) keyword. On Node.js,
-you can enable it with the `--js-explicit-resource-management` CLI flag.
-</sup>
+https://caniuse.com/mdn-javascript_statements_using) keyword.</sup>

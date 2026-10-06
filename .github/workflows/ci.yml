@@ -46,11 +46,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-26.04
-            nodejs_version: 22
+            nodejs_version: 24
           - os: macos-15
-            nodejs_version: 22
+            nodejs_version: 24
           - os: windows-2022
-            nodejs_version: 22
+            nodejs_version: 24
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7

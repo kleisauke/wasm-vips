@@ -27,9 +27,9 @@ ENVIRONMENT="web,node"
 WASM_FS=false
 
 # Emit instructions for the standardized Wasm EH proposal with exnref
-# (adopted on Oct 2023), disabled by default
+# (adopted on Oct 2023), enabled by default
 # https://github.com/WebAssembly/exception-handling/issues/280
-WASM_EXNREF=false
+WASM_EXNREF=true
 
 # Link-time optimizations (LTO), disabled by default
 # https://github.com/emscripten-core/emscripten/issues/10603
@@ -61,7 +61,7 @@ while [ $# -gt 0 ]; do
   case $1 in
     --enable-lto) LTO=true ;;
     --enable-wasm-fs) WASM_FS=true ;;
-    --enable-new-wasm-eh) WASM_EXNREF=true ;;
+    --enable-legacy-wasm-eh) WASM_EXNREF=false ;;
     --disable-uhdr) UHDR=false ;;
     --disable-jxl) JXL=false ;;
     --disable-avif) AVIF=false ;;

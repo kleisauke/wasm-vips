@@ -4,6 +4,16 @@ All notable changes to wasm-vips will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.0.20] - TBD
+
+Uses libvips v8.18.7, compiled with Emscripten v6.0.10.
+
+### Changed
+
+- Enable standardized Wasm EH with exnref feature by default.
+  [#125](https://github.com/kleisauke/wasm-vips/issues/125)
+- Drop support for Node.js 17, now requires Node.js >= 24.15.0.
+
 ## [v0.0.19] - 2026-09-29
 
 Uses libvips v8.18.7, compiled with Emscripten v6.0.10.
@@ -329,6 +339,7 @@ Uses libvips v8.10.0, compiled with Emscripten v2.0.0.
 
 - Initial release.
 
+[v0.0.20]: https://github.com/kleisauke/wasm-vips/compare/v0.0.19...v0.0.20
 [v0.0.19]: https://github.com/kleisauke/wasm-vips/compare/v0.0.18...v0.0.19
 [v0.0.18]: https://github.com/kleisauke/wasm-vips/compare/v0.0.17...v0.0.18
 [v0.0.17]: https://github.com/kleisauke/wasm-vips/compare/v0.0.16...v0.0.17

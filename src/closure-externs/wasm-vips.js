@@ -306,6 +306,7 @@ FS.createPath = function(parent, path, canRead, canWrite) {};
 FS.lookupPath = function (path, opts) {};
 
 /**
+ * Deprecated, use FS.lookupPath or FS.stat instead.
  * @param {string} path
  * @param {boolean} dontResolveLastLink
  */

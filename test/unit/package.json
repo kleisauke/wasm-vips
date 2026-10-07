@@ -19,8 +19,8 @@
     "test": "mocha -s 5000 -t 120000 *.js -r node-helper.js"
   },
   "devDependencies": {
-    "chai": "^6.2.2",
-    "mocha": "^12.0.2"
+    "chai": "^6.3.0",
+    "mocha": "^12.0.3"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"

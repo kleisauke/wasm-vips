@@ -21,7 +21,7 @@ jobs:
       - id: gen-cache-key
         run: |
           if [ "${{ inputs.force-rebuild }}" = true ]; then
-            key=$(date +%s)
+            key="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
           else
             key=${{ hashFiles('lib/**', 'src/**', 'build.sh', 'Dockerfile') }}
           fi
@@ -37,7 +37,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           docker build -t wasm-vips .
-          docker run --rm -v ${{ github.workspace }}:/src wasm-vips
+          docker run --rm -v $GITHUB_WORKSPACE:/src wasm-vips
   CI:
     needs: build
     runs-on: ${{ matrix.os }}

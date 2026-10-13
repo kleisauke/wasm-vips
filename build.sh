@@ -133,7 +133,8 @@ export PKG_CONFIG="pkg-config --static"
 
 # Ensure reproducible builds
 # https://reproducible-builds.org/docs/source-date-epoch/
-export SOURCE_DATE_EPOCH="$(git -c safe.directory=$SOURCE_DIR log -1 --pretty=%ct)"
+SOURCE_DATE_EPOCH="$(git -c safe.directory=$SOURCE_DIR log -1 --pretty=%ct)" && \
+  export SOURCE_DATE_EPOCH
 
 # Ensure Rust build path prefixes are removed from the resulting binaries
 # https://reproducible-builds.org/docs/build-path/

@@ -131,6 +131,10 @@ export MAKEFLAGS="-j$(nproc)"
 # Ensure we link against internal/private dependencies
 export PKG_CONFIG="pkg-config --static"
 
+# Ensure reproducible builds
+# https://reproducible-builds.org/docs/source-date-epoch/
+export SOURCE_DATE_EPOCH="$(git log -1 --pretty=%ct)"
+
 # Ensure Rust build path prefixes are removed from the resulting binaries
 # https://reproducible-builds.org/docs/build-path/
 export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"

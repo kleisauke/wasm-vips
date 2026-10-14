@@ -158,7 +158,7 @@ VERSION_CGIF=0.5.4          # https://github.com/dloebl/cgif
 VERSION_WEBP=1.6.0          # https://chromium.googlesource.com/webm/libwebp
 VERSION_TIFF=4.7.2          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.48.1        # https://github.com/linebender/resvg
-VERSION_AOM=3.15.1          # https://aomedia.googlesource.com/aom
+VERSION_AOM=3.15.2          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.23.6         # https://github.com/strukturag/libheif
 VERSION_VIPS=8.18.7         # https://github.com/libvips/libvips
 
@@ -441,7 +441,7 @@ node --version
   sed -i '/RESVG_ERROR_NOT_AN_UTF8_STR,/a RESVG_ERROR_SVGZ_UNSUPPORTED,' crates/c-api/resvg.h
   # FIXME(kleisauke): Remove panic-unwind from build-std-features once https://github.com/rust-lang/cargo/issues/17404 is fixed
   cargo build --manifest-path=crates/c-api/Cargo.toml --release --target=wasm32-unknown-emscripten --locked \
-    -Zbuild-std=std,panic_abort -Zbuild-std-features=optimize_for_size,panic-unwind -Ztrim-paths --no-default-features \
+    -Zbuild-std=std,panic_abort -Zbuild-std-features=optimize_for_size,panic-unwind --no-default-features \
     --features=svgz,raster-images
   cp target/wasm32-unknown-emscripten/release/libresvg.a $TARGET/lib/
   cp crates/c-api/resvg.h $TARGET/include/

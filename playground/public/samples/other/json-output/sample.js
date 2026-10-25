@@ -2,7 +2,7 @@
 // Image source: https://flickr.com/photos/jasonidzerda/3987784466
 const im = vips.Image.newFromFile('owl.jpg');
 
-document.getElementById('json').innerText = JSON.stringify({
+document.getElementById('json').textContent = JSON.stringify({
   loader: im.getString('vips-loader'), // The loader which was used to load the image
   width: im.width,
   height: im.height,

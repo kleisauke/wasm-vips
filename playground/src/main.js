@@ -196,7 +196,7 @@ function load () {
 
     const checkboxLabel = document.createElement('label');
     checkboxLabel.htmlFor = htmlId;
-    checkboxLabel.innerText = dynamicModule.name;
+    checkboxLabel.textContent = dynamicModule.name;
 
     checkbox.checked = enabledModules.has(dynamicModule.id);
     checkbox.addEventListener('change', (event) => {

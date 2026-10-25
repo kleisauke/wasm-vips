@@ -9,7 +9,7 @@ let minPos = {
 };
 const min = im.min(minPos);
 
-document.getElementById('min').innerText =
+document.getElementById('min').textContent =
     `image minimum: ${min} [${minPos.x}, ${minPos.y}]`;
 
 // Find image maximum
@@ -19,7 +19,7 @@ let maxPos = {
 };
 const max = im.max(maxPos);
 
-document.getElementById('max').innerText =
+document.getElementById('max').textContent =
     `image maximum: ${max} [${maxPos.x}, ${maxPos.y}]`;
 
 // The binding also defines a few extra useful utility functions, for e.g.

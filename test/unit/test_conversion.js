@@ -503,7 +503,7 @@ describe('conversion', () => {
   });
 
   it('gamma', () => {
-    let exponent = 2.4;
+    let exponent = 2.2;
 
     for (const fmt of Helpers.noncomplexFormats) {
       const mx = Helpers.maxValue[fmt];

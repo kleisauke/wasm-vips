@@ -188,7 +188,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
-    const gamma = im.gamma({ exponent: 2.2 });
+    const gamma = im.gamma();
     gamma.jpegsaveBuffer(defaultJpegSaveOptions);
     gamma.delete();
     im.delete();
@@ -212,7 +212,7 @@ const operationsSuite = new Benchmark.Suite('operations').add('wasm-vips-sharpen
     const im = vips.Image.thumbnailBuffer(inputJpgBuffer, width, {
       height
     });
-    const gamma = im.gamma({ exponent: 2.2 });
+    const gamma = im.gamma();
     const greyscale = gamma.colourspace(vips.Interpretation.b_w);
     greyscale.jpegsaveBuffer(defaultJpegSaveOptions);
     greyscale.delete();

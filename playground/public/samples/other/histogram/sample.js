@@ -14,7 +14,7 @@ const alpha1 = bandStats(hist, 254);
 
 // Metrics on how many pixels are opaque (no alpha),
 // translucent (some alpha), and transparent (100% alpha)
-document.getElementById('stats').innerText = JSON.stringify({
+document.getElementById('stats').textContent = JSON.stringify({
   opaque: alpha1,
   translucent: alpha0 - alpha1,
   transparent: total - alpha0

@@ -160,7 +160,7 @@ VERSION_TIFF=4.7.2          # https://gitlab.com/libtiff/libtiff
 VERSION_RESVG=0.49.0        # https://github.com/linebender/resvg
 VERSION_AOM=3.15.2          # https://aomedia.googlesource.com/aom
 VERSION_HEIF=1.23.6         # https://github.com/strukturag/libheif
-VERSION_VIPS=6776821        # https://github.com/libvips/libvips
+VERSION_VIPS=8.19.0-rc1     # https://github.com/libvips/libvips
 
 VERSION_EMSCRIPTEN="$(emcc -dumpversion)"
 
@@ -483,10 +483,10 @@ node --version
 [ -f "$TARGET/lib/pkgconfig/vips.pc" ] || (
   stage "Compiling vips"
   mkdir $DEPS/vips
-  curl -Ls https://github.com/libvips/libvips/archive/$VERSION_VIPS.tar.gz | tar xzC $DEPS/vips --strip-components=1
+  curl -Ls https://github.com/libvips/libvips/releases/download/v$VERSION_VIPS/vips-$VERSION_VIPS.tar.xz | tar xJC $DEPS/vips --strip-components=1
   cd $DEPS/vips
   # Emscripten specific patches
-  curl -Ls https://github.com/libvips/libvips/compare/$VERSION_VIPS...kleisauke:wasm-vips-8.19.patch | patch -p1
+  curl -Ls https://github.com/libvips/libvips/compare/v$VERSION_VIPS...kleisauke:wasm-vips-8.19.patch | patch -p1
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
     -Dexamples=false -Dman=false -Dpo=false -Dtests=false -Dtools=false -Dcplusplus=$LIBVIPS_CPP \
     -Dauto_features=enabled -Dintrospection=disabled ${DISABLE_MODULES:+-Dmodules=disabled} \

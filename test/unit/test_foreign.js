@@ -783,7 +783,13 @@ describe('foreign', () => {
     rgba.writeToFile(filename, { premultiply: true });
     let a = vips.Image.newFromFile(filename);
     a.setDeleteOnClose(true);
-    let b = rgba.premultiply().cast('uchar').unpremultiply().cast('uchar');
+    let b = rgba
+      .premultiply()
+      .rint()
+      .cast('uchar')
+      .unpremultiply()
+      .rint()
+      .cast('uchar');
     expect(a.equal(b).min()).to.equal(255);
 
     a = vips.Image.newFromBuffer(buf, { page: 2 });

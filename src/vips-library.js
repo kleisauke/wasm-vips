@@ -1,12 +1,4 @@
 var LibraryVips = {
-  $VIPS__deps: [
-    '$ENV',
-    '$ClassHandle',
-    '$Emval',
-    '$deletionQueue',
-    '$addOnPreRun',
-    '$addOnPostCtor',
-  ],
   $VIPS__postset: 'VIPS.init();',
   $VIPS: {
     init() {

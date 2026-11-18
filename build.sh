@@ -99,8 +99,7 @@ done
 export RUSTFLAGS="-Copt-level=z -Ctarget-feature=+atomics,+simd128 -Zdefault-visibility=hidden -Zlocation-detail=none -Zfmt-debug=none"
 
 # Common compiler flags
-# Default optimization level is for binary size (-Os)
-# Overridden to performance (-O3) for select dependencies that benefit
+# Optimize for binary size (-Os)
 COMMON_FLAGS="-Os -pthread -fwasm-exceptions"
 if [ "$WASM_EXNREF" = "true" ]; then
   COMMON_FLAGS+=" -sWASM_LEGACY_EXCEPTIONS=0"
@@ -222,9 +221,8 @@ node --version
   cd $DEPS/zlib-ng
   # SSE intrinsics needs to be checked for wasm32
   sed -i 's/BASEARCH_X86_FOUND/& OR BASEARCH_WASM32_FOUND/g' CMakeLists.txt
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=OFF \
-    -DBUILD_TESTING=OFF -DWITH_RUNTIME_CPU_DETECTION=OFF -DZLIB_COMPAT=ON \
-    -DCMAKE_C_FLAGS="$CFLAGS -O3"
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=OFF \
+    -DBUILD_TESTING=OFF -DWITH_RUNTIME_CPU_DETECTION=OFF -DZLIB_COMPAT=ON
   make -C _build install
 )
 
@@ -280,7 +278,7 @@ node --version
   curl -Ls https://github.com/mm2/Little-CMS/releases/download/lcms$VERSION_LCMS2/lcms2-$VERSION_LCMS2.tar.gz | tar xzC $DEPS/lcms2 --strip-components=1
   cd $DEPS/lcms2
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
-    -Dtests=disabled -Djpeg=disabled -Dtiff=disabled -Dc_args="$CFLAGS -O3"
+    -Dtests=disabled -Djpeg=disabled -Dtiff=disabled
   meson install -C _build --tag devel
 )
 
@@ -292,8 +290,7 @@ node --version
   # Remove build path from binary
   sed -i 's/HWY_ASSERT/HWY_DASSERT/' hwy/aligned_allocator.cc
   meson setup _build --prefix=$TARGET $MESON_ARGS --buildtype=release \
-    -Dcontrib=disabled -Dexamples=disabled -Dtests=disabled -Dtest_standalone=true \
-    -Dc_args="$CFLAGS -O3" -Dcpp_args="$CXXFLAGS -O3"
+    -Dcontrib=disabled -Dexamples=disabled -Dtests=disabled -Dtest_standalone=true
   meson install -C _build --tag devel
 )
 
@@ -320,9 +317,9 @@ node --version
   sed -i 's/JCP_MAX_COMPRESSION/JCP_FASTEST/' jcapimin.c
   # Compile without SIMD support, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/250
   # Disable environment variables usage, see: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/600
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=OFF \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET -DBUILD_SHARED_LIBS=OFF \
     -DWITH_JPEG8=ON -DWITH_SIMD=OFF -DWITH_TURBOJPEG=OFF -DPNG_SUPPORTED=OFF \
-    -DCMAKE_C_FLAGS="$CFLAGS -O3 -DNO_GETENV -DNO_PUTENV"
+    -DCMAKE_C_FLAGS="$CFLAGS -DNO_GETENV -DNO_PUTENV"
   make -C _build install
 )
 
@@ -345,11 +342,10 @@ node --version
   mkdir $DEPS/jxl
   curl -Ls https://github.com/libjxl/libjxl/archive/refs/tags/v$VERSION_JXL.tar.gz | tar xzC $DEPS/jxl --strip-components=1
   cd $DEPS/jxl
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
     -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DJPEGXL_ENABLE_TOOLS=OFF -DJPEGXL_ENABLE_EXAMPLES=OFF \
     -DJPEGXL_ENABLE_SJPEG=OFF -DJPEGXL_ENABLE_SKCMS=OFF -DJPEGXL_BUNDLE_LIBPNG=OFF \
     -DJPEGXL_FORCE_SYSTEM_BROTLI=ON -DJPEGXL_FORCE_SYSTEM_LCMS2=ON -DJPEGXL_FORCE_SYSTEM_HWY=ON \
-    -DCMAKE_C_FLAGS="$CFLAGS -O3" -DCMAKE_CXX_FLAGS="$CXXFLAGS -O3" \
     -DJPEGXL_ENABLE_TRANSCODE_JPEG=OFF # libvips always decodes to pixels
   make -C _build install
   if [ -n "$ENABLE_MODULES" ]; then
@@ -370,7 +366,7 @@ node --version
   cd $DEPS/png
   emconfigure ./configure --host=$CHOST --prefix=$TARGET --enable-static --disable-shared --disable-dependency-tracking \
     --disable-tests --disable-tools --without-binconfigs --disable-unversioned-libpng-config \
-    --enable-intel-sse CPPFLAGS="-O3 -msse4.1"
+    --enable-intel-sse CPPFLAGS="-msse4.1"
   make install dist_man_MANS=
 )
 
@@ -380,7 +376,7 @@ node --version
   curl -Ls https://github.com/lovell/libimagequant/archive/refs/tags/v$VERSION_IMAGEQUANT.tar.gz | tar xzC $DEPS/imagequant --strip-components=1
   cd $DEPS/imagequant
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
-    -Dc_args="$CFLAGS -O3 -msse -DUSE_SSE=1"
+    -Dc_args="$CFLAGS -msse -DUSE_SSE=1"
   meson install -C _build --tag devel
 )
 
@@ -390,7 +386,7 @@ node --version
   curl -Ls https://github.com/dloebl/cgif/archive/refs/tags/v$VERSION_CGIF.tar.gz | tar xzC $DEPS/cgif --strip-components=1
   cd $DEPS/cgif
   meson setup _build --prefix=$TARGET $MESON_ARGS --default-library=static --buildtype=release \
-    -Dexamples=false -Dtests=false -Dc_args="$CFLAGS -O3"
+    -Dexamples=false -Dtests=false
   meson install -C _build --tag devel
 )
 
@@ -465,10 +461,10 @@ node --version
   cd $DEPS/heif
   # Build with -DCMAKE_FIND_ROOT_PATH=$TARGET to ensure AOM can be found (see https://github.com/emscripten-core/emscripten/issues/10078)
   # Compile with -D__EMSCRIPTEN_STANDALONE_WASM__ to disable the Embind implementation.
-  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
+  emcmake cmake -B_build -S. -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX=$TARGET -DCMAKE_FIND_ROOT_PATH=$TARGET \
     -DBUILD_SHARED_LIBS=OFF -DENABLE_PLUGIN_LOADING=OFF -DBUILD_TESTING=OFF -DWITH_EXAMPLES=OFF \
     -DWITH_LIBDE265=OFF -DWITH_X265=OFF -DWITH_X264=OFF -DWITH_OpenH264_DECODER=OFF \
-    -DCMAKE_C_FLAGS="$CFLAGS -O3" -DCMAKE_CXX_FLAGS="$CXXFLAGS -O3 -D__EMSCRIPTEN_STANDALONE_WASM__" \
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS -D__EMSCRIPTEN_STANDALONE_WASM__" \
     -DENABLE_MULTITHREADING_SUPPORT=OFF # Disable threading support, we rely on libvips' thread pool.
   make -C _build install
   if [ -n "$ENABLE_MODULES" ]; then

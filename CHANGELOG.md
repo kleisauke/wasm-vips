@@ -6,11 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.0.20] - TBD
 
-Uses libvips v8.19.0-rc1, compiled with Emscripten v7.0.0.
+Uses libvips v8.19.0-rc2, compiled with Emscripten v7.0.0.
 
 ### Changed
 
-- Reduce size of binaries by ~8%.
+- Reduce size of binaries by ~7%.
   [#133](https://github.com/kleisauke/wasm-vips/pull/133)
 - Update methods/enums for libvips 8.19.
 

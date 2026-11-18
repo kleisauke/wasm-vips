@@ -788,6 +788,12 @@ Image Oklab2XYZ() const;
 Image Oklch2Oklab() const;
 
 /**
+ * Transform uhdr to scrgb.
+ * @return Output image.
+ */
+Image UHDR2scRGB() const;
+
+/**
  * Transform xyz to cmyk.
  * @return Output image.
  */
@@ -2200,12 +2206,6 @@ Image tilecache(emscripten::val js_options = emscripten::val::null()) const;
  * @return Output image.
  */
 Image transpose3d(emscripten::val js_options = emscripten::val::null()) const;
-
-/**
- * Transform uhdr to scrgb.
- * @return Output image.
- */
-Image uhdr2scRGB() const;
 
 /**
  * Save image in ultrahdr format.

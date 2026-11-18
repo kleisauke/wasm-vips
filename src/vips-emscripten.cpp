@@ -1495,6 +1495,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("Oklab2Oklch", &Image::Oklab2Oklch)
         .function("Oklab2XYZ", &Image::Oklab2XYZ)
         .function("Oklch2Oklab", &Image::Oklch2Oklab)
+        .function("UHDR2scRGB", &Image::UHDR2scRGB)
         .function("XYZ2CMYK", &Image::XYZ2CMYK)
         .function("XYZ2Lab", &Image::XYZ2Lab)
         .function("XYZ2Lab", optional_override([](const Image &image) {
@@ -2017,7 +2018,6 @@ EMSCRIPTEN_BINDINGS(my_module) {
         .function("transpose3d", optional_override([](const Image &image) {
                       return image.transpose3d();
                   }))
-        .function("uhdr2scRGB", &Image::uhdr2scRGB)
         .function("uhdrsave", &Image::uhdrsave)
         .function("uhdrsave", optional_override([](const Image &image, const std::string &filename) {
                       image.uhdrsave(filename);

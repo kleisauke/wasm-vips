@@ -2750,6 +2750,9 @@ declare namespace Vips {
         mks2021 = 7 // 'mks2021'
     }
 
+    /**
+     * The set of supported CICP primaries. See [method@Image.CICP2scRGB].
+     */
     enum CICPColourPrimaries {
         bt709 = 1, // 'bt709'
         unspecified = 2, // 'unspecified'
@@ -2760,15 +2763,30 @@ declare namespace Vips {
         generic_film = 8, // 'generic-film'
         bt2020 = 9, // 'bt2020'
         smpte428 = 10, // 'smpte428'
+        /**
+         * Also knows as dci-p3
+         */
         dci_p3 = 11, // 'dci-p3'
+        /**
+         * Also known as display-p3
+         */
         display_p3 = 12, // 'display-p3'
         ebu3213 = 22 // 'ebu3213'
     }
 
+    /**
+     * The set of supported CICP transfer functions. See [method@Image.CICP2scRGB].
+     */
     enum CICPTransferCharacteristics {
         bt709 = 1, // 'bt709'
         unspecified = 2, // 'unspecified'
+        /**
+         * Gamma 2.2
+         */
         bt470m = 4, // 'bt470m'
+        /**
+         * Gamma 2.8
+         */
         bt470bg = 5, // 'bt470bg'
         bt601 = 6, // 'bt601'
         smpte240 = 7, // 'smpte240'
@@ -2780,12 +2798,24 @@ declare namespace Vips {
         srgb = 13, // 'srgb'
         bt2020_10bit = 14, // 'bt2020-10bit'
         bt2020_12bit = 15, // 'bt2020-12bit'
+        /**
+         * Also known as ITU-R BT.2100 PQ
+         */
         pq = 16, // 'pq'
         smpte428 = 17, // 'smpte428'
+        /**
+         * Also known as ITU-R BT.2100 HLG
+         */
         hlg = 18 // 'hlg'
     }
 
+    /**
+     * The CICP matrix coefficients. Only the identity matrix is supported.
+     */
     enum CICPMatrixCoefficients {
+        /**
+         * Identity
+         */
         rgb = 0, // 'rgb'
         bt709 = 1, // 'bt709'
         unspecified = 2, // 'unspecified'
@@ -2804,8 +2834,8 @@ declare namespace Vips {
 
     /**
      * Pick a Profile Connection Space for [method@Image.icc_import] and
-     * [method@Image.icc_export]. LAB is usually best, XYZ can be more convenient in some
-     * cases.
+     * [method@Image.icc_export]. LAB is usually best, XYZ can be more
+     * convenient in some cases.
      */
     enum PCS {
         /**
@@ -5424,6 +5454,12 @@ declare namespace Vips {
          * @return Output image.
          */
         Oklch2Oklab(): Image;
+
+        /**
+         * Transform uhdr to scrgb.
+         * @return Output image.
+         */
+        UHDR2scRGB(): Image;
 
         /**
          * Transform xyz to cmyk.
@@ -9251,12 +9287,6 @@ declare namespace Vips {
              */
             page_height?: number
         }): Image;
-
-        /**
-         * Transform uhdr to scrgb.
-         * @return Output image.
-         */
-        uhdr2scRGB(): Image;
 
         /**
          * Save image in ultrahdr format.

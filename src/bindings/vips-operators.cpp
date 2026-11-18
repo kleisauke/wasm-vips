@@ -1312,6 +1312,18 @@ Image Image::Oklch2Oklab() const
     return out;
 }
 
+Image Image::UHDR2scRGB() const
+{
+    Image out;
+
+    this->call("UHDR2scRGB",
+               (new Option)
+                   ->set("in", *this)
+                   ->set("out", &out));
+
+    return out;
+}
+
 Image Image::XYZ2CMYK() const
 {
     Image out;
@@ -3769,18 +3781,6 @@ Image Image::transpose3d(emscripten::val js_options) const
                    ->set("in", *this)
                    ->set("out", &out),
                js_options);
-
-    return out;
-}
-
-Image Image::uhdr2scRGB() const
-{
-    Image out;
-
-    this->call("uhdr2scRGB",
-               (new Option)
-                   ->set("in", *this)
-                   ->set("out", &out));
 
     return out;
 }

@@ -435,10 +435,10 @@ describe('foreign', () => {
 
       const im = vips.Image.uhdrload(Helpers.uhdrFile);
       const data = im.uhdrsaveBuffer();
-      const imHdr2 = vips.Image.uhdrloadBuffer(data).uhdr2scRGB();
-      const imHdr = vips.Image.uhdrload(Helpers.uhdrFile).uhdr2scRGB();
+      const imHdr2 = vips.Image.uhdrloadBuffer(data).UHDR2scRGB();
+      const imHdr = vips.Image.uhdrload(Helpers.uhdrFile).UHDR2scRGB();
 
-      expect(imHdr2.subtract(imHdr).abs().avg()).to.be.below(0.05);
+      expect(imHdr2.subtract(imHdr).abs().avg()).to.be.below(0.02);
     });
 
     it('roundtrip HDR', function () {
@@ -447,11 +447,11 @@ describe('foreign', () => {
         return this.skip();
       }
 
-      const im = vips.Image.uhdrload(Helpers.uhdrFile).uhdr2scRGB();
+      const im = vips.Image.uhdrload(Helpers.uhdrFile).UHDR2scRGB();
       const data = im.uhdrsaveBuffer();
-      const im2 = vips.Image.uhdrloadBuffer(data).uhdr2scRGB();
+      const im2 = vips.Image.uhdrloadBuffer(data).UHDR2scRGB();
 
-      expect(im2.subtract(im).abs().avg()).to.be.below(0.1);
+      expect(im2.subtract(im).abs().avg()).to.be.below(0.05);
     });
 
     it('thumbnail', function () {

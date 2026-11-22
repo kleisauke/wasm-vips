@@ -12,6 +12,9 @@ Uses libvips v8.18.7, compiled with Emscripten v7.0.1.
 
 - Reduce size of binaries by ~8%.
   [#133](https://github.com/kleisauke/wasm-vips/pull/133)
+- Allow using `'wasm-unsafe-eval'` instead of `'unsafe-eval'` in the
+  CSP by building with `-sDYNAMIC_EXECUTION=0`.
+  [#134](https://github.com/kleisauke/wasm-vips/issues/134)
 
 ## [v0.0.19] - 2026-09-29
 

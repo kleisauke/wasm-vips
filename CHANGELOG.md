@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Uses libvips v8.18.7, compiled with Emscripten v7.0.1.
 
+### Fixed
+
+- Fix excessive memory growth in mimalloc (regression in 0.0.19).
+  [#135](https://github.com/kleisauke/wasm-vips/issues/135)
+
 ### Changed
 
 - Reduce size of binaries by ~8%.

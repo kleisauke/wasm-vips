@@ -1475,6 +1475,9 @@ EMSCRIPTEN_BINDINGS(my_module) {
                             return Image::zone(width, height);
                         }))
         .function("CICP2scRGB", &Image::CICP2scRGB)
+        .function("CICP2scRGB", optional_override([](const Image &image) {
+                      return image.CICP2scRGB();
+                  }))
         .function("CMC2LCh", &Image::CMC2LCh)
         .function("CMYK2XYZ", &Image::CMYK2XYZ)
         .function("HSV2sRGB", &Image::HSV2sRGB)

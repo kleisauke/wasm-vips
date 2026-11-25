@@ -5343,9 +5343,23 @@ declare namespace Vips {
 
         /**
          * Transform cicp to scrgb.
+         * @param options Optional options.
          * @return Output image.
          */
-        CICP2scRGB(): Image;
+        CICP2scRGB(options?: {
+            /**
+             * Cicp colour primaries (h.273 table 2).
+             */
+            colour_primaries?: CICPColourPrimaries | Enum
+            /**
+             * Cicp transfer characteristics (h.273 table 3).
+             */
+            transfer_characteristics?: CICPTransferCharacteristics | Enum
+            /**
+             * Cicp matrix coefficients (h.273 table 4).
+             */
+            matrix_coefficients?: CICPMatrixCoefficients | Enum
+        }): Image;
 
         /**
          * Transform lch to cmc.
@@ -6555,6 +6569,10 @@ declare namespace Vips {
              */
             tune?: string
             /**
+             * Encoder-specific options.
+             */
+            options?: string
+            /**
              * Which metadata to retain.
              */
             keep?: ForeignKeep | Flag
@@ -6611,6 +6629,10 @@ declare namespace Vips {
              */
             tune?: string
             /**
+             * Encoder-specific options.
+             */
+            options?: string
+            /**
              * Which metadata to retain.
              */
             keep?: ForeignKeep | Flag
@@ -6666,6 +6688,10 @@ declare namespace Vips {
              * Tuning parameters.
              */
             tune?: string
+            /**
+             * Encoder-specific options.
+             */
+            options?: string
             /**
              * Which metadata to retain.
              */

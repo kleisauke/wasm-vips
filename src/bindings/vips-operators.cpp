@@ -1095,14 +1095,15 @@ Image Image::zone(int width, int height, emscripten::val js_options)
     return out;
 }
 
-Image Image::CICP2scRGB() const
+Image Image::CICP2scRGB(emscripten::val js_options) const
 {
     Image out;
 
     this->call("CICP2scRGB",
                (new Option)
                    ->set("in", *this)
-                   ->set("out", &out));
+                   ->set("out", &out),
+               js_options);
 
     return out;
 }

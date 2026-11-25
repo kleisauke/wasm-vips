@@ -3,8 +3,6 @@
 #include <stdexcept>
 #include <string>
 
-#include <vips/vips.h>
-
 namespace vips {
 
 /**
@@ -16,10 +14,7 @@ class Error : public std::runtime_error {
     /**
      * Construct an error with a specified error message.
      */
-    explicit Error(const std::string &what)
-        : std::runtime_error(what + "\n" + vips_error_buffer()) {
-        vips_error_clear();
-    }
+    explicit Error(const std::string &what);
 };
 
 }  // namespace vips

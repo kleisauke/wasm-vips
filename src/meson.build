@@ -1,5 +1,6 @@
 wasm_vips_sources = files(
     'bindings/connection.cpp',
+    'bindings/error.cpp',
     'bindings/image.cpp',
     'bindings/interpolate.cpp',
     'bindings/option.cpp',
@@ -79,6 +80,7 @@ endif
 #         on other POSIX platforms.
 main_link_args = [
     '-sAUTOLOAD_DYLIBS=0',
+    '-sDYNAMIC_EXECUTION=0',
     '-sABORTING_MALLOC=0',
     # Note: mimalloc is incompatible with AddressSanitizer
     '-sMALLOC=mimalloc',

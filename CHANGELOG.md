@@ -6,12 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.0.20] - TBD
 
-Uses libvips v8.19.0-rc2, compiled with Emscripten v7.0.0.
+Uses libvips v8.19.0-rc2, compiled with Emscripten v7.0.1.
+
+### Fixed
+
+- Fix excessive memory growth in mimalloc (regression in 0.0.19).
+  [#135](https://github.com/kleisauke/wasm-vips/issues/135)
 
 ### Changed
 
 - Reduce size of binaries by ~7%.
   [#133](https://github.com/kleisauke/wasm-vips/pull/133)
+- Allow using `'wasm-unsafe-eval'` instead of `'unsafe-eval'` in the
+  CSP by building with `-sDYNAMIC_EXECUTION=0`.
+  [#134](https://github.com/kleisauke/wasm-vips/issues/134)
 - Update methods/enums for libvips 8.19.
 
 ## [v0.0.19] - 2026-09-29

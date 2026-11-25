@@ -1,5 +1,6 @@
 wasm_vips_sources = files(
     'bindings/connection.cpp',
+    'bindings/error.cpp',
     'bindings/image.cpp',
     'bindings/interpolate.cpp',
     'bindings/option.cpp',

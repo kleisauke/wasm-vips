@@ -18,9 +18,13 @@ jobs:
       cache-key: ${{ steps.gen-cache-key.outputs.key }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - id: gen-cache-key
+        env:
+          FORCE_REBUILD: ${{ inputs.force-rebuild }}
         run: |
-          if [ "${{ inputs.force-rebuild }}" = true ]; then
+          if [ "$FORCE_REBUILD" = true ]; then
             key="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
           else
             key=${{ hashFiles('lib/**', 'src/**', 'build.sh', 'Dockerfile') }}
@@ -53,9 +57,12 @@ jobs:
             nodejs_version: 22
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.nodejs_version }}
+          package-manager-cache: false
       - uses: actions/cache/restore@v6
         with:
           path: |
@@ -81,9 +88,12 @@ jobs:
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: 24
+          package-manager-cache: false
       - uses: actions/cache/restore@v6
         with:
           path: |
@@ -93,7 +103,7 @@ jobs:
           fail-on-cache-miss: true
       - name: Publish
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           npm publish
-          gh release create ${{ github.ref_name }}
+          gh release create $GITHUB_REF_NAME

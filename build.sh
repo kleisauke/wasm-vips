@@ -141,9 +141,9 @@ export CARGO_PROFILE_RELEASE_TRIM_PATHS="all"
 
 # Dependency version numbers
 VERSION_ZLIB_NG=2.3.3       # https://github.com/zlib-ng/zlib-ng
-VERSION_FFI=3.8.1           # https://github.com/libffi/libffi
-VERSION_GLIB=2.90.1         # https://gitlab.gnome.org/GNOME/glib
-VERSION_EXPAT=2.10.0        # https://github.com/libexpat/libexpat
+VERSION_FFI=3.8.2           # https://github.com/libffi/libffi
+VERSION_GLIB=2.91.0         # https://gitlab.gnome.org/GNOME/glib
+VERSION_EXPAT=2.11.0        # https://github.com/libexpat/libexpat
 VERSION_EXIF=0.6.26         # https://github.com/libexif/libexif
 VERSION_LCMS2=2.20          # https://github.com/mm2/Little-CMS
 VERSION_HWY=1.4.0           # https://github.com/google/highway

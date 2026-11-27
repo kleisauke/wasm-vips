@@ -56,7 +56,7 @@
     "bench:web": "serve -c test/bench/serve.json"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.6.8",
+    "@biomejs/biome": "^2.6.9",
     "serve": "^14.2.8"
   },
   "engines": {
